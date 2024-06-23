@@ -22,6 +22,7 @@ abstract class YabaLocalization {
     abstract val BOOKMARK_COUNT_PREFIX_TEXT: String
     abstract val SEARCH_FOR_ICON_TEXT: String
     abstract val THEME_AND_LANGUAGE_OPTIONS: String
+    abstract val CONTENT_OPTIONS: String
     abstract val THEME_SELECTION_OPTION: String
     abstract val THEME_SELECTION_OPTION_SYSTEM: String
     abstract val THEME_SELECTION_OPTION_DARK: String
@@ -29,6 +30,10 @@ abstract class YabaLocalization {
     abstract val LANGUAGE_SELECTION_OPTION: String
     abstract val LANGUAGE_SELECTION_EN: String
     abstract val LANGUAGE_SELECTION_TR: String
+    abstract val CONTENT_VIEW_SELECTION_OPTION: String
+    abstract val CONTENT_VIEW_SELECTION_GRID: String
+    abstract val CONTENT_VIEW_SELECTION_LIST: String
+    abstract val SETTINGS_PRIVATE_CONTENT_PASSWORD_TITLE: String
     abstract val NO_CONTENT_HOME_LABEL: String
     abstract val NO_CONTENT_HOME_MESSAGE: String
     abstract val NO_FOLDERS_HOME_LABEL: String

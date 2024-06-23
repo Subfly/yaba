@@ -16,12 +16,15 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import core.components.layout.YabaNoContentLayout
 import core.components.layout.YabaScaffold
+import core.settings.contentview.ContentViewStyleStateProvider
 import core.settings.localization.LocalizationStateProvider
+import core.util.selections.ContentViewSelection
 import state.creation.CreateOrEditContentStateMachineProvider
 import state.home.HomeState
 import view.mobile.home.components.HomeAppBar
 import view.mobile.home.components.HomeFAB
 import view.mobile.home.components.HomeScreenGridContent
+import view.mobile.home.components.HomeScreenListContent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,6 +36,7 @@ fun HomeScreen(
     onClickSettings: () -> Unit,
 ) {
     val createOrEditContentStateMachine = CreateOrEditContentStateMachineProvider.current
+    val contentStyleState = ContentViewStyleStateProvider.current
     val localizationProvider = LocalizationStateProvider.current
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
@@ -80,13 +84,26 @@ fun HomeScreen(
                 iconDescription = localizationProvider.accessibility.NO_CONTENT_HOME_ICON_DESCRIPTION,
             )
         } else {
-            HomeScreenGridContent(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddings)
-                    .padding(horizontal = 16.dp),
-                state = state,
-            )
+            when (contentStyleState.currentStyle) {
+                ContentViewSelection.GRID -> {
+                    HomeScreenGridContent(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddings)
+                            .padding(horizontal = 16.dp),
+                        state = state,
+                    )
+                }
+                ContentViewSelection.LIST -> {
+                    HomeScreenListContent(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddings)
+                            .padding(horizontal = 16.dp),
+                        state = state,
+                    )
+                }
+            }
         }
     }
 }

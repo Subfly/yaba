@@ -7,6 +7,10 @@ class EnglishAccessibility : YabaAccessibility() {
         get() = "Make search"
     override val SHOW_MORE_ICON_DESCRIPTION: String
         get() = "Show more options"
+    override val OPEN_CONTENT_DESCRIPTION: String
+        get() = "Open content"
+    override val OPEN_OPTIONS_DESCRIPTION: String
+        get() = "Show and change options"
     override val SYNC_ICON_DESCRIPTION: String
         get() = "Sync bookmarked content"
     override val SETTINGS_ICON_DESCRIPTION: String
@@ -27,6 +31,8 @@ class EnglishAccessibility : YabaAccessibility() {
         get() = "Grid view"
     override val LIST_VIEW_ICON_DESCRIPTION: String
         get() = "List view"
+    override val PRIVATE_CONTENT_LOCK_ICON_DESCRIPTION: String
+        get() = "Locked content"
     override val RETURN_TO_HOME_ICON_DESCRIPTION: String
         get() = "Return to home screen"
     override val CLEAR_SEARCH_FIELD_ICON_DESCRIPTION: String

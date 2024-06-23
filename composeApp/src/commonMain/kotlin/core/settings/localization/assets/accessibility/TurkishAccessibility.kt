@@ -7,6 +7,10 @@ class TurkishAccessibility : YabaAccessibility() {
         get() = "Arama yapın"
     override val SHOW_MORE_ICON_DESCRIPTION: String
         get() = "Daha fazla seçenek göster"
+    override val OPEN_CONTENT_DESCRIPTION: String
+        get() = "İçeriği aç"
+    override val OPEN_OPTIONS_DESCRIPTION: String
+        get() = "Seçenekleri aç ve değiştir"
     override val SYNC_ICON_DESCRIPTION: String
         get() = "Kayıtları eşitle"
     override val SETTINGS_ICON_DESCRIPTION: String
@@ -27,6 +31,8 @@ class TurkishAccessibility : YabaAccessibility() {
         get() = "Izgara görünümü"
     override val LIST_VIEW_ICON_DESCRIPTION: String
         get() = "Liste görünümü"
+    override val PRIVATE_CONTENT_LOCK_ICON_DESCRIPTION: String
+        get() = "Şifreli içerik"
     override val RETURN_TO_HOME_ICON_DESCRIPTION: String
         get() = "Ana sayfaya geri dön"
     override val CLEAR_SEARCH_FIELD_ICON_DESCRIPTION: String

@@ -43,6 +43,8 @@ class EnglishLocalization : YabaLocalization() {
         get() = "Search for Icon"
     override val THEME_AND_LANGUAGE_OPTIONS: String
         get() = "Theme and Language Options"
+    override val CONTENT_OPTIONS: String
+        get() = "Content Options"
     override val THEME_SELECTION_OPTION: String
         get() = "Theme Selection"
     override val THEME_SELECTION_OPTION_SYSTEM: String
@@ -57,6 +59,14 @@ class EnglishLocalization : YabaLocalization() {
         get() = "English"
     override val LANGUAGE_SELECTION_TR: String
         get() = "Turkish"
+    override val CONTENT_VIEW_SELECTION_OPTION: String
+        get() = "Content View Style"
+    override val CONTENT_VIEW_SELECTION_GRID: String
+        get() = "Grid"
+    override val CONTENT_VIEW_SELECTION_LIST: String
+        get() = "List"
+    override val SETTINGS_PRIVATE_CONTENT_PASSWORD_TITLE: String
+        get() = "Private Content Password"
     override val NO_CONTENT_HOME_LABEL: String
         get() = "No Content Found"
     override val NO_CONTENT_HOME_MESSAGE: String

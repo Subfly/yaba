@@ -22,8 +22,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import core.components.button.YabaRadioButton
 import core.components.layout.YabaModalSheet
+import core.settings.contentview.ContentViewStyleStateProvider
 import core.settings.localization.LocalizationStateProvider
 import core.settings.theme.ThemeStateProvider
+import core.util.selections.ContentViewSelection
 import core.util.selections.LanguageSelection
 import core.util.selections.ThemeSelection
 
@@ -35,6 +37,7 @@ internal fun SettingsOptionsSheet(
     modifier: Modifier = Modifier,
     onClickLanguage: (LanguageSelection) -> Unit,
     onClickTheme: (ThemeSelection) -> Unit,
+    onClickStyle: (ContentViewSelection) -> Unit,
     onDismissRequest: () -> Unit,
 ) {
     YabaModalSheet(
@@ -49,6 +52,9 @@ internal fun SettingsOptionsSheet(
 
             SettingsSheetType.THEME -> ThemeSelectionComponent(
                 onClickTheme = onClickTheme,
+            )
+            SettingsSheetType.CONTENT_VIEW_STYLE -> ContentViewSelectionComponent(
+                onClickStyle = onClickStyle,
             )
             SettingsSheetType.NONE -> Box(modifier = Modifier)
         }
@@ -128,6 +134,47 @@ private fun ThemeSelectionComponent(
                 YabaRadioButton(
                     selected = themeState.currentSelectedTheme == selection,
                     onClick = { onClickTheme.invoke(selection) }
+                )
+                Text(selection.getUIText(localizationProvider.localization))
+            }
+        }
+        Spacer(modifier = Modifier.size(16.dp))
+    }
+}
+
+@Composable
+private fun ContentViewSelectionComponent(
+    modifier: Modifier = Modifier,
+    onClickStyle: (ContentViewSelection) -> Unit,
+) {
+    val contentViewState = ContentViewStyleStateProvider.current
+    val localizationProvider = LocalizationStateProvider.current
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(32.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalAlignment = Alignment.Start,
+    ) {
+        Text(
+            modifier = Modifier.padding(bottom = 32.dp),
+            text = localizationProvider.localization.CONTENT_VIEW_SELECTION_OPTION,
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.SemiBold,
+        )
+        ContentViewSelection.entries.forEach { selection ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(shape = RoundedCornerShape(8.dp))
+                    .clickable { onClickStyle.invoke(selection) },
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                YabaRadioButton(
+                    selected = contentViewState.currentStyle == selection,
+                    onClick = { onClickStyle.invoke(selection) }
                 )
                 Text(selection.getUIText(localizationProvider.localization))
             }

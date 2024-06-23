@@ -1,6 +1,7 @@
 package view.mobile.settings
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -19,11 +20,13 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import core.components.layout.YabaScaffold
 import core.constants.GeneralConstants
+import core.settings.contentview.ContentViewStyleManagerProvider
 import core.settings.localization.LocalizationManagerProvider
 import core.settings.theme.ThemeManagerProvider
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import view.mobile.settings.components.SettingsAppBar
+import view.mobile.settings.components.SettingsContentSettingsComponent
 import view.mobile.settings.components.SettingsThemeAndLanguageSelectionComponent
 import view.mobile.settings.components.sheet.SettingsOptionsSheet
 import view.mobile.settings.components.sheet.SettingsSheetType
@@ -38,6 +41,7 @@ fun SettingsScreen(
 
     val themeManager = ThemeManagerProvider.current
     val localizationManager = LocalizationManagerProvider.current
+    val contentViewStyleManager = ContentViewStyleManagerProvider.current
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
@@ -64,6 +68,7 @@ fun SettingsScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
                 item {
                     SettingsThemeAndLanguageSelectionComponent(
@@ -83,17 +88,35 @@ fun SettingsScreen(
                         }
                     )
                 }
+                item {
+                    SettingsContentSettingsComponent(
+                        onClickChangeContentViewStyle = {
+                            scope.launch {
+                                currentSheetType = SettingsSheetType.CONTENT_VIEW_STYLE
+                                delay(GeneralConstants.MAGIC_THREE_FRAME_SKIP_DURATION)
+                                shouldShowOptionsSheet = true
+                            }
+                        }
+                    )
+                }
             }
 
             if (shouldShowOptionsSheet) {
                 SettingsOptionsSheet(
                     type = currentSheetType,
                     sheetState = optionsSheetState,
+                    onDismissRequest = {
+                        scope.launch {
+                            shouldShowOptionsSheet = false
+                            delay(150)
+                            currentSheetType = SettingsSheetType.NONE
+                        }
+                    },
                     onClickLanguage = {
                         scope.launch {
                             localizationManager?.onNewLanguageSelected(it)
                             shouldShowOptionsSheet = false
-                            delay(300)
+                            delay(150)
                             currentSheetType = SettingsSheetType.NONE
                         }
                     },
@@ -104,17 +127,18 @@ fun SettingsScreen(
                                 isSystemInDark = isSystemInDarkTheme,
                             )
                             shouldShowOptionsSheet = false
-                            delay(300)
+                            delay(150)
                             currentSheetType = SettingsSheetType.NONE
                         }
                     },
-                    onDismissRequest = {
+                    onClickStyle = {
                         scope.launch {
+                            contentViewStyleManager?.onNewStyleSelected(newStyle = it)
                             shouldShowOptionsSheet = false
-                            delay(300)
+                            delay(150)
                             currentSheetType = SettingsSheetType.NONE
                         }
-                    },
+                    }
                 )
             }
         }

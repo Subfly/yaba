@@ -8,7 +8,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.twotone.Translate
+import androidx.compose.material.icons.twotone.ChevronRight
+import androidx.compose.material.icons.twotone.Lock
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -20,16 +21,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import core.components.layout.YabaCard
+import core.settings.contentview.ContentViewStyleStateProvider
 import core.settings.localization.LocalizationStateProvider
-import core.settings.theme.ThemeStateProvider
 
 @Composable
-internal fun SettingsThemeAndLanguageSelectionComponent(
+fun SettingsContentSettingsComponent(
     modifier: Modifier = Modifier,
-    onClickChangeLanguage: () -> Unit,
-    onClickChangeTheme: () -> Unit,
+    onClickChangeContentViewStyle: () -> Unit,
 ) {
-    val themeState = ThemeStateProvider.current
+    val currentViewStyleState = ContentViewStyleStateProvider.current
     val localizationProvider = LocalizationStateProvider.current
 
     Column(
@@ -38,7 +38,7 @@ internal fun SettingsThemeAndLanguageSelectionComponent(
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Text(
-            text = localizationProvider.localization.THEME_AND_LANGUAGE_OPTIONS,
+            text = localizationProvider.localization.CONTENT_OPTIONS,
             style = MaterialTheme.typography.labelLarge,
             fontWeight = FontWeight.Medium,
         )
@@ -57,7 +57,7 @@ internal fun SettingsThemeAndLanguageSelectionComponent(
                         .fillMaxWidth()
                         .padding(8.dp)
                         .clip(shape = RoundedCornerShape(8.dp))
-                        .clickable(onClick = onClickChangeTheme)
+                        .clickable(onClick = onClickChangeContentViewStyle)
                         .padding(vertical = 16.dp)
                         .padding(bottom = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
@@ -68,18 +68,18 @@ internal fun SettingsThemeAndLanguageSelectionComponent(
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         Icon(
-                            imageVector = themeState.currentSelectedTheme.getUIIcon(),
-                            contentDescription = themeState.currentSelectedTheme.getDescription(
+                            imageVector = currentViewStyleState.currentStyle.icon,
+                            contentDescription = currentViewStyleState.currentStyle.getDescription(
                                 accessibility = localizationProvider.accessibility,
                             ),
                         )
                         Text(
-                            text = localizationProvider.localization.THEME_SELECTION_OPTION,
+                            text = localizationProvider.localization.CONTENT_VIEW_SELECTION_OPTION,
                             fontWeight = FontWeight.SemiBold,
                         )
                     }
                     Text(
-                        text = themeState.currentSelectedTheme.getUIText(
+                        text = currentViewStyleState.currentStyle.getUIText(
                             localization = localizationProvider.localization,
                         )
                     )
@@ -94,7 +94,7 @@ internal fun SettingsThemeAndLanguageSelectionComponent(
                         .fillMaxWidth()
                         .padding(8.dp)
                         .clip(shape = RoundedCornerShape(8.dp))
-                        .clickable(onClick = onClickChangeLanguage)
+                        .clickable(onClick = { /* TODO: ADD FUNCTIONALITY */})
                         .padding(vertical = 16.dp)
                         .padding(top = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
@@ -105,24 +105,19 @@ internal fun SettingsThemeAndLanguageSelectionComponent(
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.TwoTone.Translate,
-                            contentDescription = localizationProvider.accessibility.SETTINGS_LANGUAGE_ICON_DESCRIPTION,
+                            imageVector = Icons.TwoTone.Lock,
+                            contentDescription = localizationProvider.accessibility.PRIVATE_CONTENT_LOCK_ICON_DESCRIPTION,
                             // TODO: ADD TINT
                         )
                         Text(
-                            text = localizationProvider.localization.LANGUAGE_SELECTION_OPTION,
+                            text = localizationProvider.localization.SETTINGS_PRIVATE_CONTENT_PASSWORD_TITLE,
                             fontWeight = FontWeight.SemiBold,
                         )
                     }
-                    Text(
-                        /**
-                         * For the one who read this, this is the next
-                         * level programming that surprisingly has no
-                         * cycling dependency.
-                         */
-                        text = localizationProvider.currentLocal.getUIText(
-                            localization = localizationProvider.localization
-                        )
+                    Icon(
+                        imageVector = Icons.TwoTone.ChevronRight,
+                        contentDescription = localizationProvider.accessibility.OPEN_OPTIONS_DESCRIPTION,
+                        // TODO: ADD TINT
                     )
                 }
             }

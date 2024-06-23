@@ -1,6 +1,7 @@
 package core.components.contentView.list
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,7 +11,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.twotone.ChevronRight
 import androidx.compose.material.icons.twotone.Delete
 import androidx.compose.material.icons.twotone.Edit
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -113,40 +116,51 @@ fun YabaFolderListTile(
                     .fillMaxWidth()
                     .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Start,
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(56.dp)
-                        .background(
-                            brush = Brush.linearGradient(
-                                colors = listOf(
-                                    firstColor ?: ColorSelection.PRIMARY.color,
-                                    secondColor ?: ColorSelection.SECONDARY.color,
-                                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(56.dp)
+                            .background(
+                                brush = Brush.linearGradient(
+                                    colors = listOf(
+                                        firstColor ?: ColorSelection.PRIMARY.color,
+                                        secondColor ?: ColorSelection.SECONDARY.color,
+                                    )
+                                ),
+                                shape = CircleShape,
                             ),
-                            shape = CircleShape,
-                        ),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(
-                        imageVector = icon ?: YabaIcons.FOLDER.icon,
-                        contentDescription = iconDescription,
-                        modifier = Modifier.size(28.dp),
-                        tint = themeState.colors.creamyWhite,
-                    )
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            imageVector = icon ?: YabaIcons.FOLDER.icon,
+                            contentDescription = iconDescription,
+                            modifier = Modifier.size(28.dp),
+                            tint = themeState.colors.creamyWhite,
+                        )
+                    }
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(2.dp),
+                        horizontalAlignment = Alignment.Start,
+                    ) {
+                        Text(
+                            text = folderName,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                        Text(text = bookmarkCountText)
+                    }
                 }
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(2.dp),
-                    horizontalAlignment = Alignment.Start,
-                ) {
-                    Text(
-                        text = folderName,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
-                    )
-                    Text(text = bookmarkCountText)
-                }
+                Icon(
+                    modifier = Modifier.clickable(onClick = onClickFolder),
+                    imageVector = Icons.TwoTone.ChevronRight,
+                    contentDescription = localizationProvider.accessibility.OPEN_CONTENT_DESCRIPTION,
+                    tint = themeState.colors.onBackground,
+                )
             }
         }
     }
@@ -167,7 +181,10 @@ private fun BackgroundContent(dismissBoxState: SwipeToDismissBoxState) {
     Row(
         modifier = Modifier
             .fillMaxSize()
-            .background(color)
+            .background(
+                color = color,
+                shape = RoundedCornerShape(8.dp)
+            )
             .padding(
                 horizontal = 12.dp,
                 vertical = 8.dp,

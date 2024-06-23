@@ -43,6 +43,8 @@ class TurkishLocalization : YabaLocalization() {
         get() = "İkon Arayın"
     override val THEME_AND_LANGUAGE_OPTIONS: String
         get() = "Tema ve Dil Seçenekleri"
+    override val CONTENT_OPTIONS: String
+        get() = "İçerik Ayarları"
     override val THEME_SELECTION_OPTION: String
         get() = "Tema Seçimi"
     override val THEME_SELECTION_OPTION_SYSTEM: String
@@ -57,6 +59,14 @@ class TurkishLocalization : YabaLocalization() {
         get() = "İngilizce"
     override val LANGUAGE_SELECTION_TR: String
         get() = "Türkçe"
+    override val CONTENT_VIEW_SELECTION_OPTION: String
+        get() = "İçerik Görünümü"
+    override val CONTENT_VIEW_SELECTION_GRID: String
+        get() = "Izgara"
+    override val CONTENT_VIEW_SELECTION_LIST: String
+        get() = "Liste"
+    override val SETTINGS_PRIVATE_CONTENT_PASSWORD_TITLE: String
+        get() = "Gizli İçerik Şifresi"
     override val NO_CONTENT_HOME_LABEL: String
         get() = "Burası Boş"
     override val NO_CONTENT_HOME_MESSAGE: String

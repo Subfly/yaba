@@ -4,10 +4,11 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
-import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.material.icons.Icons
@@ -22,28 +23,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import core.components.button.YabaTag
 import core.components.contentView.grid.YabaFolderGridItem
+import core.components.contentView.list.YabaFolderListTile
 import core.components.layout.YabaNoContentLayout
 import core.settings.localization.LocalizationStateProvider
 import state.home.HomeState
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalFoundationApi::class)
 @Composable
-fun HomeScreenGridContent(
+fun HomeScreenListContent(
     state: HomeState,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     val localizationProvider = LocalizationStateProvider.current
 
     var shouldExtendFolders by remember { mutableStateOf(true) }
     var shouldExtendTags by remember { mutableStateOf(true) }
 
-    LazyVerticalStaggeredGrid(
+    LazyColumn(
         modifier = modifier,
-        columns = StaggeredGridCells.Fixed(2),
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-        verticalItemSpacing = 16.dp,
     ) {
-        item(span = StaggeredGridItemSpan.FullLine) {
+        item {
             HomeTitle(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -55,9 +54,7 @@ fun HomeScreenGridContent(
         }
         if (shouldExtendTags) {
             if (state.tags.isEmpty()) {
-                item(
-                    span = StaggeredGridItemSpan.FullLine,
-                ) {
+                item {
                     YabaNoContentLayout(
                         label = localizationProvider.localization.NO_TAGS_HOME_LABEL,
                         message = localizationProvider.localization.NO_TAGS_HOME_MESSAGE,
@@ -67,11 +64,9 @@ fun HomeScreenGridContent(
                     )
                 }
             } else {
-                item(
-                    span = StaggeredGridItemSpan.FullLine,
-                ) {
+                item {
                     FlowRow(
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
                     ) {
                         state.tags.forEach { tag ->
                             YabaTag(
@@ -91,7 +86,7 @@ fun HomeScreenGridContent(
                 }
             }
         }
-        item(span = StaggeredGridItemSpan.FullLine) {
+        item {
             HomeTitle(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -104,9 +99,7 @@ fun HomeScreenGridContent(
         }
         if (shouldExtendFolders) {
             if (state.folders.isEmpty()) {
-                item(
-                    span = StaggeredGridItemSpan.FullLine,
-                ) {
+                item {
                     YabaNoContentLayout(
                         label = localizationProvider.localization.NO_FOLDERS_HOME_LABEL,
                         message = localizationProvider.localization.NO_FOLDERS_HOME_MESSAGE,
@@ -117,10 +110,10 @@ fun HomeScreenGridContent(
                 }
             } else {
                 items(
-                    items = state.folders,
-                    key = { it.id },
+                    state.folders,
+                    key = { it.id }
                 ) { folder ->
-                    YabaFolderGridItem(
+                    YabaFolderListTile(
                         modifier = Modifier.animateItemPlacement(),
                         folderName = folder.name,
                         bookmarkCount = 0, // TODO: GET COUNT
@@ -128,6 +121,12 @@ fun HomeScreenGridContent(
                         iconDescription = folder.icon?.key,
                         firstColor = folder.firstColor?.color,
                         secondColor = folder.secondColor?.color,
+                        onDeleteSwipe = {
+                            // TODO: ADD DELETE FOLDER FUNCTIONALITY
+                        },
+                        onEditSwipe = {
+                            // TODO: ADD EDIT FOLDER FUNCTIONALITY
+                        },
                         onClickFolder = {
                             // TODO: NAVIGATE TO FOLDER DETAIL
                         }
