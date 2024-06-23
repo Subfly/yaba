@@ -1,0 +1,9 @@
+CREATE TABLE BookmarkTagCrossEntity (
+    bookmark_cross_id INTEGER NOT NULL,
+    tag_cross_id INTEGER NOT NULL,
+    FOREIGN KEY(bookmark_cross_id) REFERENCES BookmarkEntity(bookmark_id),
+    FOREIGN KEY(tag_cross_id) REFERENCES TagEntity(tag_id)
+);
+
+CREATE INDEX bookmark_tag_cross_entity_bookmark_id ON BookmarkTagCrossEntity(bookmark_cross_id);
+CREATE INDEX bookmark_tag_cross_entity_tag_id ON BookmarkTagCrossEntity(tag_cross_id);

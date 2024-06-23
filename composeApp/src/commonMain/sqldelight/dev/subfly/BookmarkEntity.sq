@@ -1,0 +1,11 @@
+CREATE TABLE BookmarkEntity (
+    bookmark_id INTEGER PRIMARY KEY NOT NULL,
+    title TEXT NOT NULL,
+    date_added INTEGER NOT NULL,
+    url TEXT,
+    description TEXT,
+    private INTEGER,
+    unfurl_data TEXT
+);
+
+CREATE INDEX bookmark_entity_bookmark_id ON BookmarkEntity(bookmark_id);

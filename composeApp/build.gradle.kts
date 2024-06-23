@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.sqldelight)
 }
 
 kotlin {
@@ -31,7 +32,8 @@ kotlin {
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
-            isStatic = true
+            isStatic = false
+            linkerOpts.add("-lsqlite3")
         }
     }
 
@@ -43,11 +45,17 @@ kotlin {
             implementation(libs.androidx.activity.compose)
             implementation(libs.koin.android)
             implementation(libs.koin.android.compose)
+            implementation(libs.sqldelight.android)
+        }
+
+        iosMain.dependencies {
+            implementation(libs.sqldelight.native)
         }
         
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlin.dispatchers.swing)
+            implementation(libs.sqldelight.jvm)
         }
 
         commonMain.dependencies {
@@ -136,6 +144,14 @@ compose.desktop {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "dev.subfly"
             packageVersion = "1.0.0"
+        }
+    }
+}
+
+sqldelight {
+    databases {
+        create("YabaDatabase") {
+            packageName.set("dev.subfly")
         }
     }
 }

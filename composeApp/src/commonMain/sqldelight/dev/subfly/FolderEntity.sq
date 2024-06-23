@@ -1,0 +1,9 @@
+CREATE TABLE FolderEntity (
+    folder_id INTEGER PRIMARY KEY NOT NULL,
+    name TEXT NOT NULL,
+    icon_name TEXT,
+    first_color TEXT,
+    second_color TEXT
+);
+
+CREATE INDEX folder_entity_folder_id ON FolderEntity(folder_id);
