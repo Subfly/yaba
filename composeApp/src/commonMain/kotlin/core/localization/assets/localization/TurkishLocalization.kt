@@ -61,4 +61,12 @@ class TurkishLocalization : YabaLocalization() {
         get() = "Burası Boş"
     override val NO_CONTENT_HOME_MESSAGE: String
         get() = "Hemen 'Ekle' butonunu kullanarak ilk kaydını oluşturabilirsin"
+    override val NO_FOLDERS_HOME_LABEL: String
+        get() = "Hiç Dosya Yok"
+    override val NO_FOLDERS_HOME_MESSAGE: String
+        get() = "Hemen 'Ekle' butonunu kullanarak ilk dosyanı oluşturabilirsin"
+    override val NO_TAGS_HOME_LABEL: String
+        get() = "Hiç Etiket Yok"
+    override val NO_TAGS_HOME_MESSAGE: String
+        get() = "Hemen 'Ekle' butonunu kullanarak ilk etiketini oluşturabilirsin"
 }

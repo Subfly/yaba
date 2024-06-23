@@ -23,4 +23,6 @@ abstract class YabaAccessibility {
     abstract val SETTINGS_LIGHT_THEME_ICON_DESCRIPTION: String
     abstract val SETTINGS_LANGUAGE_ICON_DESCRIPTION: String
     abstract val NO_CONTENT_HOME_ICON_DESCRIPTION: String
+    abstract val NO_FOLDER_HOME_ICON_DESCRIPTION: String
+    abstract val NO_TAG_HOME_ICON_DESCRIPTION: String
 }

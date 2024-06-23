@@ -61,4 +61,12 @@ class EnglishLocalization : YabaLocalization() {
         get() = "No Content Found"
     override val NO_CONTENT_HOME_MESSAGE: String
         get() = "You can use the 'Add' button to create content"
+    override val NO_FOLDERS_HOME_LABEL: String
+        get() = "No Folders Found"
+    override val NO_FOLDERS_HOME_MESSAGE: String
+        get() = "You can use the 'Add' button to create a Folder"
+    override val NO_TAGS_HOME_LABEL: String
+        get() = "No Tags Found"
+    override val NO_TAGS_HOME_MESSAGE: String
+        get() = "You can use the 'Add' button to create a Tag"
 }

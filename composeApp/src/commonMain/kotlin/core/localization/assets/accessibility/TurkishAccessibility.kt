@@ -45,4 +45,8 @@ class TurkishAccessibility : YabaAccessibility() {
         get() = "Dil seçimi"
     override val NO_CONTENT_HOME_ICON_DESCRIPTION: String
         get() = "Kayıt, dosya veya etiket bulunamadı"
+    override val NO_FOLDER_HOME_ICON_DESCRIPTION: String
+        get() = "Hiç dosya bulunamadı"
+    override val NO_TAG_HOME_ICON_DESCRIPTION: String
+        get() = "Hiç etiket bulunamadı"
 }

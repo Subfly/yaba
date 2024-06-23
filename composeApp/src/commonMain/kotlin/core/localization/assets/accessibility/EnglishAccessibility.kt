@@ -45,4 +45,8 @@ class EnglishAccessibility : YabaAccessibility() {
         get() = "Language selection"
     override val NO_CONTENT_HOME_ICON_DESCRIPTION: String
         get() = "No bookmarks, folders or tags found"
+    override val NO_FOLDER_HOME_ICON_DESCRIPTION: String
+        get() = "No folders found"
+    override val NO_TAG_HOME_ICON_DESCRIPTION: String
+        get() = "No tags found"
 }

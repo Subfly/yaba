@@ -15,6 +15,8 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.twotone.AddCircleOutline
+import androidx.compose.material.icons.twotone.CreateNewFolder
+import androidx.compose.material.icons.twotone.NewLabel
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -55,8 +57,8 @@ fun HomeScreen(
     onClickSync: () -> Unit,
     onClickSettings: () -> Unit,
 ) {
-    val localizationProvider = LocalizationStateProvider.current
     val createOrEditContentStateMachine = CreateOrEditContentStateMachineProvider.current
+    val localizationProvider = LocalizationStateProvider.current
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
@@ -129,20 +131,36 @@ fun HomeScreen(
                     )
                 }
                 if (shouldExtendTags) {
-                    item {
-                        FlowRow {
-                            state.tags.forEach { tag ->
-                                YabaTag(
-                                    selected = true,
-                                    name = tag.name,
-                                    firstColor = tag.firstColor?.color,
-                                    secondColor = tag.secondColor?.color,
-                                    icon = tag.icon?.icon,
-                                    iconDescription = tag.icon?.key,
-                                    onClick = {
-                                        // TODO: NAVIGATE TO TAG DETAIL
-                                    }
-                                )
+                    if (state.tags.isEmpty()) {
+                        item(
+                            span = StaggeredGridItemSpan.FullLine,
+                        ) {
+                            YabaNoContentLayout(
+                                label = localizationProvider.localization.NO_TAGS_HOME_LABEL,
+                                message = localizationProvider.localization.NO_TAGS_HOME_MESSAGE,
+                                icon = Icons.TwoTone.NewLabel,
+                                iconDescription = localizationProvider.accessibility.NO_TAG_HOME_ICON_DESCRIPTION,
+                                isFullscreen = false,
+                            )
+                        }
+                    } else {
+                        item(
+                            span = StaggeredGridItemSpan.FullLine,
+                        ) {
+                            FlowRow {
+                                state.tags.forEach { tag ->
+                                    YabaTag(
+                                        selected = true,
+                                        name = tag.name,
+                                        firstColor = tag.firstColor?.color,
+                                        secondColor = tag.secondColor?.color,
+                                        icon = tag.icon?.icon,
+                                        iconDescription = tag.icon?.key,
+                                        onClick = {
+                                            // TODO: NAVIGATE TO TAG DETAIL
+                                        }
+                                    )
+                                }
                             }
                         }
                     }
@@ -152,28 +170,42 @@ fun HomeScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(bottom = 16.dp)
-                            .padding(top = if (shouldExtendFolders) 16.dp else 0.dp),
+                            .padding(top = if (shouldExtendTags) 16.dp else 0.dp),
                         title = localizationProvider.localization.FOLDERS_TITLE,
                         expanded = shouldExtendFolders,
                         onClick = { shouldExtendFolders = it }
                     )
                 }
                 if (shouldExtendFolders) {
-                    items(
-                        items = state.folders,
-                        key = { it.id },
-                    ) { folder ->
-                        YabaFolderGridItem(
-                            folderName = folder.name,
-                            bookmarkCount = 0, // TODO: GET COUNT
-                            icon = folder.icon?.icon,
-                            iconDescription = folder.icon?.key,
-                            firstColor = folder.firstColor?.color,
-                            secondColor = folder.secondColor?.color,
-                            onClickFolder = {
-                                // TODO: NAVIGATE TO FOLDER DETAIL
-                            }
-                        )
+                    if (state.folders.isEmpty()) {
+                        item(
+                            span = StaggeredGridItemSpan.FullLine,
+                        ) {
+                            YabaNoContentLayout(
+                                label = localizationProvider.localization.NO_FOLDERS_HOME_LABEL,
+                                message = localizationProvider.localization.NO_FOLDERS_HOME_MESSAGE,
+                                icon = Icons.TwoTone.CreateNewFolder,
+                                iconDescription = localizationProvider.accessibility.NO_FOLDER_HOME_ICON_DESCRIPTION,
+                                isFullscreen = false,
+                            )
+                        }
+                    } else {
+                        items(
+                            items = state.folders,
+                            key = { it.id },
+                        ) { folder ->
+                            YabaFolderGridItem(
+                                folderName = folder.name,
+                                bookmarkCount = 0, // TODO: GET COUNT
+                                icon = folder.icon?.icon,
+                                iconDescription = folder.icon?.key,
+                                firstColor = folder.firstColor?.color,
+                                secondColor = folder.secondColor?.color,
+                                onClickFolder = {
+                                    // TODO: NAVIGATE TO FOLDER DETAIL
+                                }
+                            )
+                        }
                     }
                 }
             }

@@ -23,6 +23,7 @@ fun YabaNoContentLayout(
     message: String? = null,
     icon: ImageVector? = null,
     iconDescription: String? = null,
+    isFullscreen: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
     val themeState = ThemeStateProvider.current
@@ -34,14 +35,20 @@ fun YabaNoContentLayout(
     ) {
         icon?.let {
             Icon(
-                modifier = Modifier.size(96.dp),
+                modifier = Modifier.size(
+                    if (isFullscreen) 96.dp else 32.dp,
+                ),
                 imageVector = it,
                 contentDescription = iconDescription,
                 tint = themeState.colors.onBackground.copy(alpha = 0.8f),
             )
         }
 
-        Spacer(modifier = Modifier.size(36.dp))
+        Spacer(
+            modifier = Modifier.size(
+                if (isFullscreen) 36.dp else 16.dp,
+            )
+        )
 
         Text(
             text = label,
@@ -50,7 +57,11 @@ fun YabaNoContentLayout(
             color = themeState.colors.onBackground.copy(alpha = 0.8f),
         )
 
-        Spacer(modifier = Modifier.size(16.dp))
+        Spacer(
+            modifier = Modifier.size(
+                if (isFullscreen) 16.dp else 4.dp,
+            )
+        )
 
         message?.let {
             Text(
