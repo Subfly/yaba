@@ -42,8 +42,6 @@ fun YabaMobileNavigation(
                 onClickSettings = {
                     navHostController.navigate(YabaScreens.SETTINGS.route)
                 },
-                onCreateFolder = viewModel::onCreateFolder,
-                onCreateTag = viewModel::onCreateTag,
             )
         }
         composable(

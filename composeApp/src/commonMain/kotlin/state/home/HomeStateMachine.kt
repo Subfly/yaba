@@ -9,7 +9,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.update
@@ -43,38 +42,6 @@ class HomeStateMachine : ViewModel(), KoinComponent {
                     }
                 }
             }.launchIn(this)
-        }
-    }
-
-    fun onCreateFolder(
-        name: String,
-        icon: String?,
-        firstColor: String?,
-        secondColor: String?,
-    ) {
-        this.viewModelScope.launch(Dispatchers.IO) {
-            this@HomeStateMachine.datasource.createFolder(
-                name = name,
-                iconName = icon,
-                firstColor = firstColor,
-                secondColor = secondColor,
-            )
-        }
-    }
-
-    fun onCreateTag(
-        name: String,
-        icon: String?,
-        firstColor: String?,
-        secondColor: String?,
-    ) {
-        this.viewModelScope.launch(Dispatchers.IO) {
-            this@HomeStateMachine.datasource.createTag(
-                name = name,
-                iconName = icon,
-                firstColor = firstColor,
-                secondColor = secondColor,
-            )
         }
     }
 }

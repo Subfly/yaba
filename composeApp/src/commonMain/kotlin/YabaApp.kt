@@ -1,4 +1,6 @@
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -13,18 +15,22 @@ import core.theme.ThemeManagerProvider
 import core.theme.ThemeStateProvider
 import core.theme.YabaThemeManager
 import core.theme.components.YabaTheme
+import core.util.extensions.koinViewModel
 import core.util.selections.ThemeSelection
 import navigation.YabaMobileNavigation
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.KoinContext
-import org.koin.compose.koinInject
+import state.creation.CreateOrEditContentStateMachine
+import state.creation.CreateOrEditContentStateMachineProvider
+import view.mobile.creation.CreateOrEditContentSheet
 
 @Composable
 @Preview
 fun YabaApp() {
     val isSystemInDarkTheme = isSystemInDarkTheme()
-    val themeManager = koinInject<YabaThemeManager>()
-    val localizationManager = koinInject<YabaLocalizationManager>()
+    val themeManager = koinViewModel<YabaThemeManager>()
+    val localizationManager = koinViewModel<YabaLocalizationManager>()
+    val createOrEditContentStateMachine = koinViewModel<CreateOrEditContentStateMachine>()
 
     val themeState by themeManager.state.collectAsState()
     val localizationState by localizationManager.state.collectAsState()
@@ -48,12 +54,16 @@ fun YabaApp() {
             ThemeManagerProvider provides themeManager,
             LocalizationStateProvider provides localizationState,
             LocalizationManagerProvider provides localizationManager,
+            CreateOrEditContentStateMachineProvider provides createOrEditContentStateMachine,
         ) {
             YabaTheme {
-                YabaMobileNavigation(
-                    modifier = Modifier,
-                    navHostController = rememberNavController()
-                )
+                Box(modifier = Modifier.fillMaxSize()) {
+                    YabaMobileNavigation(
+                        modifier = Modifier,
+                        navHostController = rememberNavController()
+                    )
+                    CreateOrEditContentSheet()
+                }
             }
         }
     }

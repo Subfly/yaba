@@ -38,6 +38,7 @@ import core.localization.LocalizationStateProvider
 import core.util.icon.YabaIcons
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import state.creation.CreateOrEditContentStateMachineProvider
 import state.home.HomeState
 import view.mobile.creation.CreateOrEditContentSheet
 import view.mobile.creation.CreateOrEditContentType
@@ -53,34 +54,15 @@ fun HomeScreen(
     onClickSearch: () -> Unit,
     onClickSync: () -> Unit,
     onClickSettings: () -> Unit,
-    onCreateFolder: (
-        name: String,
-        icon: String?,
-        firstColor: String?,
-        secondColor: String?,
-    ) -> Unit,
-    onCreateTag: (
-        name: String,
-        icon: String?,
-        firstColor: String?,
-        secondColor: String?,
-    ) -> Unit,
 ) {
     val localizationProvider = LocalizationStateProvider.current
+    val createOrEditContentStateMachine = CreateOrEditContentStateMachineProvider.current
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
     var shouldExtendFAB by remember { mutableStateOf(false) }
     var shouldExtendFolders by remember { mutableStateOf(true) }
     var shouldExtendTags by remember { mutableStateOf(true) }
-
-    var shouldShowCreateBookmarkSheet by remember { mutableStateOf(false) }
-    var currentSheetType by remember { mutableStateOf(CreateOrEditContentType.NONE) }
-
-    val scope = rememberCoroutineScope()
-    val createBookmarkSheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true,
-    )
 
     YabaScaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -102,28 +84,16 @@ fun HomeScreen(
                     shouldExtendFAB = false
                 },
                 onClickCreateBookmark = {
-                    scope.launch {
-                        shouldExtendFAB = false
-                        currentSheetType = CreateOrEditContentType.BOOKMARK
-                        delay(GeneralConstants.MAGIC_THREE_FRAME_SKIP_DURATION)
-                        shouldShowCreateBookmarkSheet = true
-                    }
+                    shouldExtendFAB = false
+                    createOrEditContentStateMachine?.onShowBookmarkContent()
                 },
                 onClickCreateFolder = {
-                    scope.launch {
-                        shouldExtendFAB = false
-                        currentSheetType = CreateOrEditContentType.FOLDER
-                        delay(GeneralConstants.MAGIC_THREE_FRAME_SKIP_DURATION)
-                        shouldShowCreateBookmarkSheet = true
-                    }
+                    shouldExtendFAB = false
+                    createOrEditContentStateMachine?.onShowFolderContent()
                 },
                 onClickCreateTag = {
-                    scope.launch {
-                        shouldExtendFAB = false
-                        currentSheetType = CreateOrEditContentType.TAG
-                        delay(GeneralConstants.MAGIC_THREE_FRAME_SKIP_DURATION)
-                        shouldShowCreateBookmarkSheet = true
-                    }
+                    shouldExtendFAB = false
+                    createOrEditContentStateMachine?.onShowTagContent()
                 },
             )
         }
@@ -206,41 +176,6 @@ fun HomeScreen(
                         )
                     }
                 }
-            }
-        }
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddings)
-        ) {
-            if (shouldShowCreateBookmarkSheet) {
-                CreateOrEditContentSheet(
-                    sheetType = currentSheetType,
-                    sheetState = createBookmarkSheetState,
-                    onDismissRequrest = {
-                        scope.launch {
-                            shouldShowCreateBookmarkSheet = false
-                            delay(300)
-                            currentSheetType = CreateOrEditContentType.NONE
-                        }
-                    },
-                    onCreateFolder = { name, icon, firstColor, secondColor ->
-                        scope.launch {
-                            onCreateFolder(name, icon, firstColor, secondColor)
-                            shouldShowCreateBookmarkSheet = false
-                            delay(300)
-                            currentSheetType = CreateOrEditContentType.NONE
-                        }
-                    },
-                    onCreateTag = { name, icon, firstColor, secondColor ->
-                        scope.launch {
-                            onCreateTag(name, icon, firstColor, secondColor)
-                            shouldShowCreateBookmarkSheet = false
-                            delay(300)
-                            currentSheetType = CreateOrEditContentType.NONE
-                        }
-                    }
-                )
             }
         }
     }
