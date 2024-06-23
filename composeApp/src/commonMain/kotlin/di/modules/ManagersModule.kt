@@ -1,5 +1,7 @@
 package di.modules
 
+import core.settings.contentview.YabaContentViewStyleController
+import core.settings.contentview.YabaContentViewStyleManager
 import core.settings.localization.YabaLocalizationController
 import core.settings.localization.YabaLocalizationManager
 import core.settings.theme.YabaThemeController
@@ -13,5 +15,8 @@ val managersModule: Module = module {
     }
     single<YabaLocalizationManager> {
         YabaLocalizationManager(controller = get<YabaLocalizationController>())
+    }
+    single<YabaContentViewStyleManager> {
+        YabaContentViewStyleManager(controller = get<YabaContentViewStyleController>())
     }
 }

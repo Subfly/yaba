@@ -2,6 +2,7 @@ package di.modules
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import core.settings.contentview.YabaContentViewStyleController
 import core.settings.localization.YabaLocalizationController
 import core.settings.theme.YabaThemeController
 import org.koin.core.module.Module
@@ -13,5 +14,8 @@ val controllersModule: Module = module {
     }
     single<YabaLocalizationController> {
         YabaLocalizationController(dataStore = get<DataStore<Preferences>>())
+    }
+    single<YabaContentViewStyleController> {
+        YabaContentViewStyleController(dataStore = get<DataStore<Preferences>>())
     }
 }

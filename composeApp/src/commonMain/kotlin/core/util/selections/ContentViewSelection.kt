@@ -6,11 +6,16 @@ import androidx.compose.material.icons.twotone.SpaceDashboard
 import androidx.compose.ui.graphics.vector.ImageVector
 import core.settings.localization.assets.accessibility.YabaAccessibility
 
-enum class ContentViewSelection(val icon: ImageVector) {
+enum class ContentViewSelection(
+    val key: String,
+    val icon: ImageVector,
+) {
     GRID(
+        key = "grid",
         icon = Icons.TwoTone.SpaceDashboard,
     ),
     LIST(
+        key = "list",
         icon = Icons.TwoTone.FormatListNumbered,
     );
 

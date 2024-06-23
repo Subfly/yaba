@@ -8,6 +8,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
+import core.settings.contentview.ContentViewStyleManagerProvider
+import core.settings.contentview.ContentViewStyleStateProvider
+import core.settings.contentview.YabaContentViewStyleManager
 import core.settings.localization.LocalizationManagerProvider
 import core.settings.localization.LocalizationStateProvider
 import core.settings.localization.YabaLocalizationManager
@@ -30,10 +33,12 @@ fun YabaApp() {
     val isSystemInDarkTheme = isSystemInDarkTheme()
     val themeManager = koinViewModel<YabaThemeManager>()
     val localizationManager = koinViewModel<YabaLocalizationManager>()
+    val contentViewStyleManager = koinViewModel<YabaContentViewStyleManager>()
     val createOrEditContentStateMachine = koinViewModel<CreateOrEditContentStateMachine>()
 
     val themeState by themeManager.state.collectAsState()
     val localizationState by localizationManager.state.collectAsState()
+    val contentViewStyleState by contentViewStyleManager.state.collectAsState()
 
     LaunchedEffect(isSystemInDarkTheme) {
         if (themeState.currentSelectedTheme == ThemeSelection.SYSTEM) {
@@ -54,6 +59,8 @@ fun YabaApp() {
             ThemeManagerProvider provides themeManager,
             LocalizationStateProvider provides localizationState,
             LocalizationManagerProvider provides localizationManager,
+            ContentViewStyleStateProvider provides contentViewStyleState,
+            ContentViewStyleManagerProvider provides contentViewStyleManager,
             CreateOrEditContentStateMachineProvider provides createOrEditContentStateMachine,
         ) {
             YabaTheme {

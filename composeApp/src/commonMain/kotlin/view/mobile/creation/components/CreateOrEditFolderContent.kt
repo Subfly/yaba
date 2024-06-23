@@ -126,6 +126,8 @@ internal fun CreateOrEditFolderContent(
                 iconDescription = selectedIcon?.key,
                 firstColor = selectedFirstColor.color,
                 secondColor = selectedSecondColor.color,
+                onEditSwipe = {},
+                onDeleteSwipe = {},
                 onClickFolder = {},
             )
         }
