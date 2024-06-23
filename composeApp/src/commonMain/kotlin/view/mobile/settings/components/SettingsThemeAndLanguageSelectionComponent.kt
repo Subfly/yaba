@@ -20,8 +20,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import core.components.layout.YabaCard
-import core.localization.LocalizationStateProvider
-import core.theme.ThemeStateProvider
+import core.settings.localization.LocalizationStateProvider
+import core.settings.theme.ThemeStateProvider
 
 @Composable
 internal fun SettingsThemeAndLanguageSelectionComponent(

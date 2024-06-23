@@ -1,4 +1,4 @@
-package core.localization
+package core.settings.localization
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences

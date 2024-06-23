@@ -31,8 +31,8 @@ import core.components.button.YabaTag
 import core.components.layout.YabaColorSelectionLayout
 import core.components.layout.YabaIconSelectionLayout
 import core.components.layout.YabaTextField
-import core.localization.LocalizationStateProvider
-import core.theme.ThemeStateProvider
+import core.settings.localization.LocalizationStateProvider
+import core.settings.theme.ThemeStateProvider
 import core.util.icon.YabaIcons
 import core.util.selections.ColorSelection
 

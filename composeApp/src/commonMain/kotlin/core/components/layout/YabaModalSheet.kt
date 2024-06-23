@@ -8,7 +8,7 @@ import androidx.compose.material3.SheetState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import core.theme.ThemeStateProvider
+import core.settings.theme.ThemeStateProvider
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -1,12 +1,12 @@
-package core.localization
+package core.settings.localization
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import core.localization.assets.YabaLocalizationState
-import core.localization.assets.accessibility.EnglishAccessibility
-import core.localization.assets.accessibility.TurkishAccessibility
-import core.localization.assets.localization.EnglishLocalization
-import core.localization.assets.localization.TurkishLocalization
+import core.settings.localization.assets.YabaLocalizationState
+import core.settings.localization.assets.accessibility.EnglishAccessibility
+import core.settings.localization.assets.accessibility.TurkishAccessibility
+import core.settings.localization.assets.localization.EnglishLocalization
+import core.settings.localization.assets.localization.TurkishLocalization
 import core.util.selections.LanguageSelection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO

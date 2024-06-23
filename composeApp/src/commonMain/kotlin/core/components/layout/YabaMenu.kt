@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
-import core.theme.ThemeStateProvider
+import core.settings.theme.ThemeStateProvider
 
 @Composable
 fun YabaMenu(

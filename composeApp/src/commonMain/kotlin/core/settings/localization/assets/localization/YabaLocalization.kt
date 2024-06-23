@@ -1,4 +1,4 @@
-package core.localization.assets.localization
+package core.settings.localization.assets.localization
 
 abstract class YabaLocalization {
     abstract val APP_NAME: String

@@ -25,8 +25,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import core.localization.LocalizationStateProvider
-import core.theme.ThemeStateProvider
+import core.settings.localization.LocalizationStateProvider
+import core.settings.theme.ThemeStateProvider
 import core.util.selections.ColorSelection
 
 @Composable

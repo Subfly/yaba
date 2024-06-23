@@ -4,8 +4,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import core.theme.ThemeStateProvider
-import core.theme.assets.YabaColors
+import core.settings.theme.ThemeStateProvider
 
 @Composable
 fun YabaMenuItem(

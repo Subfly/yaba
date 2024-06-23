@@ -1,8 +1,8 @@
-package core.theme.components
+package core.settings.theme.components
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import core.theme.assets.YabaTypography
+import core.settings.theme.assets.YabaTypography
 
 @Composable
 fun YabaTheme(

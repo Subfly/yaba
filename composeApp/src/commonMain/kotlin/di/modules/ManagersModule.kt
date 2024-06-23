@@ -1,9 +1,9 @@
 package di.modules
 
-import core.localization.YabaLocalizationController
-import core.localization.YabaLocalizationManager
-import core.theme.YabaThemeController
-import core.theme.YabaThemeManager
+import core.settings.localization.YabaLocalizationController
+import core.settings.localization.YabaLocalizationManager
+import core.settings.theme.YabaThemeController
+import core.settings.theme.YabaThemeManager
 import org.koin.core.module.Module
 import org.koin.dsl.module
 

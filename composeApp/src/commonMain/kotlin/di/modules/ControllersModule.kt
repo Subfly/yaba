@@ -2,8 +2,8 @@ package di.modules
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import core.localization.YabaLocalizationController
-import core.theme.YabaThemeController
+import core.settings.localization.YabaLocalizationController
+import core.settings.theme.YabaThemeController
 import org.koin.core.module.Module
 import org.koin.dsl.module
 

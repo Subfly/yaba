@@ -8,7 +8,7 @@ import core.components.layout.YabaAppBar
 import core.components.button.YabaIconButton
 import core.components.layout.YabaMenu
 import core.components.layout.YabaMenuItem
-import core.localization.LocalizationStateProvider
+import core.settings.localization.LocalizationStateProvider
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -1,7 +1,7 @@
-package core.theme
+package core.settings.theme
 
-import core.theme.assets.DarkColors
-import core.theme.assets.YabaColors
+import core.settings.theme.assets.DarkColors
+import core.settings.theme.assets.YabaColors
 import core.util.selections.ThemeSelection
 
 data class YabaThemeState(

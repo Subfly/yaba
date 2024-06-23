@@ -1,4 +1,4 @@
-package core.theme
+package core.settings.theme
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences

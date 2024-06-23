@@ -1,4 +1,4 @@
-package core.theme
+package core.settings.theme
 
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.staticCompositionLocalOf

@@ -1,4 +1,4 @@
-package core.theme.assets
+package core.settings.theme.assets
 
 import androidx.compose.ui.graphics.Color
 

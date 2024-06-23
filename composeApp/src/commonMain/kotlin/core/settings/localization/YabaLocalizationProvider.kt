@@ -1,8 +1,8 @@
-package core.localization
+package core.settings.localization
 
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.staticCompositionLocalOf
-import core.localization.assets.YabaLocalizationState
+import core.settings.localization.assets.YabaLocalizationState
 
 val LocalizationStateProvider: ProvidableCompositionLocal<YabaLocalizationState> =
     staticCompositionLocalOf {

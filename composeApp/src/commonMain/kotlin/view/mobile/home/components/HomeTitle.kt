@@ -15,7 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.text.font.FontWeight
-import core.localization.LocalizationStateProvider
+import core.settings.localization.LocalizationStateProvider
 
 @Composable
 fun HomeTitle(

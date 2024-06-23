@@ -9,7 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import core.theme.ThemeStateProvider
+import core.settings.theme.ThemeStateProvider
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

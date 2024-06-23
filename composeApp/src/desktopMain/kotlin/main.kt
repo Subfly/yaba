@@ -1,42 +1,12 @@
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.onClick
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.window.WindowDraggableArea
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.twotone.BookmarkAdd
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.onPointerEvent
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
-import core.components.layout.YabaAppBar
-import core.components.button.YabaFab
-import core.components.button.YabaIconButton
-import core.components.layout.YabaScaffold
-import core.components.layout.YabaCard
-import core.components.system.YabaDosSystemButton
-import core.components.system.YabaNixSystemButton
-import core.components.system.YabaSystemButtonType
-import core.theme.components.YabaTheme
 import di.DIHelper
-import org.jetbrains.compose.resources.painterResource
-import yaba.composeapp.generated.resources.Res
-import yaba.composeapp.generated.resources.ic_left_panel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
 fun main() = application {

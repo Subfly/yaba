@@ -20,7 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import core.theme.ThemeStateProvider
+import core.settings.theme.ThemeStateProvider
 import core.util.selections.ColorSelection
 
 @Composable

@@ -1,6 +1,5 @@
 package view.mobile.creation.components
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -32,9 +31,8 @@ import core.components.contentView.list.YabaFolderListTile
 import core.components.layout.YabaColorSelectionLayout
 import core.components.layout.YabaIconSelectionLayout
 import core.components.layout.YabaTextField
-import core.localization.LocalizationStateProvider
-import core.theme.ThemeStateProvider
-import core.theme.assets.YabaColors
+import core.settings.localization.LocalizationStateProvider
+import core.settings.theme.ThemeStateProvider
 import core.util.selections.ColorSelection
 import core.util.selections.ContentViewSelection
 import core.util.icon.YabaIcons

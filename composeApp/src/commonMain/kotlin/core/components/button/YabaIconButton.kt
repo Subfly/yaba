@@ -5,7 +5,7 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import core.theme.ThemeStateProvider
+import core.settings.theme.ThemeStateProvider
 
 @Composable
 fun YabaIconButton(

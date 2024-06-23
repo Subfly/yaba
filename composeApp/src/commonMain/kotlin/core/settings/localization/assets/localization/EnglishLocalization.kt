@@ -1,4 +1,4 @@
-package core.localization.assets.localization
+package core.settings.localization.assets.localization
 
 class EnglishLocalization : YabaLocalization() {
     override val APP_NAME: String

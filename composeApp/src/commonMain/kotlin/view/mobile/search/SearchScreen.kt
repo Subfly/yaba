@@ -15,7 +15,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import core.components.button.YabaIconButton
 import core.components.layout.YabaSearchBarLayout
-import core.localization.LocalizationStateProvider
+import core.settings.localization.LocalizationStateProvider
 import currentPlatform
 
 @Composable

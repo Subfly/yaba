@@ -32,7 +32,7 @@ import core.components.button.YabaElevatedButton
 import core.components.button.YabaIconButton
 import core.components.contentView.grid.YabaBookmarkCard
 import core.components.layout.YabaTextField
-import core.theme.ThemeStateProvider
+import core.settings.theme.ThemeStateProvider
 import core.util.extensions.isValidUrl
 import core.util.selections.ContentViewSelection
 import kotlinx.datetime.Clock

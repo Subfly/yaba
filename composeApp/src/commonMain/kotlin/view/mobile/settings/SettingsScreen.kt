@@ -19,8 +19,8 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import core.components.layout.YabaScaffold
 import core.constants.GeneralConstants
-import core.localization.LocalizationManagerProvider
-import core.theme.ThemeManagerProvider
+import core.settings.localization.LocalizationManagerProvider
+import core.settings.theme.ThemeManagerProvider
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import view.mobile.settings.components.SettingsAppBar

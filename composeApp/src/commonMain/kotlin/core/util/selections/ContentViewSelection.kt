@@ -4,7 +4,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.twotone.FormatListNumbered
 import androidx.compose.material.icons.twotone.SpaceDashboard
 import androidx.compose.ui.graphics.vector.ImageVector
-import core.localization.assets.accessibility.YabaAccessibility
+import core.settings.localization.assets.accessibility.YabaAccessibility
 
 enum class ContentViewSelection(val icon: ImageVector) {
     GRID(

@@ -5,8 +5,8 @@ import androidx.compose.material.icons.twotone.DarkMode
 import androidx.compose.material.icons.twotone.LightMode
 import androidx.compose.material.icons.twotone.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
-import core.localization.assets.accessibility.YabaAccessibility
-import core.localization.assets.localization.YabaLocalization
+import core.settings.localization.assets.accessibility.YabaAccessibility
+import core.settings.localization.assets.localization.YabaLocalization
 
 enum class ThemeSelection(val key: String) {
     SYSTEM("system"),

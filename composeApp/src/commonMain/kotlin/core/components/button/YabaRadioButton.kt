@@ -4,7 +4,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import core.theme.ThemeStateProvider
+import core.settings.theme.ThemeStateProvider
 
 @Composable
 fun YabaRadioButton(

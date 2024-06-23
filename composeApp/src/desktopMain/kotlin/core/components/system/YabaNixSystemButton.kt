@@ -17,8 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import core.components.button.YabaIconButton
-import core.theme.ThemeStateProvider
-import core.theme.assets.YabaColors
+import core.settings.theme.ThemeStateProvider
 
 @Composable
 fun YabaNixSystemButton(

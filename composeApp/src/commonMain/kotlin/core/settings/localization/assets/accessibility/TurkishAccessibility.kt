@@ -1,4 +1,4 @@
-package core.localization.assets.accessibility
+package core.settings.localization.assets.accessibility
 
 class TurkishAccessibility : YabaAccessibility() {
     override val EXPAND_ICON_DESCRIPTION: String

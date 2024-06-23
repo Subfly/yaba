@@ -1,6 +1,6 @@
 package core.util.selections
 
-import core.localization.assets.localization.YabaLocalization
+import core.settings.localization.assets.localization.YabaLocalization
 
 enum class LanguageSelection(val key: String) {
     TR("tr"),

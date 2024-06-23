@@ -9,7 +9,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
-import core.theme.ThemeStateProvider
+import core.settings.theme.ThemeStateProvider
 
 @Composable
 fun YabaTextField(

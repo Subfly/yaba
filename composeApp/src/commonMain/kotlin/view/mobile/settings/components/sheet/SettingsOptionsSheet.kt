@@ -22,8 +22,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import core.components.button.YabaRadioButton
 import core.components.layout.YabaModalSheet
-import core.localization.LocalizationStateProvider
-import core.theme.ThemeStateProvider
+import core.settings.localization.LocalizationStateProvider
+import core.settings.theme.ThemeStateProvider
 import core.util.selections.LanguageSelection
 import core.util.selections.ThemeSelection
 

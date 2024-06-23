@@ -1,10 +1,9 @@
-package core.theme
+package core.settings.theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import core.theme.assets.DarkColors
-import core.theme.assets.LightColors
+import core.settings.theme.assets.DarkColors
+import core.settings.theme.assets.LightColors
 import core.util.selections.ThemeSelection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
