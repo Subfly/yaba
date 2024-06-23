@@ -1,0 +1,262 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "848341f601c105dbe9a9a4b8fe3c3942",
+    "entities": [
+      {
+        "tableName": "folders_table",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`folder_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `iconName` TEXT, `firstColor` TEXT, `secondColor` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "folder_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "iconName",
+            "columnName": "iconName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "firstColor",
+            "columnName": "firstColor",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "secondColor",
+            "columnName": "secondColor",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "folder_id"
+          ]
+        }
+      },
+      {
+        "tableName": "tags_table",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`tag_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `iconName` TEXT, `firstColor` TEXT, `secondColor` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "tag_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "iconName",
+            "columnName": "iconName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "firstColor",
+            "columnName": "firstColor",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "secondColor",
+            "columnName": "secondColor",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "tag_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_tags_table_tag_id",
+            "unique": false,
+            "columnNames": [
+              "tag_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_tags_table_tag_id` ON `${TABLE_NAME}` (`tag_id`)"
+          }
+        ]
+      },
+      {
+        "tableName": "bookmarks_table",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`bookmark_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `folder_id` INTEGER NOT NULL, `url` TEXT NOT NULL, `title` TEXT NOT NULL, `dateAdded` TEXT NOT NULL, `isPrivate` INTEGER NOT NULL, `description` TEXT, `unfurlData` TEXT, FOREIGN KEY(`folder_id`) REFERENCES `folders_table`(`folder_id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "bookmark_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "folderId",
+            "columnName": "folder_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "url",
+            "columnName": "url",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dateAdded",
+            "columnName": "dateAdded",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isPrivate",
+            "columnName": "isPrivate",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "unfurlData",
+            "columnName": "unfurlData",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "bookmark_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_bookmarks_table_folder_id",
+            "unique": false,
+            "columnNames": [
+              "folder_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_bookmarks_table_folder_id` ON `${TABLE_NAME}` (`folder_id`)"
+          },
+          {
+            "name": "index_bookmarks_table_bookmark_id",
+            "unique": false,
+            "columnNames": [
+              "bookmark_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_bookmarks_table_bookmark_id` ON `${TABLE_NAME}` (`bookmark_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "folders_table",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "folder_id"
+            ],
+            "referencedColumns": [
+              "folder_id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "bookmarks_tags_table",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`bookmark_cross_id` INTEGER NOT NULL, `tag_cross_id` INTEGER NOT NULL, PRIMARY KEY(`bookmark_cross_id`, `tag_cross_id`), FOREIGN KEY(`bookmark_cross_id`) REFERENCES `bookmarks_table`(`bookmark_id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`tag_cross_id`) REFERENCES `tags_table`(`tag_id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "bookmarkId",
+            "columnName": "bookmark_cross_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tagId",
+            "columnName": "tag_cross_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "bookmark_cross_id",
+            "tag_cross_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_bookmarks_tags_table_bookmark_cross_id",
+            "unique": false,
+            "columnNames": [
+              "bookmark_cross_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_bookmarks_tags_table_bookmark_cross_id` ON `${TABLE_NAME}` (`bookmark_cross_id`)"
+          },
+          {
+            "name": "index_bookmarks_tags_table_tag_cross_id",
+            "unique": false,
+            "columnNames": [
+              "tag_cross_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_bookmarks_tags_table_tag_cross_id` ON `${TABLE_NAME}` (`tag_cross_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "bookmarks_table",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "bookmark_cross_id"
+            ],
+            "referencedColumns": [
+              "bookmark_id"
+            ]
+          },
+          {
+            "table": "tags_table",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "tag_cross_id"
+            ],
+            "referencedColumns": [
+              "tag_id"
+            ]
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '848341f601c105dbe9a9a4b8fe3c3942')"
+    ]
+  }
+}
