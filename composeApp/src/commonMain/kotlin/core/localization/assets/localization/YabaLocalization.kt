@@ -3,6 +3,8 @@ package core.localization.assets.localization
 abstract class YabaLocalization {
     abstract val APP_NAME: String
     abstract val OTHERS_FOLDER_NAME: String
+    abstract val FOLDERS_TITLE: String
+    abstract val TAGS_TITLE: String
     abstract val SYNC: String
     abstract val SETTINGS: String
     abstract val CREATE_BOOKMARK: String

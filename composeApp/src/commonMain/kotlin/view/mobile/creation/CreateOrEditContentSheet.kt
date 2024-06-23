@@ -19,8 +19,20 @@ import view.mobile.creation.components.CreateOrEditTagContent
 fun CreateOrEditContentSheet(
     sheetType: CreateOrEditContentType,
     sheetState: SheetState,
-    onDismissRequrest: () -> Unit,
     modifier: Modifier = Modifier,
+    onCreateFolder: (
+        name: String,
+        icon: String?,
+        firstColor: String?,
+        secondColor: String?,
+    ) -> Unit,
+    onCreateTag: (
+        name: String,
+        icon: String?,
+        firstColor: String?,
+        secondColor: String?,
+    ) -> Unit,
+    onDismissRequrest: () -> Unit,
 ) {
     YabaModalSheet(
         modifier = modifier
@@ -39,12 +51,14 @@ fun CreateOrEditContentSheet(
                 CreateOrEditContentType.FOLDER -> {
                     CreateOrEditFolderContent(
                         modifier = Modifier.padding(16.dp),
+                        onCreate = onCreateFolder,
                     )
                 }
 
                 CreateOrEditContentType.TAG -> {
                     CreateOrEditTagContent(
                         modifier = Modifier.padding(16.dp),
+                        onCreate = onCreateTag,
                     )
                 }
 

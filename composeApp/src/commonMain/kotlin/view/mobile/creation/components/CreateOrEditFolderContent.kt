@@ -40,7 +40,15 @@ import core.util.selections.ContentViewSelection
 import core.util.icon.YabaIcons
 
 @Composable
-internal fun CreateOrEditFolderContent(modifier: Modifier = Modifier) {
+internal fun CreateOrEditFolderContent(
+    modifier: Modifier = Modifier,
+    onCreate: (
+        name: String,
+        icon: String?,
+        firstColor: String?,
+        secondColor: String?,
+    ) -> Unit,
+) {
     val themeState = ThemeStateProvider.current
     val localizationProvider = LocalizationStateProvider.current
 
@@ -187,7 +195,12 @@ internal fun CreateOrEditFolderContent(modifier: Modifier = Modifier) {
                 .fillMaxWidth()
                 .height(56.dp),
             onClick = {
-                // TODO: CREATE FOLDER
+                onCreate.invoke(
+                    nameFieldValue,
+                    selectedIcon?.key,
+                    selectedFirstColor.name,
+                    selectedSecondColor.name,
+                )
             },
         ) {
             Text(localizationProvider.localization.CREATE_FOLDER)

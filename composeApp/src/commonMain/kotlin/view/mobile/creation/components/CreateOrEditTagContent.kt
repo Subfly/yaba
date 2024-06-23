@@ -37,7 +37,15 @@ import core.util.icon.YabaIcons
 import core.util.selections.ColorSelection
 
 @Composable
-internal fun CreateOrEditTagContent(modifier: Modifier = Modifier) {
+internal fun CreateOrEditTagContent(
+    modifier: Modifier = Modifier,
+    onCreate: (
+        name: String,
+        icon: String?,
+        firstColor: String?,
+        secondColor: String?,
+    ) -> Unit,
+) {
     val themeState = ThemeStateProvider.current
     val localizationProvider = LocalizationStateProvider.current
 
@@ -159,7 +167,12 @@ internal fun CreateOrEditTagContent(modifier: Modifier = Modifier) {
                 .fillMaxWidth()
                 .height(56.dp),
             onClick = {
-                // TODO: ADD CREATE/EDIT TAG FUNCTION
+                onCreate.invoke(
+                    nameFieldValue,
+                    selectedIcon?.key,
+                    selectedFirstColor.name,
+                    selectedSecondColor.name,
+                )
             },
         ) {
             Text(localizationProvider.localization.CREATE_TAG)

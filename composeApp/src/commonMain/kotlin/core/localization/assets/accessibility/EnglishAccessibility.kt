@@ -1,6 +1,8 @@
 package core.localization.assets.accessibility
 
 class EnglishAccessibility : YabaAccessibility() {
+    override val EXPAND_ICON_DESCRIPTION: String
+        get() = "Expand More/Less"
     override val SEARCH_ICON_DESCIPTION: String
         get() = "Make search"
     override val SHOW_MORE_ICON_DESCRIPTION: String

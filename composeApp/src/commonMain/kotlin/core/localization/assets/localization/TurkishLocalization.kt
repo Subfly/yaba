@@ -5,6 +5,10 @@ class TurkishLocalization : YabaLocalization() {
         get() = "Yaba"
     override val OTHERS_FOLDER_NAME: String
         get() = "Diğerleri"
+    override val FOLDERS_TITLE: String
+        get() = "Dosyalar"
+    override val TAGS_TITLE: String
+        get() = "Etiketler"
     override val SYNC: String
         get() = "Eşitle"
     override val SETTINGS: String

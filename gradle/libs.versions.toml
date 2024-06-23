@@ -55,6 +55,7 @@ coil-ktor = { module = "io.coil-kt.coil3:coil-network-ktor", version.ref = "coil
 sqldelight-android = { module = "app.cash.sqldelight:android-driver", version.ref = "sqldelight_version" }
 sqldelight-native = { module = "app.cash.sqldelight:native-driver", version.ref = "sqldelight_version" }
 sqldelight-jvm = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqldelight_version" }
+sqldelight-coroutines = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqldelight_version" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

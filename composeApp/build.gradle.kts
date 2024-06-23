@@ -91,6 +91,9 @@ kotlin {
             implementation(libs.coil.compose)
             implementation(libs.coil.ktor)
 
+            // SQLDelight
+            implementation(libs.sqldelight.coroutines)
+
             // Android BUT KMP
             implementation(libs.datastore.preferences)
             implementation(libs.androidx.navigation.multiplatform)

@@ -1,11 +1,13 @@
 CREATE TABLE BookmarkEntity (
-    bookmark_id INTEGER PRIMARY KEY NOT NULL,
+    bookmark_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    folder_id INTEGER NOT NULL,
     title TEXT NOT NULL,
     date_added INTEGER NOT NULL,
     url TEXT,
     description TEXT,
     private INTEGER,
-    unfurl_data TEXT
+    unfurl_data TEXT,
+    FOREIGN KEY(folder_id) REFERENCES FolderEntity(folder_id) ON DELETE CASCADE
 );
 
 CREATE INDEX bookmark_entity_bookmark_id ON BookmarkEntity(bookmark_id);

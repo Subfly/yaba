@@ -1,6 +1,7 @@
 package core.localization.assets.accessibility
 
 abstract class YabaAccessibility {
+    abstract val EXPAND_ICON_DESCRIPTION: String
     abstract val SEARCH_ICON_DESCIPTION: String
     abstract val SHOW_MORE_ICON_DESCRIPTION: String
     abstract val SYNC_ICON_DESCRIPTION: String

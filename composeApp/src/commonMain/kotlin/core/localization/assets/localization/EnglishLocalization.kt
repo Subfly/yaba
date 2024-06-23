@@ -5,6 +5,10 @@ class EnglishLocalization : YabaLocalization() {
         get() = "Yaba"
     override val OTHERS_FOLDER_NAME: String
         get() = "Others"
+    override val FOLDERS_TITLE: String
+        get() = "Folders"
+    override val TAGS_TITLE: String
+        get() = "Tags"
     override val SYNC: String
         get() = "Sync"
     override val SETTINGS: String

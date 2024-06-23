@@ -1,5 +1,5 @@
 CREATE TABLE TagEntity (
-    tag_id INTEGER PRIMARY KEY NOT NULL,
+    tag_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     name TEXT NOT NULL,
     icon_name TEXT,
     first_color TEXT,
@@ -7,3 +7,22 @@ CREATE TABLE TagEntity (
 );
 
 CREATE INDEX tag_entity_tag_id ON TagEntity(tag_id);
+
+create:
+INSERT
+INTO TagEntity(name, icon_name, first_color, second_color)
+VALUES (:name, :iconName, :firstColor, :secondColor);
+
+delete:
+DELETE
+FROM TagEntity
+WHERE tag_id = ?;
+
+update:
+UPDATE TagEntity
+SET name = :name, icon_name = :iconName, first_color = :firstColor, second_color = :secondColor
+WHERE tag_id = :tag_id;
+
+getAll:
+SELECT *
+FROM TagEntity;

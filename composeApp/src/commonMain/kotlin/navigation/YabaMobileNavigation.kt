@@ -29,11 +29,10 @@ fun YabaMobileNavigation(
             route = YabaScreens.HOME.route,
         ) {
             val viewModel = koinViewModel<HomeStateMachine>()
-            // TODO: GET STATE FROM VM
-            //val state by viewModel.state.collectAsState()
+            val state by viewModel.state.collectAsState()
 
             HomeScreen(
-                state = HomeState(), // TODO: GET STATE FROM VM
+                state = state,
                 onClickSearch = {
                     navHostController.navigate(YabaScreens.SEARCH.route)
                 },
@@ -43,6 +42,8 @@ fun YabaMobileNavigation(
                 onClickSettings = {
                     navHostController.navigate(YabaScreens.SETTINGS.route)
                 },
+                onCreateFolder = viewModel::onCreateFolder,
+                onCreateTag = viewModel::onCreateTag,
             )
         }
         composable(

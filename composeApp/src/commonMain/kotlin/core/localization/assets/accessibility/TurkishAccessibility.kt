@@ -1,6 +1,8 @@
 package core.localization.assets.accessibility
 
 class TurkishAccessibility : YabaAccessibility() {
+    override val EXPAND_ICON_DESCRIPTION: String
+        get() = "Genişlet/Küçült"
     override val SEARCH_ICON_DESCIPTION: String
         get() = "Arama yapın"
     override val SHOW_MORE_ICON_DESCRIPTION: String

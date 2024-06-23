@@ -1,9 +1,29 @@
 CREATE TABLE FolderEntity (
-    folder_id INTEGER PRIMARY KEY NOT NULL,
+    folder_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     name TEXT NOT NULL,
     icon_name TEXT,
     first_color TEXT,
     second_color TEXT
 );
 
-CREATE INDEX folder_entity_folder_id ON FolderEntity(folder_id);
+CREATE
+INDEX folder_entity_folder_id ON FolderEntity(folder_id);
+
+create:
+INSERT
+INTO FolderEntity(name, icon_name, first_color, second_color)
+VALUES (:name, :iconName, :firstColor, :secondColor);
+
+delete:
+DELETE
+FROM FolderEntity
+WHERE folder_id = ?;
+
+update:
+UPDATE FolderEntity
+SET name = :name, icon_name = :iconName, first_color = :firstColor, second_color = :secondColor
+WHERE folder_id = :folder_id;
+
+getAll:
+SELECT *
+FROM FolderEntity;

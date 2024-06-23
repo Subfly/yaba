@@ -1,9 +1,0 @@
-CREATE TABLE FolderBookmarkCrossEntity (
-    bookmark_cross_id INTEGER NOT NULL,
-    folder_cross_id INTEGER NOT NULL,
-    FOREIGN KEY(bookmark_cross_id) REFERENCES BookmarkEntity(bookmark_id),
-    FOREIGN KEY(folder_cross_id) REFERENCES FolderEntity(folder_id)
-);
-
-CREATE INDEX folder_bookmark_cross_entity_bookmark_id ON FolderBookmarkCrossEntity(bookmark_cross_id);
-CREATE INDEX folder_bookmark_cross_entity_folder_id ON FolderBookmarkCrossEntity(folder_cross_id);
