@@ -79,4 +79,8 @@ class EnglishLocalization : YabaLocalization() {
         get() = "No Tags Found"
     override val NO_TAGS_HOME_MESSAGE: String
         get() = "You can use the 'Add' button to create a Tag"
+    override val EDIT_TITLE: String
+        get() = "Edit"
+    override val DELETE_TITLE: String
+        get() = "Delete"
 }

@@ -79,4 +79,8 @@ class TurkishLocalization : YabaLocalization() {
         get() = "Hiç Etiket Yok"
     override val NO_TAGS_HOME_MESSAGE: String
         get() = "Hemen 'Ekle' butonunu kullanarak ilk etiketini oluşturabilirsin"
+    override val EDIT_TITLE: String
+        get() = "Düzenle"
+    override val DELETE_TITLE: String
+        get() = "Sil"
 }

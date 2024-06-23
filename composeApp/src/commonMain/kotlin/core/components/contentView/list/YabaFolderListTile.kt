@@ -205,11 +205,11 @@ private fun BackgroundContent(dismissBoxState: SwipeToDismissBoxState) {
     ) {
         Icon(
             imageVector = Icons.TwoTone.Edit,
-            contentDescription = localizationState.accessibility.SWIPE_TO_DELETE_ICON_DESCRIPTION,
+            contentDescription = localizationState.accessibility.DELETE_ICON_DESCRIPTION,
         )
         Icon(
             imageVector = Icons.TwoTone.Delete,
-            contentDescription = localizationState.accessibility.SWIPE_TO_EDIT_ICON_DESCRIPTION,
+            contentDescription = localizationState.accessibility.EDIT_ICON_DESCRIPTION,
         )
     }
 }

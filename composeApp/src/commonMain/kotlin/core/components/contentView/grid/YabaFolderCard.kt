@@ -12,11 +12,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.twotone.Delete
+import androidx.compose.material.icons.twotone.Edit
 import androidx.compose.material.icons.twotone.MoreVert
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -26,14 +32,20 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import core.components.layout.YabaCard
+import core.components.layout.YabaMenu
+import core.components.layout.YabaMenuItem
 import core.settings.localization.LocalizationStateProvider
 import core.settings.theme.ThemeStateProvider
 import core.util.icon.YabaIcons
 import core.util.selections.ColorSelection
+import state.manager.DatasourceCUDEvent
+import state.manager.DatasourceCUDManager
+import state.manager.DatasourceCUDManagerProvider
 
 @Composable
 fun YabaFolderGridItem(
     modifier: Modifier = Modifier,
+    folderId: Long,
     folderName: String,
     bookmarkCount: Int,
     icon: ImageVector?,
@@ -45,6 +57,9 @@ fun YabaFolderGridItem(
 ) {
     val themeState = ThemeStateProvider.current
     val localizationProvider = LocalizationStateProvider.current
+    val datasourceCUDManager = DatasourceCUDManagerProvider.current
+
+    var isMenuExpanded by remember { mutableStateOf(false) }
 
     val bookmarkCountText = buildAnnotatedString {
         val firstText = localizationProvider.localization.BOOKMARK_COUNT_PREFIX_TEXT
@@ -101,17 +116,36 @@ fun YabaFolderGridItem(
                         tint = themeState.colors.creamyWhite,
                     )
                 }
-                Icon(
-                    modifier = Modifier
-                        .clickable {
-                            if (isInCreateOrEditMode.not()) {
-                                // TODO: OPEN EDIT/DELETE MENU
-                            }
+                Box {
+                    Icon(
+                        modifier = Modifier
+                            .clickable {
+                                if (isInCreateOrEditMode.not()) {
+                                    isMenuExpanded = true
+                                }
+                            },
+                        imageVector = Icons.TwoTone.MoreVert,
+                        contentDescription = localizationProvider.accessibility.SHOW_MORE_ICON_DESCRIPTION,
+                        tint = themeState.colors.onBackground,
+                    )
+                    OptionsMenu(
+                        isExpanded = isMenuExpanded,
+                        onDismissRequest = {
+                            isMenuExpanded = false
                         },
-                    imageVector = Icons.TwoTone.MoreVert,
-                    contentDescription = localizationProvider.accessibility.SHOW_MORE_ICON_DESCRIPTION,
-                    tint = themeState.colors.onBackground,
-                )
+                        onClickDelete = {
+                            isMenuExpanded = false
+                            datasourceCUDManager?.onEvent(
+                                event = DatasourceCUDEvent.DeleteFolderCUDEvent(
+                                    id = folderId,
+                                )
+                            )
+                        },
+                        onClickEdit = {
+                            isMenuExpanded = false
+                        }
+                    )
+                }
             }
             Spacer(modifier = Modifier.size(24.dp))
             Column(
@@ -127,5 +161,47 @@ fun YabaFolderGridItem(
                 Text(text = bookmarkCountText)
             }
         }
+    }
+}
+
+@Composable
+private fun OptionsMenu(
+    isExpanded: Boolean,
+    modifier: Modifier = Modifier,
+    onDismissRequest: () -> Unit,
+    onClickEdit: () -> Unit,
+    onClickDelete: () -> Unit,
+) {
+    val localizationProvider = LocalizationStateProvider.current
+
+    YabaMenu(
+        modifier = modifier,
+        expanded = isExpanded,
+        onDismissRequest = onDismissRequest,
+    ) {
+        YabaMenuItem(
+            text = {
+                Text(localizationProvider.localization.EDIT_TITLE)
+            },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.TwoTone.Edit,
+                    contentDescription = localizationProvider.accessibility.EDIT_ICON_DESCRIPTION,
+                )
+            },
+            onClick = onClickEdit,
+        )
+        YabaMenuItem(
+            text = {
+                Text(localizationProvider.localization.DELETE_TITLE)
+            },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.TwoTone.Delete,
+                    contentDescription = localizationProvider.accessibility.DELETE_ICON_DESCRIPTION,
+                )
+            },
+            onClick = onClickDelete,
+        )
     }
 }

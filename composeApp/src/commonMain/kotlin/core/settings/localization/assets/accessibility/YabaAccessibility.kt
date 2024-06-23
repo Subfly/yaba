@@ -28,6 +28,6 @@ abstract class YabaAccessibility {
     abstract val NO_CONTENT_HOME_ICON_DESCRIPTION: String
     abstract val NO_FOLDER_HOME_ICON_DESCRIPTION: String
     abstract val NO_TAG_HOME_ICON_DESCRIPTION: String
-    abstract val SWIPE_TO_DELETE_ICON_DESCRIPTION: String
-    abstract val SWIPE_TO_EDIT_ICON_DESCRIPTION: String
+    abstract val DELETE_ICON_DESCRIPTION: String
+    abstract val EDIT_ICON_DESCRIPTION: String
 }

@@ -126,6 +126,7 @@ fun HomeScreenGridContent(
                 ) { folder ->
                     YabaFolderGridItem(
                         modifier = Modifier.animateItemPlacement(),
+                        folderId = folder.id,
                         folderName = folder.name,
                         bookmarkCount = 0, // TODO: GET COUNT
                         icon = folder.icon?.icon,

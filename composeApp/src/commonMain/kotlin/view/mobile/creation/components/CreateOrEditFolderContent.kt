@@ -104,6 +104,7 @@ internal fun CreateOrEditFolderContent(
                 modifier = Modifier
                     .padding(horizontal = 100.dp)
                     .align(alignment = Alignment.CenterHorizontally),
+                folderId = -1,
                 folderName = nameFieldValue.ifEmpty {
                     localizationProvider.localization.FOLDER_NAME
                 },
