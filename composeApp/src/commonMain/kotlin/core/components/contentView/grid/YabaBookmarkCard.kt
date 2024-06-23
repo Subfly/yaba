@@ -35,6 +35,7 @@ fun YabaBookmarkCard(
     isPrivate: Boolean,
     imageUrl: String?,
     imageAspectRatio: Float? = null,
+    isInCreateOrEditMode: Boolean = false,
     onClickBookmark: () -> Unit,
 ) {
     val density = LocalDensity.current

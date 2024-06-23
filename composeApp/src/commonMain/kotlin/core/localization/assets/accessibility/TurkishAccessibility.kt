@@ -49,4 +49,8 @@ class TurkishAccessibility : YabaAccessibility() {
         get() = "Hiç dosya bulunamadı"
     override val NO_TAG_HOME_ICON_DESCRIPTION: String
         get() = "Hiç etiket bulunamadı"
+    override val SWIPE_TO_DELETE_ICON_DESCRIPTION: String
+        get() = "Silmek için sürüklemeye devam et"
+    override val SWIPE_TO_EDIT_ICON_DESCRIPTION: String
+        get() = "Düzenlemek için sürüklemeye devam et"
 }

@@ -49,4 +49,8 @@ class EnglishAccessibility : YabaAccessibility() {
         get() = "No folders found"
     override val NO_TAG_HOME_ICON_DESCRIPTION: String
         get() = "No tags found"
+    override val SWIPE_TO_DELETE_ICON_DESCRIPTION: String
+        get() = "Continue swipe to delete"
+    override val SWIPE_TO_EDIT_ICON_DESCRIPTION: String
+        get() = "Continue swipe to edit"
 }

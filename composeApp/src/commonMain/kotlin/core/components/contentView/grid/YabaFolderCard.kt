@@ -40,6 +40,7 @@ fun YabaFolderGridItem(
     iconDescription: String?,
     firstColor: Color?,
     secondColor: Color?,
+    isInCreateOrEditMode: Boolean = false,
     onClickFolder: () -> Unit,
 ) {
     val themeState = ThemeStateProvider.current
@@ -103,7 +104,9 @@ fun YabaFolderGridItem(
                 Icon(
                     modifier = Modifier
                         .clickable {
-                            // TODO: OPEN EDIT/DELETE MENU
+                            if (isInCreateOrEditMode.not()) {
+                                // TODO: OPEN EDIT/DELETE MENU
+                            }
                         },
                     imageVector = Icons.TwoTone.MoreVert,
                     contentDescription = localizationProvider.accessibility.SHOW_MORE_ICON_DESCRIPTION,

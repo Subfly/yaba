@@ -6,15 +6,24 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.twotone.Delete
+import androidx.compose.material.icons.twotone.Edit
 import androidx.compose.material.icons.twotone.MoreVert
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxState
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,6 +39,7 @@ import core.theme.ThemeStateProvider
 import core.util.icon.YabaIcons
 import core.util.selections.ColorSelection
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun YabaFolderListTile(
     modifier: Modifier = Modifier,
@@ -39,10 +49,36 @@ fun YabaFolderListTile(
     iconDescription: String?,
     firstColor: Color?,
     secondColor: Color?,
+    isInCreateOrEditMode: Boolean = false,
     onClickFolder: () -> Unit,
+    onDeleteSwipe: () -> Unit,
+    onEditSwipe: () -> Unit,
 ) {
     val themeState = ThemeStateProvider.current
     val localizationProvider = LocalizationStateProvider.current
+
+    val dismissState = rememberSwipeToDismissBoxState(
+        initialValue = SwipeToDismissBoxValue.Settled,
+        positionalThreshold = { it * 0.3f },
+        confirmValueChange = { state ->
+            when (state) {
+                SwipeToDismissBoxValue.StartToEnd -> {
+                    if (isInCreateOrEditMode.not()) {
+                        onEditSwipe.invoke()
+                    }
+                }
+
+                SwipeToDismissBoxValue.EndToStart -> {
+                    if (isInCreateOrEditMode.not()) {
+                        onDeleteSwipe.invoke()
+                    }
+                }
+
+                SwipeToDismissBoxValue.Settled -> return@rememberSwipeToDismissBoxState false
+            }
+            return@rememberSwipeToDismissBoxState true
+        }
+    )
 
     val bookmarkCountText = buildAnnotatedString {
         val firstText = localizationProvider.localization.BOOKMARK_COUNT_PREFIX_TEXT
@@ -64,20 +100,23 @@ fun YabaFolderListTile(
         )
     }
 
-    YabaCard(
+    SwipeToDismissBox(
         modifier = modifier.fillMaxWidth(),
-        onClick = onClickFolder,
+        state = dismissState,
+        backgroundContent = { BackgroundContent(dismissState) },
+        enableDismissFromEndToStart = isInCreateOrEditMode.not(),
+        enableDismissFromStartToEnd = isInCreateOrEditMode.not(),
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
+        YabaCard(
+            modifier = Modifier.fillMaxWidth(),
+            onClick = onClickFolder,
         ) {
             Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.Start,
             ) {
                 Box(
                     modifier = Modifier
@@ -112,15 +151,40 @@ fun YabaFolderListTile(
                     Text(text = bookmarkCountText)
                 }
             }
-            Icon(
-                modifier = Modifier
-                    .clickable {
-                        // TODO: OPEN EDIT/DELETE MENU
-                    },
-                imageVector = Icons.TwoTone.MoreVert,
-                contentDescription = localizationProvider.accessibility.SHOW_MORE_ICON_DESCRIPTION,
-                tint = themeState.colors.onBackground,
-            )
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun BackgroundContent(dismissBoxState: SwipeToDismissBoxState) {
+    val themeState = ThemeStateProvider.current
+    val localizationState = LocalizationStateProvider.current
+
+    val color = when (dismissBoxState.dismissDirection) {
+        SwipeToDismissBoxValue.StartToEnd -> themeState.colors.primary
+        SwipeToDismissBoxValue.EndToStart -> themeState.colors.secondary
+        SwipeToDismissBoxValue.Settled -> Color.Transparent
+    }
+
+    Row(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color)
+            .padding(
+                horizontal = 12.dp,
+                vertical = 8.dp,
+            ),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Icon(
+            imageVector = Icons.TwoTone.Edit,
+            contentDescription = localizationState.accessibility.SWIPE_TO_DELETE_ICON_DESCRIPTION,
+        )
+        Icon(
+            imageVector = Icons.TwoTone.Delete,
+            contentDescription = localizationState.accessibility.SWIPE_TO_EDIT_ICON_DESCRIPTION,
+        )
     }
 }

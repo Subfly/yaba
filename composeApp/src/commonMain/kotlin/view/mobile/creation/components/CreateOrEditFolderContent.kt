@@ -64,6 +64,8 @@ internal fun CreateOrEditFolderContent(
         mutableStateOf(ContentViewSelection.GRID)
     }
 
+    var nameFieldError by remember { mutableStateOf(false) }
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -139,7 +141,12 @@ internal fun CreateOrEditFolderContent(
         YabaTextField(
             modifier = Modifier.fillMaxWidth(),
             value = nameFieldValue,
-            onValueChange = { nameFieldValue = it },
+            onValueChange = {
+                nameFieldValue = it
+                if (nameFieldError && it.isNotBlank()) {
+                    nameFieldError = false
+                }
+            },
             label = {
                 Text(localizationProvider.localization.FOLDER_NAME)
             },
@@ -151,7 +158,8 @@ internal fun CreateOrEditFolderContent(
                     imageVector = Icons.TwoTone.Title,
                     contentDescription = localizationProvider.accessibility.HELP_ICON_DESCRIPTION,
                 )
-            }
+            },
+            isError = nameFieldError,
         )
         Spacer(modifier = Modifier.size(16.dp))
         Text(
@@ -195,12 +203,16 @@ internal fun CreateOrEditFolderContent(
                 .fillMaxWidth()
                 .height(56.dp),
             onClick = {
-                onCreate.invoke(
-                    nameFieldValue,
-                    selectedIcon?.key,
-                    selectedFirstColor.name,
-                    selectedSecondColor.name,
-                )
+                if (nameFieldValue.isNotBlank()) {
+                    onCreate.invoke(
+                        nameFieldValue,
+                        selectedIcon?.key,
+                        selectedFirstColor.name,
+                        selectedSecondColor.name,
+                    )
+                } else {
+                    nameFieldError = true
+                }
             },
         ) {
             Text(localizationProvider.localization.CREATE_FOLDER)
