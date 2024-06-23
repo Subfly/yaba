@@ -1,5 +1,6 @@
 package view.mobile.settings.components
 
+import Platform
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.twotone.ArrowBack
 import androidx.compose.material.icons.twotone.ArrowBackIosNew

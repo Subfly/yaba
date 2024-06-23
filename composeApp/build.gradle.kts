@@ -1,7 +1,6 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -9,13 +8,11 @@ plugins {
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.compose.compiler)
-    alias(libs.plugins.ksp)
-    alias(libs.plugins.room)
 }
 
 kotlin {
     sourceSets.all {
-        languageSettings.enableLanguageFeature("ExplicitBackingFields")
+        languageSettings.optIn("kotlin.experimental.ExperimentalNativeApi")
     }
 
     androidTarget {
@@ -35,7 +32,6 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
             isStatic = true
-            linkerOpts.add("-lsqlite3")
         }
     }
 
@@ -91,8 +87,6 @@ kotlin {
             implementation(libs.datastore.preferences)
             implementation(libs.androidx.navigation.multiplatform)
             implementation(libs.androidx.lifecycle.viewmodel)
-            implementation(libs.room.runtime)
-            implementation(libs.sqlite)
         }
     }
 }
@@ -143,20 +137,5 @@ compose.desktop {
             packageName = "dev.subfly"
             packageVersion = "1.0.0"
         }
-    }
-}
-
-room {
-    schemaDirectory("$projectDir/schemas")
-}
-
-dependencies {
-    // TODO: Replace it with ->  ksp(libs.room.compiler) when it is stable
-    add("kspCommonMainMetadata", libs.room.compiler)
-}
-
-tasks.withType<KotlinJvmCompile>().configureEach {
-    if (name != "kspCommonMainKotlinMetadata" ) {
-        dependsOn("kspCommonMainKotlinMetadata")
     }
 }

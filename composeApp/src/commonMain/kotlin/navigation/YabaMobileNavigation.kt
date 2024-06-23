@@ -9,6 +9,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import core.util.extensions.koinViewModel
+import state.home.HomeState
 import state.home.HomeStateMachine
 import view.mobile.home.HomeScreen
 import view.mobile.search.SearchScreen
@@ -28,10 +29,11 @@ fun YabaMobileNavigation(
             route = YabaScreens.HOME.route,
         ) {
             val viewModel = koinViewModel<HomeStateMachine>()
-            val state by viewModel.state.collectAsState()
+            // TODO: GET STATE FROM VM
+            //val state by viewModel.state.collectAsState()
 
             HomeScreen(
-                state = state,
+                state = HomeState(), // TODO: GET STATE FROM VM
                 onClickSearch = {
                     navHostController.navigate(YabaScreens.SEARCH.route)
                 },
