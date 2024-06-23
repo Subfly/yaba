@@ -23,6 +23,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import state.creation.CreateOrEditContentStateMachine
 import state.creation.CreateOrEditContentStateMachineProvider
+import state.manager.DatasourceCUDEvent
+import state.manager.DatasourceCUDManagerProvider
 import view.mobile.creation.components.CreateOrEditBookmarkContent
 import view.mobile.creation.components.CreateOrEditFolderContent
 import view.mobile.creation.components.CreateOrEditTagContent
@@ -31,6 +33,7 @@ import view.mobile.creation.components.CreateOrEditTagContent
 @Composable
 fun CreateOrEditContentSheet(modifier: Modifier = Modifier) {
     val stateMachine = CreateOrEditContentStateMachineProvider.current
+    val datasourceCUDManager = DatasourceCUDManagerProvider.current
     val state = stateMachine?.state?.collectAsState()
 
     val createOrEditBookmarkSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -66,8 +69,13 @@ fun CreateOrEditContentSheet(modifier: Modifier = Modifier) {
                 CreateOrEditFolderContent(
                     modifier = Modifier.padding(16.dp),
                     onCreate = { name, icon, firstColor, secondColor ->
-                        stateMachine.onCreateFolder(
-                            name, icon, firstColor, secondColor,
+                        datasourceCUDManager?.onEvent(
+                            event = DatasourceCUDEvent.CreateFolderCUDEvent(
+                                name = name,
+                                icon = icon,
+                                firstColor = firstColor,
+                                secondColor = secondColor,
+                            )
                         )
                         stateMachine.onDismissFolderContent()
                     },
@@ -87,8 +95,13 @@ fun CreateOrEditContentSheet(modifier: Modifier = Modifier) {
                 CreateOrEditTagContent(
                     modifier = Modifier.padding(16.dp),
                     onCreate = { name, icon, firstColor, secondColor ->
-                        stateMachine.onCreateTag(
-                            name, icon, firstColor, secondColor,
+                        datasourceCUDManager?.onEvent(
+                            event = DatasourceCUDEvent.CreateTagCUDEvent(
+                                name = name,
+                                icon = icon,
+                                firstColor = firstColor,
+                                secondColor = secondColor,
+                            )
                         )
                         stateMachine.onDismissTagContent()
                     },
