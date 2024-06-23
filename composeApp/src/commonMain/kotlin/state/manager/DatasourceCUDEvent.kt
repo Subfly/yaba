@@ -8,6 +8,10 @@ sealed class DatasourceCUDEvent {
         val secondColor: String? = null,
     ): DatasourceCUDEvent()
 
+    data class DeleteFolderCUDEvent(
+        val id: Long,
+    ): DatasourceCUDEvent()
+
     data class CreateTagCUDEvent(
         val name: String,
         val icon: String? = null,

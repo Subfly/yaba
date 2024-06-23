@@ -27,6 +27,8 @@ import core.components.contentView.list.YabaFolderListTile
 import core.components.layout.YabaNoContentLayout
 import core.settings.localization.LocalizationStateProvider
 import state.home.HomeState
+import state.manager.DatasourceCUDEvent
+import state.manager.DatasourceCUDManagerProvider
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalFoundationApi::class)
 @Composable
@@ -35,6 +37,7 @@ fun HomeScreenListContent(
     modifier: Modifier = Modifier
 ) {
     val localizationProvider = LocalizationStateProvider.current
+    val datasourceCUDManager = DatasourceCUDManagerProvider.current
 
     var shouldExtendFolders by remember { mutableStateOf(true) }
     var shouldExtendTags by remember { mutableStateOf(true) }
@@ -67,6 +70,8 @@ fun HomeScreenListContent(
                 item {
                     FlowRow(
                         modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         state.tags.forEach { tag ->
                             YabaTag(
@@ -114,7 +119,9 @@ fun HomeScreenListContent(
                     key = { it.id }
                 ) { folder ->
                     YabaFolderListTile(
-                        modifier = Modifier.animateItemPlacement(),
+                        modifier = Modifier
+                            .animateItemPlacement()
+                            .padding(bottom = 12.dp),
                         folderName = folder.name,
                         bookmarkCount = 0, // TODO: GET COUNT
                         icon = folder.icon?.icon,
@@ -122,7 +129,11 @@ fun HomeScreenListContent(
                         firstColor = folder.firstColor?.color,
                         secondColor = folder.secondColor?.color,
                         onDeleteSwipe = {
-                            // TODO: ADD DELETE FOLDER FUNCTIONALITY
+                            datasourceCUDManager?.onEvent(
+                                event = DatasourceCUDEvent.DeleteFolderCUDEvent(
+                                    id = folder.id,
+                                )
+                            )
                         },
                         onEditSwipe = {
                             // TODO: ADD EDIT FOLDER FUNCTIONALITY

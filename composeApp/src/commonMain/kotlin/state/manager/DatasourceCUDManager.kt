@@ -22,6 +22,9 @@ class DatasourceCUDManager(
                     secondColor = event.secondColor,
                 )
             }
+            is DatasourceCUDEvent.DeleteFolderCUDEvent -> {
+                this.onDeleteFolder(id = event.id)
+            }
             is DatasourceCUDEvent.CreateTagCUDEvent -> {
                 this.onCreateTag(
                     name = event.name,
@@ -46,6 +49,12 @@ class DatasourceCUDManager(
                 firstColor = firstColor,
                 secondColor = secondColor,
             )
+        }
+    }
+
+    private fun onDeleteFolder(id: Long) {
+        this.viewModelScope.launch(Dispatchers.IO) {
+            this@DatasourceCUDManager.datasource.deleteFolder(id = id)
         }
     }
 

@@ -25,6 +25,7 @@ import core.components.contentView.grid.YabaFolderGridItem
 import core.components.layout.YabaNoContentLayout
 import core.settings.localization.LocalizationStateProvider
 import state.home.HomeState
+import state.manager.DatasourceCUDManagerProvider
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalFoundationApi::class)
 @Composable
@@ -33,6 +34,7 @@ fun HomeScreenGridContent(
     modifier: Modifier = Modifier,
 ) {
     val localizationProvider = LocalizationStateProvider.current
+    val datasourceCUDManager = DatasourceCUDManagerProvider.current
 
     var shouldExtendFolders by remember { mutableStateOf(true) }
     var shouldExtendTags by remember { mutableStateOf(true) }
@@ -71,7 +73,9 @@ fun HomeScreenGridContent(
                     span = StaggeredGridItemSpan.FullLine,
                 ) {
                     FlowRow(
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         state.tags.forEach { tag ->
                             YabaTag(

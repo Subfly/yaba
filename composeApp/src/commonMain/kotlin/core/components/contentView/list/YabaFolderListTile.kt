@@ -25,6 +25,7 @@ import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -38,6 +39,8 @@ import core.settings.localization.LocalizationStateProvider
 import core.settings.theme.ThemeStateProvider
 import core.util.icon.YabaIcons
 import core.util.selections.ColorSelection
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -57,6 +60,8 @@ fun YabaFolderListTile(
     val themeState = ThemeStateProvider.current
     val localizationProvider = LocalizationStateProvider.current
 
+    val scope = rememberCoroutineScope()
+
     val dismissState = rememberSwipeToDismissBoxState(
         initialValue = SwipeToDismissBoxValue.Settled,
         positionalThreshold = { it * 0.3f },
@@ -64,13 +69,19 @@ fun YabaFolderListTile(
             when (state) {
                 SwipeToDismissBoxValue.StartToEnd -> {
                     if (isInCreateOrEditMode.not()) {
-                        onEditSwipe.invoke()
+                        scope.launch {
+                            delay(250)
+                            onEditSwipe.invoke()
+                        }
                     }
                 }
 
                 SwipeToDismissBoxValue.EndToStart -> {
                     if (isInCreateOrEditMode.not()) {
-                        onDeleteSwipe.invoke()
+                        scope.launch {
+                            delay(250)
+                            onDeleteSwipe.invoke()
+                        }
                     }
                 }
 
