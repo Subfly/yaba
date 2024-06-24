@@ -19,6 +19,12 @@ class TurkishLocalization : YabaLocalization() {
         get() = "Dosya Oluştur"
     override val CREATE_TAG: String
         get() = "Etiket Oluştur"
+    override val EDIT_BOOKMARK: String
+        get() = "Kaydı Düzenle"
+    override val EDIT_FOLDER: String
+        get() = "Dosyayı Düzenle"
+    override val EDIT_TAG: String
+        get() = "Etiketi Düzenle"
     override val PREVIEW: String
         get() = "Ön İzleme"
     override val WRITE_HERE: String

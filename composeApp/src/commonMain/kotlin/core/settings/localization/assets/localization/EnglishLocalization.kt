@@ -19,6 +19,12 @@ class EnglishLocalization : YabaLocalization() {
         get() = "Create Folder"
     override val CREATE_TAG: String
         get() = "Create Tag"
+    override val EDIT_BOOKMARK: String
+        get() = "Edit Bookmark"
+    override val EDIT_FOLDER: String
+        get() = "Edit Folder"
+    override val EDIT_TAG: String
+        get() = "Edit Tag"
     override val PREVIEW: String
         get() = "Preview"
     override val WRITE_HERE: String

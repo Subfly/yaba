@@ -22,7 +22,7 @@ WHERE folder_id = ?;
 update:
 UPDATE FolderEntity
 SET name = :name, icon_name = :iconName, first_color = :firstColor, second_color = :secondColor
-WHERE folder_id = :folder_id;
+WHERE folder_id = :folderId;
 
 getAll:
 SELECT *
@@ -42,6 +42,29 @@ LEFT JOIN
     BookmarkEntity b
 ON
     f.folder_id = b.folder_id
+GROUP BY
+    f.folder_id,
+    f.name,
+    f.icon_name,
+    f.first_color,
+    f.second_color;
+
+getFolderWithBookmarkCount:
+SELECT
+    f.folder_id,
+    f.name,
+    f.icon_name,
+    f.first_color,
+    f.second_color,
+    COUNT(b.bookmark_id) AS bookmark_count
+FROM
+    FolderEntity f
+LEFT JOIN
+    BookmarkEntity b
+ON
+    f.folder_id = b.folder_id
+WHERE
+    f.folder_id = :folderId
 GROUP BY
     f.folder_id,
     f.name,

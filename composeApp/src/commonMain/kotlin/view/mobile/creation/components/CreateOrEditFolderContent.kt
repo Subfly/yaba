@@ -14,16 +14,16 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.twotone.Title
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import core.components.button.YabaElevatedButton
@@ -36,22 +36,35 @@ import core.components.layout.YabaScaffold
 import core.components.layout.YabaTextField
 import core.settings.localization.LocalizationStateProvider
 import core.settings.theme.ThemeStateProvider
+import core.util.icon.YabaIcons
 import core.util.selections.ColorSelection
 import core.util.selections.ContentViewSelection
-import core.util.icon.YabaIcons
+import state.manager.DatasourceCRUDEvent
+import state.manager.DatasourceCRUDManagerProvider
 
 @Composable
 internal fun CreateOrEditFolderContent(
     modifier: Modifier = Modifier,
+    folderId: Long? = null,
     onCreate: (
         name: String,
         icon: String?,
         firstColor: String?,
         secondColor: String?,
     ) -> Unit,
+    onEdit: (
+        folderId: Long,
+        name: String,
+        icon: String?,
+        firstColor: String?,
+        secondColor: String?,
+    ) -> Unit,
 ) {
+    val crudManager = DatasourceCRUDManagerProvider.current
     val themeState = ThemeStateProvider.current
     val localizationProvider = LocalizationStateProvider.current
+
+    val folderState = crudManager?.readFolderState?.collectAsState()
 
     var nameFieldValue by remember { mutableStateOf("") }
     var selectedIcon: YabaIcons? by remember { mutableStateOf(null) }
@@ -64,8 +77,31 @@ internal fun CreateOrEditFolderContent(
     var currentContentViewSelection by remember {
         mutableStateOf(ContentViewSelection.GRID)
     }
+    var bookmarkCount: Long? by remember {
+        mutableStateOf(1234L)
+    }
 
     var nameFieldError by remember { mutableStateOf(false) }
+
+    LaunchedEffect(folderId) {
+        if (folderId != null) {
+            crudManager?.onEvent(
+                event = DatasourceCRUDEvent.GetFolderCRUDEvent(
+                    id = folderId,
+                ),
+            )
+        }
+    }
+
+    LaunchedEffect(folderState?.value) {
+        folderState?.value?.let { state ->
+            nameFieldValue = state.name
+            selectedIcon = state.icon
+            selectedFirstColor = state.firstColor ?: ColorSelection.PRIMARY
+            selectedSecondColor = state.secondColor ?: ColorSelection.SECONDARY
+            bookmarkCount = state.bookmarkCount
+        }
+    }
 
     YabaScaffold(
         containerColor = themeState.colors.surface,
@@ -78,19 +114,40 @@ internal fun CreateOrEditFolderContent(
                     .padding(horizontal = 16.dp)
                     .height(56.dp),
                 onClick = {
-                    if (nameFieldValue.isNotBlank()) {
-                        onCreate.invoke(
-                            nameFieldValue,
-                            selectedIcon?.key,
-                            selectedFirstColor.name,
-                            selectedSecondColor.name,
-                        )
+                    if (folderId == null) {
+                        // Create Folder
+                        if (nameFieldValue.isNotBlank()) {
+                            onCreate.invoke(
+                                nameFieldValue,
+                                selectedIcon?.key,
+                                selectedFirstColor.name,
+                                selectedSecondColor.name,
+                            )
+                        } else {
+                            nameFieldError = true
+                        }
                     } else {
-                        nameFieldError = true
+                        // Edit Folder
+                        if (nameFieldValue.isNotBlank()) {
+                            onEdit.invoke(
+                                folderId,
+                                nameFieldValue,
+                                selectedIcon?.key,
+                                selectedFirstColor.name,
+                                selectedSecondColor.name,
+                            )
+                        } else {
+                            nameFieldError = true
+                        }
                     }
                 },
             ) {
-                Text(localizationProvider.localization.CREATE_FOLDER)
+                Text(
+                    if (folderId == null)
+                        localizationProvider.localization.CREATE_FOLDER
+                    else
+                        localizationProvider.localization.EDIT_FOLDER
+                )
             }
         }
     ) { paddings ->
@@ -139,7 +196,7 @@ internal fun CreateOrEditFolderContent(
                     folderName = nameFieldValue.ifEmpty {
                         localizationProvider.localization.FOLDER_NAME
                     },
-                    bookmarkCount = 1234,
+                    bookmarkCount = 1234L,
                     icon = selectedIcon?.icon,
                     iconDescription = selectedIcon?.key,
                     firstColor = selectedFirstColor.color,
@@ -153,7 +210,7 @@ internal fun CreateOrEditFolderContent(
                     folderName = nameFieldValue.ifEmpty {
                         localizationProvider.localization.FOLDER_NAME
                     },
-                    bookmarkCount = 1234,
+                    bookmarkCount = bookmarkCount ?: 1234,
                     icon = selectedIcon?.icon,
                     iconDescription = selectedIcon?.key,
                     firstColor = selectedFirstColor.color,

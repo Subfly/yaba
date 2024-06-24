@@ -15,44 +15,62 @@ class CreateOrEditContentStateMachine : ViewModel(), KoinComponent {
     val state = _state.asStateFlow()
 
     fun onShowBookmarkContent(
-        isEditMode: Boolean = false,
+        bookmarkId: Long? = null,
     ) {
         _state.update {
-            it.copy(shouldShowCreateBookmarkSheet = true)
+            it.copy(
+                shouldShowCreateBookmarkSheet = true,
+                editingBookmarkId = bookmarkId,
+            )
         }
     }
 
     fun onDismissBookmarkContent() {
         _state.update {
-            it.copy(shouldShowCreateBookmarkSheet = false)
+            it.copy(
+                shouldShowCreateBookmarkSheet = false,
+                editingBookmarkId = null,
+            )
         }
     }
 
     fun onShowFolderContent(
-        isEditMode: Boolean = false,
+        folderId: Long? = null,
     ) {
         _state.update {
-            it.copy(shouldShowCreateFolderSheet = true)
+            it.copy(
+                shouldShowCreateFolderSheet = true,
+                editingFolderId = folderId,
+            )
         }
     }
 
     fun onDismissFolderContent() {
         _state.update {
-            it.copy(shouldShowCreateFolderSheet = false)
+            it.copy(
+                shouldShowCreateFolderSheet = false,
+                editingFolderId = null,
+            )
         }
     }
 
     fun onShowTagContent(
-        isEditMode: Boolean = false,
+        tagId: Long? = null,
     ) {
         _state.update {
-            it.copy(shouldShowCreateTagSheet = true)
+            it.copy(
+                shouldShowCreateTagSheet = true,
+                editingTagId = tagId,
+            )
         }
     }
 
     fun onDismissTagContent() {
         _state.update {
-            it.copy(shouldShowCreateTagSheet = false)
+            it.copy(
+                shouldShowCreateTagSheet = false,
+                editingTagId = null,
+            )
         }
     }
 }

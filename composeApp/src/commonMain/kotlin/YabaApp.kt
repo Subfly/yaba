@@ -25,8 +25,8 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.KoinContext
 import state.creation.CreateOrEditContentStateMachine
 import state.creation.CreateOrEditContentStateMachineProvider
-import state.manager.DatasourceCUDManager
-import state.manager.DatasourceCUDManagerProvider
+import state.manager.DatasourceCRUDManager
+import state.manager.DatasourceCRUDManagerProvider
 import view.mobile.creation.CreateOrEditContentSheet
 
 @Composable
@@ -37,7 +37,7 @@ fun YabaApp() {
     val localizationManager = koinViewModel<YabaLocalizationManager>()
     val contentViewStyleManager = koinViewModel<YabaContentViewStyleManager>()
     val createOrEditContentStateMachine = koinViewModel<CreateOrEditContentStateMachine>()
-    val datasourceCUDManager = koinViewModel<DatasourceCUDManager>()
+    val datasourceCRUDManager = koinViewModel<DatasourceCRUDManager>()
 
     val themeState by themeManager.state.collectAsState()
     val localizationState by localizationManager.state.collectAsState()
@@ -65,7 +65,7 @@ fun YabaApp() {
             ContentViewStyleStateProvider provides contentViewStyleState,
             ContentViewStyleManagerProvider provides contentViewStyleManager,
             CreateOrEditContentStateMachineProvider provides createOrEditContentStateMachine,
-            DatasourceCUDManagerProvider provides datasourceCUDManager,
+            DatasourceCRUDManagerProvider provides datasourceCRUDManager,
         ) {
             YabaTheme {
                 Box(modifier = Modifier.fillMaxSize()) {

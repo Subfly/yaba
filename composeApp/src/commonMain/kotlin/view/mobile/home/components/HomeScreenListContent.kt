@@ -4,13 +4,10 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
-import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.twotone.CreateNewFolder
 import androidx.compose.material.icons.twotone.NewLabel
@@ -22,13 +19,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import core.components.button.YabaTag
-import core.components.contentView.grid.YabaFolderGridItem
 import core.components.contentView.list.YabaFolderListTile
 import core.components.layout.YabaNoContentLayout
 import core.settings.localization.LocalizationStateProvider
 import state.home.HomeState
-import state.manager.DatasourceCUDEvent
-import state.manager.DatasourceCUDManagerProvider
+import state.manager.DatasourceCRUDEvent
+import state.manager.DatasourceCRUDManagerProvider
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalFoundationApi::class)
 @Composable
@@ -37,7 +33,7 @@ fun HomeScreenListContent(
     modifier: Modifier = Modifier
 ) {
     val localizationProvider = LocalizationStateProvider.current
-    val datasourceCUDManager = DatasourceCUDManagerProvider.current
+    val crudManager = DatasourceCRUDManagerProvider.current
 
     var shouldExtendFolders by remember { mutableStateOf(true) }
     var shouldExtendTags by remember { mutableStateOf(true) }
@@ -129,8 +125,8 @@ fun HomeScreenListContent(
                         firstColor = folder.firstColor?.color,
                         secondColor = folder.secondColor?.color,
                         onDeleteSwipe = {
-                            datasourceCUDManager?.onEvent(
-                                event = DatasourceCUDEvent.DeleteFolderCUDEvent(
+                            crudManager?.onEvent(
+                                event = DatasourceCRUDEvent.DeleteFolderCRUDEvent(
                                     id = folder.id,
                                 )
                             )

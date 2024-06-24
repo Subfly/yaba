@@ -3,7 +3,7 @@ package state.manager
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.staticCompositionLocalOf
 
-val DatasourceCUDManagerProvider: ProvidableCompositionLocal<DatasourceCUDManager?> =
+val DatasourceCRUDManagerProvider: ProvidableCompositionLocal<DatasourceCRUDManager?> =
     staticCompositionLocalOf {
         null
     }

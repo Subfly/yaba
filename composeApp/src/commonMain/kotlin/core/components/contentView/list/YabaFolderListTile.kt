@@ -48,7 +48,7 @@ import kotlinx.coroutines.launch
 fun YabaFolderListTile(
     modifier: Modifier = Modifier,
     folderName: String,
-    bookmarkCount: Int,
+    bookmarkCount: Long,
     icon: ImageVector?,
     iconDescription: String?,
     firstColor: Color?,
@@ -93,7 +93,7 @@ fun YabaFolderListTile(
     )
 
     val bookmarkCountText = buildAnnotatedString {
-        if (bookmarkCount == 0) {
+        if (bookmarkCount == 0L) {
             append(localizationProvider.localization.NO_BOOKMARKS_CARD_MESSAGE)
         } else {
             val firstText = localizationProvider.localization.BOOKMARK_COUNT_PREFIX_TEXT

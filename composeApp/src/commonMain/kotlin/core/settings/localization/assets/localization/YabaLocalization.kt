@@ -10,6 +10,9 @@ abstract class YabaLocalization {
     abstract val CREATE_BOOKMARK: String
     abstract val CREATE_FOLDER: String
     abstract val CREATE_TAG: String
+    abstract val EDIT_BOOKMARK: String
+    abstract val EDIT_FOLDER: String
+    abstract val EDIT_TAG: String
     abstract val PREVIEW: String
     abstract val WRITE_HERE: String
     abstract val TAG_NAME: String

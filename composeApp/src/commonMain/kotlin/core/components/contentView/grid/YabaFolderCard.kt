@@ -5,15 +5,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.twotone.Delete
@@ -34,7 +29,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import core.components.layout.YabaCard
 import core.components.layout.YabaMenu
@@ -43,16 +37,16 @@ import core.settings.localization.LocalizationStateProvider
 import core.settings.theme.ThemeStateProvider
 import core.util.icon.YabaIcons
 import core.util.selections.ColorSelection
-import state.manager.DatasourceCUDEvent
-import state.manager.DatasourceCUDManager
-import state.manager.DatasourceCUDManagerProvider
+import state.creation.CreateOrEditContentStateMachineProvider
+import state.manager.DatasourceCRUDEvent
+import state.manager.DatasourceCRUDManagerProvider
 
 @Composable
 fun YabaFolderGridItem(
     modifier: Modifier = Modifier,
     folderId: Long,
     folderName: String,
-    bookmarkCount: Int,
+    bookmarkCount: Long,
     icon: ImageVector?,
     iconDescription: String?,
     firstColor: Color?,
@@ -62,12 +56,14 @@ fun YabaFolderGridItem(
 ) {
     val themeState = ThemeStateProvider.current
     val localizationProvider = LocalizationStateProvider.current
-    val datasourceCUDManager = DatasourceCUDManagerProvider.current
+
+    val crudManager = DatasourceCRUDManagerProvider.current
+    val createOrEditContentStateMachine = CreateOrEditContentStateMachineProvider.current
 
     var isMenuExpanded by remember { mutableStateOf(false) }
 
     val bookmarkCountText = buildAnnotatedString {
-        if (bookmarkCount == 0) {
+        if (bookmarkCount == 0L) {
             append(localizationProvider.localization.NO_BOOKMARKS_CARD_MESSAGE)
         } else {
             val firstText = localizationProvider.localization.BOOKMARK_COUNT_PREFIX_TEXT
@@ -172,14 +168,17 @@ fun YabaFolderGridItem(
                     },
                     onClickDelete = {
                         isMenuExpanded = false
-                        datasourceCUDManager?.onEvent(
-                            event = DatasourceCUDEvent.DeleteFolderCUDEvent(
+                        crudManager?.onEvent(
+                            event = DatasourceCRUDEvent.DeleteFolderCRUDEvent(
                                 id = folderId,
                             )
                         )
                     },
                     onClickEdit = {
                         isMenuExpanded = false
+                        createOrEditContentStateMachine?.onShowFolderContent(
+                            folderId = folderId,
+                        )
                     }
                 )
             }

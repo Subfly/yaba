@@ -2,6 +2,7 @@ package data
 
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
+import app.cash.sqldelight.coroutines.mapToOne
 import dev.subfly.YabaDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -25,6 +26,12 @@ class YabaDatasource(
         .flowOn(Dispatchers.IO)
         .mapToList(Dispatchers.IO)
 
+    fun getFolder(id: Long) = folderQueries
+        .getFolderWithBookmarkCount(folderId = id)
+        .asFlow()
+        .flowOn(Dispatchers.IO)
+        .mapToOne(Dispatchers.IO)
+
     fun createFolder(
         name: String,
         iconName: String? = null,
@@ -46,7 +53,7 @@ class YabaDatasource(
         firstColor: String? = null,
         secondColor: String? = null,
     ) = folderQueries.update(
-        folder_id = id,
+        folderId = id,
         name = name,
         iconName = iconName,
         firstColor = firstColor,

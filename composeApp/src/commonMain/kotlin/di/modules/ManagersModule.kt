@@ -9,7 +9,7 @@ import core.settings.theme.YabaThemeManager
 import data.YabaDatasource
 import org.koin.core.module.Module
 import org.koin.dsl.module
-import state.manager.DatasourceCUDManager
+import state.manager.DatasourceCRUDManager
 
 val managersModule: Module = module {
     single<YabaThemeManager> {
@@ -21,7 +21,7 @@ val managersModule: Module = module {
     single<YabaContentViewStyleManager> {
         YabaContentViewStyleManager(controller = get<YabaContentViewStyleController>())
     }
-    single<DatasourceCUDManager> {
-        DatasourceCUDManager(datasource = get<YabaDatasource>())
+    single<DatasourceCRUDManager> {
+        DatasourceCRUDManager(datasource = get<YabaDatasource>())
     }
 }
