@@ -99,15 +99,13 @@ fun YabaFolderGridItem(
             modifier = Modifier.fillMaxSize(),
         ) {
             Column(
-                modifier = Modifier.align(Alignment.TopStart),
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(12.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 Box(
                     modifier = Modifier
-                        .padding(
-                            start = 12.dp,
-                            top = 12.dp,
-                        )
                         .size(64.dp)
                         .background(
                             brush = Brush.linearGradient(
@@ -128,10 +126,6 @@ fun YabaFolderGridItem(
                     )
                 }
                 Column(
-                    modifier = Modifier.padding(
-                        start = 12.dp,
-                        bottom = 12.dp,
-                    ),
                     horizontalAlignment = Alignment.Start,
                 ) {
                     Text(
