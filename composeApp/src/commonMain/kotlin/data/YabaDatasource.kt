@@ -19,6 +19,12 @@ class YabaDatasource(
         .flowOn(Dispatchers.IO)
         .mapToList(Dispatchers.IO)
 
+    fun getAllFoldersWithBookmarkCount() = folderQueries
+        .getAllFoldersWithBookmarkCount()
+        .asFlow()
+        .flowOn(Dispatchers.IO)
+        .mapToList(Dispatchers.IO)
+
     fun createFolder(
         name: String,
         iconName: String? = null,

@@ -27,3 +27,24 @@ WHERE folder_id = :folder_id;
 getAll:
 SELECT *
 FROM FolderEntity;
+
+getAllFoldersWithBookmarkCount:
+SELECT
+    f.folder_id,
+    f.name,
+    f.icon_name,
+    f.first_color,
+    f.second_color,
+    COUNT(b.bookmark_id) AS bookmark_count
+FROM
+    FolderEntity f
+LEFT JOIN
+    BookmarkEntity b
+ON
+    f.folder_id = b.folder_id
+GROUP BY
+    f.folder_id,
+    f.name,
+    f.icon_name,
+    f.first_color,
+    f.second_color;

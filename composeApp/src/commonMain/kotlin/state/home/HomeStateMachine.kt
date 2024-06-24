@@ -26,7 +26,7 @@ class HomeStateMachine : ViewModel(), KoinComponent {
     init {
         this.viewModelScope.launch(Dispatchers.IO) {
             combine(
-                this@HomeStateMachine.datasource.getAllFolders(),
+                this@HomeStateMachine.datasource.getAllFoldersWithBookmarkCount(),
                 this@HomeStateMachine.datasource.getAllTags(),
             ) { folders, tags ->
                 val mappedFolders = folders.map { it.toFolderModel() }

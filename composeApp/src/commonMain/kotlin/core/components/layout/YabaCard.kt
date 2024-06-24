@@ -7,6 +7,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import core.settings.theme.ThemeStateProvider
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -16,6 +18,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 fun YabaCard(
     modifier: Modifier = Modifier,
     requireBorder: Boolean = true,
+    customBorderBrushColors: List<Color> = emptyList(),
     onClick: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
@@ -28,10 +31,19 @@ fun YabaCard(
             onClick = onClick,
             content = content,
             border = if (requireBorder) {
-                BorderStroke(
-                    width = 2.dp,
-                    color = themeState.colors.primary.copy(alpha = 0.8f),
-                )
+                if (customBorderBrushColors.isNotEmpty()) {
+                    BorderStroke(
+                        width = 2.dp,
+                        brush = Brush.linearGradient(
+                            colors = customBorderBrushColors
+                        ),
+                    )
+                } else {
+                    BorderStroke(
+                        width = 2.dp,
+                        color = themeState.colors.primary.copy(alpha = 0.8f),
+                    )
+                }
             } else {
                 null
             },

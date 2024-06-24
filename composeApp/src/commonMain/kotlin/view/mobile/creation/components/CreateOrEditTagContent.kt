@@ -30,6 +30,7 @@ import core.components.button.YabaIconButton
 import core.components.button.YabaTag
 import core.components.layout.YabaColorSelectionLayout
 import core.components.layout.YabaIconSelectionLayout
+import core.components.layout.YabaScaffold
 import core.components.layout.YabaTextField
 import core.settings.localization.LocalizationStateProvider
 import core.settings.theme.ThemeStateProvider
@@ -61,133 +62,142 @@ internal fun CreateOrEditTagContent(
 
     var nameFieldError by remember { mutableStateOf(false) }
 
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .verticalScroll(rememberScrollState())
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
+    YabaScaffold(
+        containerColor = themeState.colors.surface,
+        contentColor = themeState.colors.onSurface,
+        bottomBar = {
+            YabaElevatedButton(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp)
+                    .padding(horizontal = 16.dp)
+                    .height(56.dp),
+                onClick = {
+                    if (nameFieldValue.isNotBlank()) {
+                        onCreate.invoke(
+                            nameFieldValue,
+                            selectedIcon?.key,
+                            selectedFirstColor.name,
+                            selectedSecondColor.name,
+                        )
+                    } else {
+                        nameFieldError = true
+                    }
+                },
+            ) {
+                Text(localizationProvider.localization.CREATE_TAG)
+            }
+        }
+    ) { paddings ->
+        Column(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(paddings)
+                .verticalScroll(rememberScrollState())
         ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text(
+                    text = localizationProvider.localization.PREVIEW,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                YabaIconButton(
+                    onClick = {
+                        // TODO: Show Info Tooltip
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.TwoTone.HelpOutline,
+                        contentDescription = localizationProvider.accessibility.HELP_ICON_DESCRIPTION,
+                        tint = themeState.colors.onBackground,
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.size(16.dp))
+            YabaTag(
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                selected = isSelected,
+                name = nameFieldValue.ifEmpty {
+                    localizationProvider.localization.TAG_NAME
+                },
+                firstColor = selectedFirstColor.color,
+                secondColor = selectedSecondColor.color,
+                icon = selectedIcon?.icon,
+                iconDescription = selectedIcon?.key,
+                onClick = {
+                    isSelected = isSelected.not()
+                },
+            )
+            Spacer(modifier = Modifier.size(32.dp))
             Text(
-                text = localizationProvider.localization.PREVIEW,
+                text = localizationProvider.localization.TAG_NAME,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
             )
-            YabaIconButton(
-                onClick = {
-                    // TODO: Show Info Tooltip
-                }
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.TwoTone.HelpOutline,
-                    contentDescription = localizationProvider.accessibility.HELP_ICON_DESCRIPTION,
-                    tint = themeState.colors.onBackground,
-                )
-            }
-        }
-        Spacer(modifier = Modifier.size(16.dp))
-        YabaTag(
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            selected = isSelected,
-            name = nameFieldValue.ifEmpty {
-                localizationProvider.localization.TAG_NAME
-            },
-            firstColor = selectedFirstColor.color,
-            secondColor = selectedSecondColor.color,
-            icon = selectedIcon?.icon,
-            iconDescription = selectedIcon?.key,
-            onClick = {
-                isSelected = isSelected.not()
-            },
-        )
-        Spacer(modifier = Modifier.size(32.dp))
-        Text(
-            text = localizationProvider.localization.TAG_NAME,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold,
-        )
-        Spacer(modifier = Modifier.size(8.dp))
-        YabaTextField(
-            modifier = Modifier.fillMaxWidth(),
-            value = nameFieldValue,
-            onValueChange = {
-                nameFieldValue = it
-                if (nameFieldError && it.isNotBlank()) {
-                    nameFieldError = false
-                }
-            },
-            label = {
-                Text(localizationProvider.localization.TAG_NAME)
-            },
-            placeholder = {
-                Text(localizationProvider.localization.WRITE_HERE)
-            },
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.TwoTone.Title,
-                    contentDescription = localizationProvider.accessibility.TITLE_TEXT_FIELD_ICON_DESCRIPTION,
-                )
-            },
-            isError = nameFieldError,
-        )
-        Spacer(modifier = Modifier.size(16.dp))
-        Text(
-            text = localizationProvider.localization.COLOR_SELECTION,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold,
-        )
-        Spacer(modifier = Modifier.size(8.dp))
-        YabaColorSelectionLayout(
-            label = localizationProvider.localization.COLOR_SELECTION_FIRST,
-            isPrimary = true,
-            onColorChange = { selectedColor ->
-                selectedFirstColor = selectedColor
-            }
-        )
-        Spacer(modifier = Modifier.size(12.dp))
-        YabaColorSelectionLayout(
-            label = localizationProvider.localization.COLOR_SELECTION_SECOND,
-            isPrimary = false,
-            onColorChange = { selectedColor ->
-                selectedSecondColor = selectedColor
-            },
-        )
-        Spacer(modifier = Modifier.size(16.dp))
-        Text(
-            text = localizationProvider.localization.ICON_SELECTION,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold,
-        )
-        Spacer(modifier = Modifier.size(8.dp))
-        YabaIconSelectionLayout(
-            modifier = Modifier.fillMaxWidth(),
-            onSelected = { selection ->
-                selectedIcon = selection
-            },
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        YabaElevatedButton(
-            modifier = Modifier
-                .padding(bottom = 16.dp)
-                .fillMaxWidth()
-                .height(56.dp),
-            onClick = {
-                if (nameFieldValue.isNotBlank()) {
-                    onCreate.invoke(
-                        nameFieldValue,
-                        selectedIcon?.key,
-                        selectedFirstColor.name,
-                        selectedSecondColor.name,
+            Spacer(modifier = Modifier.size(8.dp))
+            YabaTextField(
+                modifier = Modifier.fillMaxWidth(),
+                value = nameFieldValue,
+                onValueChange = {
+                    nameFieldValue = it
+                    if (nameFieldError && it.isNotBlank()) {
+                        nameFieldError = false
+                    }
+                },
+                label = {
+                    Text(localizationProvider.localization.TAG_NAME)
+                },
+                placeholder = {
+                    Text(localizationProvider.localization.WRITE_HERE)
+                },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.TwoTone.Title,
+                        contentDescription = localizationProvider.accessibility.TITLE_TEXT_FIELD_ICON_DESCRIPTION,
                     )
-                } else {
-                    nameFieldError = true
+                },
+                isError = nameFieldError,
+            )
+            Spacer(modifier = Modifier.size(16.dp))
+            Text(
+                text = localizationProvider.localization.COLOR_SELECTION,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+            )
+            Spacer(modifier = Modifier.size(8.dp))
+            YabaColorSelectionLayout(
+                label = localizationProvider.localization.COLOR_SELECTION_FIRST,
+                isPrimary = true,
+                onColorChange = { selectedColor ->
+                    selectedFirstColor = selectedColor
                 }
-            },
-        ) {
-            Text(localizationProvider.localization.CREATE_TAG)
+            )
+            Spacer(modifier = Modifier.size(12.dp))
+            YabaColorSelectionLayout(
+                label = localizationProvider.localization.COLOR_SELECTION_SECOND,
+                isPrimary = false,
+                onColorChange = { selectedColor ->
+                    selectedSecondColor = selectedColor
+                },
+            )
+            Spacer(modifier = Modifier.size(16.dp))
+            Text(
+                text = localizationProvider.localization.ICON_SELECTION,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+            )
+            Spacer(modifier = Modifier.size(8.dp))
+            YabaIconSelectionLayout(
+                modifier = Modifier.fillMaxWidth(),
+                onSelected = { selection ->
+                    selectedIcon = selection
+                },
+            )
+            Spacer(modifier = Modifier.height(8.dp))
         }
     }
 }

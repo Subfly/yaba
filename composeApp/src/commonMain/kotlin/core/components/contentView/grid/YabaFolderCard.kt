@@ -7,10 +7,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.twotone.Delete
 import androidx.compose.material.icons.twotone.Edit
@@ -30,6 +34,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import core.components.layout.YabaCard
 import core.components.layout.YabaMenu
@@ -62,41 +67,51 @@ fun YabaFolderGridItem(
     var isMenuExpanded by remember { mutableStateOf(false) }
 
     val bookmarkCountText = buildAnnotatedString {
-        val firstText = localizationProvider.localization.BOOKMARK_COUNT_PREFIX_TEXT
-        append(firstText)
-        addStyle(
-            style = MaterialTheme.typography.titleSmall.copy(
-                fontWeight = FontWeight.SemiBold
-            ).toSpanStyle(),
-            start = 0,
-            end = firstText.length,
-        )
-        append(bookmarkCount.toString())
-        addStyle(
-            style = MaterialTheme.typography.bodyLarge.copy(
-                fontWeight = FontWeight.Medium,
-            ).toSpanStyle(),
-            start = firstText.length,
-            end = (firstText + bookmarkCount).length
-        )
+        if (bookmarkCount == 0) {
+            append(localizationProvider.localization.NO_BOOKMARKS_CARD_MESSAGE)
+        } else {
+            val firstText = localizationProvider.localization.BOOKMARK_COUNT_PREFIX_TEXT
+            append(firstText)
+            addStyle(
+                style = MaterialTheme.typography.titleSmall.copy(
+                    fontWeight = FontWeight.SemiBold
+                ).toSpanStyle(),
+                start = 0,
+                end = firstText.length,
+            )
+            append(bookmarkCount.toString())
+            addStyle(
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontWeight = FontWeight.Medium,
+                ).toSpanStyle(),
+                start = firstText.length,
+                end = (firstText + bookmarkCount).length
+            )
+        }
     }
 
     YabaCard(
         modifier = modifier.fillMaxWidth(),
+        requireBorder = true,
+        customBorderBrushColors = listOf(
+            firstColor ?: ColorSelection.PRIMARY.color,
+            secondColor ?: ColorSelection.SECONDARY.color,
+        ),
         onClick = onClickFolder,
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+        Box(
+            modifier = Modifier.fillMaxSize(),
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.Top,
-                horizontalArrangement = Arrangement.SpaceBetween,
+            Column(
+                modifier = Modifier.align(Alignment.TopStart),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 Box(
                     modifier = Modifier
+                        .padding(
+                            start = 12.dp,
+                            top = 12.dp,
+                        )
                         .size(64.dp)
                         .background(
                             brush = Brush.linearGradient(
@@ -105,7 +120,7 @@ fun YabaFolderGridItem(
                                     secondColor ?: ColorSelection.SECONDARY.color,
                                 )
                             ),
-                            shape = CircleShape,
+                            shape = RoundedCornerShape(8.dp),
                         ),
                     contentAlignment = Alignment.Center,
                 ) {
@@ -116,49 +131,57 @@ fun YabaFolderGridItem(
                         tint = themeState.colors.creamyWhite,
                     )
                 }
-                Box {
-                    Icon(
-                        modifier = Modifier
-                            .clickable {
-                                if (isInCreateOrEditMode.not()) {
-                                    isMenuExpanded = true
-                                }
-                            },
-                        imageVector = Icons.TwoTone.MoreVert,
-                        contentDescription = localizationProvider.accessibility.SHOW_MORE_ICON_DESCRIPTION,
-                        tint = themeState.colors.onBackground,
+                Column(
+                    modifier = Modifier.padding(
+                        start = 12.dp,
+                        bottom = 12.dp,
+                    ),
+                    horizontalAlignment = Alignment.Start,
+                ) {
+                    Text(
+                        text = folderName,
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.SemiBold,
                     )
-                    OptionsMenu(
-                        isExpanded = isMenuExpanded,
-                        onDismissRequest = {
-                            isMenuExpanded = false
-                        },
-                        onClickDelete = {
-                            isMenuExpanded = false
-                            datasourceCUDManager?.onEvent(
-                                event = DatasourceCUDEvent.DeleteFolderCUDEvent(
-                                    id = folderId,
-                                )
-                            )
-                        },
-                        onClickEdit = {
-                            isMenuExpanded = false
-                        }
-                    )
+                    Text(text = bookmarkCountText)
                 }
             }
-            Spacer(modifier = Modifier.size(24.dp))
-            Column(
-                modifier = Modifier.align(Alignment.Start),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                horizontalAlignment = Alignment.Start,
+            Box(
+                modifier = Modifier
+                    .padding(
+                        end = 12.dp,
+                        top = 12.dp,
+                    )
+                    .align(Alignment.TopEnd),
             ) {
-                Text(
-                    text = folderName,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
+                Icon(
+                    modifier = Modifier
+                        .clickable {
+                            if (isInCreateOrEditMode.not()) {
+                                isMenuExpanded = true
+                            }
+                        },
+                    imageVector = Icons.TwoTone.MoreVert,
+                    contentDescription = localizationProvider.accessibility.SHOW_MORE_ICON_DESCRIPTION,
+                    tint = themeState.colors.onBackground,
                 )
-                Text(text = bookmarkCountText)
+                OptionsMenu(
+                    isExpanded = isMenuExpanded,
+                    onDismissRequest = {
+                        isMenuExpanded = false
+                    },
+                    onClickDelete = {
+                        isMenuExpanded = false
+                        datasourceCUDManager?.onEvent(
+                            event = DatasourceCUDEvent.DeleteFolderCUDEvent(
+                                id = folderId,
+                            )
+                        )
+                    },
+                    onClickEdit = {
+                        isMenuExpanded = false
+                    }
+                )
             }
         }
     }

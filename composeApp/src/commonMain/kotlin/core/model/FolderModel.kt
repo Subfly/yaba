@@ -9,5 +9,5 @@ data class FolderModel(
     val icon: YabaIcons? = null,
     val firstColor: ColorSelection? = null,
     val secondColor: ColorSelection? = null,
-    val bookmarkCount: Int? = null,
+    val bookmarkCount: Long? = null,
 )

@@ -25,16 +25,17 @@ import core.components.contentView.grid.YabaFolderGridItem
 import core.components.layout.YabaNoContentLayout
 import core.settings.localization.LocalizationStateProvider
 import state.home.HomeState
-import state.manager.DatasourceCUDManagerProvider
 
-@OptIn(ExperimentalLayoutApi::class, ExperimentalFoundationApi::class)
+@OptIn(
+    ExperimentalLayoutApi::class,
+    ExperimentalFoundationApi::class
+)
 @Composable
 fun HomeScreenGridContent(
     state: HomeState,
     modifier: Modifier = Modifier,
 ) {
     val localizationProvider = LocalizationStateProvider.current
-    val datasourceCUDManager = DatasourceCUDManagerProvider.current
 
     var shouldExtendFolders by remember { mutableStateOf(true) }
     var shouldExtendTags by remember { mutableStateOf(true) }

@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import core.components.layout.YabaCard
 import core.settings.localization.LocalizationStateProvider
 import core.settings.theme.ThemeStateProvider
+import core.settings.theme.assets.YabaColors
 import core.util.icon.YabaIcons
 import core.util.selections.ColorSelection
 import kotlinx.coroutines.delay
@@ -64,7 +65,7 @@ fun YabaFolderListTile(
 
     val dismissState = rememberSwipeToDismissBoxState(
         initialValue = SwipeToDismissBoxValue.Settled,
-        positionalThreshold = { it * 0.3f },
+        positionalThreshold = { it * 0.5f },
         confirmValueChange = { state ->
             when (state) {
                 SwipeToDismissBoxValue.StartToEnd -> {
@@ -92,23 +93,27 @@ fun YabaFolderListTile(
     )
 
     val bookmarkCountText = buildAnnotatedString {
-        val firstText = localizationProvider.localization.BOOKMARK_COUNT_PREFIX_TEXT
-        append(firstText)
-        addStyle(
-            style = MaterialTheme.typography.titleSmall.copy(
-                fontWeight = FontWeight.SemiBold
-            ).toSpanStyle(),
-            start = 0,
-            end = firstText.length,
-        )
-        append(bookmarkCount.toString())
-        addStyle(
-            style = MaterialTheme.typography.bodyLarge.copy(
-                fontWeight = FontWeight.Medium,
-            ).toSpanStyle(),
-            start = firstText.length,
-            end = (firstText + bookmarkCount).length
-        )
+        if (bookmarkCount == 0) {
+            append(localizationProvider.localization.NO_BOOKMARKS_CARD_MESSAGE)
+        } else {
+            val firstText = localizationProvider.localization.BOOKMARK_COUNT_PREFIX_TEXT
+            append(firstText)
+            addStyle(
+                style = MaterialTheme.typography.titleSmall.copy(
+                    fontWeight = FontWeight.SemiBold
+                ).toSpanStyle(),
+                start = 0,
+                end = firstText.length,
+            )
+            append(bookmarkCount.toString())
+            addStyle(
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontWeight = FontWeight.Medium,
+                ).toSpanStyle(),
+                start = firstText.length,
+                end = (firstText + bookmarkCount).length
+            )
+        }
     }
 
     SwipeToDismissBox(
@@ -120,6 +125,11 @@ fun YabaFolderListTile(
     ) {
         YabaCard(
             modifier = Modifier.fillMaxWidth(),
+            requireBorder = true,
+            customBorderBrushColors = listOf(
+                firstColor ?: ColorSelection.PRIMARY.color,
+                secondColor ?: ColorSelection.SECONDARY.color,
+            ),
             onClick = onClickFolder,
         ) {
             Row(
@@ -160,7 +170,7 @@ fun YabaFolderListTile(
                     ) {
                         Text(
                             text = folderName,
-                            style = MaterialTheme.typography.titleMedium,
+                            style = MaterialTheme.typography.headlineSmall,
                             fontWeight = FontWeight.SemiBold,
                         )
                         Text(text = bookmarkCountText)
@@ -206,10 +216,12 @@ private fun BackgroundContent(dismissBoxState: SwipeToDismissBoxState) {
         Icon(
             imageVector = Icons.TwoTone.Edit,
             contentDescription = localizationState.accessibility.DELETE_ICON_DESCRIPTION,
+            tint = themeState.colors.onPrimary,
         )
         Icon(
             imageVector = Icons.TwoTone.Delete,
             contentDescription = localizationState.accessibility.EDIT_ICON_DESCRIPTION,
+            tint = themeState.colors.onSecondary,
         )
     }
 }
