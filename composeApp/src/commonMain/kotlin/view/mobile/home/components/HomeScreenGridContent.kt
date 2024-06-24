@@ -129,7 +129,7 @@ fun HomeScreenGridContent(
                         modifier = Modifier.animateItemPlacement(),
                         folderId = folder.id,
                         folderName = folder.name,
-                        bookmarkCount = 0, // TODO: GET COUNT
+                        bookmarkCount = folder.bookmarkCount ?: 0L,
                         icon = folder.icon?.icon,
                         iconDescription = folder.icon?.key,
                         firstColor = folder.firstColor?.color,
