@@ -1,4 +1,4 @@
-package state.home
+package state.content
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -17,17 +17,17 @@ import kotlinx.coroutines.withContext
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-class HomeStateMachine : ViewModel(), KoinComponent {
+class ContentProvider : ViewModel(), KoinComponent {
     private val datasource by inject<YabaDatasource>()
 
-    private val _state = MutableStateFlow<HomeState>(HomeState())
+    private val _state = MutableStateFlow(ContentState())
     val state = _state.asStateFlow()
 
     init {
         this.viewModelScope.launch(Dispatchers.IO) {
             combine(
-                this@HomeStateMachine.datasource.getAllFoldersWithBookmarkCount(),
-                this@HomeStateMachine.datasource.getAllTags(),
+                this@ContentProvider.datasource.getAllFoldersWithBookmarkCount(),
+                this@ContentProvider.datasource.getAllTags(),
             ) { folders, tags ->
                 val mappedFolders = folders.map { it.toFolderModel() }
                 val mappedTags = tags.map { it.toTagModel() }

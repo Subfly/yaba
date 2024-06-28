@@ -1,10 +1,10 @@
-package state.home
+package state.content
 
 import core.model.FolderModel
 import core.model.TagModel
 
 // TODO: CREATE ERROR ENUMS
-data class HomeState(
+data class ContentState(
     val folders: List<FolderModel> = emptyList(),
     val tags: List<TagModel> = emptyList(),
     val loading: Boolean = true,

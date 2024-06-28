@@ -23,6 +23,8 @@ import core.util.selections.ThemeSelection
 import navigation.YabaMobileNavigation
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.KoinContext
+import state.content.ContentProvider
+import state.content.ContentStateProvider
 import state.creation.CreateOrEditContentStateMachine
 import state.creation.CreateOrEditContentStateMachineProvider
 import state.manager.DatasourceCRUDManager
@@ -39,9 +41,12 @@ fun YabaApp() {
     val createOrEditContentStateMachine = koinViewModel<CreateOrEditContentStateMachine>()
     val datasourceCRUDManager = koinViewModel<DatasourceCRUDManager>()
 
+    val contentProvider = koinViewModel<ContentProvider>()
+
     val themeState by themeManager.state.collectAsState()
     val localizationState by localizationManager.state.collectAsState()
     val contentViewStyleState by contentViewStyleManager.state.collectAsState()
+    val contentState by contentProvider.state.collectAsState()
 
     LaunchedEffect(isSystemInDarkTheme) {
         if (themeState.currentSelectedTheme == ThemeSelection.SYSTEM) {
@@ -66,6 +71,7 @@ fun YabaApp() {
             ContentViewStyleManagerProvider provides contentViewStyleManager,
             CreateOrEditContentStateMachineProvider provides createOrEditContentStateMachine,
             DatasourceCRUDManagerProvider provides datasourceCRUDManager,
+            ContentStateProvider provides contentState,
         ) {
             YabaTheme {
                 Box(modifier = Modifier.fillMaxSize()) {

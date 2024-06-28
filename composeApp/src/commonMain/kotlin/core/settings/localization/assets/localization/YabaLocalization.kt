@@ -10,6 +10,7 @@ abstract class YabaLocalization {
     abstract val CREATE_BOOKMARK: String
     abstract val CREATE_FOLDER: String
     abstract val CREATE_TAG: String
+    abstract val ADD_TAG: String
     abstract val EDIT_BOOKMARK: String
     abstract val EDIT_FOLDER: String
     abstract val EDIT_TAG: String
@@ -43,7 +44,27 @@ abstract class YabaLocalization {
     abstract val NO_FOLDERS_HOME_MESSAGE: String
     abstract val NO_TAGS_HOME_LABEL: String
     abstract val NO_TAGS_HOME_MESSAGE: String
+    abstract val NO_FOLDERS_SELECT_FOLDER_LABEL: String
+    abstract val NO_FOLDERS_SELECT_FOLDER_MESSAGE: String
+    abstract val NO_TAGS_SELECT_TAGS_LABEL: String
+    abstract val NO_TAGS_SELECT_TAGS_MESSAGE: String
+    abstract val NO_TAGS_SELECTED_SELECT_TAGS_LABEL: String
+    abstract val NO_TAGS_SELECTED_CLICK_HERE_SELECT_TAGS_LABEL: String
+    abstract val NO_TAGS_SELECTED_SELECT_TAGS_MESSAGE: String
+    abstract val NO_SELECTABLE_TAGS_AVAILABLE_SELECT_TAGS_LABEL: String
+    abstract val NO_SELECTABLE_TAGS_AVAILABLE_SELECT_TAGS_MESSAGE: String
     abstract val NO_BOOKMARKS_CARD_MESSAGE: String
     abstract val EDIT_TITLE: String
     abstract val DELETE_TITLE: String
+    abstract val SELECTED_TAGS_TITLE: String
+    abstract val SELECTABLE_TAGS_TITLE: String
+    abstract val FINISH_TAG_SELECTION: String
+
+    abstract fun NO_FOLDERS_SELECT_FOLDER_FORMATTABLE_MESSAGE(
+        query: String,
+    ): String
+
+    abstract fun NO_SELECTABLE_TAGS_AVAILABLE_SELECT_TAGS_FORMATTABLE_MESSAGE(
+        query: String,
+    ): String
 }

@@ -19,6 +19,8 @@ class EnglishLocalization : YabaLocalization() {
         get() = "Create Folder"
     override val CREATE_TAG: String
         get() = "Create Tag"
+    override val ADD_TAG: String
+        get() = "Add Tag"
     override val EDIT_BOOKMARK: String
         get() = "Edit Bookmark"
     override val EDIT_FOLDER: String
@@ -85,10 +87,44 @@ class EnglishLocalization : YabaLocalization() {
         get() = "No Tags Found"
     override val NO_TAGS_HOME_MESSAGE: String
         get() = "You can use the 'Add' button to create a Tag"
+    override val NO_FOLDERS_SELECT_FOLDER_LABEL: String
+        get() = "No Folders Found"
+    override val NO_FOLDERS_SELECT_FOLDER_MESSAGE: String
+        get() = "You can use the 'Add' button on the Home Screen to create a Folder"
+    override val NO_TAGS_SELECT_TAGS_LABEL: String
+        get() = "No Tags Found"
+    override val NO_TAGS_SELECT_TAGS_MESSAGE: String
+        get() = "You can use the 'Add' button on the Home Screen to create a Tag"
+    override val NO_TAGS_SELECTED_SELECT_TAGS_LABEL: String
+        get() = "No Tags Selected"
+    override val NO_TAGS_SELECTED_CLICK_HERE_SELECT_TAGS_LABEL: String
+        get() = "You can select tags by clicking here"
+    override val NO_TAGS_SELECTED_SELECT_TAGS_MESSAGE: String
+        get() = "You can add tags by tapping the available tags below"
+    override val NO_SELECTABLE_TAGS_AVAILABLE_SELECT_TAGS_LABEL: String
+        get() = "No Tags Available"
+    override val NO_SELECTABLE_TAGS_AVAILABLE_SELECT_TAGS_MESSAGE: String
+        get() = "You have selected all the tags, do you really need all of them?"
     override val NO_BOOKMARKS_CARD_MESSAGE: String
         get() = "No Bookmarks Here"
     override val EDIT_TITLE: String
         get() = "Edit"
     override val DELETE_TITLE: String
         get() = "Delete"
+    override val SELECTED_TAGS_TITLE: String
+        get() = "Selected Tags"
+    override val SELECTABLE_TAGS_TITLE: String
+        get() = "Available Tags"
+    override val FINISH_TAG_SELECTION: String
+        get() = "Complete Tag Selection"
+
+    override fun NO_FOLDERS_SELECT_FOLDER_FORMATTABLE_MESSAGE(query: String): String {
+        return "No folders found with name containing '$query'"
+    }
+
+    override fun NO_SELECTABLE_TAGS_AVAILABLE_SELECT_TAGS_FORMATTABLE_MESSAGE(
+        query: String,
+    ): String {
+        return "No tags found with name containing '$query'"
+    }
 }

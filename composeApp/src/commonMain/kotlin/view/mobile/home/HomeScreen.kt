@@ -20,7 +20,7 @@ import core.settings.contentview.ContentViewStyleStateProvider
 import core.settings.localization.LocalizationStateProvider
 import core.util.selections.ContentViewSelection
 import state.creation.CreateOrEditContentStateMachineProvider
-import state.home.HomeState
+import state.content.ContentStateProvider
 import view.mobile.home.components.HomeAppBar
 import view.mobile.home.components.HomeFAB
 import view.mobile.home.components.HomeScreenGridContent
@@ -29,12 +29,12 @@ import view.mobile.home.components.HomeScreenListContent
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    state: HomeState,
     modifier: Modifier = Modifier,
     onClickSearch: () -> Unit,
     onClickSync: () -> Unit,
     onClickSettings: () -> Unit,
 ) {
+    val state = ContentStateProvider.current
     val createOrEditContentStateMachine = CreateOrEditContentStateMachineProvider.current
     val contentStyleState = ContentViewStyleStateProvider.current
     val localizationProvider = LocalizationStateProvider.current
@@ -81,7 +81,7 @@ fun HomeScreen(
                 label = localizationProvider.localization.NO_CONTENT_HOME_LABEL,
                 message = localizationProvider.localization.NO_CONTENT_HOME_MESSAGE,
                 icon = Icons.TwoTone.AddCircleOutline,
-                iconDescription = localizationProvider.accessibility.NO_CONTENT_HOME_ICON_DESCRIPTION,
+                iconDescription = localizationProvider.accessibility.NO_CONTENT_ICON_DESCRIPTION,
             )
         } else {
             when (contentStyleState.currentStyle) {

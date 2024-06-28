@@ -19,6 +19,8 @@ class TurkishLocalization : YabaLocalization() {
         get() = "Dosya Oluştur"
     override val CREATE_TAG: String
         get() = "Etiket Oluştur"
+    override val ADD_TAG: String
+        get() = "Etiket Ekle"
     override val EDIT_BOOKMARK: String
         get() = "Kaydı Düzenle"
     override val EDIT_FOLDER: String
@@ -85,10 +87,44 @@ class TurkishLocalization : YabaLocalization() {
         get() = "Hiç Etiket Yok"
     override val NO_TAGS_HOME_MESSAGE: String
         get() = "Hemen 'Ekle' butonunu kullanarak ilk etiketini oluşturabilirsin"
+    override val NO_FOLDERS_SELECT_FOLDER_LABEL: String
+        get() = "Hiç Dosya Yok"
+    override val NO_FOLDERS_SELECT_FOLDER_MESSAGE: String
+        get() = "Hemen Ana Menü'deki 'Ekle' butonunu kullanarak ilk dosyanı oluşturabilirsin"
+    override val NO_TAGS_SELECT_TAGS_LABEL: String
+        get() = "Hiç Etiket Yok"
+    override val NO_TAGS_SELECT_TAGS_MESSAGE: String
+        get() =  "Hemen Ana Menü'deki 'Ekle' butonunu kullanarak ilk etiketini oluşturabilirsin"
+    override val NO_TAGS_SELECTED_SELECT_TAGS_LABEL: String
+        get() = "Hiç Etiket Seçilmedi"
+    override val NO_TAGS_SELECTED_CLICK_HERE_SELECT_TAGS_LABEL: String
+        get() = "Buraya tıklayarak seçim yapabilirsin"
+    override val NO_TAGS_SELECTED_SELECT_TAGS_MESSAGE: String
+        get() = "Aşağıdaki etiketlere basarak etiket seçebilirsin"
+    override val NO_SELECTABLE_TAGS_AVAILABLE_SELECT_TAGS_LABEL: String
+        get() = "Seçilebilecek Etiket Kalmadı"
+    override val NO_SELECTABLE_TAGS_AVAILABLE_SELECT_TAGS_MESSAGE: String
+        get() = "Tüm etiketleri seçtin, hepsine ihtiyacın olduğuna emin misin?"
     override val NO_BOOKMARKS_CARD_MESSAGE: String
         get() = "Hiç Kaydı Yok"
     override val EDIT_TITLE: String
         get() = "Düzenle"
     override val DELETE_TITLE: String
         get() = "Sil"
+    override val SELECTED_TAGS_TITLE: String
+        get() = "Seçili Etiketler"
+    override val SELECTABLE_TAGS_TITLE: String
+        get() = "Seçilebilir Etiketler"
+    override val FINISH_TAG_SELECTION: String
+        get() = "Etiket Seçimini Tamamla"
+
+    override fun NO_FOLDERS_SELECT_FOLDER_FORMATTABLE_MESSAGE(query: String): String {
+        return "'$query' isimli bir dosya bulunamadı"
+    }
+
+    override fun NO_SELECTABLE_TAGS_AVAILABLE_SELECT_TAGS_FORMATTABLE_MESSAGE(
+        query: String,
+    ): String {
+        return "'$query' isimli bir etiket bulunamadı"
+    }
 }

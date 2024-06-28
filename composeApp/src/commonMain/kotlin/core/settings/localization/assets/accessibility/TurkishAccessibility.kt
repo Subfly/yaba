@@ -49,11 +49,11 @@ class TurkishAccessibility : YabaAccessibility() {
         get() = "Aydınlık tema"
     override val SETTINGS_LANGUAGE_ICON_DESCRIPTION: String
         get() = "Dil seçimi"
-    override val NO_CONTENT_HOME_ICON_DESCRIPTION: String
+    override val NO_CONTENT_ICON_DESCRIPTION: String
         get() = "Kayıt, dosya veya etiket bulunamadı"
-    override val NO_FOLDER_HOME_ICON_DESCRIPTION: String
+    override val NO_FOLDER_ICON_DESCRIPTION: String
         get() = "Hiç dosya bulunamadı"
-    override val NO_TAG_HOME_ICON_DESCRIPTION: String
+    override val NO_TAG_ICON_DESCRIPTION: String
         get() = "Hiç etiket bulunamadı"
     override val DELETE_ICON_DESCRIPTION: String
         get() = "Silmek için devam et"

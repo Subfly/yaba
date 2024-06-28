@@ -24,7 +24,7 @@ import core.components.button.YabaTag
 import core.components.contentView.grid.YabaFolderGridItem
 import core.components.layout.YabaNoContentLayout
 import core.settings.localization.LocalizationStateProvider
-import state.home.HomeState
+import state.content.ContentState
 
 @OptIn(
     ExperimentalLayoutApi::class,
@@ -32,7 +32,7 @@ import state.home.HomeState
 )
 @Composable
 fun HomeScreenGridContent(
-    state: HomeState,
+    state: ContentState,
     modifier: Modifier = Modifier,
 ) {
     val localizationProvider = LocalizationStateProvider.current
@@ -65,7 +65,7 @@ fun HomeScreenGridContent(
                         label = localizationProvider.localization.NO_TAGS_HOME_LABEL,
                         message = localizationProvider.localization.NO_TAGS_HOME_MESSAGE,
                         icon = Icons.TwoTone.NewLabel,
-                        iconDescription = localizationProvider.accessibility.NO_TAG_HOME_ICON_DESCRIPTION,
+                        iconDescription = localizationProvider.accessibility.NO_TAG_ICON_DESCRIPTION,
                         isFullscreen = false,
                     )
                 }
@@ -116,7 +116,7 @@ fun HomeScreenGridContent(
                         label = localizationProvider.localization.NO_FOLDERS_HOME_LABEL,
                         message = localizationProvider.localization.NO_FOLDERS_HOME_MESSAGE,
                         icon = Icons.TwoTone.CreateNewFolder,
-                        iconDescription = localizationProvider.accessibility.NO_FOLDER_HOME_ICON_DESCRIPTION,
+                        iconDescription = localizationProvider.accessibility.NO_FOLDER_ICON_DESCRIPTION,
                         isFullscreen = false,
                     )
                 }
