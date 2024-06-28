@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -26,7 +27,7 @@ import core.util.selections.ColorSelection
 @Composable
 fun YabaTag(
     selected: Boolean,
-    name: String,
+    name: String?,
     firstColor: Color?,
     secondColor: Color?,
     icon: ImageVector?,
@@ -79,11 +80,18 @@ fun YabaTag(
     ) {
         icon?.let {
             Icon(
-                modifier = Modifier.padding(
-                    top = 8.dp,
-                    bottom = 8.dp,
-                    start = 12.dp,
-                ),
+                modifier = Modifier
+                    .padding(
+                        top = if (name == null) 4.dp else 8.dp,
+                        bottom = if (name == null) 4.dp else 8.dp,
+                        start = if (name == null) 4.dp else 12.dp,
+                        end = if (name == null) 4.dp else 0.dp,
+                    ).then(
+                        if (name == null)
+                            Modifier.size(22.dp)
+                        else
+                            Modifier
+                    ),
                 imageVector = it,
                 contentDescription = iconDescription,
                 tint = with(themeState.colors) {
@@ -91,19 +99,21 @@ fun YabaTag(
                 },
             )
         }
-        Text(
-            modifier = Modifier.padding(
-                top = 8.dp,
-                bottom = 8.dp,
-                end = 12.dp,
-                start = if (icon != null) 0.dp else 12.dp,
-            ),
-            text = name,
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.Medium,
-            color = with(themeState.colors) {
-                if (selected) creamyWhite else onBackground
-            },
-        )
+        name?.let {
+            Text(
+                modifier = Modifier.padding(
+                    top = 8.dp,
+                    bottom = 8.dp,
+                    end = 12.dp,
+                    start = if (icon != null) 0.dp else 12.dp,
+                ),
+                text = it,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium,
+                color = with(themeState.colors) {
+                    if (selected) creamyWhite else onBackground
+                },
+            )
+        }
     }
 }

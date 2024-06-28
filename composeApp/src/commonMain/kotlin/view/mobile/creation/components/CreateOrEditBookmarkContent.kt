@@ -40,6 +40,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastFilter
+import androidx.compose.ui.util.fastFirstOrNull
 import core.components.button.YabaElevatedButton
 import core.components.button.YabaIconButton
 import core.components.button.YabaTag
@@ -89,14 +91,14 @@ internal fun CreateOrEditBookmarkContent(modifier: Modifier = Modifier) {
     var selectedFolderId by remember { mutableStateOf(-1L) }
     val selectedFolder by remember(selectedFolderId) {
         derivedStateOf {
-            contentState.folders.firstOrNull { it.id == selectedFolderId }
+            contentState.folders.fastFirstOrNull { it.id == selectedFolderId }
         }
     }
 
     val selectedTagIds = remember { mutableStateListOf<Long>() }
     val selectedTags by remember(selectedTagIds) {
         derivedStateOf {
-            contentState.tags.filter { it.id in selectedTagIds }
+            contentState.tags.fastFilter { it.id in selectedTagIds }
         }
     }
 
@@ -115,7 +117,6 @@ internal fun CreateOrEditBookmarkContent(modifier: Modifier = Modifier) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 16.dp)
-                        .padding(horizontal = 16.dp)
                         .height(56.dp),
                     onClick = {
 
@@ -175,13 +176,27 @@ internal fun CreateOrEditBookmarkContent(modifier: Modifier = Modifier) {
                 }
                 Spacer(modifier = Modifier.size(16.dp))
                 YabaBookmarkCard(
-                    title = "Lele",
+                    modifier = Modifier.padding(horizontal = 100.dp),
+                    title = if (nameFieldValue.isNotBlank()) {
+                        nameFieldValue.trim()
+                    } else {
+                        // TODO: GET FROM ACCESSIBILITY AND LOCALIZATION PROVIDERS
+                        "Kayıt Adı"
+                    },
+                    description = if (descriptionFieldValue.isNotBlank()) {
+                        descriptionFieldValue.trim()
+                    } else {
+                        // TODO: GET FROM ACCESSIBILITY AND LOCALIZATION PROVIDERS
+                        "Dosya Açıklaması (En fazla 3 satır gözükür)"
+                    },
+                    parentFolderId = selectedFolderId,
                     dateAdded = Clock.System.now().toLocalDateTime(
                         timeZone = TimeZone.currentSystemDefault(),
                     ),
-                    tags = emptyList(),
+                    tags = selectedTags,
                     isPrivate = false,
                     imageUrl = (unfurlData as? UnfurlModel.Success)?.twitterModel?.imageUrl,
+                    isInCreateOrEditMode = false,
                     onClickBookmark = {},
                 )
                 Spacer(modifier = Modifier.size(32.dp))

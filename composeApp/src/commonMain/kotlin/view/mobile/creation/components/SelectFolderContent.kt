@@ -32,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastFilter
 import core.components.contentView.grid.YabaFolderGridItem
 import core.components.contentView.list.YabaFolderListTile
 import core.components.layout.YabaModalSheet
@@ -63,7 +64,7 @@ fun SelectFolderContent(
             if (query.isEmpty()) {
                 contentState.folders
             } else {
-                contentState.folders.filter {
+                contentState.folders.fastFilter {
                     it.name.lowercase().contains(query.trim().lowercase())
                 }
             }

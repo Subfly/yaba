@@ -34,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastFilter
 import core.components.button.YabaElevatedButton
 import core.components.button.YabaTag
 import core.components.layout.YabaModalSheet
@@ -69,7 +70,7 @@ fun SelectTagsContent(
     }
     val selectedTags = remember {
         derivedStateOf {
-            contentState.tags.filter { it.id in selectedTagIds }
+            contentState.tags.fastFilter { it.id in selectedTagIds }
         }
     }
     val selectableTags = remember {
@@ -78,15 +79,15 @@ fun SelectTagsContent(
                 if (query.isEmpty()) {
                     contentState.tags
                 } else {
-                    contentState.tags.filter {
+                    contentState.tags.fastFilter {
                         it.name.lowercase().contains(query.trim().lowercase())
                     }
                 }
             } else {
                 if (query.isEmpty()) {
-                    contentState.tags.filter { it.id !in selectedTagIds }
+                    contentState.tags.fastFilter { it.id !in selectedTagIds }
                 } else {
-                    contentState.tags.filter {
+                    contentState.tags.fastFilter {
                         it.id !in selectedTagIds
                                 && it.name.lowercase().contains(query.trim().lowercase())
                     }
