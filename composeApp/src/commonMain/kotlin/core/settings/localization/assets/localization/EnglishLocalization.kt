@@ -37,6 +37,16 @@ class EnglishLocalization : YabaLocalization() {
         get() = "Tag Name"
     override val FOLDER_NAME: String
         get() = "Folder Name"
+    override val BOOKMARK_NAME: String
+        get() = "Bookmark Name"
+    override val BOOKMARK_URL: String
+        get() = "Bookmark URL"
+    override val BOOKMARK_DESCRIPTION: String
+        get() = "Bookmar Description"
+    override val BOOKMARK_DESCRIPTION_PLACEHOLDER: String
+        get() = "At most 3 lines will be shown"
+    override val BOOKMARK_FOLDER_PATH_TITLE: String
+        get() = "Parent Folder"
     override val COLOR_SELECTION: String
         get() = "Color Selection"
     override val COLOR_SELECTION_FIRST: String

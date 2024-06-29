@@ -37,6 +37,16 @@ class TurkishLocalization : YabaLocalization() {
         get() = "Etiket İsmi"
     override val FOLDER_NAME: String
         get() = "Doysa Adı"
+    override val BOOKMARK_NAME: String
+        get() = "Kayıt Adı"
+    override val BOOKMARK_URL: String
+        get() = "Kayıt Linki"
+    override val BOOKMARK_DESCRIPTION: String
+        get() = "Kayıt Açıklaması"
+    override val BOOKMARK_DESCRIPTION_PLACEHOLDER: String
+        get() = "En fazla üç satır gözükür"
+    override val BOOKMARK_FOLDER_PATH_TITLE: String
+        get() = "Kaydedilecek Dosya"
     override val COLOR_SELECTION: String
         get() = "Renk Seçimi"
     override val COLOR_SELECTION_FIRST: String

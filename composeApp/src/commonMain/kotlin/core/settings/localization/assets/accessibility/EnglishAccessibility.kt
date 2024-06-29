@@ -23,6 +23,12 @@ class EnglishAccessibility : YabaAccessibility() {
         get() = "Create tag"
     override val CREATE_CONTENT_ICON_DESCRIPTION: String
         get() = "Create new bookmark/folder/tag"
+    override val CREATE_BOOKMARK_TITLE_ICON_DESCRIPTION: String
+        get() = "Bookmark title"
+    override val CREATE_BOOKMARK_DESCRIPTION_ICON_DESCRIPTION: String
+        get() = "Bookmark description"
+    override val CREATE_BOOKMARK_URL_ICON_DESCRIPTION: String
+        get() = "Bookmark link"
     override val HELP_ICON_DESCRIPTION: String
         get() = "Information"
     override val TITLE_TEXT_FIELD_ICON_DESCRIPTION: String

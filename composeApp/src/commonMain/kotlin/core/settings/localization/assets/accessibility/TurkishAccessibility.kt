@@ -23,6 +23,12 @@ class TurkishAccessibility : YabaAccessibility() {
         get() = "Etiket oluştur"
     override val CREATE_CONTENT_ICON_DESCRIPTION: String
         get() = "Yeni kayıt/klasör/etiket oluştur"
+    override val CREATE_BOOKMARK_TITLE_ICON_DESCRIPTION: String
+        get() = "Kayıt ismi"
+    override val CREATE_BOOKMARK_DESCRIPTION_ICON_DESCRIPTION: String
+        get() = "Kayıt açıklaması"
+    override val CREATE_BOOKMARK_URL_ICON_DESCRIPTION: String
+        get() = "Kayıt linki"
     override val HELP_ICON_DESCRIPTION: String
         get() = "Bilgi al"
     override val TITLE_TEXT_FIELD_ICON_DESCRIPTION: String

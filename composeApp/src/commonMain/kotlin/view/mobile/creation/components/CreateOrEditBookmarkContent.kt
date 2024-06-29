@@ -17,7 +17,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.twotone.Help
-import androidx.compose.material.icons.twotone.Add
 import androidx.compose.material.icons.twotone.Description
 import androidx.compose.material.icons.twotone.Edit
 import androidx.compose.material.icons.twotone.Link
@@ -121,7 +120,7 @@ internal fun CreateOrEditBookmarkContent(modifier: Modifier = Modifier) {
                         .padding(bottom = 16.dp)
                         .height(56.dp),
                     onClick = {
-
+                        // TODO: ADD CREATE BOOKMARK FUNCTIONALITY
                     },
                 ) {
                     Text(localizationProvider.localization.CREATE_BOOKMARK)
@@ -184,14 +183,12 @@ internal fun CreateOrEditBookmarkContent(modifier: Modifier = Modifier) {
                             title = if (nameFieldValue.isNotBlank()) {
                                 nameFieldValue.trim()
                             } else {
-                                // TODO: GET FROM ACCESSIBILITY AND LOCALIZATION PROVIDERS
-                                "Kayıt Adı"
+                                localizationProvider.localization.BOOKMARK_NAME
                             },
                             description = if (descriptionFieldValue.isNotBlank()) {
                                 descriptionFieldValue.trim()
                             } else {
-                                // TODO: GET FROM ACCESSIBILITY AND LOCALIZATION PROVIDERS
-                                "Dosya Açıklaması (En fazla 3 satır gözükür)"
+                                localizationProvider.localization.BOOKMARK_DESCRIPTION_PLACEHOLDER
                             },
                             parentFolderId = selectedFolderId,
                             dateAdded = Clock.System.now().toLocalDateTime(
@@ -204,20 +201,19 @@ internal fun CreateOrEditBookmarkContent(modifier: Modifier = Modifier) {
                             onClickBookmark = {},
                         )
                     }
+
                     ContentViewSelection.LIST -> {
                         YabaBookmarkListTile(
                             modifier = Modifier.fillMaxWidth(),
                             title = if (nameFieldValue.isNotBlank()) {
                                 nameFieldValue.trim()
                             } else {
-                                // TODO: GET FROM ACCESSIBILITY AND LOCALIZATION PROVIDERS
-                                "Kayıt Adı"
+                                localizationProvider.localization.BOOKMARK_DESCRIPTION_PLACEHOLDER
                             },
                             description = if (descriptionFieldValue.isNotBlank()) {
                                 descriptionFieldValue.trim()
                             } else {
-                                // TODO: GET FROM ACCESSIBILITY AND LOCALIZATION PROVIDERS
-                                "Dosya Açıklaması (En fazla 1 satır gözükür)"
+                                localizationProvider.localization.BOOKMARK_DESCRIPTION_PLACEHOLDER
                             },
                             parentFolderId = selectedFolderId,
                             dateAdded = Clock.System.now().toLocalDateTime(
@@ -234,9 +230,8 @@ internal fun CreateOrEditBookmarkContent(modifier: Modifier = Modifier) {
                     }
                 }
                 Spacer(modifier = Modifier.size(32.dp))
-                // TODO: GET FROM ACCESSIBILITY AND LOCALIZATION PROVIDERS
                 Text(
-                    text = "Kayıt Linki",
+                    text = localizationProvider.localization.BOOKMARK_URL,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                 )
@@ -245,25 +240,22 @@ internal fun CreateOrEditBookmarkContent(modifier: Modifier = Modifier) {
                     modifier = Modifier.fillMaxWidth(),
                     value = urlFieldValue,
                     onValueChange = { urlFieldValue = it },
-                    // TODO: GET FROM ACCESSIBILITY AND LOCALIZATION PROVIDERS
                     label = {
-                        Text("Kayıt Linki")
+                        Text(localizationProvider.localization.BOOKMARK_URL)
                     },
                     placeholder = {
                         Text(localizationProvider.localization.WRITE_HERE)
                     },
                     leadingIcon = {
-                        // TODO: GET FROM ACCESSIBILITY AND LOCALIZATION PROVIDERS
                         Icon(
                             imageVector = Icons.TwoTone.Link,
-                            contentDescription = ""
+                            contentDescription = localizationProvider.accessibility.CREATE_BOOKMARK_URL_ICON_DESCRIPTION,
                         )
                     }
                 )
                 Spacer(modifier = Modifier.size(16.dp))
-                // TODO: GET FROM ACCESSIBILITY AND LOCALIZATION PROVIDERS
                 Text(
-                    text = "Kayıt Adı",
+                    text = localizationProvider.localization.BOOKMARK_NAME,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                 )
@@ -272,24 +264,22 @@ internal fun CreateOrEditBookmarkContent(modifier: Modifier = Modifier) {
                     modifier = Modifier.fillMaxWidth(),
                     value = nameFieldValue,
                     onValueChange = { nameFieldValue = it },
-                    // TODO: GET FROM ACCESSIBILITY AND LOCALIZATION PROVIDERS
                     label = {
-                        Text("Kayıt Adı")
+                        Text(localizationProvider.localization.BOOKMARK_NAME)
                     },
                     placeholder = {
                         Text(localizationProvider.localization.WRITE_HERE)
                     },
                     leadingIcon = {
-                        // TODO: GET FROM ACCESSIBILITY AND LOCALIZATION PROVIDERS
                         Icon(
                             imageVector = Icons.TwoTone.Title,
-                            contentDescription = ""
+                            contentDescription = localizationProvider.accessibility.CREATE_BOOKMARK_TITLE_ICON_DESCRIPTION,
                         )
                     }
                 )
                 Spacer(modifier = Modifier.size(16.dp))
                 Text(
-                    text = "Kayıt Açıklaması",
+                    text = localizationProvider.localization.BOOKMARK_DESCRIPTION,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                 )
@@ -298,24 +288,22 @@ internal fun CreateOrEditBookmarkContent(modifier: Modifier = Modifier) {
                     modifier = Modifier.fillMaxWidth(),
                     value = descriptionFieldValue,
                     onValueChange = { descriptionFieldValue = it },
-                    // TODO: GET FROM ACCESSIBILITY AND LOCALIZATION PROVIDERS
                     label = {
-                        Text("Kayıt Açıklaması")
+                        Text(localizationProvider.localization.BOOKMARK_DESCRIPTION)
                     },
                     placeholder = {
                         Text(localizationProvider.localization.WRITE_HERE)
                     },
                     leadingIcon = {
-                        // TODO: GET FROM ACCESSIBILITY AND LOCALIZATION PROVIDERS
                         Icon(
                             imageVector = Icons.TwoTone.Description,
-                            contentDescription = ""
+                            contentDescription = localizationProvider.accessibility.CREATE_BOOKMARK_DESCRIPTION_ICON_DESCRIPTION,
                         )
                     }
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = "Kaydedilecek Dosya",
+                    text = localizationProvider.localization.BOOKMARK_FOLDER_PATH_TITLE,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                 )

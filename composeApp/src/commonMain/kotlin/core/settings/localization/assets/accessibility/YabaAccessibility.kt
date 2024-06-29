@@ -12,6 +12,9 @@ abstract class YabaAccessibility {
     abstract val CREATE_FOLDER_ICON_DESCRIPTION: String
     abstract val CREATE_TAG_ICON_DESCRIPTION: String
     abstract val CREATE_CONTENT_ICON_DESCRIPTION: String
+    abstract val CREATE_BOOKMARK_TITLE_ICON_DESCRIPTION: String
+    abstract val CREATE_BOOKMARK_DESCRIPTION_ICON_DESCRIPTION: String
+    abstract val CREATE_BOOKMARK_URL_ICON_DESCRIPTION: String
     abstract val HELP_ICON_DESCRIPTION: String
     abstract val TITLE_TEXT_FIELD_ICON_DESCRIPTION: String
     abstract val GRID_VIEW_ICON_DESCRIPTION: String

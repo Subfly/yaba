@@ -19,6 +19,11 @@ abstract class YabaLocalization {
     abstract val WRITE_HERE: String
     abstract val TAG_NAME: String
     abstract val FOLDER_NAME: String
+    abstract val BOOKMARK_NAME: String
+    abstract val BOOKMARK_URL: String
+    abstract val BOOKMARK_DESCRIPTION: String
+    abstract val BOOKMARK_DESCRIPTION_PLACEHOLDER: String
+    abstract val BOOKMARK_FOLDER_PATH_TITLE: String
     abstract val COLOR_SELECTION: String
     abstract val COLOR_SELECTION_FIRST: String
     abstract val COLOR_SELECTION_SECOND: String
