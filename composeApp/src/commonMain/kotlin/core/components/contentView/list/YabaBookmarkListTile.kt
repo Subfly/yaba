@@ -44,7 +44,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastFirstOrNull
 import coil3.compose.SubcomposeAsyncImage
-import core.components.button.YabaTag
+import core.components.contentView.YabaTag
 import core.components.layout.YabaCard
 import core.model.TagModel
 import core.settings.localization.LocalizationStateProvider
@@ -229,6 +229,9 @@ fun YabaBookmarkListTile(
                                         onClick = {
                                             // TODO: NAVIGATE TO TAG
                                         },
+                                        onLongClick = {
+                                            // Do nothing here
+                                        },
                                     )
                                 }
                                 if (tags.size > 4) {
@@ -240,6 +243,9 @@ fun YabaBookmarkListTile(
                                         firstColor = null,
                                         secondColor = null,
                                         onClick = {},
+                                        onLongClick = {
+                                            // Do nothing here
+                                        },
                                     )
                                 }
                             }

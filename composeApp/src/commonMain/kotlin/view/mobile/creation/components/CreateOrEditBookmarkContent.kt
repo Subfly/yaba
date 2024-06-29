@@ -44,7 +44,7 @@ import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastFirstOrNull
 import core.components.button.YabaElevatedButton
 import core.components.button.YabaIconButton
-import core.components.button.YabaTag
+import core.components.contentView.YabaTag
 import core.components.contentView.grid.YabaBookmarkCard
 import core.components.contentView.list.YabaBookmarkListTile
 import core.components.contentView.list.YabaFolderListTile
@@ -59,12 +59,14 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import state.content.ContentStateProvider
+import state.creation.CreateOrEditContentStateMachineProvider
 import unfurl.UnfurlingUtil
 import unfurl.models.UnfurlModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 internal fun CreateOrEditBookmarkContent(modifier: Modifier = Modifier) {
+    val createOrEditContentStateMachine = CreateOrEditContentStateMachineProvider.current
     val themeState = ThemeStateProvider.current
     val localizationProvider = LocalizationStateProvider.current
     val contentState = ContentStateProvider.current
@@ -359,6 +361,9 @@ internal fun CreateOrEditBookmarkContent(modifier: Modifier = Modifier) {
                             icon = Icons.TwoTone.Edit,
                             iconDescription = Icons.TwoTone.Edit.name,
                             onClick = { shouldShowTagsSelectionSheet = true },
+                            onLongClick = {
+                                // Do nothing here
+                            },
                         )
                         selectedTags.forEach { tag ->
                             YabaTag(
@@ -370,6 +375,11 @@ internal fun CreateOrEditBookmarkContent(modifier: Modifier = Modifier) {
                                 iconDescription = tag.icon?.name,
                                 onClick = {
                                     selectedTagIds.remove(tag.id)
+                                },
+                                onLongClick = {
+                                    createOrEditContentStateMachine?.onShowTagContent(
+                                        tagId = tag.id,
+                                    )
                                 },
                             )
                         }

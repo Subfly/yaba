@@ -18,11 +18,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import core.components.button.YabaTag
+import core.components.contentView.YabaTag
 import core.components.contentView.list.YabaFolderListTile
 import core.components.layout.YabaNoContentLayout
 import core.settings.localization.LocalizationStateProvider
 import state.content.ContentState
+import state.creation.CreateOrEditContentStateMachineProvider
 import state.manager.DatasourceCRUDEvent
 import state.manager.DatasourceCRUDManagerProvider
 
@@ -32,6 +33,7 @@ fun HomeScreenListContent(
     state: ContentState,
     modifier: Modifier = Modifier
 ) {
+    val createOrEditContentStateMachine = CreateOrEditContentStateMachineProvider.current
     val localizationProvider = LocalizationStateProvider.current
     val crudManager = DatasourceCRUDManagerProvider.current
 
@@ -80,7 +82,12 @@ fun HomeScreenListContent(
                                 iconDescription = tag.icon?.key,
                                 onClick = {
                                     // TODO: NAVIGATE TO TAG DETAIL
-                                }
+                                },
+                                onLongClick = {
+                                    createOrEditContentStateMachine?.onShowTagContent(
+                                        tagId = tag.id,
+                                    )
+                                },
                             )
                         }
                     }
@@ -136,7 +143,7 @@ fun HomeScreenListContent(
                         },
                         onClickFolder = {
                             // TODO: NAVIGATE TO FOLDER DETAIL
-                        }
+                        },
                     )
                 }
             }

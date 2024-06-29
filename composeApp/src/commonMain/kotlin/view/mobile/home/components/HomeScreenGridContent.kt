@@ -20,11 +20,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import core.components.button.YabaTag
+import core.components.contentView.YabaTag
 import core.components.contentView.grid.YabaFolderGridItem
 import core.components.layout.YabaNoContentLayout
 import core.settings.localization.LocalizationStateProvider
 import state.content.ContentState
+import state.creation.CreateOrEditContentStateMachineProvider
 
 @OptIn(
     ExperimentalLayoutApi::class,
@@ -35,6 +36,7 @@ fun HomeScreenGridContent(
     state: ContentState,
     modifier: Modifier = Modifier,
 ) {
+    val createOrEditContentStateMachine = CreateOrEditContentStateMachineProvider.current
     val localizationProvider = LocalizationStateProvider.current
 
     var shouldExtendFolders by remember { mutableStateOf(true) }
@@ -89,7 +91,12 @@ fun HomeScreenGridContent(
                                 iconDescription = tag.icon?.key,
                                 onClick = {
                                     // TODO: NAVIGATE TO TAG DETAIL
-                                }
+                                },
+                                onLongClick = {
+                                    createOrEditContentStateMachine?.onShowTagContent(
+                                        tagId = tag.id,
+                                    )
+                                },
                             )
                         }
                     }

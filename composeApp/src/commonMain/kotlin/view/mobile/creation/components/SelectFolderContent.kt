@@ -3,7 +3,6 @@ package view.mobile.creation.components
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -35,7 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastFilter
-import core.components.button.YabaTag
+import core.components.contentView.YabaTag
 import core.components.contentView.grid.YabaFolderCreateNewGridCard
 import core.components.contentView.grid.YabaFolderGridItem
 import core.components.contentView.list.YabaFolderCreateNewListTile
@@ -117,6 +116,9 @@ fun SelectFolderContent(
                         iconDescription = Icons.TwoTone.Add.name,
                         onClick = {
                             createOrEditContentStateMachine?.onShowFolderContent()
+                        },
+                        onLongClick = {
+                            // Do nothing here
                         },
                     )
                 }

@@ -3,7 +3,9 @@ package state.manager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import core.model.FolderModel
+import core.model.TagModel
 import core.util.mappers.toFolderModel
+import core.util.mappers.toTagModel
 import data.YabaDatasource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -24,8 +26,14 @@ class DatasourceCRUDManager(
     private val _readFolderState = MutableStateFlow<FolderModel?>(null)
     val readFolderState = _readFolderState.asStateFlow()
 
+    private val readTagJob: Job? = null
+    private val _readTagState = MutableStateFlow<TagModel?>(null)
+    val readTagState = _readTagState.asStateFlow()
+
     fun onEvent(event: DatasourceCRUDEvent) {
         when (event) {
+
+            // region FOLDER
             is DatasourceCRUDEvent.CreateFolderCRUDEvent -> {
                 this.onCreateFolder(
                     name = event.name,
@@ -53,6 +61,9 @@ class DatasourceCRUDManager(
             is DatasourceCRUDEvent.DeleteFolderCRUDEvent -> {
                 this.onDeleteFolder(id = event.id)
             }
+            // endregion FOLDER
+
+            // region TAG
             is DatasourceCRUDEvent.CreateTagCRUDEvent -> {
                 this.onCreateTag(
                     name = event.name,
@@ -61,9 +72,27 @@ class DatasourceCRUDManager(
                     secondColor = event.secondColor,
                 )
             }
+            is DatasourceCRUDEvent.EditTagCRUDEvent -> {
+                this.onEditTag(
+                    id = event.tagId,
+                    name = event.name,
+                    icon = event.icon,
+                    firstColor = event.firstColor,
+                    secondColor = event.secondColor,
+                )
+            }
+            is DatasourceCRUDEvent.GetTagCRUDEvent -> {
+                this.onReadTag(id = event.id)
+            }
+            DatasourceCRUDEvent.OnResetTagState -> {
+                this.readTagJob?.cancel()
+                this._readTagState.update { null }
+            }
+            // endregion TAG
         }
     }
 
+    // region FOLDER
     private fun onCreateFolder(
         name: String,
         icon: String?,
@@ -117,7 +146,9 @@ class DatasourceCRUDManager(
             this@DatasourceCRUDManager.datasource.deleteFolder(id = id)
         }
     }
+    // endregion FOLDER
 
+    // region TAG
     private fun onCreateTag(
         name: String,
         icon: String?,
@@ -133,4 +164,39 @@ class DatasourceCRUDManager(
             )
         }
     }
+
+    private fun onEditTag(
+        id: Long,
+        name: String,
+        icon: String?,
+        firstColor: String?,
+        secondColor: String?,
+    ) {
+        this.viewModelScope.launch(Dispatchers.IO) {
+            this@DatasourceCRUDManager.datasource.updateTag(
+                id = id,
+                name = name,
+                iconName = icon,
+                firstColor = firstColor,
+                secondColor = secondColor,
+            )
+        }
+    }
+
+    private fun onReadTag(
+        id: Long,
+    ) {
+        this.readFolderJob = this.viewModelScope.launch(Dispatchers.IO) {
+            this@DatasourceCRUDManager
+                .datasource
+                .getTag(id = id)
+                .collectLatest { tag ->
+                    val mapped = tag.toTagModel()
+                    withContext(Dispatchers.Main) {
+                        _readTagState.update { mapped }
+                    }
+                }
+        }
+    }
+    // endregion TAG
 }

@@ -69,6 +69,12 @@ class YabaDatasource(
         .flowOn(Dispatchers.IO)
         .mapToList(Dispatchers.IO)
 
+    fun getTag(id: Long) = tagQueries
+        .getTag(tagId = id)
+        .asFlow()
+        .flowOn(Dispatchers.IO)
+        .mapToOne(Dispatchers.IO)
+
     fun createTag(
         name: String,
         iconName: String? = null,
@@ -90,7 +96,7 @@ class YabaDatasource(
         firstColor: String? = null,
         secondColor: String? = null,
     ) = tagQueries.update(
-        tag_id = id,
+        tagId = id,
         name = name,
         iconName = iconName,
         firstColor = firstColor,

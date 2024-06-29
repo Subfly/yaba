@@ -21,8 +21,13 @@ WHERE tag_id = ?;
 update:
 UPDATE TagEntity
 SET name = :name, icon_name = :iconName, first_color = :firstColor, second_color = :secondColor
-WHERE tag_id = :tag_id;
+WHERE tag_id = :tagId;
 
 getAll:
 SELECT *
 FROM TagEntity;
+
+getTag:
+SELECT *
+FROM TagEntity
+WHERE tag_id = :tagId;

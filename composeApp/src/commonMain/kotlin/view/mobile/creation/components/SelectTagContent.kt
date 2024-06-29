@@ -2,7 +2,6 @@ package view.mobile.creation.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -14,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.twotone.LabelOff
 import androidx.compose.material.icons.twotone.Add
 import androidx.compose.material.icons.twotone.Clear
 import androidx.compose.material.icons.twotone.NewLabel
@@ -38,7 +36,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastFilter
 import core.components.button.YabaElevatedButton
-import core.components.button.YabaTag
+import core.components.contentView.YabaTag
 import core.components.layout.YabaModalSheet
 import core.components.layout.YabaNoContentLayout
 import core.components.layout.YabaScaffold
@@ -191,7 +189,12 @@ fun SelectTagsContent(
                                         iconDescription = tag.icon?.name,
                                         onClick = {
                                             selectedTagIds.remove(tag.id)
-                                        }
+                                        },
+                                        onLongClick = {
+                                            createOrEditContentStateMachine?.onShowTagContent(
+                                                tagId = tag.id,
+                                            )
+                                        },
                                     )
                                 }
                             }
@@ -221,6 +224,9 @@ fun SelectTagsContent(
                                 onClick = {
                                     createOrEditContentStateMachine?.onShowTagContent()
                                 },
+                                onLongClick = {
+                                    // Do nothing here
+                                }
                             )
                             selectableTags.value.forEach { tag ->
                                 YabaTag(
@@ -232,7 +238,12 @@ fun SelectTagsContent(
                                     iconDescription = tag.icon?.name,
                                     onClick = {
                                         selectedTagIds.add(tag.id)
-                                    }
+                                    },
+                                    onLongClick = {
+                                        createOrEditContentStateMachine?.onShowTagContent(
+                                            tagId = tag.id,
+                                        )
+                                    },
                                 )
                             }
                         }
@@ -274,6 +285,9 @@ private fun NoContentLayout(
             onClick = {
                 createOrEditContentStateMachine?.onShowTagContent()
             },
+            onLongClick = {
+                // Do nothing here
+            }
         )
     }
 }

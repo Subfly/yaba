@@ -106,6 +106,7 @@ fun CreateOrEditContentSheet(modifier: Modifier = Modifier) {
             ) {
                 CreateOrEditTagContent(
                     modifier = Modifier.padding(16.dp),
+                    tagId = state.value.editingTagId,
                     onCreate = { name, icon, firstColor, secondColor ->
                         crudManager?.onEvent(
                             event = DatasourceCRUDEvent.CreateTagCRUDEvent(
@@ -116,7 +117,25 @@ fun CreateOrEditContentSheet(modifier: Modifier = Modifier) {
                             )
                         )
                         stateMachine.onDismissTagContent()
+                        crudManager?.onEvent(
+                            event = DatasourceCRUDEvent.OnResetTagState,
+                        )
                     },
+                    onEdit = { id, name, icon, firstColor, secondColor ->
+                        crudManager?.onEvent(
+                            event = DatasourceCRUDEvent.EditTagCRUDEvent(
+                                tagId = id,
+                                name = name,
+                                icon = icon,
+                                firstColor = firstColor,
+                                secondColor = secondColor,
+                            )
+                        )
+                        stateMachine.onDismissTagContent()
+                        crudManager?.onEvent(
+                            event = DatasourceCRUDEvent.OnResetTagState,
+                        )
+                    }
                 )
             }
         }

@@ -1,9 +1,11 @@
-package core.components.button
+package core.components.contentView
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -24,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import core.settings.theme.ThemeStateProvider
 import core.util.selections.ColorSelection
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun YabaTag(
     selected: Boolean,
@@ -34,12 +37,16 @@ fun YabaTag(
     iconDescription: String?,
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
+    onLongClick: () -> Unit,
 ) {
     val themeState = ThemeStateProvider.current
 
     Row(
         modifier = modifier
-            .clickable(onClick = onClick)
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = onLongClick,
+            )
             .shadow(
                 elevation = if (selected) 4.dp else 0.dp,
                 shape = RoundedCornerShape(8.dp),

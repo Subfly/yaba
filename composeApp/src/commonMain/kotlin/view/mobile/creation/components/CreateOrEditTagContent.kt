@@ -17,6 +17,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,7 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import core.components.button.YabaElevatedButton
 import core.components.button.YabaIconButton
-import core.components.button.YabaTag
+import core.components.contentView.YabaTag
 import core.components.layout.YabaColorSelectionLayout
 import core.components.layout.YabaErrorContent
 import core.components.layout.YabaIconSelectionLayout
@@ -39,19 +41,32 @@ import core.settings.theme.ThemeStateProvider
 import core.util.icon.YabaIcons
 import core.util.selections.ColorSelection
 import core.util.validation.CreateContentValidations
+import state.manager.DatasourceCRUDEvent
+import state.manager.DatasourceCRUDManagerProvider
 
 @Composable
 internal fun CreateOrEditTagContent(
     modifier: Modifier = Modifier,
+    tagId: Long? = null,
     onCreate: (
         name: String,
         icon: String?,
         firstColor: String?,
         secondColor: String?,
     ) -> Unit,
+    onEdit: (
+        tagId: Long,
+        name: String,
+        icon: String?,
+        firstColor: String?,
+        secondColor: String?,
+    ) -> Unit,
 ) {
+    val crudManager = DatasourceCRUDManagerProvider.current
     val themeState = ThemeStateProvider.current
     val localizationProvider = LocalizationStateProvider.current
+
+    val tagState = crudManager?.readTagState?.collectAsState()
 
     var isSelected by remember { mutableStateOf(true) }
     var nameFieldValue by remember { mutableStateOf("") }
@@ -65,6 +80,25 @@ internal fun CreateOrEditTagContent(
 
     var nameFieldError by remember { mutableStateOf(CreateContentValidations.VALID) }
 
+    LaunchedEffect(tagId) {
+        if (tagId != null) {
+            crudManager?.onEvent(
+                event = DatasourceCRUDEvent.GetTagCRUDEvent(
+                    id = tagId,
+                ),
+            )
+        }
+    }
+
+    LaunchedEffect(tagState?.value) {
+        tagState?.value?.let { state ->
+            nameFieldValue = state.name
+            selectedIcon = state.icon
+            selectedFirstColor = state.firstColor ?: ColorSelection.PRIMARY
+            selectedSecondColor = state.secondColor ?: ColorSelection.SECONDARY
+        }
+    }
+
     YabaScaffold(
         containerColor = themeState.colors.surface,
         contentColor = themeState.colors.onSurface,
@@ -76,19 +110,40 @@ internal fun CreateOrEditTagContent(
                     .padding(horizontal = 16.dp)
                     .height(56.dp),
                 onClick = {
-                    if (nameFieldValue.isBlank()) {
-                        nameFieldError = CreateContentValidations.CAN_NOT_BE_EMPTY
-                    } else if (nameFieldError == CreateContentValidations.VALID) {
-                        onCreate.invoke(
-                            nameFieldValue,
-                            selectedIcon?.key,
-                            selectedFirstColor.name,
-                            selectedSecondColor.name,
-                        )
+                    if (tagId == null) {
+                        // Create Folder
+                        if (nameFieldValue.isBlank()) {
+                            nameFieldError = CreateContentValidations.CAN_NOT_BE_EMPTY
+                        } else if (nameFieldError == CreateContentValidations.VALID) {
+                            onCreate.invoke(
+                                nameFieldValue,
+                                selectedIcon?.key,
+                                selectedFirstColor.name,
+                                selectedSecondColor.name,
+                            )
+                        }
+                    } else {
+                        // Edit Folder
+                        if (nameFieldValue.isBlank()) {
+                            nameFieldError = CreateContentValidations.CAN_NOT_BE_EMPTY
+                        } else if (nameFieldError == CreateContentValidations.VALID) {
+                            onEdit.invoke(
+                                tagId,
+                                nameFieldValue,
+                                selectedIcon?.key,
+                                selectedFirstColor.name,
+                                selectedSecondColor.name,
+                            )
+                        }
                     }
                 },
             ) {
-                Text(localizationProvider.localization.CREATE_TAG)
+                Text(
+                    if (tagId == null)
+                        localizationProvider.localization.CREATE_TAG
+                    else
+                        localizationProvider.localization.EDIT_TAG
+                )
             }
         }
     ) { paddings ->
@@ -134,6 +189,9 @@ internal fun CreateOrEditTagContent(
                 onClick = {
                     isSelected = isSelected.not()
                 },
+                onLongClick = {
+                    // Do nothing here
+                }
             )
             Spacer(modifier = Modifier.size(32.dp))
             Text(
