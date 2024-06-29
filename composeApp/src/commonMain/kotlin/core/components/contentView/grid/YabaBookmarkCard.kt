@@ -50,6 +50,7 @@ import core.model.TagModel
 import core.settings.localization.LocalizationStateProvider
 import core.settings.theme.ThemeStateProvider
 import core.util.extensions.toUIString
+import core.util.selections.ColorSelection
 import kotlinx.datetime.LocalDateTime
 import state.content.ContentStateProvider
 
@@ -95,7 +96,7 @@ fun YabaBookmarkCard(
         val titleWords = title.split(" ")
         if (titleWords.size >= 2) {
             titleWords.forEachIndexed { index, char ->
-                if (index <= 2) {
+                if (index < 2) {
                     append("${char.first()}. ")
                 }
             }
@@ -111,6 +112,11 @@ fun YabaBookmarkCard(
 
     YabaCard(
         modifier = modifier,
+        requireBorder = true,
+        customBorderBrushColors = listOf(
+            parentFolder?.firstColor?.color ?: ColorSelection.PRIMARY.color,
+            parentFolder?.secondColor?.color ?: ColorSelection.SECONDARY.color,
+        ),
         onClick = {
             if (isInCreateOrEditMode.not()) {
                 onClickBookmark.invoke()

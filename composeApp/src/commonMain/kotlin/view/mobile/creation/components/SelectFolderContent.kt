@@ -33,7 +33,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastFilter
+import core.components.contentView.grid.YabaFolderCreateNewGridCard
 import core.components.contentView.grid.YabaFolderGridItem
+import core.components.contentView.list.YabaFolderCreateNewListTile
 import core.components.contentView.list.YabaFolderListTile
 import core.components.layout.YabaModalSheet
 import core.components.layout.YabaNoContentLayout
@@ -45,6 +47,7 @@ import core.settings.localization.LocalizationStateProvider
 import core.settings.theme.ThemeStateProvider
 import core.util.selections.ContentViewSelection
 import state.content.ContentStateProvider
+import state.creation.CreateOrEditContentStateMachineProvider
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,7 +62,7 @@ fun SelectFolderContent(
     val localizationProvider = LocalizationStateProvider.current
 
     var query by remember { mutableStateOf("") }
-    val folders by remember(query) {
+    val folders by remember(query, contentState.folders) {
         derivedStateOf {
             if (query.isEmpty()) {
                 contentState.folders
@@ -142,6 +145,7 @@ private fun GridContent(
     onClickFolder: (Long) -> Unit,
     onClearPressed: () -> Unit,
 ) {
+    val createOrEditContentStateMachine = CreateOrEditContentStateMachineProvider.current
     val themeState = ThemeStateProvider.current
 
     YabaScaffold(
@@ -164,6 +168,13 @@ private fun GridContent(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalItemSpacing = 16.dp,
         ) {
+            item {
+                YabaFolderCreateNewGridCard(
+                    onClick = {
+                        createOrEditContentStateMachine?.onShowFolderContent()
+                    }
+                )
+            }
             items(folders) { folder ->
                 YabaFolderGridItem(
                     folderId = folder.id,
@@ -192,6 +203,8 @@ private fun ListContent(
     onClickFolder: (Long) -> Unit,
     onClearPressed: () -> Unit,
 ) {
+    val createOrEditContentStateMachine = CreateOrEditContentStateMachineProvider.current
+
     LazyColumn(
         modifier = modifier
             .fillMaxWidth()
@@ -202,6 +215,14 @@ private fun ListContent(
                 query = query,
                 onQueryChange = onQueryChange,
                 onClearPressed = onClearPressed,
+            )
+        }
+        item {
+            YabaFolderCreateNewListTile(
+                modifier = Modifier.padding(bottom = 12.dp),
+                onClick = {
+                    createOrEditContentStateMachine?.onShowFolderContent()
+                }
             )
         }
         items(folders) { folder ->
