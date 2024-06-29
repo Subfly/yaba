@@ -102,6 +102,9 @@ fun CreateOrEditContentSheet(modifier: Modifier = Modifier) {
                 sheetState = createOrEditTagSheetState,
                 onDismissRequest = {
                     stateMachine.onDismissTagContent()
+                    crudManager?.onEvent(
+                        event = DatasourceCRUDEvent.OnResetTagState,
+                    )
                 },
             ) {
                 CreateOrEditTagContent(
