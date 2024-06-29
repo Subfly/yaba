@@ -27,6 +27,8 @@ class TurkishLocalization : YabaLocalization() {
         get() = "Dosyayı Düzenle"
     override val EDIT_TAG: String
         get() = "Etiketi Düzenle"
+    override val EDIT_SELECTIONS: String
+        get() = "Seçimleri Düzenle"
     override val PREVIEW: String
         get() = "Ön İzleme"
     override val WRITE_HERE: String
@@ -86,11 +88,11 @@ class TurkishLocalization : YabaLocalization() {
     override val NO_TAGS_HOME_LABEL: String
         get() = "Hiç Etiket Yok"
     override val NO_TAGS_HOME_MESSAGE: String
-        get() = "Hemen 'Ekle' butonunu kullanarak ilk etiketini oluşturabilirsin"
+        get() = "Hemen aşağıdaki butonu kullanarak ilk etiketini oluşturabilirsin"
     override val NO_FOLDERS_SELECT_FOLDER_LABEL: String
         get() = "Hiç Dosya Yok"
     override val NO_FOLDERS_SELECT_FOLDER_MESSAGE: String
-        get() = "Hemen Ana Menü'deki 'Ekle' butonunu kullanarak ilk dosyanı oluşturabilirsin"
+        get() = "Hemen aşağıdaki butonu kullanarak ilk dosyanı oluşturabilirsin"
     override val NO_TAGS_SELECT_TAGS_LABEL: String
         get() = "Hiç Etiket Yok"
     override val NO_TAGS_SELECT_TAGS_MESSAGE: String

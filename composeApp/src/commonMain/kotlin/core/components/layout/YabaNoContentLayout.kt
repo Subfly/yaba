@@ -29,7 +29,13 @@ fun YabaNoContentLayout(
     val themeState = ThemeStateProvider.current
 
     Column(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier.then(
+            if (isFullscreen) {
+                Modifier.fillMaxSize()
+            } else {
+                Modifier
+            }
+        ),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {

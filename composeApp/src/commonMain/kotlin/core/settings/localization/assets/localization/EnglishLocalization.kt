@@ -27,6 +27,8 @@ class EnglishLocalization : YabaLocalization() {
         get() = "Edit Folder"
     override val EDIT_TAG: String
         get() = "Edit Tag"
+    override val EDIT_SELECTIONS: String
+        get() = "Edit Selections"
     override val PREVIEW: String
         get() = "Preview"
     override val WRITE_HERE: String
@@ -90,11 +92,11 @@ class EnglishLocalization : YabaLocalization() {
     override val NO_FOLDERS_SELECT_FOLDER_LABEL: String
         get() = "No Folders Found"
     override val NO_FOLDERS_SELECT_FOLDER_MESSAGE: String
-        get() = "You can use the 'Add' button on the Home Screen to create a Folder"
+        get() = "You can use the button below to create your first Folder"
     override val NO_TAGS_SELECT_TAGS_LABEL: String
         get() = "No Tags Found"
     override val NO_TAGS_SELECT_TAGS_MESSAGE: String
-        get() = "You can use the 'Add' button on the Home Screen to create a Tag"
+        get() = "You can use the button below to create your first Tag"
     override val NO_TAGS_SELECTED_SELECT_TAGS_LABEL: String
         get() = "No Tags Selected"
     override val NO_TAGS_SELECTED_CLICK_HERE_SELECT_TAGS_LABEL: String

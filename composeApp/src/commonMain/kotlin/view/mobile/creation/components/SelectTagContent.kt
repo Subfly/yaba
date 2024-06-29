@@ -3,6 +3,7 @@ package view.mobile.creation.components
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -14,6 +15,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.twotone.LabelOff
+import androidx.compose.material.icons.twotone.Add
 import androidx.compose.material.icons.twotone.Clear
 import androidx.compose.material.icons.twotone.NewLabel
 import androidx.compose.material.icons.twotone.Search
@@ -44,6 +46,7 @@ import core.components.layout.YabaTextField
 import core.settings.localization.LocalizationStateProvider
 import core.settings.theme.ThemeStateProvider
 import state.content.ContentStateProvider
+import state.creation.CreateOrEditContentStateMachineProvider
 
 @OptIn(
     ExperimentalLayoutApi::class,
@@ -57,6 +60,7 @@ fun SelectTagsContent(
     onDismissRequest: () -> Unit,
     onTagsSelected: (List<Long>) -> Unit,
 ) {
+    val createOrEditContentStateMachine = CreateOrEditContentStateMachineProvider.current
     val contentState = ContentStateProvider.current
     val themeState = ThemeStateProvider.current
     val localizationProvider = LocalizationStateProvider.current
@@ -68,12 +72,12 @@ fun SelectTagsContent(
         ids.addAll(alreadySelectedTags)
         ids
     }
-    val selectedTags = remember {
+    val selectedTags = remember(contentState.tags) {
         derivedStateOf {
             contentState.tags.fastFilter { it.id in selectedTagIds }
         }
     }
-    val selectableTags = remember {
+    val selectableTags = remember(contentState.tags) {
         derivedStateOf {
             if (selectedTagIds.isEmpty()) {
                 if (query.isEmpty()) {
@@ -99,7 +103,7 @@ fun SelectTagsContent(
     YabaModalSheet(
         modifier = modifier
             .fillMaxWidth()
-            .fillMaxHeight(0.9f),
+            .fillMaxHeight(0.95f),
         sheetState = sheetState,
         onDismissRequest = onDismissRequest,
     ) {
@@ -108,12 +112,14 @@ fun SelectTagsContent(
             containerColor = themeState.colors.surface,
             contentColor = themeState.colors.onSurface,
             topBar = {
-                SearchField(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    query = query,
-                    onQueryChange = { query = it },
-                    onClearPressed = { query = "" },
-                )
+                if (contentState.tags.isNotEmpty()) {
+                    SearchField(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        query = query,
+                        onQueryChange = { query = it },
+                        onClearPressed = { query = "" },
+                    )
+                }
             },
             bottomBar = {
                 YabaElevatedButton(
@@ -131,21 +137,12 @@ fun SelectTagsContent(
             }
         ) { paddings ->
             if (contentState.tags.isEmpty()) {
-                Box(
+                NoContentLayout(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(paddings),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    YabaNoContentLayout(
-                        modifier = Modifier.align(Alignment.Center),
-                        label = localizationProvider.localization.NO_TAGS_SELECT_TAGS_LABEL,
-                        message = localizationProvider.localization.NO_TAGS_SELECT_TAGS_MESSAGE,
-                        icon = Icons.TwoTone.NewLabel,
-                        iconDescription = localizationProvider.accessibility.NO_TAG_ICON_DESCRIPTION,
-                        isFullscreen = true,
-                    )
-                }
+                        .fillMaxSize()
+                        .padding(paddings)
+                        .padding(horizontal = 32.dp)
+                )
             } else {
                 LazyColumn(
                     modifier = modifier
@@ -208,52 +205,76 @@ fun SelectTagsContent(
                             fontWeight = FontWeight.SemiBold,
                         )
                     }
-                    if (selectableTags.value.isEmpty()) {
-                        item {
-                            YabaNoContentLayout(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 32.dp)
-                                    .align(Alignment.CenterHorizontally),
-                                label = localizationProvider.localization.NO_SELECTABLE_TAGS_AVAILABLE_SELECT_TAGS_LABEL,
-                                message = if (query.isEmpty()) {
-                                    localizationProvider.localization.NO_SELECTABLE_TAGS_AVAILABLE_SELECT_TAGS_MESSAGE
-                                } else {
-                                    localizationProvider.localization.NO_SELECTABLE_TAGS_AVAILABLE_SELECT_TAGS_FORMATTABLE_MESSAGE(
-                                        query = query,
-                                    )
+                    item {
+                        FlowRow(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            YabaTag(
+                                selected = false,
+                                name = localizationProvider.localization.ADD_TAG,
+                                firstColor = themeState.colors.primary,
+                                secondColor = themeState.colors.secondary,
+                                icon = Icons.TwoTone.Add,
+                                iconDescription = Icons.TwoTone.Add.name,
+                                onClick = {
+                                    createOrEditContentStateMachine?.onShowTagContent()
                                 },
-                                icon = Icons.AutoMirrored.TwoTone.LabelOff,
-                                iconDescription = localizationProvider.accessibility.NO_TAG_ICON_DESCRIPTION,
-                                isFullscreen = false,
                             )
-                        }
-                    } else {
-                        item {
-                            FlowRow(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalArrangement = Arrangement.spacedBy(8.dp),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            ) {
-                                selectableTags.value.forEach { tag ->
-                                    YabaTag(
-                                        selected = false,
-                                        name = tag.name,
-                                        firstColor = tag.firstColor?.color,
-                                        secondColor = tag.secondColor?.color,
-                                        icon = tag.icon?.icon,
-                                        iconDescription = tag.icon?.name,
-                                        onClick = {
-                                            selectedTagIds.add(tag.id)
-                                        }
-                                    )
-                                }
+                            selectableTags.value.forEach { tag ->
+                                YabaTag(
+                                    selected = false,
+                                    name = tag.name,
+                                    firstColor = tag.firstColor?.color,
+                                    secondColor = tag.secondColor?.color,
+                                    icon = tag.icon?.icon,
+                                    iconDescription = tag.icon?.name,
+                                    onClick = {
+                                        selectedTagIds.add(tag.id)
+                                    }
+                                )
                             }
                         }
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun NoContentLayout(
+    modifier: Modifier = Modifier
+) {
+    val createOrEditContentStateMachine = CreateOrEditContentStateMachineProvider.current
+    val localizationProvider = LocalizationStateProvider.current
+    val themeState = ThemeStateProvider.current
+
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        YabaNoContentLayout(
+            modifier = Modifier.padding(bottom = 32.dp),
+            label = localizationProvider.localization.NO_TAGS_SELECT_TAGS_LABEL,
+            message = localizationProvider.localization.NO_TAGS_SELECT_TAGS_MESSAGE,
+            icon = Icons.TwoTone.NewLabel,
+            iconDescription = localizationProvider.accessibility.NO_TAG_ICON_DESCRIPTION,
+            isFullscreen = false,
+        )
+        YabaTag(
+            selected = false,
+            name = localizationProvider.localization.CREATE_TAG,
+            firstColor = themeState.colors.primary,
+            secondColor = themeState.colors.secondary,
+            icon = Icons.TwoTone.Add,
+            iconDescription = Icons.TwoTone.Add.name,
+            onClick = {
+                createOrEditContentStateMachine?.onShowTagContent()
+            },
+        )
     }
 }
 

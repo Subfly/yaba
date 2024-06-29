@@ -19,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.twotone.Help
 import androidx.compose.material.icons.twotone.Add
 import androidx.compose.material.icons.twotone.Description
+import androidx.compose.material.icons.twotone.Edit
 import androidx.compose.material.icons.twotone.Link
 import androidx.compose.material.icons.twotone.NewLabel
 import androidx.compose.material.icons.twotone.Title
@@ -97,7 +98,7 @@ internal fun CreateOrEditBookmarkContent(modifier: Modifier = Modifier) {
     }
 
     val selectedTagIds = remember { mutableStateListOf<Long>() }
-    val selectedTags by remember(selectedTagIds) {
+    val selectedTags by remember(selectedTagIds, contentState.tags) {
         derivedStateOf {
             contentState.tags.fastFilter { it.id in selectedTagIds }
         }
@@ -363,11 +364,11 @@ internal fun CreateOrEditBookmarkContent(modifier: Modifier = Modifier) {
                     ) {
                         YabaTag(
                             selected = false,
-                            name = localizationProvider.localization.ADD_TAG,
+                            name = localizationProvider.localization.EDIT_SELECTIONS,
                             firstColor = themeState.colors.primary,
                             secondColor = themeState.colors.secondary,
-                            icon = Icons.TwoTone.Add,
-                            iconDescription = Icons.TwoTone.Add.name,
+                            icon = Icons.TwoTone.Edit,
+                            iconDescription = Icons.TwoTone.Edit.name,
                             onClick = { shouldShowTagsSelectionSheet = true },
                         )
                         selectedTags.forEach { tag ->
@@ -378,7 +379,9 @@ internal fun CreateOrEditBookmarkContent(modifier: Modifier = Modifier) {
                                 secondColor = tag.secondColor?.color,
                                 icon = tag.icon?.icon,
                                 iconDescription = tag.icon?.name,
-                                onClick = {},
+                                onClick = {
+                                    selectedTagIds.remove(tag.id)
+                                },
                             )
                         }
                     }

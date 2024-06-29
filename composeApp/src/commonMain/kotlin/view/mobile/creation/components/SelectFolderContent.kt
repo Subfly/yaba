@@ -4,6 +4,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,6 +16,7 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.twotone.Add
 import androidx.compose.material.icons.twotone.Clear
 import androidx.compose.material.icons.twotone.CreateNewFolder
 import androidx.compose.material.icons.twotone.Search
@@ -33,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastFilter
+import core.components.button.YabaTag
 import core.components.contentView.grid.YabaFolderCreateNewGridCard
 import core.components.contentView.grid.YabaFolderGridItem
 import core.components.contentView.list.YabaFolderCreateNewListTile
@@ -57,9 +60,11 @@ fun SelectFolderContent(
     onDismissRequest: () -> Unit,
     onFolderSelected: (Long) -> Unit,
 ) {
+    val createOrEditContentStateMachine = CreateOrEditContentStateMachineProvider.current
     val contentState = ContentStateProvider.current
     val contentViewStyleState = ContentViewStyleStateProvider.current
     val localizationProvider = LocalizationStateProvider.current
+    val themeState = ThemeStateProvider.current
 
     var query by remember { mutableStateOf("") }
     val folders by remember(query, contentState.folders) {
@@ -77,17 +82,20 @@ fun SelectFolderContent(
     YabaModalSheet(
         modifier = modifier
             .fillMaxWidth()
-            .fillMaxHeight(0.9f),
+            .fillMaxHeight(0.95f),
         sheetState = sheetState,
         onDismissRequest = onDismissRequest,
         content = {
             if (folders.isEmpty()) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 32.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
                 ) {
                     YabaNoContentLayout(
-                        modifier = Modifier.align(Alignment.Center),
+                        modifier = Modifier.padding(bottom = 32.dp),
                         label = localizationProvider.localization.NO_FOLDERS_SELECT_FOLDER_LABEL,
                         message = if (query.isEmpty()) {
                             localizationProvider.localization.NO_FOLDERS_SELECT_FOLDER_MESSAGE
@@ -98,7 +106,18 @@ fun SelectFolderContent(
                         },
                         icon = Icons.TwoTone.CreateNewFolder,
                         iconDescription = localizationProvider.accessibility.NO_FOLDER_ICON_DESCRIPTION,
-                        isFullscreen = true,
+                        isFullscreen = false,
+                    )
+                    YabaTag(
+                        selected = false,
+                        name = localizationProvider.localization.CREATE_FOLDER,
+                        firstColor = themeState.colors.primary,
+                        secondColor = themeState.colors.secondary,
+                        icon = Icons.TwoTone.Add,
+                        iconDescription = Icons.TwoTone.Add.name,
+                        onClick = {
+                            createOrEditContentStateMachine?.onShowFolderContent()
+                        },
                     )
                 }
             } else {

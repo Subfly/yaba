@@ -231,7 +231,7 @@ fun YabaBookmarkListTile(
                                         },
                                     )
                                 }
-                                if (tags.size > 3) {
+                                if (tags.size > 4) {
                                     YabaTag(
                                         selected = false,
                                         name = null,

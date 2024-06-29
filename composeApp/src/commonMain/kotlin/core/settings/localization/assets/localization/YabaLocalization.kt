@@ -14,6 +14,7 @@ abstract class YabaLocalization {
     abstract val EDIT_BOOKMARK: String
     abstract val EDIT_FOLDER: String
     abstract val EDIT_TAG: String
+    abstract val EDIT_SELECTIONS: String
     abstract val PREVIEW: String
     abstract val WRITE_HERE: String
     abstract val TAG_NAME: String
