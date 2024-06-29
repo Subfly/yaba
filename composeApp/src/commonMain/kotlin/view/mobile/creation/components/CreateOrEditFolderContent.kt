@@ -31,14 +31,17 @@ import core.components.button.YabaIconButton
 import core.components.contentView.grid.YabaFolderGridItem
 import core.components.contentView.list.YabaFolderListTile
 import core.components.layout.YabaColorSelectionLayout
+import core.components.layout.YabaErrorContent
 import core.components.layout.YabaIconSelectionLayout
 import core.components.layout.YabaScaffold
 import core.components.layout.YabaTextField
+import core.constants.ValidationConstants
 import core.settings.localization.LocalizationStateProvider
 import core.settings.theme.ThemeStateProvider
 import core.util.icon.YabaIcons
 import core.util.selections.ColorSelection
 import core.util.selections.ContentViewSelection
+import core.util.validation.CreateContentValidations
 import state.manager.DatasourceCRUDEvent
 import state.manager.DatasourceCRUDManagerProvider
 
@@ -81,7 +84,7 @@ internal fun CreateOrEditFolderContent(
         mutableStateOf(1234L)
     }
 
-    var nameFieldError by remember { mutableStateOf(false) }
+    var nameFieldError by remember { mutableStateOf(CreateContentValidations.VALID) }
 
     LaunchedEffect(folderId) {
         if (folderId != null) {
@@ -116,19 +119,21 @@ internal fun CreateOrEditFolderContent(
                 onClick = {
                     if (folderId == null) {
                         // Create Folder
-                        if (nameFieldValue.isNotBlank()) {
+                        if (nameFieldValue.isBlank()) {
+                            nameFieldError = CreateContentValidations.CAN_NOT_BE_EMPTY
+                        } else if (nameFieldError == CreateContentValidations.VALID) {
                             onCreate.invoke(
                                 nameFieldValue,
                                 selectedIcon?.key,
                                 selectedFirstColor.name,
                                 selectedSecondColor.name,
                             )
-                        } else {
-                            nameFieldError = true
                         }
                     } else {
                         // Edit Folder
-                        if (nameFieldValue.isNotBlank()) {
+                        if (nameFieldValue.isBlank()) {
+                            nameFieldError = CreateContentValidations.CAN_NOT_BE_EMPTY
+                        } else if (nameFieldError == CreateContentValidations.VALID) {
                             onEdit.invoke(
                                 folderId,
                                 nameFieldValue,
@@ -136,8 +141,6 @@ internal fun CreateOrEditFolderContent(
                                 selectedFirstColor.name,
                                 selectedSecondColor.name,
                             )
-                        } else {
-                            nameFieldError = true
                         }
                     }
                 },
@@ -227,29 +230,53 @@ internal fun CreateOrEditFolderContent(
                 fontWeight = FontWeight.SemiBold,
             )
             Spacer(modifier = Modifier.size(8.dp))
-            YabaTextField(
+            Column(
                 modifier = Modifier.fillMaxWidth(),
-                value = nameFieldValue,
-                onValueChange = {
-                    nameFieldValue = it
-                    if (nameFieldError && it.isNotBlank()) {
-                        nameFieldError = false
-                    }
-                },
-                label = {
-                    Text(localizationProvider.localization.FOLDER_NAME)
-                },
-                placeholder = {
-                    Text(localizationProvider.localization.WRITE_HERE)
-                },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.TwoTone.Title,
-                        contentDescription = localizationProvider.accessibility.HELP_ICON_DESCRIPTION,
+                horizontalAlignment = Alignment.Start,
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                YabaTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = nameFieldValue,
+                    onValueChange = {
+                        nameFieldValue = it
+                        if (nameFieldError != CreateContentValidations.VALID
+                            && (it.isNotBlank() || it.length <= ValidationConstants.MAXIMUM_TITLE_LENGTH)
+                        ) {
+                            nameFieldError = CreateContentValidations.VALID
+                        }
+                        if (nameFieldValue.length > ValidationConstants.MAXIMUM_TITLE_LENGTH) {
+                            nameFieldError = CreateContentValidations.AT_MOST_X_CHARACTERS
+                        }
+                    },
+                    label = {
+                        Text(localizationProvider.localization.FOLDER_NAME)
+                    },
+                    placeholder = {
+                        Text(localizationProvider.localization.WRITE_HERE)
+                    },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.TwoTone.Title,
+                            contentDescription = localizationProvider.accessibility.HELP_ICON_DESCRIPTION,
+                        )
+                    },
+                    isError = nameFieldError != CreateContentValidations.VALID,
+                )
+                if (nameFieldError == CreateContentValidations.CAN_NOT_BE_EMPTY) {
+                    YabaErrorContent(
+                        message = localizationProvider.localization.CANNOT_BE_EMPTY_ERROR_MESSAGE,
                     )
-                },
-                isError = nameFieldError,
-            )
+                }
+                if (nameFieldError == CreateContentValidations.AT_MOST_X_CHARACTERS) {
+                    YabaErrorContent(
+                        message = localizationProvider.localization.AT_MOST_X_CHARACTERS_ERROR_MESSAGE(
+                            currentCount = nameFieldValue.length,
+                            maximumCount = ValidationConstants.MAXIMUM_TITLE_LENGTH,
+                        ),
+                    )
+                }
+            }
             Spacer(modifier = Modifier.size(16.dp))
             Text(
                 text = localizationProvider.localization.COLOR_SELECTION,

@@ -69,34 +69,35 @@ internal fun CreateOrEditBookmarkContent(modifier: Modifier = Modifier) {
     val localizationProvider = LocalizationStateProvider.current
     val contentState = ContentStateProvider.current
 
+    // SHEET STATE
     val folderSelectionSheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true,
     )
     val tagsSelectionSheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true,
     )
-
     var shouldShowFolderSelectionSheet by remember { mutableStateOf(false) }
     var shouldShowTagsSelectionSheet by remember { mutableStateOf(false) }
 
+    // FORM STATE
     var urlFieldValue by remember { mutableStateOf("") }
     var nameFieldValue by remember { mutableStateOf("") }
     var descriptionFieldValue by remember { mutableStateOf("") }
+    var selectedFolderId by remember { mutableStateOf(-1L) }
+    val selectedTagIds = remember { mutableStateListOf<Long>() }
+
+    // UI STATE
     var currentContentViewSelection by remember {
         mutableStateOf(ContentViewSelection.GRID)
     }
     var unfurlData: UnfurlModel by remember {
         mutableStateOf(UnfurlModel.None)
     }
-
-    var selectedFolderId by remember { mutableStateOf(-1L) }
     val selectedFolder by remember(selectedFolderId) {
         derivedStateOf {
             contentState.folders.fastFirstOrNull { it.id == selectedFolderId }
         }
     }
-
-    val selectedTagIds = remember { mutableStateListOf<Long>() }
     val selectedTags by remember(selectedTagIds, contentState.tags) {
         derivedStateOf {
             contentState.tags.fastFilter { it.id in selectedTagIds }

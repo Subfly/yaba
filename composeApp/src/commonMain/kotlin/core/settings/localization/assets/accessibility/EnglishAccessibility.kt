@@ -65,4 +65,6 @@ class EnglishAccessibility : YabaAccessibility() {
         get() = "Continue to delete"
     override val EDIT_ICON_DESCRIPTION: String
         get() = "Continue to edit"
+    override val ERROR_ICON_DESCRIPTION: String
+        get() = "Error"
 }

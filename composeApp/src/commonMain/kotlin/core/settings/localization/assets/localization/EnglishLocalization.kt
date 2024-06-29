@@ -129,6 +129,8 @@ class EnglishLocalization : YabaLocalization() {
         get() = "Available Tags"
     override val FINISH_TAG_SELECTION: String
         get() = "Complete Tag Selection"
+    override val CANNOT_BE_EMPTY_ERROR_MESSAGE: String
+        get() = "This field can not be empty"
 
     override fun NO_FOLDERS_SELECT_FOLDER_FORMATTABLE_MESSAGE(query: String): String {
         return "No folders found with name containing '$query'"
@@ -138,5 +140,9 @@ class EnglishLocalization : YabaLocalization() {
         query: String,
     ): String {
         return "No tags found with name containing '$query'"
+    }
+
+    override fun AT_MOST_X_CHARACTERS_ERROR_MESSAGE(currentCount: Int, maximumCount: Int): String {
+        return "This field accepts at most $maximumCount characters ($currentCount/$maximumCount)"
     }
 }

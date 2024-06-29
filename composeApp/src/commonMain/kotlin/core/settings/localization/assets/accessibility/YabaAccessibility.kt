@@ -33,4 +33,5 @@ abstract class YabaAccessibility {
     abstract val NO_TAG_ICON_DESCRIPTION: String
     abstract val DELETE_ICON_DESCRIPTION: String
     abstract val EDIT_ICON_DESCRIPTION: String
+    abstract val ERROR_ICON_DESCRIPTION: String
 }

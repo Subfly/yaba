@@ -65,6 +65,7 @@ abstract class YabaLocalization {
     abstract val SELECTED_TAGS_TITLE: String
     abstract val SELECTABLE_TAGS_TITLE: String
     abstract val FINISH_TAG_SELECTION: String
+    abstract val CANNOT_BE_EMPTY_ERROR_MESSAGE: String
 
     abstract fun NO_FOLDERS_SELECT_FOLDER_FORMATTABLE_MESSAGE(
         query: String,
@@ -72,5 +73,10 @@ abstract class YabaLocalization {
 
     abstract fun NO_SELECTABLE_TAGS_AVAILABLE_SELECT_TAGS_FORMATTABLE_MESSAGE(
         query: String,
+    ): String
+
+    abstract fun AT_MOST_X_CHARACTERS_ERROR_MESSAGE(
+        currentCount: Int,
+        maximumCount: Int,
     ): String
 }

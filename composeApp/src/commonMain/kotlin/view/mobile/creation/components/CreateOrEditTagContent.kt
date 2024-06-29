@@ -29,13 +29,16 @@ import core.components.button.YabaElevatedButton
 import core.components.button.YabaIconButton
 import core.components.button.YabaTag
 import core.components.layout.YabaColorSelectionLayout
+import core.components.layout.YabaErrorContent
 import core.components.layout.YabaIconSelectionLayout
 import core.components.layout.YabaScaffold
 import core.components.layout.YabaTextField
+import core.constants.ValidationConstants
 import core.settings.localization.LocalizationStateProvider
 import core.settings.theme.ThemeStateProvider
 import core.util.icon.YabaIcons
 import core.util.selections.ColorSelection
+import core.util.validation.CreateContentValidations
 
 @Composable
 internal fun CreateOrEditTagContent(
@@ -60,7 +63,7 @@ internal fun CreateOrEditTagContent(
         mutableStateOf(ColorSelection.SECONDARY)
     }
 
-    var nameFieldError by remember { mutableStateOf(false) }
+    var nameFieldError by remember { mutableStateOf(CreateContentValidations.VALID) }
 
     YabaScaffold(
         containerColor = themeState.colors.surface,
@@ -73,15 +76,15 @@ internal fun CreateOrEditTagContent(
                     .padding(horizontal = 16.dp)
                     .height(56.dp),
                 onClick = {
-                    if (nameFieldValue.isNotBlank()) {
+                    if (nameFieldValue.isBlank()) {
+                        nameFieldError = CreateContentValidations.CAN_NOT_BE_EMPTY
+                    } else if (nameFieldError == CreateContentValidations.VALID) {
                         onCreate.invoke(
                             nameFieldValue,
                             selectedIcon?.key,
                             selectedFirstColor.name,
                             selectedSecondColor.name,
                         )
-                    } else {
-                        nameFieldError = true
                     }
                 },
             ) {
@@ -139,29 +142,53 @@ internal fun CreateOrEditTagContent(
                 fontWeight = FontWeight.SemiBold,
             )
             Spacer(modifier = Modifier.size(8.dp))
-            YabaTextField(
+            Column(
                 modifier = Modifier.fillMaxWidth(),
-                value = nameFieldValue,
-                onValueChange = {
-                    nameFieldValue = it
-                    if (nameFieldError && it.isNotBlank()) {
-                        nameFieldError = false
-                    }
-                },
-                label = {
-                    Text(localizationProvider.localization.TAG_NAME)
-                },
-                placeholder = {
-                    Text(localizationProvider.localization.WRITE_HERE)
-                },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.TwoTone.Title,
-                        contentDescription = localizationProvider.accessibility.TITLE_TEXT_FIELD_ICON_DESCRIPTION,
+                horizontalAlignment = Alignment.Start,
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                YabaTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = nameFieldValue,
+                    onValueChange = {
+                        nameFieldValue = it
+                        if (nameFieldError != CreateContentValidations.VALID
+                            && (it.isNotBlank() || it.length <= ValidationConstants.MAXIMUM_TITLE_LENGTH)
+                        ) {
+                            nameFieldError = CreateContentValidations.VALID
+                        }
+                        if (nameFieldValue.length > ValidationConstants.MAXIMUM_TITLE_LENGTH) {
+                            nameFieldError = CreateContentValidations.AT_MOST_X_CHARACTERS
+                        }
+                    },
+                    label = {
+                        Text(localizationProvider.localization.TAG_NAME)
+                    },
+                    placeholder = {
+                        Text(localizationProvider.localization.WRITE_HERE)
+                    },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.TwoTone.Title,
+                            contentDescription = localizationProvider.accessibility.TITLE_TEXT_FIELD_ICON_DESCRIPTION,
+                        )
+                    },
+                    isError = nameFieldError != CreateContentValidations.VALID,
+                )
+                if (nameFieldError == CreateContentValidations.CAN_NOT_BE_EMPTY) {
+                    YabaErrorContent(
+                        message = localizationProvider.localization.CANNOT_BE_EMPTY_ERROR_MESSAGE,
                     )
-                },
-                isError = nameFieldError,
-            )
+                }
+                if (nameFieldError == CreateContentValidations.AT_MOST_X_CHARACTERS) {
+                    YabaErrorContent(
+                        message = localizationProvider.localization.AT_MOST_X_CHARACTERS_ERROR_MESSAGE(
+                            currentCount = nameFieldValue.length,
+                            maximumCount = ValidationConstants.MAXIMUM_TITLE_LENGTH,
+                        ),
+                    )
+                }
+            }
             Spacer(modifier = Modifier.size(16.dp))
             Text(
                 text = localizationProvider.localization.COLOR_SELECTION,

@@ -65,4 +65,6 @@ class TurkishAccessibility : YabaAccessibility() {
         get() = "Silmek için devam et"
     override val EDIT_ICON_DESCRIPTION: String
         get() = "Düzenlemek için devam et"
+    override val ERROR_ICON_DESCRIPTION: String
+        get() = "Hata"
 }

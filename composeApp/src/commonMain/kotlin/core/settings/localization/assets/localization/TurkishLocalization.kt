@@ -129,6 +129,8 @@ class TurkishLocalization : YabaLocalization() {
         get() = "Seçilebilir Etiketler"
     override val FINISH_TAG_SELECTION: String
         get() = "Etiket Seçimini Tamamla"
+    override val CANNOT_BE_EMPTY_ERROR_MESSAGE: String
+        get() = "Bu alan boş olamaz"
 
     override fun NO_FOLDERS_SELECT_FOLDER_FORMATTABLE_MESSAGE(query: String): String {
         return "'$query' isimli bir dosya bulunamadı"
@@ -138,5 +140,9 @@ class TurkishLocalization : YabaLocalization() {
         query: String,
     ): String {
         return "'$query' isimli bir etiket bulunamadı"
+    }
+
+    override fun AT_MOST_X_CHARACTERS_ERROR_MESSAGE(currentCount: Int, maximumCount: Int): String {
+        return "Bu alan en fazla $maximumCount karakter içerebilir ($currentCount/$maximumCount)"
     }
 }
