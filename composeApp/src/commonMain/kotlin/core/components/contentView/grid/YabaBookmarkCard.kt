@@ -78,20 +78,13 @@ fun YabaBookmarkCard(
 
     val tagsToUse by remember(tags) {
         derivedStateOf {
-            val firstAndSecondTag = mutableListOf<TagModel>()
-            if (tags.size >= 3) {
-                firstAndSecondTag.add(tags[0])
-                firstAndSecondTag.add(tags[1])
-                firstAndSecondTag.add(tags[2])
-            } else if (tags.size == 2) {
-                firstAndSecondTag.add(tags[0])
-                firstAndSecondTag.add(tags[1])
-            } else if (tags.size == 1) {
-                firstAndSecondTag.add(tags[0])
-            } else {
-                firstAndSecondTag.clear()
+            val filteredTags = mutableListOf<TagModel>()
+            tags.forEachIndexed { index, tag ->
+                if (index <= 3) {
+                    filteredTags.add(tag)
+                }
             }
-            firstAndSecondTag.toList()
+            filteredTags.toList()
         }
     }
 

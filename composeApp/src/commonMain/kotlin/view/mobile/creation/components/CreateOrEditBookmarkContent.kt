@@ -46,6 +46,7 @@ import core.components.button.YabaElevatedButton
 import core.components.button.YabaIconButton
 import core.components.button.YabaTag
 import core.components.contentView.grid.YabaBookmarkCard
+import core.components.contentView.list.YabaBookmarkListTile
 import core.components.contentView.list.YabaFolderListTile
 import core.components.layout.YabaNoContentLayout
 import core.components.layout.YabaScaffold
@@ -175,30 +176,62 @@ internal fun CreateOrEditBookmarkContent(modifier: Modifier = Modifier) {
                     }
                 }
                 Spacer(modifier = Modifier.size(16.dp))
-                YabaBookmarkCard(
-                    modifier = Modifier.padding(horizontal = 100.dp),
-                    title = if (nameFieldValue.isNotBlank()) {
-                        nameFieldValue.trim()
-                    } else {
-                        // TODO: GET FROM ACCESSIBILITY AND LOCALIZATION PROVIDERS
-                        "Kayıt Adı"
-                    },
-                    description = if (descriptionFieldValue.isNotBlank()) {
-                        descriptionFieldValue.trim()
-                    } else {
-                        // TODO: GET FROM ACCESSIBILITY AND LOCALIZATION PROVIDERS
-                        "Dosya Açıklaması (En fazla 3 satır gözükür)"
-                    },
-                    parentFolderId = selectedFolderId,
-                    dateAdded = Clock.System.now().toLocalDateTime(
-                        timeZone = TimeZone.currentSystemDefault(),
-                    ),
-                    tags = selectedTags,
-                    isPrivate = false,
-                    imageUrl = (unfurlData as? UnfurlModel.Success)?.twitterModel?.imageUrl,
-                    isInCreateOrEditMode = false,
-                    onClickBookmark = {},
-                )
+                when (currentContentViewSelection) {
+                    ContentViewSelection.GRID -> {
+                        YabaBookmarkCard(
+                            modifier = Modifier.padding(horizontal = 100.dp),
+                            title = if (nameFieldValue.isNotBlank()) {
+                                nameFieldValue.trim()
+                            } else {
+                                // TODO: GET FROM ACCESSIBILITY AND LOCALIZATION PROVIDERS
+                                "Kayıt Adı"
+                            },
+                            description = if (descriptionFieldValue.isNotBlank()) {
+                                descriptionFieldValue.trim()
+                            } else {
+                                // TODO: GET FROM ACCESSIBILITY AND LOCALIZATION PROVIDERS
+                                "Dosya Açıklaması (En fazla 3 satır gözükür)"
+                            },
+                            parentFolderId = selectedFolderId,
+                            dateAdded = Clock.System.now().toLocalDateTime(
+                                timeZone = TimeZone.currentSystemDefault(),
+                            ),
+                            tags = selectedTags,
+                            isPrivate = false,
+                            imageUrl = (unfurlData as? UnfurlModel.Success)?.twitterModel?.imageUrl,
+                            isInCreateOrEditMode = true,
+                            onClickBookmark = {},
+                        )
+                    }
+                    ContentViewSelection.LIST -> {
+                        YabaBookmarkListTile(
+                            modifier = Modifier.fillMaxWidth(),
+                            title = if (nameFieldValue.isNotBlank()) {
+                                nameFieldValue.trim()
+                            } else {
+                                // TODO: GET FROM ACCESSIBILITY AND LOCALIZATION PROVIDERS
+                                "Kayıt Adı"
+                            },
+                            description = if (descriptionFieldValue.isNotBlank()) {
+                                descriptionFieldValue.trim()
+                            } else {
+                                // TODO: GET FROM ACCESSIBILITY AND LOCALIZATION PROVIDERS
+                                "Dosya Açıklaması (En fazla 1 satır gözükür)"
+                            },
+                            parentFolderId = selectedFolderId,
+                            dateAdded = Clock.System.now().toLocalDateTime(
+                                timeZone = TimeZone.currentSystemDefault(),
+                            ),
+                            tags = selectedTags,
+                            isPrivate = false,
+                            imageUrl = (unfurlData as? UnfurlModel.Success)?.twitterModel?.imageUrl,
+                            isInCreateOrEditMode = true,
+                            onClickBookmark = {},
+                            onEditSwipe = {},
+                            onDeleteSwipe = {},
+                        )
+                    }
+                }
                 Spacer(modifier = Modifier.size(32.dp))
                 // TODO: GET FROM ACCESSIBILITY AND LOCALIZATION PROVIDERS
                 Text(

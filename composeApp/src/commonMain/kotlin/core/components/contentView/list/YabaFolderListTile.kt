@@ -94,7 +94,13 @@ fun YabaFolderListTile(
 
     val bookmarkCountText = buildAnnotatedString {
         if (bookmarkCount == 0L) {
-            append(localizationProvider.localization.NO_BOOKMARKS_CARD_MESSAGE)
+            val noContentText = localizationProvider.localization.NO_BOOKMARKS_CARD_MESSAGE
+            append(noContentText)
+            addStyle(
+                style = MaterialTheme.typography.bodyMedium.toSpanStyle(),
+                start = 0,
+                end = noContentText.length,
+            )
         } else {
             val firstText = localizationProvider.localization.BOOKMARK_COUNT_PREFIX_TEXT
             append(firstText)
