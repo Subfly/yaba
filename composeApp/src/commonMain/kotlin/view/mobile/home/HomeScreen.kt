@@ -33,6 +33,8 @@ fun HomeScreen(
     onClickSearch: () -> Unit,
     onClickSync: () -> Unit,
     onClickSettings: () -> Unit,
+    onClickFolder: (Long, String) -> Unit,
+    onClickTag: (Long, String) -> Unit,
 ) {
     val state = ContentStateProvider.current
     val createOrEditContentStateMachine = CreateOrEditContentStateMachineProvider.current
@@ -92,6 +94,8 @@ fun HomeScreen(
                             .padding(paddings)
                             .padding(horizontal = 16.dp),
                         state = state,
+                        onClickFolder = onClickFolder,
+                        onClickTag = onClickTag,
                     )
                 }
                 ContentViewSelection.LIST -> {
@@ -101,6 +105,8 @@ fun HomeScreen(
                             .padding(paddings)
                             .padding(horizontal = 16.dp),
                         state = state,
+                        onClickFolder = onClickFolder,
+                        onClickTag = onClickTag,
                     )
                 }
             }

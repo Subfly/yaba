@@ -61,6 +61,8 @@ class EnglishAccessibility : YabaAccessibility() {
         get() = "No folders found"
     override val NO_TAG_ICON_DESCRIPTION: String
         get() = "No tags found"
+    override val NO_BOOKMARKS_ICON_DESCRIPTION: String
+        get() = "No bookmarks found"
     override val DELETE_ICON_DESCRIPTION: String
         get() = "Continue to delete"
     override val EDIT_ICON_DESCRIPTION: String

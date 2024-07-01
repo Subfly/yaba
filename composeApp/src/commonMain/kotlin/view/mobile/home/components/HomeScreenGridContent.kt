@@ -35,6 +35,8 @@ import state.creation.CreateOrEditContentStateMachineProvider
 fun HomeScreenGridContent(
     state: ContentState,
     modifier: Modifier = Modifier,
+    onClickFolder: (Long, String) -> Unit,
+    onClickTag: (Long, String) -> Unit,
 ) {
     val createOrEditContentStateMachine = CreateOrEditContentStateMachineProvider.current
     val localizationProvider = LocalizationStateProvider.current
@@ -90,7 +92,7 @@ fun HomeScreenGridContent(
                                 icon = tag.icon?.icon,
                                 iconDescription = tag.icon?.key,
                                 onClick = {
-                                    // TODO: NAVIGATE TO TAG DETAIL
+                                    onClickTag.invoke(tag.id, tag.name)
                                 },
                                 onLongClick = {
                                     createOrEditContentStateMachine?.onShowTagContent(
@@ -142,7 +144,7 @@ fun HomeScreenGridContent(
                         firstColor = folder.firstColor?.color,
                         secondColor = folder.secondColor?.color,
                         onClickFolder = {
-                            // TODO: NAVIGATE TO FOLDER DETAIL
+                            onClickFolder.invoke(folder.id, folder.name)
                         }
                     )
                 }

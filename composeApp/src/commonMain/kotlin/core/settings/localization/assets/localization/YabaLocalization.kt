@@ -48,6 +48,8 @@ abstract class YabaLocalization {
     abstract val NO_CONTENT_HOME_MESSAGE: String
     abstract val NO_FOLDERS_HOME_LABEL: String
     abstract val NO_FOLDERS_HOME_MESSAGE: String
+    abstract val NO_BOOKMARKS_LABEL: String
+    abstract val NO_BOOKMARKS_MESSAGE: String
     abstract val NO_TAGS_HOME_LABEL: String
     abstract val NO_TAGS_HOME_MESSAGE: String
     abstract val NO_FOLDERS_SELECT_FOLDER_LABEL: String

@@ -103,4 +103,15 @@ class YabaDatasource(
         secondColor = secondColor,
     )
     // endregion TAG
+
+    // region BOOKMARK
+    private val bookmarkQueries = database.bookmarkEntityQueries
+
+    fun getBookmarksOfFolder(folderId: Long) = bookmarkQueries
+        .getBookmarksOfFolder(folderId = folderId)
+        .asFlow()
+        .flowOn(Dispatchers.IO)
+        .mapToList(Dispatchers.IO)
+    // endregion BOOKMARK
+
 }

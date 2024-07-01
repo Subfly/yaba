@@ -31,7 +31,9 @@ import state.manager.DatasourceCRUDManagerProvider
 @Composable
 fun HomeScreenListContent(
     state: ContentState,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClickFolder: (Long, String) -> Unit,
+    onClickTag: (Long, String) -> Unit,
 ) {
     val createOrEditContentStateMachine = CreateOrEditContentStateMachineProvider.current
     val localizationProvider = LocalizationStateProvider.current
@@ -81,7 +83,7 @@ fun HomeScreenListContent(
                                 icon = tag.icon?.icon,
                                 iconDescription = tag.icon?.key,
                                 onClick = {
-                                    // TODO: NAVIGATE TO TAG DETAIL
+                                    onClickTag.invoke(tag.id, tag.name)
                                 },
                                 onLongClick = {
                                     createOrEditContentStateMachine?.onShowTagContent(
@@ -142,7 +144,7 @@ fun HomeScreenListContent(
                             // TODO: ADD EDIT FOLDER FUNCTIONALITY
                         },
                         onClickFolder = {
-                            // TODO: NAVIGATE TO FOLDER DETAIL
+                            onClickFolder.invoke(folder.id, folder.name)
                         },
                     )
                 }
