@@ -11,8 +11,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import core.settings.theme.ThemeStateProvider
 import core.util.extensions.koinViewModel
 import currentPlatform
@@ -70,7 +72,7 @@ fun YabaMobileNavigation(
                     },
                     onClickFolder = { folderId, folderName ->
                         navHostController.navigate(
-                            YabaScreens.FOLDER_DETAIL.route + "/$folderName/$folderId"
+                            YabaScreens.FOLDER_DETAIL.route + "/$folderName/$folderId",
                         )
                     },
                     onClickTag = { tagId, tagName ->
@@ -97,10 +99,14 @@ fun YabaMobileNavigation(
                 )
             }
             composable(
-                route = YabaScreens.FOLDER_DETAIL.route + "/{name}/{id}"
+                route = YabaScreens.FOLDER_DETAIL.route + "/{folderName}/{folderId}",
+                arguments = listOf(
+                    navArgument(name = "folderName") { type = NavType.StringType },
+                    navArgument(name = "folderId") { type = NavType.LongType },
+                )
             ) { navBackStackEntry ->
-                val folderName = navBackStackEntry.arguments?.getString("name").orEmpty()
-                val folderId = navBackStackEntry.arguments?.getLong("id") ?: -1
+                val folderName = navBackStackEntry.arguments?.getString("folderName").orEmpty()
+                val folderId = navBackStackEntry.arguments?.getLong("folderId") ?: -1
                 FolderDetail(
                     folderId = folderId,
                     folderName = folderName,

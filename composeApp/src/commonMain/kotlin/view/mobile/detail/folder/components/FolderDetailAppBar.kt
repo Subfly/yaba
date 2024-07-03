@@ -1,6 +1,7 @@
 package view.mobile.detail.folder.components
 
 import Platform
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
@@ -19,6 +20,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import core.components.button.YabaIconButton
 import core.components.layout.YabaAppBar
 import core.components.layout.YabaMenu
@@ -33,6 +36,8 @@ fun FolderDetailAppBar(
     title: String,
     isLoading: Boolean,
     scrollBehavior: TopAppBarScrollBehavior,
+    firstColor: Color,
+    secondColor: Color,
     modifier: Modifier = Modifier,
     onClickBack: () -> Unit,
     onClickEdit: () -> Unit,
@@ -44,6 +49,11 @@ fun FolderDetailAppBar(
 
     Column(modifier = modifier.fillMaxWidth()) {
         YabaAppBar(
+            modifier = Modifier.background(
+                brush = Brush.linearGradient(
+                    colors = listOf(firstColor, secondColor),
+                )
+            ),
             navigationIcon = {
                 YabaIconButton(onClick = onClickBack) {
                     Icon(

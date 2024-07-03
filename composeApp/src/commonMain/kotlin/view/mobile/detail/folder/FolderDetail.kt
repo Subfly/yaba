@@ -17,10 +17,14 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastFirstOrNull
 import core.components.button.YabaFab
 import core.components.contentView.grid.YabaBookmarkCard
 import core.components.contentView.list.YabaBookmarkListTile
@@ -30,6 +34,7 @@ import core.settings.contentview.ContentViewStyleStateProvider
 import core.settings.localization.LocalizationStateProvider
 import core.util.extensions.koinViewModel
 import core.util.selections.ContentViewSelection
+import state.content.ContentStateProvider
 import state.creation.CreateOrEditContentStateMachineProvider
 import state.detail.FolderDetailStateMachine
 import state.manager.DatasourceCRUDEvent
@@ -44,6 +49,7 @@ fun FolderDetail(
     modifier: Modifier = Modifier,
     onClickBack: () -> Unit,
 ) {
+    val contentState = ContentStateProvider.current
     val crudManager = DatasourceCRUDManagerProvider.current
     val createOrEditContentStateMachine = CreateOrEditContentStateMachineProvider.current
     val viewSelectionState = ContentViewStyleStateProvider.current
@@ -53,6 +59,12 @@ fun FolderDetail(
 
     val stateMachine = koinViewModel<FolderDetailStateMachine>()
     val state by stateMachine.state.collectAsState()
+
+    val currentFolder by remember(contentState) {
+        derivedStateOf {
+            contentState.folders.fastFirstOrNull { it.id == folderId }
+        }
+    }
 
     LaunchedEffect(Unit) {
         stateMachine.fetchBookmarks(folderId = folderId)
@@ -64,9 +76,11 @@ fun FolderDetail(
             .nestedScroll(connection = scrollBehavior.nestedScrollConnection),
         topBar = {
             FolderDetailAppBar(
-                title = folderName,
+                title = currentFolder?.name ?: folderName,
                 scrollBehavior = scrollBehavior,
                 isLoading = state.isLoading,
+                firstColor = currentFolder?.firstColor?.color ?: Color.Transparent,
+                secondColor = currentFolder?.secondColor?.color ?: Color.Transparent,
                 onClickBack = {
                     stateMachine.dispose()
                     onClickBack.invoke()
@@ -82,6 +96,7 @@ fun FolderDetail(
                             id = folderId,
                         )
                     )
+                    onClickBack.invoke()
                 },
             )
         },
