@@ -75,13 +75,13 @@ fun DetailAppBar(
             title = {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text(text = title)
                     Icon(
                         imageVector = icon,
                         contentDescription = iconDescription,
                     )
+                    Text(text = title)
                 }
             },
             actions = {
