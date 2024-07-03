@@ -1,6 +1,5 @@
-package view.mobile.detail.folder.components
+package view.mobile.detail.components
 
-import Platform
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -32,7 +31,7 @@ import currentPlatform
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FolderDetailAppBar(
+fun DetailAppBar(
     title: String,
     isLoading: Boolean,
     scrollBehavior: TopAppBarScrollBehavior,

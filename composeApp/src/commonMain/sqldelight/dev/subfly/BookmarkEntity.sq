@@ -16,3 +16,22 @@ getBookmarksOfFolder:
 SELECT *
 FROM BookmarkEntity
 WHERE folder_id = :folderId;
+
+getBookmarksOfTag:
+SELECT
+    b.bookmark_id,
+    b.folder_id,
+    b.title,
+    b.date_added,
+    b.url,
+    b.description,
+    b.private,
+    b.unfurl_data
+FROM
+    BookmarkEntity b
+JOIN
+    BookmarkTagCrossEntity btc ON b.bookmark_id = btc.bookmark_cross_id
+JOIN
+    TagEntity t ON btc.tag_cross_id = t.tag_id
+WHERE
+    t.tag_id = :tagId;

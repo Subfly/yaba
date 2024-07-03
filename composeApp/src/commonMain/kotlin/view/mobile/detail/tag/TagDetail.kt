@@ -1,4 +1,4 @@
-package view.mobile.detail.folder
+package view.mobile.detail.tag
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -12,15 +12,15 @@ import androidx.compose.ui.util.fastFirstOrNull
 import core.util.extensions.koinViewModel
 import state.content.ContentStateProvider
 import state.creation.CreateOrEditContentStateMachineProvider
-import state.detail.folder.FolderDetailStateMachine
+import state.detail.tag.TagDetailStateMachine
 import state.manager.DatasourceCRUDEvent
 import state.manager.DatasourceCRUDManagerProvider
 import view.mobile.detail.components.DetailContent
 
 @Composable
-fun FolderDetail(
-    folderId: Long,
-    folderName: String,
+fun TagDetail(
+    tagId: Long,
+    tagName: String,
     modifier: Modifier = Modifier,
     onClickBack: () -> Unit,
 ) {
@@ -28,41 +28,37 @@ fun FolderDetail(
     val crudManager = DatasourceCRUDManagerProvider.current
     val createOrEditContentStateMachine = CreateOrEditContentStateMachineProvider.current
 
-    val stateMachine = koinViewModel<FolderDetailStateMachine>()
+    val stateMachine = koinViewModel<TagDetailStateMachine>()
     val state by stateMachine.state.collectAsState()
 
-    val currentFolder by remember(contentState) {
+    val currentTag by remember(contentState) {
         derivedStateOf {
-            contentState.folders.fastFirstOrNull { it.id == folderId }
+            contentState.tags.fastFirstOrNull { it.id == tagId }
         }
     }
 
     LaunchedEffect(Unit) {
-        stateMachine.fetchBookmarks(folderId = folderId)
+        stateMachine.fetchBookmarks(tagId = tagId)
     }
 
     DetailContent(
         modifier = modifier,
-        title = currentFolder?.name ?: folderName,
+        title = currentTag?.name ?: tagName,
         bookmarks = state.bookmarks,
         isLoading = state.isLoading,
-        appBarFirstColor = currentFolder?.firstColor?.color ?: Color.Transparent,
-        appBarSecondColor = currentFolder?.secondColor?.color ?: Color.Transparent,
+        appBarFirstColor = currentTag?.firstColor?.color ?: Color.Transparent,
+        appBarSecondColor = currentTag?.secondColor?.color ?: Color.Transparent,
         onClickBack = {
             stateMachine.dispose()
             onClickBack.invoke()
         },
         onClickEditOption = {
-            createOrEditContentStateMachine?.onShowFolderContent(
-                folderId = folderId,
+            createOrEditContentStateMachine?.onShowTagContent(
+                tagId = tagId,
             )
         },
         onClickDeleteOption = {
-            crudManager?.onEvent(
-                event = DatasourceCRUDEvent.DeleteFolderCRUDEvent(
-                    id = folderId,
-                )
-            )
+            // TODO: ADD DELETE TAG CRUD
             onClickBack.invoke()
         },
     )

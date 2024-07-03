@@ -1,4 +1,4 @@
-package state.detail
+package state.detail.folder
 
 import core.model.BookmarkModel
 

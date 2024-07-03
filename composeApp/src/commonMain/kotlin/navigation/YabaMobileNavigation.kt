@@ -20,6 +20,7 @@ import core.util.extensions.koinViewModel
 import currentPlatform
 import state.content.ContentProvider
 import view.mobile.detail.folder.FolderDetail
+import view.mobile.detail.tag.TagDetail
 import view.mobile.home.HomeScreen
 import view.mobile.search.SearchScreen
 import view.mobile.settings.SettingsScreen
@@ -76,7 +77,9 @@ fun YabaMobileNavigation(
                         )
                     },
                     onClickTag = { tagId, tagName ->
-                        // TODO: NAVIGATE TO TAG DETAIL
+                        navHostController.navigate(
+                            YabaScreens.TAG_DETAIL.route + "/$tagName/$tagId",
+                        )
                     }
                 )
             }
@@ -110,6 +113,23 @@ fun YabaMobileNavigation(
                 FolderDetail(
                     folderId = folderId,
                     folderName = folderName,
+                    onClickBack = {
+                        navHostController.popBackStack()
+                    }
+                )
+            }
+            composable(
+                route = YabaScreens.TAG_DETAIL.route + "/{tagName}/{tagId}",
+                arguments = listOf(
+                    navArgument(name = "tagName") { type = NavType.StringType },
+                    navArgument(name = "tagId") { type = NavType.LongType },
+                )
+            ) { navBackStackEntry ->
+                val folderName = navBackStackEntry.arguments?.getString("tagName").orEmpty()
+                val folderId = navBackStackEntry.arguments?.getLong("tagId") ?: -1
+                TagDetail(
+                    tagId = folderId,
+                    tagName = folderName,
                     onClickBack = {
                         navHostController.popBackStack()
                     }

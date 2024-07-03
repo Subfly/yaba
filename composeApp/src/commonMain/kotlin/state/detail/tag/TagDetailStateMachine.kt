@@ -1,4 +1,4 @@
-package state.detail
+package state.detail.tag
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -17,24 +17,24 @@ import kotlinx.coroutines.withContext
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-class FolderDetailStateMachine : ViewModel(), KoinComponent {
+class TagDetailStateMachine : ViewModel(), KoinComponent {
     private val datasource by inject<YabaDatasource>()
 
     private var fetchBookmarksJob: Job? = null
-    private val _state = MutableStateFlow(FolderDetailState())
-    val state: StateFlow<FolderDetailState> = _state.asStateFlow()
+    private val _state = MutableStateFlow(TagDetailState())
+    val state: StateFlow<TagDetailState> = _state.asStateFlow()
 
-    fun fetchBookmarks(folderId: Long) {
+    fun fetchBookmarks(tagId: Long) {
         this.fetchBookmarksJob?.cancel()
         this.fetchBookmarksJob = this.viewModelScope.launch(Dispatchers.IO) {
-            this@FolderDetailStateMachine
+            this@TagDetailStateMachine
                 .datasource
-                .getBookmarksOfFolder(
-                    folderId = folderId
+                .getBookmarksOfTag(
+                    tagId = tagId
                 ).collectLatest { bookmarks ->
                     val mapped = bookmarks.map { it.toBookmarkModel() }
                     withContext(Dispatchers.Main) {
-                        this@FolderDetailStateMachine._state.update {
+                        this@TagDetailStateMachine._state.update {
                             it.copy(
                                 isLoading = false,
                                 bookmarks = mapped

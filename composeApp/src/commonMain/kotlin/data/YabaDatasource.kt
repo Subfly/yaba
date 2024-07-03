@@ -112,6 +112,12 @@ class YabaDatasource(
         .asFlow()
         .flowOn(Dispatchers.IO)
         .mapToList(Dispatchers.IO)
+
+    fun getBookmarksOfTag(tagId: Long) = bookmarkQueries
+        .getBookmarksOfTag(tagId = tagId)
+        .asFlow()
+        .flowOn(Dispatchers.IO)
+        .mapToList(Dispatchers.IO)
     // endregion BOOKMARK
 
 }
