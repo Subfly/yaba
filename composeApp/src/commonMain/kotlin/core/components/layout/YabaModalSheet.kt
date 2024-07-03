@@ -8,6 +8,7 @@ import androidx.compose.material3.SheetState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import core.settings.theme.ThemeStateProvider
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -35,5 +36,6 @@ fun YabaModalSheet(
         content = content,
         containerColor = themeState.colors.surface,
         contentColor = themeState.colors.onSurface,
+        scrimColor = Color.Transparent,
     )
 }
