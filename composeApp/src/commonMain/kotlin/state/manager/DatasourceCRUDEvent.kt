@@ -50,5 +50,9 @@ sealed class DatasourceCRUDEvent {
         val firstColor: String? = null,
         val secondColor: String? = null,
     ): DatasourceCRUDEvent()
+
+    data class DeleteTagCRUDEvent(
+        val id: Long,
+    ): DatasourceCRUDEvent()
     // endregion TAG
 }

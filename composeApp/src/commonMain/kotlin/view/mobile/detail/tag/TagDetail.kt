@@ -58,8 +58,12 @@ fun TagDetail(
             )
         },
         onClickDeleteOption = {
-            // TODO: ADD DELETE TAG CRUD
             onClickBack.invoke()
+            crudManager?.onEvent(
+                event = DatasourceCRUDEvent.DeleteTagCRUDEvent(
+                    id = tagId,
+                )
+            )
         },
     )
 }

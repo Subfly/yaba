@@ -58,12 +58,12 @@ fun FolderDetail(
             )
         },
         onClickDeleteOption = {
+            onClickBack.invoke()
             crudManager?.onEvent(
                 event = DatasourceCRUDEvent.DeleteFolderCRUDEvent(
                     id = folderId,
                 )
             )
-            onClickBack.invoke()
         },
     )
 }

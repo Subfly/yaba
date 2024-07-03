@@ -88,6 +88,9 @@ class DatasourceCRUDManager(
                 this.readTagJob?.cancel()
                 this._readTagState.update { null }
             }
+            is DatasourceCRUDEvent.DeleteTagCRUDEvent -> {
+                this.onDeleteTag(id = event.id)
+            }
             // endregion TAG
         }
     }
@@ -196,6 +199,14 @@ class DatasourceCRUDManager(
                         _readTagState.update { mapped }
                     }
                 }
+        }
+    }
+
+    private fun onDeleteTag(
+        id: Long,
+    ) {
+        this.viewModelScope.launch(Dispatchers.IO) {
+            this@DatasourceCRUDManager.datasource.deleteTag(id = id)
         }
     }
     // endregion TAG
