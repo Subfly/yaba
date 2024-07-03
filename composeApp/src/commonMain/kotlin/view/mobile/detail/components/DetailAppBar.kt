@@ -1,7 +1,10 @@
 package view.mobile.detail.components
 
+import Platform
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.twotone.ArrowBack
@@ -18,9 +21,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.dp
 import core.components.button.YabaIconButton
 import core.components.layout.YabaAppBar
 import core.components.layout.YabaMenu
@@ -37,6 +43,8 @@ fun DetailAppBar(
     scrollBehavior: TopAppBarScrollBehavior,
     firstColor: Color,
     secondColor: Color,
+    icon: ImageVector,
+    iconDescription: String,
     modifier: Modifier = Modifier,
     onClickBack: () -> Unit,
     onClickEdit: () -> Unit,
@@ -65,7 +73,16 @@ fun DetailAppBar(
                 }
             },
             title = {
-                Text(text = title)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(text = title)
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = iconDescription,
+                    )
+                }
             },
             actions = {
                 YabaIconButton(

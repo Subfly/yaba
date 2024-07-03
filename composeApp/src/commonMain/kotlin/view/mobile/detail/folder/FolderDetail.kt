@@ -1,5 +1,7 @@
 package view.mobile.detail.folder
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.twotone.Folder
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -48,6 +50,8 @@ fun FolderDetail(
         isLoading = state.isLoading,
         appBarFirstColor = currentFolder?.firstColor?.color ?: Color.Transparent,
         appBarSecondColor = currentFolder?.secondColor?.color ?: Color.Transparent,
+        appBarIcon = currentFolder?.icon?.icon ?: Icons.TwoTone.Folder,
+        appBarIconDescription = currentFolder?.icon?.name ?: Icons.TwoTone.Folder.name,
         onClickBack = {
             stateMachine.dispose()
             onClickBack.invoke()

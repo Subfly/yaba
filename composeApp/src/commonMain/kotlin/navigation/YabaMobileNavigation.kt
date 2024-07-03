@@ -39,24 +39,22 @@ fun YabaMobileNavigation(
             modifier = modifier,
             navController = navHostController,
             startDestination = YabaScreens.HOME.route,
-            enterTransition = {
-                if (currentPlatform == Platform.IOS) {
-                    slideIntoContainer(
-                        towards = AnimatedContentTransitionScope.SlideDirection.Left
-                    )
-                } else {
-                    fadeIn(animationSpec = tween(700))
-                }
-            },
-            exitTransition = {
-                if (currentPlatform == Platform.IOS) {
-                    slideOutOfContainer(
-                        towards = AnimatedContentTransitionScope.SlideDirection.Right
-                    )
-                } else {
-                    fadeOut(animationSpec = tween(700))
-                }
-            }
+            enterTransition = { slideIntoContainer(
+                AnimatedContentTransitionScope.SlideDirection.Left,
+                animationSpec = tween(400),
+            ) },
+            exitTransition = { slideOutOfContainer(
+                AnimatedContentTransitionScope.SlideDirection.Left,
+                animationSpec = tween(400)
+            ) },
+            popEnterTransition = { slideIntoContainer(
+                AnimatedContentTransitionScope.SlideDirection.Right,
+                animationSpec = tween(400),
+            ) },
+            popExitTransition = { slideOutOfContainer(
+                AnimatedContentTransitionScope.SlideDirection.Right,
+                animationSpec = tween(400),
+            ) }
         ) {
             composable(
                 route = YabaScreens.HOME.route,

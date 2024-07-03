@@ -17,6 +17,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import core.components.button.YabaFab
@@ -38,6 +39,8 @@ fun DetailContent(
     bookmarks: List<BookmarkModel>,
     appBarFirstColor: Color,
     appBarSecondColor: Color,
+    appBarIcon: ImageVector,
+    appBarIconDescription: String,
     modifier: Modifier = Modifier,
     onClickBack: () -> Unit,
     onClickEditOption: () -> Unit,
@@ -60,6 +63,8 @@ fun DetailContent(
                 isLoading = isLoading,
                 firstColor = appBarFirstColor,
                 secondColor = appBarSecondColor,
+                icon = appBarIcon,
+                iconDescription = appBarIconDescription,
                 onClickBack = onClickBack,
                 onClickEdit = onClickEditOption,
                 onClickDelete = onClickDeleteOption,

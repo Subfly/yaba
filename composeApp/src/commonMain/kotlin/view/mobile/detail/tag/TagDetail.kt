@@ -1,5 +1,7 @@
 package view.mobile.detail.tag
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.twotone.Label
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -48,6 +50,8 @@ fun TagDetail(
         isLoading = state.isLoading,
         appBarFirstColor = currentTag?.firstColor?.color ?: Color.Transparent,
         appBarSecondColor = currentTag?.secondColor?.color ?: Color.Transparent,
+        appBarIcon = currentTag?.icon?.icon ?: Icons.AutoMirrored.TwoTone.Label,
+        appBarIconDescription = currentTag?.icon?.name ?: Icons.AutoMirrored.TwoTone.Label.name,
         onClickBack = {
             stateMachine.dispose()
             onClickBack.invoke()
