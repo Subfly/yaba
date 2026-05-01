@@ -1,5 +1,4 @@
 import type { EditorFormattingState } from "../editor-formatting"
-import type { TocJson } from "../toc-host-events"
 
 export type YabaNativeHostFeature = "editor" | "read-it-later" | "epub" | "canvas" | "preview"
 
@@ -7,7 +6,6 @@ export type YabaNativeHostFeature = "editor" | "read-it-later" | "epub" | "canva
 export type YabaNativeHostPayload =
   | { type: "bridgeReady"; feature: YabaNativeHostFeature }
   | { type: "shellLoad"; result: "loaded" | "error" }
-  | { type: "toc"; toc: TocJson | null }
   | { type: "noteAutosaveIdle" }
   | { type: "canvasAutosaveIdle" }
   | {

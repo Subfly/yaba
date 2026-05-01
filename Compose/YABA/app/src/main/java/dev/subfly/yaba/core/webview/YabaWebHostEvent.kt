@@ -40,6 +40,4 @@ sealed interface YabaWebHostEvent {
     data class CanvasLinkTap(val tap: CanvasLinkTapEvent) : YabaWebHostEvent
 
     data class CanvasMentionTap(val tap: CanvasMentionTapEvent) : YabaWebHostEvent
-
-    data class TableOfContentsChanged(val toc: Toc?) : YabaWebHostEvent
 }

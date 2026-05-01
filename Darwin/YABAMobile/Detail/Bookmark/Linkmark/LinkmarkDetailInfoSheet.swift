@@ -6,62 +6,6 @@ import SwiftData
 import SwiftUI
 import UIKit
 
-enum LinkmarkDetailSheetTab: String, CaseIterable, Identifiable, Hashable {
-    case info
-    case contents
-
-    var id: String { rawValue }
-
-    var icon: String {
-        switch self {
-        case .info: return "information-circle"
-        case .contents: return "align-box-middle-center"
-        }
-    }
-
-    var title: LocalizedStringKey {
-        switch self {
-        case .info: return "Bookmark Detail Sheet Tab Info Title"
-        case .contents: return "Bookmark Detail Sheet Tab Contents Title"
-        }
-    }
-}
-
-private struct LinkmarkTocFlatRow: Identifiable {
-    let item: LinkmarkMarkdownTocItem
-    let depth: Int
-
-    var id: String { item.id }
-}
-
-/// Pre-order flatten without recursion (stack machine).
-private func flattenLinkmarkTocItems(_ roots: [LinkmarkMarkdownTocItem]) -> [LinkmarkTocFlatRow] {
-    var result: [LinkmarkTocFlatRow] = []
-    struct Frame {
-        var items: [LinkmarkMarkdownTocItem]
-        var depth: Int
-        var index: Int
-    }
-    var stack: [Frame] = [Frame(items: roots, depth: 0, index: 0)]
-
-    while !stack.isEmpty {
-        let fi = stack.count - 1
-        if stack[fi].index >= stack[fi].items.count {
-            stack.removeLast()
-            continue
-        }
-        let item = stack[fi].items[stack[fi].index]
-        stack[fi].index += 1
-        let depth = stack[fi].depth
-        result.append(LinkmarkTocFlatRow(item: item, depth: depth))
-        if !item.children.isEmpty {
-            stack.append(Frame(items: item.children, depth: depth + 1, index: 0))
-        }
-    }
-
-    return result
-}
-
 struct LinkmarkDetailInfoSheet: View {
     @Environment(\.dismiss)
     private var dismiss
@@ -69,49 +13,26 @@ struct LinkmarkDetailInfoSheet: View {
     private var openURL
 
     let bookmark: YabaBookmark
-    let tocItems: [LinkmarkMarkdownTocItem]
     let folderAccent: Color
     let reminderDate: Date?
     let onDeleteReminder: () -> Void
     let onOpenFolder: (String) -> Void
     let onOpenTag: (String) -> Void
-    @Binding var selectedTab: LinkmarkDetailSheetTab
-    let onTocItemTap: (LinkmarkMarkdownTocItem) -> Void
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                Picker("", selection: $selectedTab) {
-                    ForEach(LinkmarkDetailSheetTab.allCases) { tab in
-                        Text(tab.title).tag(tab)
-                    }
-                }
-                .pickerStyle(.segmented)
-                .padding()
-
-                content
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            }
-            .tint(folderAccent)
-            .navigationTitle("Bookmark Detail Sheet Navigation Title")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") {
-                        dismiss()
-                    }
-                }
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var content: some View {
-        switch selectedTab {
-        case .info:
             linkInfoScroll
-        case .contents:
-            tocList
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                .tint(folderAccent)
+                .navigationTitle("Bookmark Detail Sheet Navigation Title")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Done") {
+                            dismiss()
+                        }
+                    }
+                }
         }
     }
 
@@ -253,39 +174,6 @@ struct LinkmarkDetailInfoSheet: View {
         .scrollContentBackground(.hidden)
     }
 
-    private var tocList: some View {
-        Group {
-            if tocItems.isEmpty {
-                emptyStateContent(
-                    icon: "left-to-right-list-triangle",
-                    title: "Bookmark Detail No Table Of Contents Title",
-                    message: "Bookmark Detail No Table Of Contents Message"
-                )
-            } else {
-                List {
-                    ForEach(flattenLinkmarkTocItems(tocItems)) { row in
-                        Button {
-                            onTocItemTap(row.item)
-                        } label: {
-                            HStack(spacing: 10) {
-                                YabaIconView(bundleKey: tocHeadingIcon(level: row.item.level))
-                                    .frame(width: 24, height: 24)
-                                    .foregroundStyle(folderAccent)
-                                Text(row.item.title)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .multilineTextAlignment(.leading)
-                            }
-                            .padding(.leading, CGFloat(row.depth * 16))
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-                .listStyle(.sidebar)
-            }
-        }
-    }
-
     @ViewBuilder
     private func metadataRow(_ key: LocalizedStringKey, icon: String, value: String?) -> some View {
         if let value, !value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
@@ -355,26 +243,6 @@ struct LinkmarkDetailInfoSheet: View {
         }
     }
 
-    private func emptyStateContent(
-        icon: String,
-        title: LocalizedStringKey,
-        message: LocalizedStringKey
-    ) -> some View {
-        ContentUnavailableView {
-            Label {
-                Text(title)
-            } icon: {
-                YabaIconView(bundleKey: icon)
-                    .scaledToFit()
-                    .frame(width: 52, height: 52)
-                    .foregroundStyle(folderAccent)
-            }
-        } description: {
-            Text(message)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-
     private func emptyCardContent(icon: String, title: LocalizedStringKey) -> some View {
         ContentUnavailableView {
             Label {
@@ -394,16 +262,5 @@ struct LinkmarkDetailInfoSheet: View {
             RoundedRectangle(cornerRadius: 12)
                 .fill(.thinMaterial.opacity(0.5))
         )
-    }
-
-    private func tocHeadingIcon(level: Int) -> String {
-        switch level {
-        case 1: "heading-01"
-        case 2: "heading-02"
-        case 3: "heading-03"
-        case 4: "heading-04"
-        case 5: "heading-05"
-        default: "heading-06"
-        }
     }
 }

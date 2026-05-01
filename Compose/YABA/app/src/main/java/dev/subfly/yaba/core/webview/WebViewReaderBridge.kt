@@ -1,7 +1,7 @@
 package dev.subfly.yaba.core.webview
 
 /**
- * Imperative bridge for reader WebViews (HTML reader shell, PDF, or EPUB): paging and TOC navigation.
+ * Imperative bridge for reader WebViews (HTML reader shell, PDF, or EPUB): paging and related hooks.
  */
 interface WebViewReaderBridge {
     suspend fun getPageCount(): Int = 1
@@ -13,8 +13,6 @@ interface WebViewReaderBridge {
     suspend fun prevPage(): Boolean = false
 
     suspend fun getDocumentJson(): String = ""
-
-    suspend fun navigateToTocItem(id: String, extrasJson: String?) = Unit
 
     /**
      * Rich-text readable shell only: calls `window.YabaEditorBridge.unFocus()`. No-op for PDF/EPUB.

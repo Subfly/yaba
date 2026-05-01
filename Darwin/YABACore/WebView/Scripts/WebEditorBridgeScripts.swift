@@ -131,26 +131,6 @@ public enum WebEditorBridgeScripts {
         """
     }
 
-    public static func navigateToTocItem(id: String, extrasJson: String?) -> String {
-        let idJs = Self.javaScriptStringLiteral(id)
-        let extrasJs: String
-        if let extrasJson, !extrasJson.isEmpty {
-            extrasJs = Self.javaScriptStringLiteral(extrasJson)
-        } else {
-            extrasJs = "null"
-        }
-        return """
-        (function(){
-          try {
-            var b = window.YabaEditorBridge;
-            if (!b || !b.navigateToTocItem) { return "no_bridge"; }
-            b.navigateToTocItem(\(idJs), \(extrasJs));
-            return "ok";
-          } catch(e) { return String(e); }
-        })();
-        """
-    }
-
     private static func javaScriptStringLiteral(_ s: String) -> String {
         guard let data = try? JSONEncoder().encode(s),
               let out = String(data: data, encoding: .utf8)

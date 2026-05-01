@@ -98,7 +98,6 @@ struct LinkmarkReadItLaterWebView: UIViewRepresentable {
     let inlineAssets: [LinkmarkInlineAssetPayload]
     let readerPreferences: ReaderPreferences
     let appearance: WebAppearance
-    @Binding var tocNavigateItemId: String?
     let onHostEvent: (WebHostEvent) -> Void
     let onInlineLinkTap: (InlineLinkTapEvent) -> Void
     let onScrollShowChrome: (() -> Void)?
@@ -114,7 +113,6 @@ struct LinkmarkReadItLaterWebView: UIViewRepresentable {
     }
 
     func updateUIView(_ uiView: WKWebView, context: Context) {
-        context.coordinator.updateBindings(toc: $tocNavigateItemId)
         context.coordinator.update(parent: self)
     }
 
@@ -127,7 +125,6 @@ struct LinkmarkReadItLaterWebView: UIViewRepresentable {
         private var lastScrollOffsetY: CGFloat?
         private var lastMarkdownApplied = ""
         private var lastPrefsFingerprint = ""
-        private var tocNavigateBinding = Binding<String?>.constant(nil)
 
         init(parent: LinkmarkReadItLaterWebView) {
             self.parent = parent
@@ -157,10 +154,6 @@ struct LinkmarkReadItLaterWebView: UIViewRepresentable {
             if #available(iOS 13.0, *) {
                 runtime.webView.scrollView.automaticallyAdjustsScrollIndicatorInsets = false
             }
-        }
-
-        func updateBindings(toc: Binding<String?>) {
-            tocNavigateBinding = toc
         }
 
         func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -225,18 +218,6 @@ struct LinkmarkReadItLaterWebView: UIViewRepresentable {
                 )
                 lastMarkdownApplied = markdown
                 lastPrefsFingerprint = fp
-            }
-
-            await flushNavigationCommands()
-        }
-
-        @MainActor
-        private func flushNavigationCommands() async {
-            if let tocId = tocNavigateBinding.wrappedValue, !tocId.isEmpty {
-                _ = try? await runtime.evaluateJavaScriptStringResult(
-                    WebPreviewBridgeScripts.navigateToTocItem(id: tocId, extrasJson: nil)
-                )
-                tocNavigateBinding.wrappedValue = nil
             }
         }
     }

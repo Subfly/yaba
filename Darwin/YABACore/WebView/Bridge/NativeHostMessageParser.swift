@@ -25,8 +25,6 @@ public enum NativeHostMessageParserDarwin {
         switch type {
         case "shellLoad":
             return parseShellLoad(root)
-        case "toc":
-            return nil
         case "noteAutosaveIdle":
             return .noteEditorIdleForAutosave
         case "canvasAutosaveIdle":
@@ -103,7 +101,7 @@ public enum NativeHostMessageParserDarwin {
                 )
             }
             return nil
-        case "converterJob", "bridgeReady":
+        case "converterJob", "bridgeReady", "toc":
             // Darwin does not host WKWebView import converters; `bridgeReady` is handled in `NativeHostRouterDarwin`.
             return nil
         default:

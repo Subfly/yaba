@@ -3,7 +3,6 @@ package dev.subfly.yaba.core.state.detail.linkmark
 import dev.subfly.yaba.core.model.utils.ReaderFontSize
 import dev.subfly.yaba.core.model.utils.ReaderLineHeight
 import dev.subfly.yaba.core.model.utils.ReaderTheme
-import dev.subfly.yaba.core.webview.Toc
 import dev.subfly.yaba.core.webview.WebShellLoadResult
 
 sealed interface LinkmarkDetailEvent {
@@ -16,9 +15,6 @@ sealed interface LinkmarkDetailEvent {
     data class OnSetReaderTheme(val theme: ReaderTheme) : LinkmarkDetailEvent
     data class OnSetReaderFontSize(val fontSize: ReaderFontSize) : LinkmarkDetailEvent
     data class OnSetReaderLineHeight(val lineHeight: ReaderLineHeight) : LinkmarkDetailEvent
-    data class OnTocChanged(val toc: Toc?) : LinkmarkDetailEvent
-    data class OnNavigateToTocItem(val id: String, val extrasJson: String?) : LinkmarkDetailEvent
-    data object OnClearTocNavigation : LinkmarkDetailEvent
     data object OnRequestNotificationPermission : LinkmarkDetailEvent
     data class OnScheduleReminder(
         val selectedDateMillis: Long,

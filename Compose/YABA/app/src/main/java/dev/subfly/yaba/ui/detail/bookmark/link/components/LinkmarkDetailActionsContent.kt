@@ -19,16 +19,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import dev.subfly.yaba.ui.detail.bookmark.components.BookmarkDetailPageSegmentedRow
-import dev.subfly.yaba.ui.detail.bookmark.link.models.DetailPage
 import dev.subfly.yaba.core.model.utils.YabaColor
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 internal fun LinkmarkDetailActionsContent(
     modifier: Modifier = Modifier,
-    currentPage: DetailPage,
-    onPageChange: (DetailPage) -> Unit,
     mainColor: YabaColor,
     onHide: () -> Unit,
 ) {
@@ -37,7 +33,7 @@ internal fun LinkmarkDetailActionsContent(
             .fillMaxWidth()
             .background(color = MaterialTheme.colorScheme.surfaceContainerLow)
             .padding(bottom = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(2.dp)
+        verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
         TextButton(
             modifier = Modifier
@@ -45,17 +41,9 @@ internal fun LinkmarkDetailActionsContent(
                 .padding(horizontal = 12.dp),
             shapes = ButtonDefaults.shapes(),
             colors = ButtonDefaults.textButtonColors().copy(
-                contentColor = Color(mainColor.iconTintArgb())
+                contentColor = Color(mainColor.iconTintArgb()),
             ),
             onClick = onHide,
         ) { Text(stringResource(R.string.done)) }
-
-        BookmarkDetailPageSegmentedRow(
-            pages = DetailPage.entries.toList(),
-            currentPage = currentPage,
-            onPageChange = onPageChange,
-            label = { it.label },
-            iconName = { it.iconName },
-        )
     }
 }

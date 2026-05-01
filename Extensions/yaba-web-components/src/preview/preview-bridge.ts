@@ -1,9 +1,7 @@
 import { applyBaseThemeForReaderTheme, applyReaderThemeCssVars, applyReaderTypographyCssVars } from "@/theme/reader-document-vars"
 import type { Platform, AppearanceMode } from "@/theme/url-params"
 import { applyTheme, parseUrlParams } from "@/theme"
-import { buildHeadingTocFromMarkdown } from "@/editor-view/toc-from-markdown"
 import { publishShellLoad } from "@/bridge/shell-host-events"
-import { publishToc, resetPublishedToc } from "@/bridge/toc-host-events"
 import { postToYabaNativeHost } from "@/bridge/yaba-native-host"
 import type { ReaderPreferences } from "@/bridge/read-it-later-bridge"
 
@@ -15,7 +13,6 @@ export interface YabaPreviewBridge {
   setCursorColor: (color: string) => void
   setWebChromeInsets: (topChromeInsetPx: number) => void
   setReaderPreferences: (preferences: Partial<ReaderPreferences>) => void
-  navigateToTocItem: (tocItemId: string, _extrasJson?: string | null) => void
 }
 
 let latestMarkdown = ""
@@ -98,25 +95,6 @@ function publishPreviewReaderMetrics(): void {
   postToYabaNativeHost(payload)
 }
 
-const TOC_DEBOUNCE_MS = 350
-let tocTimer: ReturnType<typeof setTimeout> | null = null
-
-function clearTocTimer(): void {
-  if (tocTimer !== null) {
-    clearTimeout(tocTimer)
-    tocTimer = null
-  }
-}
-
-function scheduleTocPublish(md: string): void {
-  clearTocTimer()
-  tocTimer = setTimeout(() => {
-    tocTimer = null
-    const toc = buildHeadingTocFromMarkdown(md)
-    publishToc(toc)
-  }, TOC_DEBOUNCE_MS)
-}
-
 /** Wire native `evaluateJavaScript` targets for the markdown preview shell. */
 export function initPreviewBridge(api: { setMarkdownState: (md: string) => void }): () => void {
   setMarkdownState = api.setMarkdownState
@@ -140,12 +118,10 @@ export function initPreviewBridge(api: { setMarkdownState: (md: string) => void 
       try {
         latestMarkdown = markdown ?? ""
         setMarkdownState?.(latestMarkdown)
-        resetPublishedToc()
         if (!shellLoadNotified) {
           shellLoadNotified = true
           publishShellLoad("loaded")
         }
-        scheduleTocPublish(latestMarkdown)
         queueMicrotask(() => publishPreviewReaderMetrics())
       } catch {
         if (!shellLoadNotified) {
@@ -173,16 +149,12 @@ export function initPreviewBridge(api: { setMarkdownState: (md: string) => void 
       readerPreferences = { ...readerPreferences, ...prefs }
       applyReaderPreferences()
     },
-    navigateToTocItem: (tocItemId: string) => {
-      document.getElementById(tocItemId)?.scrollIntoView({ behavior: "smooth", block: "center" })
-    },
   }
 
   postToYabaNativeHost({ type: "bridgeReady", feature: "preview" })
   publishPreviewReaderMetrics()
 
   return () => {
-    clearTocTimer()
     setMarkdownState = null
   }
 }

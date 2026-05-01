@@ -8,8 +8,6 @@ import dev.subfly.yaba.core.webview.CanvasHostMetrics
 import dev.subfly.yaba.core.webview.CanvasHostStyleState
 import dev.subfly.yaba.core.webview.CanvasLinkTapEvent
 import dev.subfly.yaba.core.webview.CanvasMentionTapEvent
-import dev.subfly.yaba.core.webview.Toc
-import dev.subfly.yaba.core.webview.TocItem
 import dev.subfly.yaba.core.webview.WebShellLoadResult
 import dev.subfly.yaba.core.webview.YabaWebHostEvent
 import org.json.JSONArray
@@ -17,7 +15,7 @@ import org.json.JSONObject
 
 /**
  * Parses JSON from [YabaAndroidHostJsBridge.postMessage] into [YabaWebHostEvent] or tap side-effects.
- * Must stay aligned with `Extensions/yaba-web-components/src/bridge/yaba-native-host.ts`.
+ * Must stay aligned with `Extensions/yaba-web-components/src/bridge/contracts/native-host.ts` and transport.
  */
 internal object YabaNativeHostMessageParser {
 
@@ -32,7 +30,6 @@ internal object YabaNativeHostMessageParser {
                 ?: return null
         return when (val type = root.optString("type")) {
             "shellLoad" -> parseShellLoad(root)
-            "toc" -> parseToc(root)
             "noteAutosaveIdle" -> YabaWebHostEvent.NoteEditorIdleForAutosave
             "canvasAutosaveIdle" -> YabaWebHostEvent.CanvasIdleForAutosave
             "readerMetrics" -> parseReaderMetrics(root)
@@ -136,34 +133,6 @@ internal object YabaNativeHostMessageParser {
                 else -> WebShellLoadResult.Error
             }
         return YabaWebHostEvent.InitialContentLoad(shell)
-    }
-
-    private fun parseToc(root: JSONObject): YabaWebHostEvent.TableOfContentsChanged {
-        if (root.isNull("toc")) {
-            return YabaWebHostEvent.TableOfContentsChanged(toc = null)
-        }
-        val tocObj = root.optJSONObject("toc") ?: return YabaWebHostEvent.TableOfContentsChanged(Toc())
-        val itemsArr = tocObj.optJSONArray("items") ?: return YabaWebHostEvent.TableOfContentsChanged(Toc())
-        return YabaWebHostEvent.TableOfContentsChanged(Toc(parseTocItems(itemsArr)))
-    }
-
-    private fun parseTocItems(arr: JSONArray): List<TocItem> {
-        val out = ArrayList<TocItem>(arr.length())
-        for (i in 0 until arr.length()) {
-            val o = arr.optJSONObject(i) ?: continue
-            val children = parseTocItems(o.optJSONArray("children") ?: JSONArray())
-            val extras = o.optString("extrasJson", "").takeIf { it.isNotBlank() }
-            out.add(
-                TocItem(
-                    id = o.optString("id", ""),
-                    title = o.optString("title", ""),
-                    level = o.optInt("level", 1),
-                    children = children,
-                    extrasJson = extras,
-                ),
-            )
-        }
-        return out
     }
 
     private fun parseReaderMetrics(root: JSONObject): YabaWebHostEvent.ReaderMetrics {

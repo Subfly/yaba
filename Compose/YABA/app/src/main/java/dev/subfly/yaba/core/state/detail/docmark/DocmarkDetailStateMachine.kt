@@ -16,7 +16,6 @@ import dev.subfly.yaba.core.model.utils.ReaderLineHeight
 import dev.subfly.yaba.core.model.utils.ReaderTheme
 import dev.subfly.yaba.core.notifications.NotificationManager
 import dev.subfly.yaba.core.state.base.BaseStateMachine
-import dev.subfly.yaba.core.webview.Toc
 import dev.subfly.yaba.core.webview.WebShellLoadResult
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -44,9 +43,6 @@ class DocmarkDetailStateMachine : BaseStateMachine<DocmarkDetailUIState, Docmark
             is DocmarkDetailEvent.OnSetReaderTheme -> onSetReaderTheme(event.theme)
             is DocmarkDetailEvent.OnSetReaderFontSize -> onSetReaderFontSize(event.fontSize)
             is DocmarkDetailEvent.OnSetReaderLineHeight -> onSetReaderLineHeight(event.lineHeight)
-            is DocmarkDetailEvent.OnTocChanged -> onTocChanged(event.toc)
-            is DocmarkDetailEvent.OnNavigateToTocItem -> onNavigateToTocItem(event)
-            DocmarkDetailEvent.OnClearTocNavigation -> onClearTocNavigation()
             DocmarkDetailEvent.OnRequestNotificationPermission -> {}
             is DocmarkDetailEvent.OnScheduleReminder -> onScheduleReminder(event)
             DocmarkDetailEvent.OnCancelReminder -> onCancelReminder()
@@ -229,18 +225,6 @@ class DocmarkDetailStateMachine : BaseStateMachine<DocmarkDetailUIState, Docmark
                 readerPreferences = state.readerPreferences.copy(lineHeight = lineHeight),
             )
         }
-    }
-
-    private fun onTocChanged(toc: Toc?) {
-        updateState { it.copy(toc = toc) }
-    }
-
-    private fun onNavigateToTocItem(event: DocmarkDetailEvent.OnNavigateToTocItem) {
-        updateState { it.copy(pendingTocNavigate = event.id to event.extrasJson) }
-    }
-
-    private fun onClearTocNavigation() {
-        updateState { it.copy(pendingTocNavigate = null) }
     }
 
     private fun onScheduleReminder(event: DocmarkDetailEvent.OnScheduleReminder) {

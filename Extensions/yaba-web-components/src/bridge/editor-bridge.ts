@@ -6,7 +6,6 @@ import {
   normalizeMarkdownAssetPathsForPersistence,
   rewriteAssetPathsInMarkdown,
 } from "@/editor-view/asset-paths"
-import { buildHeadingTocFromMarkdown, findHeadingOffsetForTocItemId } from "@/editor-view/toc-from-markdown"
 import type { Platform, AppearanceMode } from "@/theme"
 import { applyTheme, parseUrlParams } from "@/theme"
 import {
@@ -25,7 +24,6 @@ import {
   scheduleNoteAutosaveAfterEditorActivity,
   setNoteEditorAutosaveIdleEnabled,
 } from "./shell-host-events"
-import { publishToc, resetPublishedToc } from "./toc-host-events"
 import { postToYabaNativeHost } from "./yaba-native-host"
 
 export type ReaderTheme = "system" | "dark" | "light" | "sepia"
@@ -58,7 +56,6 @@ export interface YabaEditorBridge {
   focus: () => void
   unFocus: () => void
   exportMarkdown: () => string
-  navigateToTocItem: (id: string, extrasJson?: string | null) => void
 }
 
 /** Set when [setMarkdown] runs with options; used to resolve image paths and normalize saves. */
@@ -66,35 +63,6 @@ let lastAssetsBaseUrl: string | undefined
 
 let editorSurface: EditorSurface | null = null
 let editorShellLoadNotified = false
-let tocPublishTimer: ReturnType<typeof setTimeout> | null = null
-const TOC_PUBLISH_DEBOUNCE_MS = 1000
-
-function clearTocPublishTimer(): void {
-  if (tocPublishTimer !== null) {
-    clearTimeout(tocPublishTimer)
-    tocPublishTimer = null
-  }
-}
-
-function scheduleHeadingTocPublish(): void {
-  const page = typeof document !== "undefined" ? document.body?.dataset.yabaPage : undefined
-  if (page !== "editor") return
-  clearTocPublishTimer()
-  tocPublishTimer = setTimeout(() => {
-    tocPublishTimer = null
-    publishHeadingTocFromMarkdownSource()
-  }, TOC_PUBLISH_DEBOUNCE_MS)
-}
-
-function publishHeadingTocFromMarkdownSource(): void {
-  const s = editorSurface
-  if (!s) {
-    publishToc(null)
-    return
-  }
-  const toc = buildHeadingTocFromMarkdown(s.getMarkdown())
-  publishToc(toc)
-}
 
 /** Latest selection for restoring caret after [unFocus]. */
 let lastStoredCursor: { anchor: number; head: number } | null = null
@@ -223,7 +191,6 @@ function wireViewActivity(viewActivityRef: { current: ((u: ViewUpdate) => void) 
     }
     if (u.docChanged) {
       scheduleNoteAutosaveAfterEditorActivity()
-      scheduleHeadingTocPublish()
     }
   }
 }
@@ -234,8 +201,6 @@ export function initEditorBridge(
 ): void {
   editorSurface = surface
   editorShellLoadNotified = false
-  clearTocPublishTimer()
-  resetPublishedToc()
   setNoteEditorAutosaveIdleEnabled(false)
   resetPublishedEditorHostState()
   wireViewActivity(viewActivityRef)
@@ -309,7 +274,6 @@ export function initEditorBridge(
           publishShellLoad("loaded")
         }
         queueMicrotask(() => {
-          publishHeadingTocFromMarkdownSource()
           if (document.body?.dataset.yabaPage === "editor") {
             setNoteEditorAutosaveIdleEnabled(true)
           }
@@ -344,14 +308,6 @@ export function initEditorBridge(
     exportMarkdown: () => {
       const md = win.YabaEditorBridge?.getMarkdown() ?? ""
       return md.trimEnd() + "\n"
-    },
-    navigateToTocItem: (id: string, _extrasJson?: string | null) => {
-      const s = editorSurface
-      if (!s) return
-      const md = s.getMarkdown()
-      const pos = findHeadingOffsetForTocItemId(md, id)
-      if (pos == null) return
-      s.scrollPosIntoView(pos)
     },
   }
 

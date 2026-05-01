@@ -64,11 +64,6 @@ internal fun RichTextWebViewReaderBridge(
         return decodeJsStringResult(raw)
     }
 
-    override suspend fun navigateToTocItem(id: String, extrasJson: String?) {
-        if (!waitForBridgeReady(webView, YabaWebBridgeScripts.EDITOR_BRIDGE_READY_LOOSE)) return
-        evaluateJs(webView, YabaEditorBridgeScripts.navigateToTocItemScript(id, extrasJson))
-    }
-
     override suspend fun unFocus() {
         if (!waitForBridgeReady(webView, YabaWebBridgeScripts.EDITOR_BRIDGE_READY)) return
         evaluateJs(webView, YabaEditorBridgeScripts.unFocusScript())
@@ -135,9 +130,6 @@ internal fun RichTextWebViewEditorBridge(
             val escaped = escapeForJsSingleQuotedString(payloadJson)
             evaluateJs(webView, YabaEditorBridgeScripts.dispatchScript(escaped))
         }
-
-        override suspend fun navigateToTocItem(id: String, extrasJson: String?) =
-            reader.navigateToTocItem(id, extrasJson)
 
         override suspend fun exportNoteMarkdown(): String {
             if (!waitForBridgeReady(webView, YabaWebBridgeScripts.EDITOR_BRIDGE_READY)) return ""
@@ -305,11 +297,6 @@ internal fun PdfWebViewReaderBridge(
     }
 
     override suspend fun getDocumentJson(): String = ""
-
-    override suspend fun navigateToTocItem(id: String, extrasJson: String?) {
-        if (!waitForBridgeReady(webView, YabaWebBridgeScripts.PDF_BRIDGE_READY_LOOSE)) return
-        evaluateJs(webView, YabaPdfReaderBridgeScripts.navigateToTocItemScript(id, extrasJson))
-    }
 }
 
 @Suppress("FunctionName")
@@ -337,11 +324,6 @@ internal fun EpubWebViewReaderBridge(
     }
 
     override suspend fun getDocumentJson(): String = ""
-
-    override suspend fun navigateToTocItem(id: String, extrasJson: String?) {
-        if (!waitForBridgeReady(webView, YabaWebBridgeScripts.EPUB_BRIDGE_READY_LOOSE)) return
-        evaluateJs(webView, YabaEpubReaderBridgeScripts.navigateToTocItemScript(id, extrasJson))
-    }
 }
 
 internal suspend fun applyPdfUrl(webView: WebView, context: android.content.Context, pdfUrl: String) {

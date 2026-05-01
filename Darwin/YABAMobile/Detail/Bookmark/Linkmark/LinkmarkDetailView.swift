@@ -26,9 +26,6 @@ struct LinkmarkDetailView: View {
     private var machine = LinkmarkDetailStateMachine()
 
     @State
-    private var sheetTab: LinkmarkDetailSheetTab = .info
-    
-    @State
     private var documentReloadToken = UUID()
 
     @State
@@ -66,9 +63,6 @@ struct LinkmarkDetailView: View {
 
     @State
     private var readerChromeVisible = true
-
-    @State
-    private var tocNavigateItemId: String?
 
     init(
         bookmarkId: String,
@@ -121,7 +115,6 @@ struct LinkmarkDetailView: View {
             if let bm = bookmark {
                 LinkmarkDetailInfoSheet(
                     bookmark: bm,
-                    tocItems: LinkmarkMarkdownTocBuilder.build(from: bm.linkDetail?.markdown ?? ""),
                     folderAccent: folderColor(for: bm),
                     reminderDate: machine.state.reminderDate,
                     onDeleteReminder: {
@@ -134,11 +127,6 @@ struct LinkmarkDetailView: View {
                     onOpenTag: { tagId in
                         showDetailSheet = false
                         onOpenTag(tagId)
-                    },
-                    selectedTab: $sheetTab,
-                    onTocItemTap: { item in
-                        tocNavigateItemId = item.id
-                        showDetailSheet = false
                     }
                 )
             }
@@ -251,7 +239,6 @@ struct LinkmarkDetailView: View {
                         lineHeight: machine.state.readerLineHeight
                     ),
                     appearance: .auto,
-                    tocNavigateItemId: $tocNavigateItemId,
                     onHostEvent: { event in
                         handleReaderHostEvent(event)
                     },

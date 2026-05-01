@@ -163,13 +163,6 @@ internal fun LinkmarkContentLayout(
                 DetailWebShellPhase.Bootstrapping,
                 DetailWebShellPhase.Ready -> {
                     if (webShellPhase == DetailWebShellPhase.Ready) {
-                        LaunchedEffect(state.pendingTocNavigate, readerBridge) {
-                            val pending = state.pendingTocNavigate ?: return@LaunchedEffect
-                            val bridge = readerBridge ?: return@LaunchedEffect
-                            bridge.navigateToTocItem(pending.first, pending.second)
-                            onEvent(LinkmarkDetailEvent.OnClearTocNavigation)
-                        }
-
                         LinkmarkReaderFloatingToolbar(
                             modifier = Modifier.padding(bottom = 8.dp),
                             color = folderAccent,
@@ -194,9 +187,6 @@ internal fun LinkmarkContentLayout(
                                 when (ev) {
                                     is YabaWebHostEvent.InitialContentLoad ->
                                         onEvent(LinkmarkDetailEvent.OnReaderWebInitialContentLoad(ev.result))
-
-                                    is YabaWebHostEvent.TableOfContentsChanged ->
-                                        onEvent(LinkmarkDetailEvent.OnTocChanged(ev.toc))
 
                                     else -> Unit
                                 }

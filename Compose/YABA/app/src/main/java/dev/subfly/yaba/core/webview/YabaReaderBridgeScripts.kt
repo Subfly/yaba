@@ -226,25 +226,6 @@ object YabaEditorBridgeScripts {
         })();
         """.trimIndent()
 
-    fun navigateToTocItemScript(id: String, extrasJson: String?): String {
-        val idEscaped = escapeForJsSingleQuotedString(id)
-        val extrasArg =
-            if (extrasJson == null) {
-                "null"
-            } else {
-                "'${escapeForJsSingleQuotedString(extrasJson)}'"
-            }
-        return """
-        (function() {
-            try {
-                if (window.YabaEditorBridge && typeof window.YabaEditorBridge.navigateToTocItem === "function") {
-                    window.YabaEditorBridge.navigateToTocItem('$idEscaped', $extrasArg);
-                }
-            } catch(e) {}
-        })();
-        """.trimIndent()
-    }
-
     /**
      * Markdown text. Must be synchronous — [WebView.evaluateJavascript] does not deliver Promise
      * results to Kotlin (same contract as [getDocumentJsonScript]).
@@ -328,25 +309,6 @@ object YabaPdfReaderBridgeScripts {
             } catch(e) {}
         })();
         """.trimIndent()
-
-    fun navigateToTocItemScript(id: String, extrasJson: String?): String {
-        val idEscaped = escapeForJsSingleQuotedString(id)
-        val extrasArg =
-            if (extrasJson == null) {
-                "null"
-            } else {
-                "'${escapeForJsSingleQuotedString(extrasJson)}'"
-            }
-        return """
-        (function() {
-            try {
-                if (window.YabaPdfBridge && typeof window.YabaPdfBridge.navigateToTocItem === "function") {
-                    window.YabaPdfBridge.navigateToTocItem('$idEscaped', $extrasArg);
-                }
-            } catch(e) {}
-        })();
-        """.trimIndent()
-    }
 }
 
 /**
@@ -406,23 +368,4 @@ object YabaEpubReaderBridgeScripts {
             } catch(e) {}
         })();
         """.trimIndent()
-
-    fun navigateToTocItemScript(id: String, extrasJson: String?): String {
-        val idEscaped = escapeForJsSingleQuotedString(id)
-        val extrasArg =
-            if (extrasJson == null) {
-                "null"
-            } else {
-                "'${escapeForJsSingleQuotedString(extrasJson)}'"
-            }
-        return """
-        (function() {
-            try {
-                if (window.YabaEpubBridge && typeof window.YabaEpubBridge.navigateToTocItem === "function") {
-                    window.YabaEpubBridge.navigateToTocItem('$idEscaped', $extrasArg);
-                }
-            } catch(e) {}
-        })();
-        """.trimIndent()
-    }
 }

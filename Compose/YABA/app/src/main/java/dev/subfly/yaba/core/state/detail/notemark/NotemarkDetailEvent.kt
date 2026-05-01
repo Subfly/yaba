@@ -1,6 +1,5 @@
 package dev.subfly.yaba.core.state.detail.notemark
 
-import dev.subfly.yaba.core.webview.Toc
 import dev.subfly.yaba.core.webview.WebShellLoadResult
 
 sealed interface NotemarkDetailEvent {
@@ -48,10 +47,6 @@ sealed interface NotemarkDetailEvent {
 
     /** One-shot: WebView editor finished initial document application (success or error). */
     data class OnWebInitialContentLoad(val result: WebShellLoadResult) : NotemarkDetailEvent
-
-    data class OnTocChanged(val toc: Toc?) : NotemarkDetailEvent
-    data class OnNavigateToTocItem(val id: String, val extrasJson: String?) : NotemarkDetailEvent
-    data object OnClearTocNavigation : NotemarkDetailEvent
 
     /**
      * UI ran [dev.subfly.yaba.core.webview.WebViewEditorBridge.exportNoteMarkdownBundleJson];

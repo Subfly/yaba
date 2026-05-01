@@ -17,7 +17,6 @@ import dev.subfly.yaba.core.model.utils.ReaderLineHeight
 import dev.subfly.yaba.core.model.utils.ReaderTheme
 import dev.subfly.yaba.core.notifications.NotificationManager
 import dev.subfly.yaba.core.state.base.BaseStateMachine
-import dev.subfly.yaba.core.webview.Toc
 import dev.subfly.yaba.core.webview.WebShellLoadResult
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
@@ -51,9 +50,6 @@ class LinkmarkDetailStateMachine :
             is LinkmarkDetailEvent.OnSetReaderTheme -> onSetReaderTheme(event.theme)
             is LinkmarkDetailEvent.OnSetReaderFontSize -> onSetReaderFontSize(event.fontSize)
             is LinkmarkDetailEvent.OnSetReaderLineHeight -> onSetReaderLineHeight(event.lineHeight)
-            is LinkmarkDetailEvent.OnTocChanged -> onTocChanged(event.toc)
-            is LinkmarkDetailEvent.OnNavigateToTocItem -> onNavigateToTocItem(event)
-            LinkmarkDetailEvent.OnClearTocNavigation -> onClearTocNavigation()
             LinkmarkDetailEvent.OnRequestNotificationPermission -> onRequestNotificationPermission()
             is LinkmarkDetailEvent.OnScheduleReminder -> onScheduleReminder(event)
             LinkmarkDetailEvent.OnCancelReminder -> onCancelReminder()
@@ -221,18 +217,6 @@ class LinkmarkDetailStateMachine :
                 readerPreferences = state.readerPreferences.copy(lineHeight = lineHeight),
             )
         }
-    }
-
-    private fun onTocChanged(toc: Toc?) {
-        updateState { it.copy(toc = toc) }
-    }
-
-    private fun onNavigateToTocItem(event: LinkmarkDetailEvent.OnNavigateToTocItem) {
-        updateState { it.copy(pendingTocNavigate = event.id to event.extrasJson) }
-    }
-
-    private fun onClearTocNavigation() {
-        updateState { it.copy(pendingTocNavigate = null) }
     }
 
     private fun onRequestNotificationPermission() {

@@ -5,7 +5,6 @@ import dev.subfly.yaba.core.model.ui.BookmarkPreviewUiModel
 import dev.subfly.yaba.core.model.utils.ReaderPreferences
 import dev.subfly.yaba.core.state.detail.DetailWebShellPhase
 import dev.subfly.yaba.core.state.detail.computeDetailWebShellPhase
-import dev.subfly.yaba.core.webview.Toc
 
 @Immutable
 data class LinkmarkDetailUIState(
@@ -22,8 +21,6 @@ data class LinkmarkDetailUIState(
     /** Scheduled reminder fire date as epoch millis, null when no reminder is pending. */
     val reminderDateEpochMillis: Long? = null,
     val hasNotificationPermission: Boolean = false,
-    val toc: Toc? = null,
-    val pendingTocNavigate: Pair<String, String?>? = null,
 )
 
 fun LinkmarkDetailUIState.detailWebShellPhase(): DetailWebShellPhase {

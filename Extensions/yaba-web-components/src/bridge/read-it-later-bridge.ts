@@ -8,7 +8,6 @@ import type { EditorCommandPayload } from "./editor-commands"
 import { getEmptyFormattingState } from "./editor-formatting"
 import { postToYabaNativeHost } from "./yaba-native-host"
 import { publishShellLoad } from "./shell-host-events"
-import { resetReadItLaterTocState, scheduleReadItLaterTocPublish } from "./read-it-later-toc"
 
 export type ReaderTheme = "system" | "dark" | "light" | "sepia"
 export type ReaderFontSize = "small" | "medium" | "large"
@@ -149,7 +148,6 @@ export interface YabaReadItLaterBridge {
   focus: () => void
   unFocus: () => void
   dispatch: (command: EditorCommandPayload) => void
-  navigateToTocItem: (id: string, extrasJson?: string | null) => void
   exportMarkdown: () => string
   startPdfExportJob: (jobId: string) => void
 }
@@ -189,13 +187,11 @@ export function initReadItLaterBridge(getRoot: () => HTMLElement | null): void {
   const commitReaderHtml = (html: string, options?: { assetsBaseUrl?: string }): void => {
     if (!contentRoot) return
     try {
-      resetReadItLaterTocState()
       applyHtmlToContent(html, options)
       if (!shellLoadNotified) {
         shellLoadNotified = true
         publishShellLoad("loaded")
       }
-      scheduleReadItLaterTocPublish(contentRoot)
       publishReadItLaterMetrics()
     } catch {
       if (!shellLoadNotified) {
@@ -241,7 +237,6 @@ export function initReadItLaterBridge(getRoot: () => HTMLElement | null): void {
         shellLoadNotified = true
         publishShellLoad("loaded")
       }
-      scheduleReadItLaterTocPublish(contentRoot)
     },
     setReaderHtml: (html: string, options?: { assetsBaseUrl?: string }) => {
       commitReaderHtml(html, options)
@@ -262,18 +257,6 @@ export function initReadItLaterBridge(getRoot: () => HTMLElement | null): void {
     },
     dispatch: () => {
       /* no rich-text commands on passive reader */
-    },
-    navigateToTocItem: (tocItemId: string) => {
-      if (!contentRoot) return
-      const m = /^toc-h-(\d+)$/.exec(tocItemId)
-      if (!m) return
-      const index = parseInt(m[1], 10)
-      if (!Number.isFinite(index) || index < 0) return
-      const headingEls = Array.from(
-        contentRoot.querySelectorAll<HTMLElement>("h1, h2, h3, h4, h5, h6"),
-      ).filter((el) => (el.textContent || "").trim().length > 0)
-      const he = headingEls[index] ?? null
-      he?.scrollIntoView({ behavior: "smooth", block: "center" })
     },
     exportMarkdown: () => "",
     startPdfExportJob: () => {
