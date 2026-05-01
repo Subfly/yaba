@@ -3,7 +3,7 @@ package dev.subfly.yaba.util
 import dev.subfly.yaba.core.model.utils.DocmarkType
 
 /**
- * Document bytes passed from share intent to docmark creation (PDF or EPUB).
+ * Document bytes passed from share intent to docmark creation (PDF).
  */
 data class SharedDocumentData(
     val bytes: ByteArray,

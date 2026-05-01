@@ -31,7 +31,11 @@ object CoreTypeConverters {
 
     @TypeConverter
     fun stringToDocmarkType(value: String?): DocmarkType? =
-        value?.let { runCatching { DocmarkType.valueOf(it) }.getOrNull() }
+        when (value) {
+            null -> null
+            "EPUB" -> DocmarkType.PDF
+            else -> runCatching { DocmarkType.valueOf(value) }.getOrNull() ?: DocmarkType.PDF
+        }
 
     @TypeConverter
     fun stringListToJson(value: List<String>?): String? =

@@ -1,6 +1,6 @@
 # YABA Web Components
 
-WebView-hosted bundles for YABA: **CodeMirror 6** Markdown note editor (GFM), **markdown preview** (`react-markdown` + GFM + sanitized HTML for Darwin link reading), **read-it-later** (static HTML reader), **Excalidraw** canvas, and **EPUB.js** reader, plus a standalone **`dist/html-to-markdown.bundle.min.js`** (linkedom + Mozilla Readability, then unified/rehype/remark + GFM) for Darwin JavaScriptCore. Built with Vite 7, React 19 (editor/canvas/preview), and TypeScript.
+WebView-hosted bundles for YABA: **CodeMirror 6** Markdown note editor (GFM), **markdown preview** (`react-markdown` + GFM + sanitized HTML for Darwin link reading), **Excalidraw** canvas, plus a standalone **`dist/html-to-markdown.bundle.min.js`** (linkedom + Mozilla Readability, then unified/rehype/remark + GFM) for Darwin JavaScriptCore. Built with Vite 7, React 19 (editor/canvas/preview), and TypeScript.
 
 ## Build
 
@@ -9,7 +9,7 @@ npm install
 npm run build
 ```
 
-Output: `dist/editor.html`, `dist/preview.html`, `dist/read-it-later.html`, `dist/canvas.html`, `dist/epub-viewer.html`, `dist/html-to-markdown.bundle.min.js`, plus JS/CSS assets. Run `npm run dev` for local development.
+Output: `dist/editor.html`, `dist/preview.html`, `dist/canvas.html`, `dist/html-to-markdown.bundle.min.js`, plus JS/CSS assets. Run `npm run dev` for local development.
 
 ## Entrypoints
 
@@ -17,14 +17,12 @@ Output: `dist/editor.html`, `dist/preview.html`, `dist/read-it-later.html`, `dis
 |------|---------|
 | `editor.html` | CodeMirror Markdown note editor (GFM) |
 | `preview.html` | Saved link **Markdown** reader: `react-markdown` + `remark-gfm` + sanitized raw HTML; `YabaPreviewBridge`; `bridgeReady`: `preview` |
-| `read-it-later.html` | Saved link reader: injects HTML into the DOM |
 | `html-to-markdown.bundle.min.js` | No HTML shell: `globalThis.HTMLToMarkdown(html, baseURL?)` → JSON `{ markdown, assets }` for Darwin JSC |
 | `canvas.html` | Excalidraw canvas |
-| `epub-viewer.html` | EPUB reader (epub.js) |
 
 ## URL parameters
 
-Loaded by the native WebView. These apply to shells that read the shared theme helpers (`editor.html`, `read-it-later.html`, `epub-viewer.html`, etc.).
+Loaded by the native WebView. These apply to shells that read the shared theme helpers (`editor.html`, `preview.html`, etc.).
 
 | Param | Required | Values | Description |
 |-------|----------|--------|-------------|
@@ -36,7 +34,7 @@ Loaded by the native WebView. These apply to shells that read the shared theme h
 
 ```
 editor.html?platform=compose&cursor=%23FF7C75
-read-it-later.html?platform=darwin&appearance=dark
+preview.html?platform=darwin&appearance=dark
 ```
 
 ## JS bridge API (native → WebView)
@@ -53,10 +51,6 @@ Native apps that still call TipTap-era APIs (`setDocumentJson`, `dispatch`, in-W
 
 Darwin link readable view: `setMarkdown`, reader theme prefs (`setReaderPreferences`, `setAppearance`, …). Markdown is rendered with `react-markdown`, `remark-gfm`, plus sanitized raw HTML. See [`src/preview/preview-bridge.ts`](src/preview/preview-bridge.ts).
 
-### `window.YabaReadItLaterBridge` (`read-it-later.html`)
-
-Passive HTML surface: `setHtml` / `setReaderHtml` load article HTML. Typing mirrors a subset of `YabaEditorBridge` where native still expects the same method names.
-
 ### `globalThis.HTMLToMarkdown` (`html-to-markdown.bundle.min.js`)
 
 Bundled for Darwin only (loaded via `JavaScriptCore`, not a WKWebView page). Call after evaluating the minified file; see `src/html-to-markdown/main.ts`.
@@ -65,15 +59,11 @@ Bundled for Darwin only (loaded via `JavaScriptCore`, not a WKWebView page). Cal
 
 Returns a JSON string: `{ "markdown": string, "assets": [{ "assetId": string, "url": string }] }`. Markdown image destinations are rewritten to `yaba-asset://<assetId>`; `assets` maps each id to an absolute `http(s)` URL for native download (`baseURL` resolves relative paths from the article/page URL).
 
-### `window.YabaEpubBridge` (`epub-viewer.html`)
-
-Unchanged EPUB reader bridge. See `src/apps/epub-viewer/epub-viewer-bridge.ts`.
-
 ## Web → native (`window.YabaNativeHost.postMessage`)
 
-Structured JSON envelopes are defined in `src/bridge/contracts/native-host.ts`, including `bridgeReady` (`feature`: `editor` \| `read-it-later` \| `preview` \| `epub` \| `canvas`), `shellLoad`, `toc`, `readerMetrics`, and EPUB/Canvas-specific payloads.
+Structured JSON envelopes are defined in `src/bridge/contracts/native-host.ts`, including `bridgeReady` (`feature`: `editor` \| `preview` \| `canvas`), `shellLoad`, `toc`, `readerMetrics`, and canvas-specific payloads.
 
-**Images in read-it-later:** `http`/`https` and `data:` image URLs are not loaded; inline assets should use `../assets/…` with `assetsBaseUrl` like the editor, or `file:` paths from the host.
+**Images in WebView readers:** depending on the host, `http`/`https` and `data:` image URLs may be blocked; inline assets can use `../assets/…` with `assetsBaseUrl` like the editor, or `file:` paths from the host.
 
 ## Features (editor)
 
@@ -83,4 +73,4 @@ Structured JSON envelopes are defined in `src/bridge/contracts/native-host.ts`, 
 
 ## Follow-ups
 
-- Native app URL constants and script strings that still reference `viewer.html` / `converter.html` / `pdf-viewer.html` may need updates to match `read-it-later.html` and related bridges.
+- Native app URL constants and script strings that still reference `viewer.html` / `converter.html` / `pdf-viewer.html` may need updates to match current shells (`editor.html`, `preview.html`, `canvas.html`) and bridges.

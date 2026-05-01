@@ -18,8 +18,4 @@ public enum UnfurlError: Error, Sendable {
     case pdfExtractionStartFailed
     case pdfExtractionParseFailed
     case pdfExtractionTimedOut
-
-    case epubExtractionStartFailed
-    case epubExtractionParseFailed
-    case epubExtractionTimedOut
 }

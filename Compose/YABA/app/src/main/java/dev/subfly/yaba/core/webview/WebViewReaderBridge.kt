@@ -1,7 +1,7 @@
 package dev.subfly.yaba.core.webview
 
 /**
- * Imperative bridge for reader WebViews (HTML reader shell, PDF, or EPUB): paging and related hooks.
+ * Imperative bridge for reader WebViews (HTML reader shell or PDF): paging and related hooks.
  */
 interface WebViewReaderBridge {
     suspend fun getPageCount(): Int = 1
@@ -15,19 +15,19 @@ interface WebViewReaderBridge {
     suspend fun getDocumentJson(): String = ""
 
     /**
-     * Rich-text readable shell only: calls `window.YabaEditorBridge.unFocus()`. No-op for PDF/EPUB.
+     * Rich-text readable shell only: calls `window.YabaEditorBridge.unFocus()`. No-op for PDF.
      */
     suspend fun unFocus() {}
 
     /**
      * Markdown from `window.YabaEditorBridge.exportMarkdown()` when the rich-text reader is active.
-     * PDF/EPUB readers return an empty string.
+     * PDF reader returns an empty string.
      */
     suspend fun exportReadableMarkdown(): String = ""
 
     /**
      * Base64 PDF bytes from `window.YabaEditorBridge.startPdfExportJob` / html2pdf.js for the rich-text reader.
-     * PDF/EPUB readers return an empty string.
+     * PDF viewer returns an empty string.
      */
     suspend fun exportReadablePdfBase64(): String = ""
 }

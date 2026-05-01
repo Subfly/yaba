@@ -21,7 +21,7 @@ import dev.subfly.yaba.util.formatExtractedMetadataDate
 import dev.subfly.yaba.core.model.utils.YabaColor
 
 /**
- * Read-only extracted metadata (link scrape or PDF/EPUB), shown as a segmented list.
+ * Read-only extracted metadata (link scrape or PDF), shown as a segmented list.
  * Renders only rows whose values are non-blank.
  */
 @Composable

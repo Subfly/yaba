@@ -2,7 +2,6 @@ package dev.subfly.yaba.core.components.webview
 
 import android.webkit.WebView
 import dev.subfly.yaba.core.webview.WebConverterResult
-import dev.subfly.yaba.core.webview.WebEpubConverterResult
 import dev.subfly.yaba.core.webview.WebPdfConverterResult
 import dev.subfly.yaba.core.webview.YabaConverterBridgeScripts
 import dev.subfly.yaba.core.webview.YabaWebBridgeScripts
@@ -78,34 +77,5 @@ internal suspend fun runPdfExtraction(
     } finally {
         YabaConverterJobBridge.removePdfJob(jobId)
         evaluateJs(webView, YabaConverterBridgeScripts.deletePdfExtractionJobScript(jobId))
-    }
-}
-
-internal suspend fun runEpubExtraction(
-    webView: WebView,
-    context: android.content.Context,
-    epubUrl: String,
-): Result<WebEpubConverterResult> {
-    if (!waitForBridgeReady(webView, YabaWebBridgeScripts.CONVERTER_BRIDGE_DEFINED)) {
-        return Result.failure(IllegalStateException("Converter bridge not ready"))
-    }
-    val resolvedUrl = toInternalStorageAssetLoaderFileUrl(context, epubUrl) ?: epubUrl
-    val rawJobId = evaluateJs(
-        webView,
-        YabaConverterBridgeScripts.startEpubExtractionScript(resolvedUrl),
-    )
-    val jobId = decodeJsStringResult(rawJobId)
-    if (jobId.isBlank()) {
-        return Result.failure(IllegalStateException("Failed to start EPUB extraction job"))
-    }
-    val deferred = CompletableDeferred<Result<WebEpubConverterResult>>()
-    YabaConverterJobBridge.registerEpubJob(jobId, deferred)
-    return try {
-        withTimeout(CONVERTER_JOB_TIMEOUT_MS) { deferred.await() }
-    } catch (e: Exception) {
-        Result.failure(e)
-    } finally {
-        YabaConverterJobBridge.removeEpubJob(jobId)
-        evaluateJs(webView, YabaConverterBridgeScripts.deleteEpubExtractionJobScript(jobId))
     }
 }

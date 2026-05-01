@@ -1,7 +1,7 @@
 package dev.subfly.yaba.core.webview
 
 /**
- * One-shot outcome for initial web shell content (editor, viewer, converter, PDF/EPUB).
+ * One-shot outcome for initial web shell content (editor, viewer, converter, PDF).
  * Emitted at most once per load cycle from web components via [YabaWebHostEvent.InitialContentLoad].
  */
 enum class WebShellLoadResult {

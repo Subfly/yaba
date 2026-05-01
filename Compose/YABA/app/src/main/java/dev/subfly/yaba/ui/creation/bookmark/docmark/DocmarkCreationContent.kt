@@ -42,8 +42,6 @@ import dev.subfly.yaba.core.navigation.creation.TagCreationRoute
 import dev.subfly.yaba.core.navigation.creation.TagSelectionRoute
 import dev.subfly.yaba.core.state.creation.docmark.DocmarkCreationEvent
 import dev.subfly.yaba.core.state.creation.docmark.DocmarkCreationUIState
-import dev.subfly.yaba.core.webview.WebComponentUris
-import dev.subfly.yaba.core.webview.WebEpubConverterInput
 import dev.subfly.yaba.core.webview.WebPdfConverterInput
 import dev.subfly.yaba.core.webview.YabaWebFeature
 import dev.subfly.yaba.core.webview.YabaWebHostEvent
@@ -85,30 +83,11 @@ fun DocmarkCreationContent(bookmarkId: String?) {
                 }
             }
 
-    val epubDataUrl by
-            remember(state.documentBytes, state.docmarkType, state.isInEditMode) {
-                derivedStateOf {
-                    if (state.isInEditMode) return@derivedStateOf null
-                    if (state.docmarkType != DocmarkType.EPUB) return@derivedStateOf null
-                    state.documentBytes?.let { bytes ->
-                        "data:application/epub+zip;base64,${Base64.encode(bytes)}"
-                    }
-                }
-            }
-
     val pdfConverterInput by
             remember(pdfDataUrl, state.isInEditMode) {
                 derivedStateOf {
                     if (state.isInEditMode || pdfDataUrl == null) return@derivedStateOf null
                     pdfDataUrl?.let { url -> WebPdfConverterInput(pdfUrl = url) }
-                }
-            }
-
-    val epubConverterInput by
-            remember(epubDataUrl, state.isInEditMode) {
-                derivedStateOf {
-                    if (state.isInEditMode || epubDataUrl == null) return@derivedStateOf null
-                    epubDataUrl?.let { WebEpubConverterInput(epubDataUrl = it) }
                 }
             }
 
@@ -174,39 +153,6 @@ fun DocmarkCreationContent(bookmarkId: String?) {
                     }
                     is YabaWebHostEvent.PdfConverterFailure -> {
                         // Non-fatal: preview/readable may stay empty
-                    }
-                    is YabaWebHostEvent.InitialContentLoad ->
-                            vm.onEvent(DocmarkCreationEvent.OnWebInitialContentLoad(ev.result))
-                    else -> Unit
-                }
-            },
-    )
-
-    YabaWebView(
-            modifier = Modifier.size(0.dp),
-            baseUrl = WebComponentUris.getConverterUri(),
-            feature = YabaWebFeature.EpubExtractor(input = epubConverterInput),
-            onHostEvent = { ev ->
-                when (ev) {
-                    is YabaWebHostEvent.EpubConverterSuccess -> {
-                        val previewBytes = ev.result.coverPngDataUrl?.let(::decodeDataUrlToBytes)
-                        vm.onEvent(
-                                DocmarkCreationEvent.OnSetGeneratedPreview(
-                                        imageBytes = previewBytes,
-                                        extension = "png",
-                                ),
-                        )
-                        vm.onEvent(
-                                DocmarkCreationEvent.OnDocumentMetadataExtracted(
-                                        metadataTitle = ev.result.title,
-                                        metadataDescription = ev.result.description,
-                                        metadataAuthor = ev.result.author,
-                                        metadataDate = ev.result.pubdate,
-                                ),
-                        )
-                    }
-                    is YabaWebHostEvent.EpubConverterFailure -> {
-                        // Non-fatal
                     }
                     is YabaWebHostEvent.InitialContentLoad ->
                             vm.onEvent(DocmarkCreationEvent.OnWebInitialContentLoad(ev.result))
@@ -393,7 +339,7 @@ private fun DocmarkPreviewContent(
                     Text(
                             text =
                                     if (state.documentBytes == null) {
-                                        "Pick PDF or EPUB"
+                                        "Pick PDF"
                                     } else {
                                         "Pick another document"
                                     },

@@ -1,7 +1,7 @@
 import type { SelectionSnapshot } from "./selection-snapshot"
 
 /**
- * Quote context for highlight creation (DOM read-it-later), same shape as the note editor selection snapshot.
+ * Quote context for highlight creation from DOM selections, same shape as the note editor selection snapshot.
  */
 export function getDomSelectionSnapshot(contentRoot: HTMLElement | null): SelectionSnapshot | null {
   if (!contentRoot) return null

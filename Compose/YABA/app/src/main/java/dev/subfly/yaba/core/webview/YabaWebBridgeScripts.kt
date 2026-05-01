@@ -19,12 +19,6 @@ object YabaWebBridgeScripts {
     const val PDF_BRIDGE_READY_LOOSE: String =
         "(function(){ try { return !!(window.YabaPdfBridge && window.YabaPdfBridge.isReady); } catch(e){ return false; } })();"
 
-    const val EPUB_BRIDGE_READY: String =
-        "(function(){ try { return !!(window.YabaEpubBridge && window.YabaEpubBridge.isReady && window.YabaEpubBridge.isReady()); } catch(e){ return false; } })();"
-
-    const val EPUB_BRIDGE_READY_LOOSE: String =
-        "(function(){ try { return !!(window.YabaEpubBridge && window.YabaEpubBridge.isReady); } catch(e){ return false; } })();"
-
     const val CANVAS_BRIDGE_READY: String =
         "(function(){ try { return !!(window.YabaCanvasBridge && window.YabaCanvasBridge.isReady && window.YabaCanvasBridge.isReady()); } catch(e){ return false; } })();"
 

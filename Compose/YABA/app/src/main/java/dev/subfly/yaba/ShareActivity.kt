@@ -102,7 +102,7 @@ class ShareActivity : ComponentActivity() {
                             return null
                         }
 
-                        if (isPdfMimeType(resolvedType) || isEpubMimeType(resolvedType)) {
+                        if (isPdfMimeType(resolvedType)) {
                             readDocumentBytesFromUri(
                                 uri = uri,
                                 declaredType = resolvedType,
@@ -139,7 +139,7 @@ class ShareActivity : ComponentActivity() {
                 if (uris.isNullOrEmpty().not()) {
                     val docUri = uris.firstOrNull { uri ->
                         val mt = resolveMimeType(uri = uri, declaredType = type)
-                        isPdfMimeType(mt) || isEpubMimeType(mt)
+                        isPdfMimeType(mt)
                     }
 
                     if (docUri == null) return null
@@ -168,12 +168,6 @@ class ShareActivity : ComponentActivity() {
         return mimeType != null && mimeType.lowercase() == "application/pdf"
     }
 
-    private fun isEpubMimeType(mimeType: String?): Boolean {
-        if (mimeType == null) return false
-        val m = mimeType.lowercase()
-        return m == "application/epub+zip" || m == "application/epub"
-    }
-
     private fun resolveMimeType(uri: Uri, declaredType: String?): String? {
         val trimmedType =
             declaredType
@@ -187,16 +181,12 @@ class ShareActivity : ComponentActivity() {
 
     private fun readDocumentBytesFromUri(uri: Uri, declaredType: String?): SharedDocumentData? {
         val mimeType = resolveMimeType(uri = uri, declaredType = declaredType)
-        val docmarkType = when {
-            isPdfMimeType(mimeType) -> DocmarkType.PDF
-            isEpubMimeType(mimeType) -> DocmarkType.EPUB
-            else -> return null
-        }
+        if (!isPdfMimeType(mimeType)) return null
 
         val bytes = readBytesFromUri(uri) ?: return null
         val sourceFileName = getFileNameFromUri(uri)
 
-        return SharedDocumentData(bytes = bytes, sourceFileName = sourceFileName, docmarkType = docmarkType)
+        return SharedDocumentData(bytes = bytes, sourceFileName = sourceFileName, docmarkType = DocmarkType.PDF)
     }
 
     private fun readBytesFromUri(uri: Uri): ByteArray? {

@@ -109,7 +109,7 @@ class DocmarkCreationStateMachine :
             updateState { it.copy(isLoading = true, error = null) }
             try {
                 val file =
-                    YabaFileAccessor.pickSingleFile(extensions = listOf("pdf", "epub")) ?: run {
+                    YabaFileAccessor.pickSingleFile(extensions = listOf("pdf")) ?: run {
                         updateState { it.copy(isLoading = false) }
                         return@launch
                     }
@@ -156,7 +156,6 @@ class DocmarkCreationStateMachine :
         val ext = fileName.substringAfterLast('.', "").lowercase()
         return when (ext) {
             "pdf" -> DocmarkType.PDF
-            "epub" -> DocmarkType.EPUB
             else -> null
         }
     }

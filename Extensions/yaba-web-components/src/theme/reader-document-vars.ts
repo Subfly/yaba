@@ -49,7 +49,7 @@ export function applyReaderTypographyCssVars(prefs: ReaderTypographyPrefs): void
 }
 
 /**
- * Base shell + reader theme pipeline for embedded readers (viewer, editor, EPUB).
+ * Base shell + reader theme pipeline for embedded readers (viewer, editor).
  * When [readerTheme] is system, [shellAppearance] drives light/dark via [applyTheme].
  */
 export function applyBaseThemeForReaderTheme(

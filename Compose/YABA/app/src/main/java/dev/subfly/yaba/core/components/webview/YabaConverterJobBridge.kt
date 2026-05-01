@@ -2,7 +2,6 @@ package dev.subfly.yaba.core.components.webview
 
 import dev.subfly.yaba.core.webview.WebConverterAsset
 import dev.subfly.yaba.core.webview.WebConverterResult
-import dev.subfly.yaba.core.webview.WebEpubConverterResult
 import dev.subfly.yaba.core.webview.WebLinkMetadata
 import dev.subfly.yaba.core.webview.WebPdfConverterResult
 import dev.subfly.yaba.core.webview.WebPdfTextSection
@@ -16,7 +15,6 @@ internal object YabaConverterJobBridge {
 
     private val htmlJobs = ConcurrentHashMap<String, CompletableDeferred<Result<WebConverterResult>>>()
     private val pdfJobs = ConcurrentHashMap<String, CompletableDeferred<Result<WebPdfConverterResult>>>()
-    private val epubJobs = ConcurrentHashMap<String, CompletableDeferred<Result<WebEpubConverterResult>>>()
 
     fun registerHtmlJob(jobId: String, deferred: CompletableDeferred<Result<WebConverterResult>>) {
         htmlJobs[jobId] = deferred
@@ -26,20 +24,12 @@ internal object YabaConverterJobBridge {
         pdfJobs[jobId] = deferred
     }
 
-    fun registerEpubJob(jobId: String, deferred: CompletableDeferred<Result<WebEpubConverterResult>>) {
-        epubJobs[jobId] = deferred
-    }
-
     fun removeHtmlJob(jobId: String) {
         htmlJobs.remove(jobId)
     }
 
     fun removePdfJob(jobId: String) {
         pdfJobs.remove(jobId)
-    }
-
-    fun removeEpubJob(jobId: String) {
-        epubJobs.remove(jobId)
     }
 
     fun onConverterJobMessage(root: JSONObject) {
@@ -77,23 +67,6 @@ internal object YabaConverterJobBridge {
                             Result.failure(
                                 IllegalStateException(
                                     root.optString("error", "PDF extraction failed"),
-                                ),
-                            ),
-                        )
-                }
-            }
-            "epub" -> {
-                val d = epubJobs[jobId] ?: return
-                when (status) {
-                    "done" -> {
-                        val outputJson = root.optString("outputJson", "")
-                        d.complete(parseEpubOutput(outputJson))
-                    }
-                    "error" ->
-                        d.complete(
-                            Result.failure(
-                                IllegalStateException(
-                                    root.optString("error", "EPUB extraction failed"),
                                 ),
                             ),
                         )
@@ -166,20 +139,6 @@ internal object YabaConverterJobBridge {
                 firstPagePngDataUrl =
                     output.optString("firstPagePngDataUrl").normalizeBridgeOptionalString(),
                 sections = sections,
-            )
-        }
-
-    private fun parseEpubOutput(outputJson: String): Result<WebEpubConverterResult> =
-        runCatching {
-            val output = JSONObject(outputJson)
-            WebEpubConverterResult(
-                coverPngDataUrl =
-                    output.optString("coverPngDataUrl").normalizeBridgeOptionalString(),
-                title = output.optString("title").normalizeBridgeOptionalString(),
-                author = output.optString("author").normalizeBridgeOptionalString(),
-                description =
-                    output.optString("description").normalizeBridgeOptionalString(),
-                pubdate = output.optString("pubdate").normalizeBridgeOptionalString(),
             )
         }
 }

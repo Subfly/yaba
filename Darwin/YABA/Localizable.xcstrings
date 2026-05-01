@@ -1181,7 +1181,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pick Document (PDF, EPUB, CSV)"
+            "value" : "Pick Document (PDF)"
           }
         }
       }
@@ -1394,17 +1394,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "创建于"
-          }
-        }
-      }
-    },
-    "Bookmark Detail Delete Readable Version Title" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Delete Readable Version"
           }
         }
       }
@@ -1840,28 +1829,6 @@
         }
       }
     },
-    "Bookmark Detail No Table Of Contents Message" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ToC does not available for this readable content."
-          }
-        }
-      }
-    },
-    "Bookmark Detail No Table Of Contents Title" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No ToC content found…"
-          }
-        }
-      }
-    },
     "Bookmark Detail No Tags Added Description" : {
       "comment" : "Description to show when no tags added in bookmark detail view",
       "extractionState" : "manual",
@@ -2050,28 +2017,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "未添加标签"
-          }
-        }
-      }
-    },
-    "Bookmark Detail No Versions Message" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No readable versions available. You can always save a new readable version from the options, under “Update”."
-          }
-        }
-      }
-    },
-    "Bookmark Detail No Versions Title" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Readable versions not found…"
           }
         }
       }
@@ -2278,17 +2223,6 @@
         }
       }
     },
-    "Bookmark Detail PDF Write Failed Message" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Failed to export to PDF!"
-          }
-        }
-      }
-    },
     "Bookmark Detail Pin Action" : {
       "localizations" : {
         "en" : {
@@ -2425,67 +2359,12 @@
         }
       }
     },
-    "Bookmark Detail Sheet Tab Contents Title" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Contents"
-          }
-        }
-      }
-    },
-    "Bookmark Detail Sheet Tab Info Title" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Info"
-          }
-        }
-      }
-    },
-    "Bookmark Detail Sheet Tab Versions Title" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Versions"
-          }
-        }
-      }
-    },
     "Bookmark Detail Unpin Action" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Pinned"
-          }
-        }
-      }
-    },
-    "Bookmark Detail Update Menu Title" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Update"
-          }
-        }
-      }
-    },
-    "Bookmark Detail Update Readable Version Action" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Readable"
           }
         }
       }

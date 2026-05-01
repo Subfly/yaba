@@ -75,9 +75,11 @@ public struct DocmarkCreationUIState: Sendable {
     }
 
     public var canSave: Bool {
-        selectedFolderId != nil
+        let hasLabel = !label.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        return selectedFolderId != nil
             && !(selectedFolderId?.isEmpty ?? true)
             && (editingBookmarkId != nil || pickedDocumentData != nil)
             && !isLoading
+            && hasLabel
     }
 }

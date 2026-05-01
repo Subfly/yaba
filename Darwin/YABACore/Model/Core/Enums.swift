@@ -39,10 +39,9 @@ public extension BookmarkKind {
     }
 }
 
-/// Matches [DocmarkType] in Compose.
+/// Darwin docmarks are PDF-only. Raw `"EPUB"` from parity/Compose maps to ``DocmarkType/pdf`` via `rawValue` fallback.
 public enum DocmarkType: String, Codable, CaseIterable, Sendable {
     case pdf = "PDF"
-    case epub = "EPUB"
 }
 
 /// Legacy app-side compatibility enum kept in YABACore after YABA model cleanup.

@@ -7,7 +7,7 @@
 //
 //  Web components layout matches `Extensions/yaba-web-components` Vite output: `editor.html` (CodeMirror
 //  Markdown / `YabaEditorBridge`), `preview.html` (Markdown preview / `YabaPreviewBridge`),
-//  `canvas.html`, `read-it-later.html`, optional `epub-viewer.html`, plus `html-to-markdown.bundle.min.js` for JavaScriptCore (no WKWebView shell).
+//  `canvas.html`, `read-it-later.html`, plus `html-to-markdown.bundle.min.js` for JavaScriptCore (no WKWebView shell).
 //
 
 import Foundation
@@ -78,7 +78,6 @@ public enum BundleReader {
             "preview.html",
             "editor.html",
             "canvas.html",
-            "epub-viewer.html",
         ]
         for name in entryNames {
             if let url = webComponentURL(named: name, in: bundle) {

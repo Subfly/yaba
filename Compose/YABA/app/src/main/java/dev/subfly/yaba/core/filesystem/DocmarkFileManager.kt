@@ -9,7 +9,6 @@ object DocmarkFileManager {
     fun extensionForType(type: DocmarkType): String =
         when (type) {
             DocmarkType.PDF -> "pdf"
-            DocmarkType.EPUB -> "epub"
         }
 
     suspend fun saveDocumentBytes(
@@ -72,6 +71,11 @@ object DocmarkFileManager {
 
     private suspend fun purgeAllDocumentFiles(bookmarkId: String) {
         BookmarkFileManager.deleteRelativePath(getDocumentRelativePath(bookmarkId, DocmarkType.PDF))
-        BookmarkFileManager.deleteRelativePath(getDocumentRelativePath(bookmarkId, DocmarkType.EPUB))
+        BookmarkFileManager.deleteRelativePath(
+            CoreConstants.FileSystem.Docmark.documentPath(
+                bookmarkId = bookmarkId,
+                extension = "epub",
+            ),
+        )
     }
 }

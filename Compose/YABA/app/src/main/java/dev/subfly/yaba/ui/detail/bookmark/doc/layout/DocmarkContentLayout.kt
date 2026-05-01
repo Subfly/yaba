@@ -40,7 +40,6 @@ import dev.subfly.yaba.ui.detail.bookmark.doc.components.DocmarkContentDropdownM
 import dev.subfly.yaba.ui.detail.bookmark.doc.components.DocmarkReaderFloatingToolbar
 import dev.subfly.yaba.ui.detail.bookmark.util.bookmarkDetailIconButtonColors
 import dev.subfly.yaba.util.LocalContentNavigator
-import dev.subfly.yaba.core.model.utils.DocmarkType
 import dev.subfly.yaba.core.state.detail.DetailWebShellPhase
 import dev.subfly.yaba.core.state.detail.docmark.DocmarkDetailEvent
 import dev.subfly.yaba.core.state.detail.docmark.detailWebShellPhase
@@ -89,34 +88,16 @@ internal fun DocmarkContentLayout(
     val documentPath = state.documentAbsolutePath ?: ""
     val folderAccent = remember(state.bookmark) { bookmarkFolderAccentColor(state.bookmark) }
     val menuIconButtonColors = bookmarkDetailIconButtonColors(folderAccent)
-    val webBaseUrl = remember(state.docmarkType) {
-        when (state.docmarkType) {
-            DocmarkType.PDF -> WebComponentUris.getPdfViewerUri()
-            DocmarkType.EPUB -> WebComponentUris.getEpubViewerUri()
-        }
-    }
+    val webBaseUrl = remember { WebComponentUris.getPdfViewerUri() }
     val webFeature = remember(
-        state.docmarkType,
         documentPath,
-        state.readerPreferences,
         appearance,
     ) {
-        when (state.docmarkType) {
-            DocmarkType.PDF ->
-                YabaWebFeature.PdfViewer(
-                    pdfUrl = documentPath,
-                    platform = YabaWebPlatform.Android,
-                    appearance = appearance,
-                )
-
-            DocmarkType.EPUB ->
-                YabaWebFeature.EpubViewer(
-                    epubUrl = documentPath,
-                    readerPreferences = state.readerPreferences,
-                    platform = YabaWebPlatform.Android,
-                    appearance = appearance,
-                )
-        }
+        YabaWebFeature.PdfViewer(
+            pdfUrl = documentPath,
+            platform = YabaWebPlatform.Android,
+            appearance = appearance,
+        )
     }
 
     LaunchedEffect(hasDocumentPath) {
@@ -161,13 +142,10 @@ internal fun DocmarkContentLayout(
                     if (webShellPhase == DetailWebShellPhase.Ready) {
                         DocmarkReaderFloatingToolbar(
                             modifier = Modifier.padding(bottom = 8.dp),
-                            docmarkType = state.docmarkType,
-                            readerPreferences = state.readerPreferences,
                             color = folderAccent,
                             isVisible = isToolbarVisible,
                             canGoPrev = readerMetrics.currentPage > 1,
                             canGoNext = readerMetrics.currentPage < readerMetrics.pageCount,
-                            onEvent = onEvent,
                             onPrevPage = {
                                 scope.launch {
                                     readerBridge?.prevPage()

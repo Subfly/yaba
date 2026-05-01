@@ -9,7 +9,6 @@ import SwiftData
 import SwiftUI
 import UIKit
 import UniformTypeIdentifiers
-import WebKit
 
 struct DocmarkCreationContent: View {
     @Environment(\.dismiss)
@@ -32,10 +31,6 @@ struct DocmarkCreationContent: View {
 
     @State
     private var previewContentAppearance: PreviewContentAppearance = .list
-
-    /// Bumps when a new document is picked so converter extraction re-runs.
-    @State
-    private var docExtractionGeneration: Int = 0
 
     let preselectedFolderId: String?
     let preselectedTagIds: [String]
@@ -83,10 +78,7 @@ struct DocmarkCreationContent: View {
         }
         .fileImporter(
             isPresented: $showFileImporter,
-            allowedContentTypes: [
-                .pdf,
-                .epub
-            ],
+            allowedContentTypes: [.pdf],
             allowsMultipleSelection: false
         ) { result in
             Task {
@@ -95,13 +87,11 @@ struct DocmarkCreationContent: View {
                 defer {
                     if scoped { url.stopAccessingSecurityScopedResource() }
                 }
+                guard url.pathExtension.lowercased() == "pdf" else { return }
                 guard let data = try? Data(contentsOf: url) else { return }
-                let isPdf = url.pathExtension.lowercased() == "pdf"
-                let type: DocmarkType = isPdf ? .pdf : .epub
                 await machine.send(
-                    .onDocumentFromShare(data, sourceFileName: url.lastPathComponent, docmarkType: type)
+                    .onDocumentFromShare(data, sourceFileName: url.lastPathComponent)
                 )
-                docExtractionGeneration += 1
             }
         }
     }

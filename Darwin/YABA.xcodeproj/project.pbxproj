@@ -18,18 +18,11 @@
 		96D262F92E6CA6C4007F4285 /* YABA_Icon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 96D262F32E6CA6C4007F4285 /* YABA_Icon.icon */; };
 		96DC37F22F9554D2005760E3 /* WebComponents in Resources */ = {isa = PBXBuildFile; fileRef = 96DC37F12F9554D2005760E3 /* WebComponents */; };
 		96DCA2472F9D6FD6005760E3 /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = 96DCA2462F9D6FD6005760E3 /* SwiftSoup */; };
-		96DCA24A2F9D6FE1005760E3 /* EPUBKit in Frameworks */ = {isa = PBXBuildFile; productRef = 96DCA2492F9D6FE1005760E3 /* EPUBKit */; };
 		96DCA25A2F9D7002005760E3 /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = 96DCA2462F9D6FD6005760E3 /* SwiftSoup */; };
-		96DCA25B2F9D7002005760E3 /* EPUBKit in Frameworks */ = {isa = PBXBuildFile; productRef = 96DCA2492F9D6FE1005760E3 /* EPUBKit */; };
 		96DCA25C2F9D7002005760E3 /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = 96DCA2462F9D6FD6005760E3 /* SwiftSoup */; };
-		96DCA25D2F9D7002005760E3 /* EPUBKit in Frameworks */ = {isa = PBXBuildFile; productRef = 96DCA2492F9D6FE1005760E3 /* EPUBKit */; };
 		96DCA25E2F9D7002005760E3 /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = 96DCA2462F9D6FD6005760E3 /* SwiftSoup */; };
-		96DCA25F2F9D7002005760E3 /* EPUBKit in Frameworks */ = {isa = PBXBuildFile; productRef = 96DCA2492F9D6FE1005760E3 /* EPUBKit */; };
 		96DCA2602F9D7002005760E3 /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = 96DCA2462F9D6FD6005760E3 /* SwiftSoup */; };
-		96DCA2612F9D7002005760E3 /* EPUBKit in Frameworks */ = {isa = PBXBuildFile; productRef = 96DCA2492F9D6FE1005760E3 /* EPUBKit */; };
 		96DCA2622F9D7002005760E3 /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = 96DCA2462F9D6FD6005760E3 /* SwiftSoup */; };
-		96DCA2632F9D7002005760E3 /* EPUBKit in Frameworks */ = {isa = PBXBuildFile; productRef = 96DCA2492F9D6FE1005760E3 /* EPUBKit */; };
-		96DD37B72F9F8F1600E858C7 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 96DD37B62F9F8F1600E858C7 /* Kingfisher */; };
 		96EA39732E56380700B8411D /* YABAKeyboard.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 96EA396C2E56380700B8411D /* YABAKeyboard.appex */; platformFilters = (ios, xros, ); settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		96EA39BD2E58EB8F00B8411D /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96EA39BC2E58EB8F00B8411D /* WidgetKit.framework */; };
 		96EA39BF2E58EB8F00B8411D /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96EA39BE2E58EB8F00B8411D /* SwiftUI.framework */; };
@@ -970,7 +963,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				96DCA25A2F9D7002005760E3 /* SwiftSoup in Frameworks */,
-				96DCA25B2F9D7002005760E3 /* EPUBKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -978,9 +970,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				96DD37B72F9F8F1600E858C7 /* Kingfisher in Frameworks */,
 				96DCA2472F9D6FD6005760E3 /* SwiftSoup in Frameworks */,
-				96DCA24A2F9D6FE1005760E3 /* EPUBKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -989,7 +979,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				96DCA25C2F9D7002005760E3 /* SwiftSoup in Frameworks */,
-				96DCA25D2F9D7002005760E3 /* EPUBKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -998,7 +987,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				96DCA25E2F9D7002005760E3 /* SwiftSoup in Frameworks */,
-				96DCA25F2F9D7002005760E3 /* EPUBKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1007,7 +995,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				96DCA2602F9D7002005760E3 /* SwiftSoup in Frameworks */,
-				96DCA2612F9D7002005760E3 /* EPUBKit in Frameworks */,
 				96EA39BF2E58EB8F00B8411D /* SwiftUI.framework in Frameworks */,
 				96EA39BD2E58EB8F00B8411D /* WidgetKit.framework in Frameworks */,
 			);
@@ -1018,7 +1005,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				96DCA2622F9D7002005760E3 /* SwiftSoup in Frameworks */,
-				96DCA2632F9D7002005760E3 /* EPUBKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1092,7 +1078,6 @@
 			name = YABAStatusMenuItem;
 			packageProductDependencies = (
 				96DCA2462F9D6FD6005760E3 /* SwiftSoup */,
-				96DCA2492F9D6FE1005760E3 /* EPUBKit */,
 			);
 			productName = YABAStatusMenuItem;
 			productReference = 967B9A4B2DD8D3EF00181AA1 /* YABAStatusMenuItem.app */;
@@ -1126,8 +1111,6 @@
 			name = YABA;
 			packageProductDependencies = (
 				96DCA2462F9D6FD6005760E3 /* SwiftSoup */,
-				96DCA2492F9D6FE1005760E3 /* EPUBKit */,
-				96DD37B62F9F8F1600E858C7 /* Kingfisher */,
 			);
 			productName = YABA;
 			productReference = 96A8DFC22DB2F5A500A47601 /* YABA.app */;
@@ -1154,7 +1137,6 @@
 			name = YABAShare;
 			packageProductDependencies = (
 				96DCA2462F9D6FD6005760E3 /* SwiftSoup */,
-				96DCA2492F9D6FE1005760E3 /* EPUBKit */,
 			);
 			productName = YABAShare;
 			productReference = 96A8E0AE2DB5CAFF00A47601 /* YABAShare.appex */;
@@ -1181,7 +1163,6 @@
 			name = YABAKeyboard;
 			packageProductDependencies = (
 				96DCA2462F9D6FD6005760E3 /* SwiftSoup */,
-				96DCA2492F9D6FE1005760E3 /* EPUBKit */,
 			);
 			productName = YABAKeyboard;
 			productReference = 96EA396C2E56380700B8411D /* YABAKeyboard.appex */;
@@ -1208,7 +1189,6 @@
 			name = YABAWidgetsExtension;
 			packageProductDependencies = (
 				96DCA2462F9D6FD6005760E3 /* SwiftSoup */,
-				96DCA2492F9D6FE1005760E3 /* EPUBKit */,
 			);
 			productName = YABAWidgetsExtension;
 			productReference = 96EA39BB2E58EB8E00B8411D /* YABAWidgetsExtension.appex */;
@@ -1235,7 +1215,6 @@
 			name = YABAShareMac;
 			packageProductDependencies = (
 				96DCA2462F9D6FD6005760E3 /* SwiftSoup */,
-				96DCA2492F9D6FE1005760E3 /* EPUBKit */,
 			);
 			productName = YABAShareMac;
 			productReference = 96EB67132DD94580009EB9EC /* YABAShareMac.appex */;
@@ -1287,8 +1266,6 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				96DCA2452F9D6FD6005760E3 /* XCRemoteSwiftPackageReference "SwiftSoup" */,
-				96DCA2482F9D6FE1005760E3 /* XCRemoteSwiftPackageReference "EPUBKit" */,
-				96DD37B52F9F8F1600E858C7 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 96A8DFC32DB2F5A500A47601 /* Products */;
@@ -2100,22 +2077,6 @@
 				minimumVersion = 2.13.4;
 			};
 		};
-		96DCA2482F9D6FE1005760E3 /* XCRemoteSwiftPackageReference "EPUBKit" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/witekbobrowski/EPUBKit";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.5.0;
-			};
-		};
-		96DD37B52F9F8F1600E858C7 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 8.8.1;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -2123,16 +2084,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 96DCA2452F9D6FD6005760E3 /* XCRemoteSwiftPackageReference "SwiftSoup" */;
 			productName = SwiftSoup;
-		};
-		96DCA2492F9D6FE1005760E3 /* EPUBKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 96DCA2482F9D6FE1005760E3 /* XCRemoteSwiftPackageReference "EPUBKit" */;
-			productName = EPUBKit;
-		};
-		96DD37B62F9F8F1600E858C7 /* Kingfisher */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 96DD37B52F9F8F1600E858C7 /* XCRemoteSwiftPackageReference "Kingfisher" */;
-			productName = Kingfisher;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -8,6 +8,9 @@ import SwiftUI
 
 @MainActor
 public final class DocmarkCreationStateMachine: YabaBaseObservableState<DocmarkCreationUIState>, YabaScreenStateMachine {
+    /// Increments on each new document pick so stale extraction work does not apply.
+    private var documentExtractionGeneration: Int = 0
+
     public override init(initialState: DocmarkCreationUIState = DocmarkCreationUIState()) {
         super.init(initialState: initialState)
     }
@@ -28,6 +31,7 @@ public final class DocmarkCreationStateMachine: YabaBaseObservableState<DocmarkC
         case .onPickDocument:
             break
         case .onClearDocument:
+            documentExtractionGeneration += 1
             apply {
                 $0.pickedDocumentData = nil
                 $0.sourceFileName = nil
@@ -40,11 +44,13 @@ public final class DocmarkCreationStateMachine: YabaBaseObservableState<DocmarkC
                 $0.isLoading = false
                 $0.lastError = nil
             }
-        case let .onDocumentFromShare(data, name, type):
+        case let .onDocumentFromShare(data, name):
+            documentExtractionGeneration += 1
+            let generation = documentExtractionGeneration
             apply {
                 $0.pickedDocumentData = data
                 $0.sourceFileName = name
-                $0.docmarkType = type
+                $0.docmarkType = .pdf
                 $0.metadataTitle = nil
                 $0.metadataDescription = nil
                 $0.metadataAuthor = nil
@@ -53,6 +59,7 @@ public final class DocmarkCreationStateMachine: YabaBaseObservableState<DocmarkC
                 $0.isLoading = true
                 $0.lastError = nil
             }
+            Task { await self.extractDocumentMetadata(data: data, generation: generation) }
         case .onCyclePreviewAppearance:
             apply {
                 switch $0.bookmarkAppearance {
@@ -111,7 +118,11 @@ public final class DocmarkCreationStateMachine: YabaBaseObservableState<DocmarkC
     private func persist() async {
         let folderId = state.selectedFolderId
         let trimmedLabel = state.label.trimmingCharacters(in: .whitespacesAndNewlines)
-        let label = trimmedLabel.isEmpty ? "Document" : trimmedLabel
+        guard !trimmedLabel.isEmpty else {
+            apply { $0.lastError = "Label required" }
+            return
+        }
+        let label = trimmedLabel
         guard let folderId, !folderId.isEmpty else {
             apply { $0.lastError = "Folder required" }
             return
@@ -178,5 +189,46 @@ public final class DocmarkCreationStateMachine: YabaBaseObservableState<DocmarkC
             DocmarkManager.queueUpsertDocBookmarkPayloadBytes(bookmarkId: bid, documentBytes: docBytes)
         }
         apply { $0.isSaving = false }
+    }
+
+    private func extractDocumentMetadata(data: Data, generation: Int) async {
+        typealias Extracted = (
+            metadataTitle: String?,
+            metadataDescription: String?,
+            metadataAuthor: String?,
+            metadataDate: String?,
+            preview: Data?,
+            previewExt: String
+        )
+        let extracted: Extracted? = await Task.detached(priority: .userInitiated) {
+            guard let meta = PDFMetadataExtractor.extract(from: data) else { return nil }
+            return (
+                meta.title,
+                meta.subject,
+                meta.author,
+                meta.creationDate,
+                meta.firstPageImageData,
+                "png"
+            )
+        }.value
+
+        guard generation == documentExtractionGeneration else { return }
+        if let extracted {
+            await send(
+                .onDocumentMetadataExtracted(
+                    metadataTitle: extracted.metadataTitle,
+                    metadataDescription: extracted.metadataDescription,
+                    metadataAuthor: extracted.metadataAuthor,
+                    metadataDate: extracted.metadataDate
+                )
+            )
+            await send(
+                .onSetGeneratedPreview(
+                    imageData: extracted.preview,
+                    fileExtension: extracted.previewExt
+                )
+            )
+        }
+        await send(.onDocumentExtractionFinished)
     }
 }

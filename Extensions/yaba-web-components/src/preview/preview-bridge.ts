@@ -3,7 +3,7 @@ import type { Platform, AppearanceMode } from "@/theme/url-params"
 import { applyTheme, parseUrlParams } from "@/theme"
 import { publishShellLoad } from "@/bridge/shell-host-events"
 import { postToYabaNativeHost } from "@/bridge/yaba-native-host"
-import type { ReaderPreferences } from "@/bridge/read-it-later-bridge"
+import type { ReaderPreferences } from "@/bridge/reader-preferences"
 
 export interface YabaPreviewBridge {
   isReady: () => boolean

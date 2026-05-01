@@ -1,7 +1,7 @@
 {
   "name": "yaba-web-components",
   "version": "1.0.0",
-  "description": "WebView components for YABA: CodeMirror Markdown note editor, read-it-later (DOM), html-to-markdown.bundle (JSC), canvas, EPUB viewer",
+  "description": "WebView components for YABA: CodeMirror Markdown note editor, markdown preview, html-to-markdown.bundle (JSC), canvas",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -19,7 +19,6 @@
     "@mozilla/readability": "^0.6.0",
     "codemirror": "^6.0.2",
     "dompurify": "3.3.1",
-    "epubjs": "^0.3.93",
     "linkedom": "^0.18.12",
     "react": "19.2.0",
     "react-dom": "19.2.0",

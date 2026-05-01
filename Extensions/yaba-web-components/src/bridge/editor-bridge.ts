@@ -25,16 +25,14 @@ import {
   setNoteEditorAutosaveIdleEnabled,
 } from "./shell-host-events"
 import { postToYabaNativeHost } from "./yaba-native-host"
+import type { ReaderPreferences } from "./reader-preferences"
 
-export type ReaderTheme = "system" | "dark" | "light" | "sepia"
-export type ReaderFontSize = "small" | "medium" | "large"
-export type ReaderLineHeight = "normal" | "relaxed"
-
-export interface ReaderPreferences {
-  theme: ReaderTheme
-  fontSize: ReaderFontSize
-  lineHeight: ReaderLineHeight
-}
+export type {
+  ReaderFontSize,
+  ReaderLineHeight,
+  ReaderPreferences,
+  ReaderTheme,
+} from "./reader-preferences"
 
 export interface YabaEditorBridge {
   isReady: () => boolean

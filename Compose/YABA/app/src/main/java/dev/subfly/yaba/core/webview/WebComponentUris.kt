@@ -18,8 +18,6 @@ object WebComponentUris {
 
     fun getPdfViewerUri(): String = "${ASSET_PREFIX}${WEB_COMPONENTS_BASE}/pdf-viewer.html"
 
-    fun getEpubViewerUri(): String = "${ASSET_PREFIX}${WEB_COMPONENTS_BASE}/epub-viewer.html"
-
     /**
      * Base URL for loading web-component assets (chunks, CSS, etc.).
      */

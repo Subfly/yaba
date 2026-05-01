@@ -65,28 +65,3 @@ public struct PdfMetadataResult: Sendable, Equatable {
         self.firstPageImageData = firstPageImageData
     }
 }
-
-public struct EpubMetadataResult: Sendable, Equatable {
-    public var coverImageData: Data?
-    public var coverImageMimeType: String?
-    public var title: String?
-    public var author: String?
-    public var description: String?
-    public var pubdate: String?
-
-    public init(
-        coverImageData: Data?,
-        coverImageMimeType: String?,
-        title: String?,
-        author: String?,
-        description: String?,
-        pubdate: String?
-    ) {
-        self.coverImageData = coverImageData
-        self.coverImageMimeType = coverImageMimeType
-        self.title = title
-        self.author = author
-        self.description = description
-        self.pubdate = pubdate
-    }
-}

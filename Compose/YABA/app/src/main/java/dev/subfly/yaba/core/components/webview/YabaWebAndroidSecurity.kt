@@ -18,11 +18,6 @@ internal object YabaWebAndroidSecurity {
      * Stricter than the stock PdfViewer HTML shell where possible, while still allowing
      * Vite-bundled readers (wasm workers, inline styles from component libs, blob/data media).
      *
-     * EPUB.js renders spine HTML in `about:srcdoc` iframes and sets `<base href>` for relative
-     * OPS paths; it also loads layout stylesheets via `blob:` URLs, and injected `@font-face`
-     * rules load font files as `blob:` URLs. Those require [base-uri 'self'] (not `'none'`),
-     * and `blob:` on [style-src] and [font-src].
-     *
      * Excalidraw (canvas) uses dynamic evaluation in font subsetting / bundled helpers
      * (`subset-shared` and similar); export and rendering hit that path. CSP has no
      * per-call-site allowlist — [script-src] must include `'unsafe-eval'` for those APIs.

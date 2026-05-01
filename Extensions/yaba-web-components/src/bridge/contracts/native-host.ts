@@ -1,6 +1,6 @@
 import type { EditorFormattingState } from "../editor-formatting"
 
-export type YabaNativeHostFeature = "editor" | "read-it-later" | "epub" | "canvas" | "preview"
+export type YabaNativeHostFeature = "editor" | "canvas" | "preview"
 
 /** Single envelope for all web -> native host events. */
 export type YabaNativeHostPayload =
@@ -12,7 +12,7 @@ export type YabaNativeHostPayload =
       type: "readerMetrics"
       currentPage: number
       pageCount: number
-      /** Rich-text editor toolbar state; omitted in PDF/EPUB/readable viewer. */
+      /** Rich-text editor toolbar state; omitted in PDF/readable viewer. */
       formatting?: EditorFormattingState
     }
   | {
@@ -116,7 +116,7 @@ export type YabaNativeHostPayload =
   | {
       type: "converterJob"
       jobId: string
-      kind: "pdf" | "epub"
+      kind: "pdf"
       status: "pending" | "done" | "error"
       outputJson?: string
       error?: string

@@ -6,7 +6,6 @@ import dev.subfly.yaba.core.webview.EditorFormattingState
 import dev.subfly.yaba.core.webview.WebViewEditorBridge
 import dev.subfly.yaba.core.webview.WebViewReaderBridge
 import dev.subfly.yaba.core.webview.YabaEditorBridgeScripts
-import dev.subfly.yaba.core.webview.YabaEpubReaderBridgeScripts
 import dev.subfly.yaba.core.webview.YabaPdfReaderBridgeScripts
 import dev.subfly.yaba.core.webview.YabaWebAppearance
 import dev.subfly.yaba.core.webview.YabaWebBridgeScripts
@@ -203,26 +202,8 @@ internal suspend fun applyEditorWebChromeInsets(
     )
 }
 
-internal suspend fun applyEpubReaderPreferences(
-    webView: WebView,
-    readerPreferences: ReaderPreferences,
-    platform: YabaWebPlatform,
-    appearance: YabaWebAppearance,
-) {
-    if (!waitForBridgeReady(webView, YabaWebBridgeScripts.EPUB_BRIDGE_READY)) return
-    evaluateJs(
-        webView,
-        YabaEpubReaderBridgeScripts.applyReaderPreferencesScript(
-            readerTheme = readerPreferences.theme.toJsReaderThemeLiteral(),
-            readerFontSize = readerPreferences.fontSize.toJsReaderFontSizeLiteral(),
-            readerLineHeight = readerPreferences.lineHeight.toJsReaderLineHeightLiteral(),
-            platform = platform.toJsPlatformLiteral(),
-            appearance = appearance.toJsAppearanceLiteral(),
-        ),
-    )
-}
-
-internal suspend fun applyEditorPlaceholder(
+@Suppress("FunctionName")
+internal fun PdfWebViewReaderBridge(
     webView: WebView,
     placeholder: String?,
 ) {
@@ -299,33 +280,6 @@ internal fun PdfWebViewReaderBridge(
     override suspend fun getDocumentJson(): String = ""
 }
 
-@Suppress("FunctionName")
-internal fun EpubWebViewReaderBridge(
-    webView: WebView,
-): WebViewReaderBridge = object : WebViewReaderBridge {
-    override suspend fun getPageCount(): Int {
-        if (!waitForBridgeReady(webView, YabaWebBridgeScripts.EPUB_BRIDGE_READY_LOOSE)) return 0
-        return evaluateJs(webView, YabaEpubReaderBridgeScripts.GET_PAGE_COUNT_SCRIPT).trim().toIntOrNull() ?: 0
-    }
-
-    override suspend fun getCurrentPageNumber(): Int {
-        if (!waitForBridgeReady(webView, YabaWebBridgeScripts.EPUB_BRIDGE_READY_LOOSE)) return 1
-        return evaluateJs(webView, YabaEpubReaderBridgeScripts.GET_CURRENT_PAGE_NUMBER_SCRIPT).trim().toIntOrNull() ?: 1
-    }
-
-    override suspend fun nextPage(): Boolean {
-        if (!waitForBridgeReady(webView, YabaWebBridgeScripts.EPUB_BRIDGE_READY_LOOSE)) return false
-        return evaluateJs(webView, YabaEpubReaderBridgeScripts.NEXT_PAGE_SCRIPT).trim() == "true"
-    }
-
-    override suspend fun prevPage(): Boolean {
-        if (!waitForBridgeReady(webView, YabaWebBridgeScripts.EPUB_BRIDGE_READY_LOOSE)) return false
-        return evaluateJs(webView, YabaEpubReaderBridgeScripts.PREV_PAGE_SCRIPT).trim() == "true"
-    }
-
-    override suspend fun getDocumentJson(): String = ""
-}
-
 internal suspend fun applyPdfUrl(webView: WebView, context: android.content.Context, pdfUrl: String) {
     if (!waitForBridgeReady(webView, YabaWebBridgeScripts.PDF_BRIDGE_READY)) return
     val resolvedPdfUrl = toInternalStorageAssetLoaderFileUrl(context, pdfUrl) ?: pdfUrl
@@ -342,10 +296,3 @@ internal suspend fun applyPdfTheme(webView: WebView, platform: YabaWebPlatform, 
         ),
     )
 }
-
-internal suspend fun applyEpubUrl(webView: WebView, context: android.content.Context, epubUrl: String) {
-    if (!waitForBridgeReady(webView, YabaWebBridgeScripts.EPUB_BRIDGE_READY)) return
-    val resolved = toInternalStorageAssetLoaderFileUrl(context, epubUrl) ?: epubUrl
-    evaluateJs(webView, YabaEpubReaderBridgeScripts.setEpubUrlScript(resolved))
-}
-
