@@ -27,7 +27,7 @@ public enum NativeHostMessageParserDarwin {
         case "shellLoad":
             return parseShellLoad(root)
         case "toc":
-            return parseToc(root)
+            return nil
         case "noteAutosaveIdle":
             return .noteEditorIdleForAutosave
         case "canvasAutosaveIdle":
@@ -120,34 +120,6 @@ public enum NativeHostMessageParserDarwin {
         let result = root["result"] as? String ?? ""
         let shell: WebShellLoadResult = (result == "loaded") ? .loaded : .error
         return .initialContentLoad(shell)
-    }
-
-    private static func parseToc(_ root: [String: Any]) -> WebHostEvent {
-        guard let tocObj = root["toc"] as? [String: Any] else {
-            return .tableOfContentsChanged(toc: nil)
-        }
-        let itemsArr = tocObj["items"] as? [[String: Any]] ?? []
-        let items = parseTocItems(itemsArr)
-        return .tableOfContentsChanged(toc: Toc(items: items))
-    }
-
-    private static func parseTocItems(_ arr: [[String: Any]]) -> [TocItem] {
-        arr.compactMap { o -> TocItem? in
-            let id = o["id"] as? String ?? ""
-            let title = o["title"] as? String ?? ""
-            let level = o["level"] as? Int ?? 1
-            let childrenArr = o["children"] as? [[String: Any]] ?? []
-            let extrasRaw = o["extrasJson"] as? String
-            let trimmed = extrasRaw?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-            let extrasNorm: String? = trimmed.isEmpty ? nil : trimmed
-            return TocItem(
-                id: id,
-                title: title,
-                level: level,
-                children: parseTocItems(childrenArr),
-                extrasJson: extrasNorm
-            )
-        }
     }
 
     private static func parseReaderMetrics(_ root: [String: Any]) -> WebHostEvent {

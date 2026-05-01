@@ -40,9 +40,6 @@ public enum LinkmarkDetailEvent: Sendable {
     )
     case onScrollToAnnotation(annotationId: String)
     case onClearScrollToAnnotation
-    case onTocChanged(tocJson: String?)
-    case onNavigateToTocItem(id: String, extrasJson: String?)
-    case onClearTocNavigation
     case onRequestNotificationPermission
     case onScheduleReminder(fireAt: Date, titleKey: String, messageKey: String)
     case onCancelReminder

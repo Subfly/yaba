@@ -6,6 +6,12 @@ import { publishShellLoad } from "@/bridge/shell-host-events"
 import { publishToc, resetPublishedToc } from "@/bridge/toc-host-events"
 import { postToYabaNativeHost } from "@/bridge/yaba-native-host"
 import type { ReaderPreferences } from "@/bridge/read-it-later-bridge"
+import { getDomSelectionSnapshot } from "@/bridge/dom-selection-snapshot"
+import type { AnnotationForRendering } from "@/bridge/read-it-later-types"
+import {
+  applyAnnotationColorDecorations,
+  domSelectionOverlapsAnnotation,
+} from "@/bridge/read-it-later-annotations"
 
 export interface YabaPreviewBridge {
   isReady: () => boolean
@@ -15,10 +21,10 @@ export interface YabaPreviewBridge {
   setCursorColor: (color: string) => void
   setWebChromeInsets: (topChromeInsetPx: number) => void
   setReaderPreferences: (preferences: Partial<ReaderPreferences>) => void
-  setAnnotations: (_annotationsJson: string) => void
-  scrollToAnnotation: (_annotationId: string) => void
+  setAnnotations: (annotationsJson: string) => void
+  scrollToAnnotation: (annotationId: string) => void
   navigateToTocItem: (tocItemId: string, _extrasJson?: string | null) => void
-  getSelectionSnapshot: () => null
+  getSelectionSnapshot: () => ReturnType<typeof getDomSelectionSnapshot>
   getSelectedText: () => string
   getCanCreateAnnotation: () => boolean
 }
@@ -89,12 +95,50 @@ function applyWebChromeInsetsToDocument(topChromeInsetPx: number): void {
   r.style.setProperty("--yaba-web-chrome-safe-area-top-additional", "0px")
 }
 
+function previewMarkdownRoot(): HTMLElement | null {
+  return document.querySelector(".yaba-preview-scroll .yaba-markdown-preview") as HTMLElement | null
+}
+
+let storedAnnotations: AnnotationForRendering[] = []
+
+function cssEscapeForSelector(value: string): string {
+  if (typeof CSS !== "undefined" && typeof CSS.escape === "function") {
+    return CSS.escape(value)
+  }
+  return value.replace(/["\\]/g, "\\$&")
+}
+
+function onPreviewAnnotationClick(ev: MouseEvent): void {
+  const root = previewMarkdownRoot()
+  if (!root || !root.contains(ev.target as Node)) return
+  const t = (ev.target as HTMLElement | null)?.closest?.(
+    ".yaba-annotation-decoration[data-annotation-id]",
+  ) as HTMLElement | null
+  if (!t) return
+  const id = t.getAttribute("data-annotation-id")
+  if (!id) return
+  ev.preventDefault()
+  postToYabaNativeHost({ type: "annotationTap", id })
+}
+
+function getPreviewCanCreateAnnotationInner(): boolean {
+  const root = previewMarkdownRoot()
+  if (!root) return false
+  const sel = window.getSelection()
+  if (!sel || sel.rangeCount === 0) return false
+  const range = sel.getRangeAt(0)
+  if (range.collapsed) return false
+  if (!root.contains(range.commonAncestorContainer)) return false
+  if (domSelectionOverlapsAnnotation(root, range)) return false
+  return true
+}
+
 let lastReaderMetricsJson: string | null = null
 
 function publishPreviewReaderMetrics(): void {
   const payload = {
     type: "readerMetrics" as const,
-    canCreateAnnotation: false,
+    canCreateAnnotation: getPreviewCanCreateAnnotationInner(),
     currentPage: 1,
     pageCount: 1,
   }
@@ -102,6 +146,16 @@ function publishPreviewReaderMetrics(): void {
   if (json === lastReaderMetricsJson) return
   lastReaderMetricsJson = json
   postToYabaNativeHost(payload)
+}
+
+function scheduleApplyStoredAnnotations(): void {
+  requestAnimationFrame(() => {
+    const root = previewMarkdownRoot()
+    if (root && storedAnnotations.length > 0) {
+      applyAnnotationColorDecorations(root, storedAnnotations)
+    }
+    publishPreviewReaderMetrics()
+  })
 }
 
 const TOC_DEBOUNCE_MS = 350
@@ -152,7 +206,7 @@ export function initPreviewBridge(api: { setMarkdownState: (md: string) => void 
           publishShellLoad("loaded")
         }
         scheduleTocPublish(latestMarkdown)
-        queueMicrotask(() => publishPreviewReaderMetrics())
+        queueMicrotask(() => scheduleApplyStoredAnnotations())
       } catch {
         if (!shellLoadNotified) {
           shellLoadNotified = true
@@ -179,27 +233,43 @@ export function initPreviewBridge(api: { setMarkdownState: (md: string) => void 
       readerPreferences = { ...readerPreferences, ...prefs }
       applyReaderPreferences()
     },
-    setAnnotations: () => {
-      /* Markdown preview surface — annotations not rendered in v1 */
+    setAnnotations: (annotationsJson: string) => {
+      try {
+        storedAnnotations =
+          annotationsJson && annotationsJson.trim() ? JSON.parse(annotationsJson) : []
+      } catch {
+        storedAnnotations = []
+      }
+      scheduleApplyStoredAnnotations()
     },
-    scrollToAnnotation: () => {
-      /* no-op until preview annotation layer exists */
+    scrollToAnnotation: (annotationId: string) => {
+      const root = previewMarkdownRoot()
+      if (!root) return
+      const el = root.querySelector(
+        `.yaba-annotation-decoration[data-annotation-id="${cssEscapeForSelector(annotationId)}"]`,
+      ) as HTMLElement | null
+      el?.scrollIntoView({ behavior: "smooth", block: "center" })
     },
     navigateToTocItem: (tocItemId: string) => {
       document.getElementById(tocItemId)?.scrollIntoView({ behavior: "smooth", block: "center" })
     },
-    getSelectionSnapshot: () => null,
-    getSelectedText: () => "",
-    getCanCreateAnnotation: () => false,
+    getSelectionSnapshot: () => {
+      const root = previewMarkdownRoot()
+      return root ? getDomSelectionSnapshot(root) : null
+    },
+    getSelectedText: () => getDomSelectionSnapshot(previewMarkdownRoot())?.selectedText ?? "",
+    getCanCreateAnnotation: () => getPreviewCanCreateAnnotationInner(),
   }
 
   document.addEventListener("selectionchange", publishPreviewReaderMetrics)
+  document.addEventListener("click", onPreviewAnnotationClick)
 
   postToYabaNativeHost({ type: "bridgeReady", feature: "preview" })
   publishPreviewReaderMetrics()
 
   return () => {
     document.removeEventListener("selectionchange", publishPreviewReaderMetrics)
+    document.removeEventListener("click", onPreviewAnnotationClick)
     clearTocTimer()
     setMarkdownState = null
   }

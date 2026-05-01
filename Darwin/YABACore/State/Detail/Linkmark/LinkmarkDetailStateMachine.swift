@@ -97,18 +97,6 @@ public final class LinkmarkDetailStateMachine: YabaBaseObservableState<LinkmarkD
             apply { $0.scrollToAnnotationId = annotationId }
         case .onClearScrollToAnnotation:
             apply { $0.scrollToAnnotationId = nil }
-        case let .onTocChanged(tocJson):
-            apply { $0.tocJson = tocJson }
-        case let .onNavigateToTocItem(id, extrasJson):
-            apply {
-                $0.pendingTocNavigationId = id
-                $0.pendingTocNavigationExtrasJson = extrasJson
-            }
-        case .onClearTocNavigation:
-            apply {
-                $0.pendingTocNavigationId = nil
-                $0.pendingTocNavigationExtrasJson = nil
-            }
         case .onRequestNotificationPermission:
             _ = await ReminderManager.requestAuthorization()
             let granted = await ReminderManager.authorizationGranted()

@@ -19,9 +19,6 @@ public enum DocmarkDetailEvent: Sendable {
     case onDeleteAnnotation(annotationId: String)
     case onScrollToAnnotation(annotationId: String)
     case onClearScrollToAnnotation
-    case onTocChanged(tocJson: String?)
-    case onNavigateToTocItem(id: String, extrasJson: String?)
-    case onClearTocNavigation
     case onRequestNotificationPermission
     case onScheduleReminder(titleKey: String, messageKey: String, fireAt: Date)
     case onCancelReminder

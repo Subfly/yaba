@@ -122,6 +122,59 @@ public enum WebPreviewBridgeScripts {
         """
     }
 
+    public static func scrollToAnnotation(annotationId: String) -> String {
+        let escaped = WebJsEscaping.escapeForJsSingleQuotedString(annotationId)
+        return """
+        (function(){
+          try {
+            var b = window.YabaPreviewBridge;
+            if (!b || !b.scrollToAnnotation) { return "no_bridge"; }
+            b.scrollToAnnotation('\(escaped)');
+            return "ok";
+          } catch(e) { return String(e); }
+        })();
+        """
+    }
+
+    public static func getSelectionSnapshot() -> String {
+        """
+        (function(){
+          try {
+            var b = window.YabaPreviewBridge;
+            if (!b || !b.getSelectionSnapshot) { return ""; }
+            var snapshot = b.getSelectionSnapshot();
+            if (!snapshot) { return ""; }
+            return JSON.stringify(snapshot);
+          } catch(e) { return ""; }
+        })();
+        """
+    }
+
+    public static func getSelectedText() -> String {
+        """
+        (function(){
+          try {
+            var b = window.YabaPreviewBridge;
+            if (!b || !b.getSelectedText) { return ""; }
+            var t = b.getSelectedText();
+            return (t && typeof t === "string") ? t : "";
+          } catch(e) { return ""; }
+        })();
+        """
+    }
+
+    public static func getCanCreateAnnotation() -> String {
+        """
+        (function(){
+          try {
+            var b = window.YabaPreviewBridge;
+            if (!b || !b.getCanCreateAnnotation) { return "0"; }
+            return b.getCanCreateAnnotation() ? "1" : "0";
+          } catch(e) { return "0"; }
+        })();
+        """
+    }
+
     private static func javaScriptStringLiteral(_ s: String) -> String {
         guard let data = try? JSONEncoder().encode(s),
               let out = String(data: data, encoding: .utf8)

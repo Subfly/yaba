@@ -23,5 +23,4 @@ public enum WebHostEvent: Sendable {
         bookmarkKindCode: Int,
         bookmarkLabel: String
     )
-    case tableOfContentsChanged(toc: Toc?)
 }

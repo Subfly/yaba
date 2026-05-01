@@ -30,6 +30,41 @@ enum LinkmarkDetailSheetTab: String, CaseIterable, Identifiable, Hashable {
     }
 }
 
+private struct LinkmarkTocFlatRow: Identifiable {
+    let item: LinkmarkMarkdownTocItem
+    let depth: Int
+
+    var id: String { item.id }
+}
+
+/// Pre-order flatten without recursion (stack machine).
+private func flattenLinkmarkTocItems(_ roots: [LinkmarkMarkdownTocItem]) -> [LinkmarkTocFlatRow] {
+    var result: [LinkmarkTocFlatRow] = []
+    struct Frame {
+        var items: [LinkmarkMarkdownTocItem]
+        var depth: Int
+        var index: Int
+    }
+    var stack: [Frame] = [Frame(items: roots, depth: 0, index: 0)]
+
+    while !stack.isEmpty {
+        let fi = stack.count - 1
+        if stack[fi].index >= stack[fi].items.count {
+            stack.removeLast()
+            continue
+        }
+        let item = stack[fi].items[stack[fi].index]
+        stack[fi].index += 1
+        let depth = stack[fi].depth
+        result.append(LinkmarkTocFlatRow(item: item, depth: depth))
+        if !item.children.isEmpty {
+            stack.append(Frame(items: item.children, depth: depth + 1, index: 0))
+        }
+    }
+
+    return result
+}
+
 struct LinkmarkDetailInfoSheet: View {
     @Environment(\.dismiss)
     private var dismiss
@@ -37,6 +72,7 @@ struct LinkmarkDetailInfoSheet: View {
     private var openURL
 
     let bookmark: YabaBookmark
+    let tocItems: [LinkmarkMarkdownTocItem]
     let folderAccent: Color
     let reminderDate: Date?
     let onDeleteReminder: () -> Void
@@ -46,6 +82,7 @@ struct LinkmarkDetailInfoSheet: View {
     let onScrollToAnnotation: (String) -> Void
     let onEditAnnotation: (String) -> Void
     let onDeleteAnnotation: (String) -> Void
+    let onTocItemTap: (LinkmarkMarkdownTocItem) -> Void
 
     var body: some View {
         NavigationStack {
@@ -82,7 +119,7 @@ struct LinkmarkDetailInfoSheet: View {
         case .annotations:
             annotationsList
         case .contents:
-            EmptyView()
+            tocList
         }
     }
 
@@ -253,33 +290,38 @@ struct LinkmarkDetailInfoSheet: View {
         }
     }
 
-    /**
     private var tocList: some View {
-        if [].isEmpty {
-            emptyStateContent(
-                icon: "left-to-right-list-triangle",
-                title: "Bookmark Detail No Table Of Contents Title",
-                message: "Bookmark Detail No Table Of Contents Message"
-            )
-        } else {
-            List {
-                OutlineGroup([], id: \.id, children: \.outlineChildren) { item in
-                    Button {
-                    } label: {
-                        HStack(spacing: 10) {
-                            YabaIconView(bundleKey: tocHeadingIcon(level: item.level))
-                                .frame(width: 24, height: 24)
-                                .foregroundStyle(folderAccent)
-                            Text(item.title)
-                                .frame(maxWidth: .infinity, alignment: .leading)
+        Group {
+            if tocItems.isEmpty {
+                emptyStateContent(
+                    icon: "left-to-right-list-triangle",
+                    title: "Bookmark Detail No Table Of Contents Title",
+                    message: "Bookmark Detail No Table Of Contents Message"
+                )
+            } else {
+                List {
+                    ForEach(flattenLinkmarkTocItems(tocItems)) { row in
+                        Button {
+                            onTocItemTap(row.item)
+                        } label: {
+                            HStack(spacing: 10) {
+                                YabaIconView(bundleKey: tocHeadingIcon(level: row.item.level))
+                                    .frame(width: 24, height: 24)
+                                    .foregroundStyle(folderAccent)
+                                Text(row.item.title)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .multilineTextAlignment(.leading)
+                            }
+                            .padding(.leading, CGFloat(row.depth * 16))
+                            .frame(maxWidth: .infinity, alignment: .leading)
                         }
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
                 }
+                .listStyle(.sidebar)
             }
-            .listStyle(.sidebar)
         }
-    }*/
+    }
 
     @ViewBuilder
     private func metadataRow(_ key: LocalizedStringKey, icon: String, value: String?) -> some View {

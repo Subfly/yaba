@@ -123,3 +123,48 @@
   background: var(--yaba-primary-container);
   color: var(--yaba-on-primary-container);
 }
+
+/* Readable annotations (directive spans → highlight palette parity with read-it-later / editor) */
+.yaba-markdown-preview .yaba-highlight,
+.yaba-markdown-preview .yaba-annotation-decoration {
+  border-radius: 0.15em;
+}
+.yaba-markdown-preview .yaba-highlight-yellow {
+  background-color: rgba(255, 214, 10, 0.35);
+}
+.yaba-markdown-preview .yaba-highlight-blue {
+  background-color: rgba(0, 122, 255, 0.25);
+}
+.yaba-markdown-preview .yaba-highlight-green {
+  background-color: rgba(52, 199, 89, 0.25);
+}
+.yaba-markdown-preview .yaba-highlight-pink {
+  background-color: rgba(255, 45, 85, 0.22);
+}
+.yaba-markdown-preview .yaba-highlight-purple {
+  background-color: rgba(175, 82, 222, 0.22);
+}
+.yaba-markdown-preview .yaba-highlight-orange {
+  background-color: rgba(255, 149, 0, 0.28);
+}
+.yaba-markdown-preview .yaba-highlight-red {
+  background-color: rgba(255, 59, 48, 0.22);
+}
+.yaba-markdown-preview .yaba-highlight-teal {
+  background-color: rgba(99, 221, 223, 0.28);
+}
+.yaba-markdown-preview .yaba-highlight-cyan {
+  background-color: rgba(50, 173, 230, 0.25);
+}
+.yaba-markdown-preview .yaba-highlight-mint {
+  background-color: rgba(0, 199, 190, 0.24);
+}
+.yaba-markdown-preview .yaba-highlight-indigo {
+  background-color: rgba(88, 86, 214, 0.22);
+}
+.yaba-markdown-preview .yaba-highlight-brown {
+  background-color: rgba(162, 132, 94, 0.28);
+}
+.yaba-markdown-preview .yaba-highlight-gray {
+  background-color: rgba(142, 142, 147, 0.28);
+}

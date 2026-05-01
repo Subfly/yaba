@@ -16,9 +16,6 @@ public enum NotemarkDetailEvent: Sendable {
     case onCaptureImageFromCamera
     case onConsumedInlineImageInsert
     case onWebInitialContentLoad(resultJson: String?)
-    case onTocChanged(tocJson: String?)
-    case onNavigateToTocItem(id: String, extrasJson: String?)
-    case onClearTocNavigation
     case onExportMarkdownReady(String)
     case onExportPdfReady(base64: String)
 

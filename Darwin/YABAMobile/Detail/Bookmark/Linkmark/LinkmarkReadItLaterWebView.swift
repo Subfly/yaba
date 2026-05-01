@@ -99,8 +99,14 @@ struct LinkmarkReadItLaterWebView: UIViewRepresentable {
     let readerPreferences: ReaderPreferences
     let appearance: WebAppearance
     let annotationsJson: String
+    @Binding var tocNavigateItemId: String?
+    @Binding var scrollToAnnotationId: String?
     let onHostEvent: (WebHostEvent) -> Void
     let onInlineLinkTap: (InlineLinkTapEvent) -> Void
+    let onAnnotationTap: ((String) -> Void)?
+    let onScrollShowChrome: (() -> Void)?
+    let onScrollHideChrome: (() -> Void)?
+    let onRuntimeReady: ((WKWebViewRuntime) -> Void)?
 
     func makeCoordinator() -> Coordinator {
         Coordinator(parent: self)
@@ -111,15 +117,21 @@ struct LinkmarkReadItLaterWebView: UIViewRepresentable {
     }
 
     func updateUIView(_ uiView: WKWebView, context: Context) {
+        context.coordinator.updateBindings(toc: $tocNavigateItemId, scroll: $scrollToAnnotationId)
         context.coordinator.update(parent: self)
     }
 
-    final class Coordinator: NSObject {
+    final class Coordinator: NSObject, UIScrollViewDelegate {
         private(set) var parent: LinkmarkReadItLaterWebView
         fileprivate let schemeHandler = LinkmarkInlineAssetSchemeHandler()
         let runtime: WKWebViewRuntime
         private var hasLoadedShell = false
         private var isBridgeReady = false
+        private var lastScrollOffsetY: CGFloat?
+        private var lastMarkdownApplied = ""
+        private var lastPrefsFingerprint = ""
+        private var tocNavigateBinding = Binding<String?>.constant(nil)
+        private var scrollAnnotationBinding = Binding<String?>.constant(nil)
 
         init(parent: LinkmarkReadItLaterWebView) {
             self.parent = parent
@@ -130,10 +142,14 @@ struct LinkmarkReadItLaterWebView: UIViewRepresentable {
                 )
             )
             super.init()
+            runtime.webView.scrollView.delegate = self
             runtime.onBridgeReady = { [weak self] in
                 guard let self else { return }
                 self.isBridgeReady = true
-                self.applyReaderBridgeState()
+                self.parent.onRuntimeReady?(self.runtime)
+                Task { @MainActor in
+                    await self.applyReaderBridgeStateAndNavigation()
+                }
             }
             runtime.onHostEvent = { [weak self] event in
                 self?.parent.onHostEvent(event)
@@ -141,9 +157,29 @@ struct LinkmarkReadItLaterWebView: UIViewRepresentable {
             runtime.onInlineLinkTap = { [weak self] event in
                 self?.parent.onInlineLinkTap(event)
             }
+            runtime.onAnnotationTap = { [weak self] id in
+                self?.parent.onAnnotationTap?(id)
+            }
             runtime.webView.scrollView.contentInsetAdjustmentBehavior = .never
             if #available(iOS 13.0, *) {
                 runtime.webView.scrollView.automaticallyAdjustsScrollIndicatorInsets = false
+            }
+        }
+
+        func updateBindings(toc: Binding<String?>, scroll: Binding<String?>) {
+            tocNavigateBinding = toc
+            scrollAnnotationBinding = scroll
+        }
+
+        func scrollViewDidScroll(_ scrollView: UIScrollView) {
+            let y = scrollView.contentOffset.y
+            defer { lastScrollOffsetY = y }
+            guard let last = lastScrollOffsetY else { return }
+            let dy = y - last
+            if dy > 8 {
+                parent.onScrollHideChrome?()
+            } else if dy < -8 {
+                parent.onScrollShowChrome?()
             }
         }
 
@@ -156,7 +192,7 @@ struct LinkmarkReadItLaterWebView: UIViewRepresentable {
                 return
             }
             guard isBridgeReady else { return }
-            applyReaderBridgeState()
+            Task { await applyReaderBridgeStateAndNavigation() }
         }
 
         @MainActor
@@ -173,29 +209,58 @@ struct LinkmarkReadItLaterWebView: UIViewRepresentable {
             )
         }
 
-        private func applyReaderBridgeState() {
+        @MainActor
+        private func applyReaderBridgeStateAndNavigation() async {
             let markdown = parent.markdown
             let prefs = parent.readerPreferences
             let appearance = parent.appearance
             let annotationsJson = parent.annotationsJson
 
-            Task { @MainActor [weak self] in
-                guard let self else { return }
-                _ = try? await self.runtime.evaluateJavaScriptStringResult(
+            let fp = "\(prefs.theme.rawValue)|\(prefs.fontSize.rawValue)|\(prefs.lineHeight.rawValue)"
+            let markdownChanged = markdown != lastMarkdownApplied
+            let prefsChanged = fp != lastPrefsFingerprint
+
+            if markdownChanged || prefsChanged {
+                _ = try? await runtime.evaluateJavaScriptStringResult(
                     WebPreviewBridgeScripts.disableViewportZoom()
                 )
-                _ = try? await self.runtime.evaluateJavaScriptStringResult(
+                _ = try? await runtime.evaluateJavaScriptStringResult(
                     WebPreviewBridgeScripts.applyReaderHostPreferences(
                         appearance: appearance,
                         prefs: prefs
                     )
                 )
-                _ = try? await self.runtime.evaluateJavaScriptStringResult(
+                _ = try? await runtime.evaluateJavaScriptStringResult(
                     WebPreviewBridgeScripts.setMarkdown(markdown)
                 )
-                _ = try? await self.runtime.evaluateJavaScriptStringResult(
+                _ = try? await runtime.evaluateJavaScriptStringResult(
                     WebPreviewBridgeScripts.setAnnotations(jsonArrayBody: annotationsJson)
                 )
+                lastMarkdownApplied = markdown
+                lastPrefsFingerprint = fp
+            } else {
+                _ = try? await runtime.evaluateJavaScriptStringResult(
+                    WebPreviewBridgeScripts.setAnnotations(jsonArrayBody: annotationsJson)
+                )
+            }
+
+            await flushNavigationCommands()
+        }
+
+        @MainActor
+        private func flushNavigationCommands() async {
+            if let tocId = tocNavigateBinding.wrappedValue, !tocId.isEmpty {
+                _ = try? await runtime.evaluateJavaScriptStringResult(
+                    WebPreviewBridgeScripts.navigateToTocItem(id: tocId, extrasJson: nil)
+                )
+                tocNavigateBinding.wrappedValue = nil
+            }
+
+            if let annId = scrollAnnotationBinding.wrappedValue, !annId.isEmpty {
+                _ = try? await runtime.evaluateJavaScriptStringResult(
+                    WebPreviewBridgeScripts.scrollToAnnotation(annotationId: annId)
+                )
+                scrollAnnotationBinding.wrappedValue = nil
             }
         }
     }

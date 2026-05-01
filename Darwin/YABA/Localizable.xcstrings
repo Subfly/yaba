@@ -1933,7 +1933,6 @@
       }
     },
     "Bookmark Detail No Table Of Contents Message" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1944,7 +1943,6 @@
       }
     },
     "Bookmark Detail No Table Of Contents Title" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

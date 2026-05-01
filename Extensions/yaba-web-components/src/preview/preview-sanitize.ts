@@ -20,6 +20,18 @@ export const previewSanitizeSchema: Options = {
     src: ["http", "https", "yaba-asset"],
     cite: ["http", "https"],
   }),
+  attributes: {
+    ...defaultSchema.attributes,
+    span: [
+      ...(defaultSchema.attributes && Array.isArray(defaultSchema.attributes.span)
+        ? defaultSchema.attributes.span.filter((x): x is string => typeof x === "string")
+        : []),
+      "className",
+      "class",
+      "dataYabaAnnotationId",
+      "dataAnnotationId",
+    ],
+  },
 }
 
 export const previewRehypeSanitizePlugin: [typeof rehypeSanitize, Options] = [

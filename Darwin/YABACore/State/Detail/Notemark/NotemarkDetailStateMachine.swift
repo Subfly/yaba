@@ -42,18 +42,6 @@ public final class NotemarkDetailStateMachine: YabaBaseObservableState<NotemarkD
             apply { $0.webInitialContentLoadResultJson = resultJson }
         case .onConsumedInlineImageInsert:
             apply { $0.inlineImageDocumentSrc = nil }
-        case let .onTocChanged(tocJson):
-            apply { $0.tocJson = tocJson }
-        case let .onNavigateToTocItem(id, extrasJson):
-            apply {
-                $0.pendingTocNavigationId = id
-                $0.pendingTocNavigationExtrasJson = extrasJson
-            }
-        case .onClearTocNavigation:
-            apply {
-                $0.pendingTocNavigationId = nil
-                $0.pendingTocNavigationExtrasJson = nil
-            }
         case let .onScheduleReminder(titleKey, messageKey, fireAt):
             guard let bid = state.bookmarkId else { return }
             do {

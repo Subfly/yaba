@@ -11,9 +11,6 @@ public struct DocmarkDetailUIState: Sendable {
     public var readerFontSize: ReaderFontSize
     public var readerLineHeight: ReaderLineHeight
     public var scrollToAnnotationId: String?
-    public var tocJson: String?
-    public var pendingTocNavigationId: String?
-    public var pendingTocNavigationExtrasJson: String?
     public var reminderDate: Date?
     public var webInitialContentLoadResultJson: String?
 
@@ -23,9 +20,6 @@ public struct DocmarkDetailUIState: Sendable {
         readerFontSize: ReaderFontSize = .medium,
         readerLineHeight: ReaderLineHeight = .normal,
         scrollToAnnotationId: String? = nil,
-        tocJson: String? = nil,
-        pendingTocNavigationId: String? = nil,
-        pendingTocNavigationExtrasJson: String? = nil,
         reminderDate: Date? = nil,
         webInitialContentLoadResultJson: String? = nil
     ) {
@@ -34,9 +28,6 @@ public struct DocmarkDetailUIState: Sendable {
         self.readerFontSize = readerFontSize
         self.readerLineHeight = readerLineHeight
         self.scrollToAnnotationId = scrollToAnnotationId
-        self.tocJson = tocJson
-        self.pendingTocNavigationId = pendingTocNavigationId
-        self.pendingTocNavigationExtrasJson = pendingTocNavigationExtrasJson
         self.reminderDate = reminderDate
         self.webInitialContentLoadResultJson = webInitialContentLoadResultJson
     }

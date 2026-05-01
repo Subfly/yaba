@@ -13,9 +13,6 @@ public struct LinkmarkDetailUIState: Sendable {
     public var readerFontSize: ReaderFontSize
     public var readerLineHeight: ReaderLineHeight
     public var scrollToAnnotationId: String?
-    public var tocJson: String?
-    public var pendingTocNavigationId: String?
-    public var pendingTocNavigationExtrasJson: String?
     public var lastExportMarkdown: String?
     public var lastExportPdfBase64: String?
     public var reminderDate: Date?
@@ -29,9 +26,6 @@ public struct LinkmarkDetailUIState: Sendable {
         readerFontSize: ReaderFontSize = .medium,
         readerLineHeight: ReaderLineHeight = .normal,
         scrollToAnnotationId: String? = nil,
-        tocJson: String? = nil,
-        pendingTocNavigationId: String? = nil,
-        pendingTocNavigationExtrasJson: String? = nil,
         lastExportMarkdown: String? = nil,
         lastExportPdfBase64: String? = nil,
         reminderDate: Date? = nil,
@@ -44,9 +38,6 @@ public struct LinkmarkDetailUIState: Sendable {
         self.readerFontSize = readerFontSize
         self.readerLineHeight = readerLineHeight
         self.scrollToAnnotationId = scrollToAnnotationId
-        self.tocJson = tocJson
-        self.pendingTocNavigationId = pendingTocNavigationId
-        self.pendingTocNavigationExtrasJson = pendingTocNavigationExtrasJson
         self.lastExportMarkdown = lastExportMarkdown
         self.lastExportPdfBase64 = lastExportPdfBase64
         self.reminderDate = reminderDate
