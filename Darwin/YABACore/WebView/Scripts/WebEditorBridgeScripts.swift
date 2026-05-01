@@ -2,8 +2,8 @@
 //  WebEditorBridgeScripts.swift
 //  YABACore
 //
-//  `evaluateJavaScript` bodies for `window.YabaEditorBridge` on CodeMirror `editor.html`
-//  (and read-it-later, which uses the same shell).
+//  `evaluateJavaScript` bodies for `window.YabaEditorBridge` on CodeMirror `editor.html`.
+//  Darwin link Markdown preview uses `preview.html` / `WebPreviewBridgeScripts` instead.
 //
 
 import CoreGraphics

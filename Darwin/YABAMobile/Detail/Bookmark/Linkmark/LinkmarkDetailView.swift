@@ -28,9 +28,6 @@ struct LinkmarkDetailView: View {
     private var sheetTab: LinkmarkDetailSheetTab = .info
     
     @State
-    private var readerCanAnnotate = false
-
-    @State
     private var documentReloadToken = UUID()
 
     @State
@@ -106,6 +103,12 @@ struct LinkmarkDetailView: View {
         .onChange(of: bookmark?.linkDetail?.url) { _, newUrl in
             guard let newUrl else { return }
             Task { await machine.send(.onLinkSourceUrl(newUrl)) }
+        }
+        .onChange(of: bookmark?.linkDetail?.markdown) { _, _ in
+            documentReloadToken = UUID()
+        }
+        .onChange(of: bookmark?.linkDetail?.inlineAssets.count) { _, _ in
+            documentReloadToken = UUID()
         }
         .sheet(isPresented: $showDetailSheet) {
             if let bm = bookmark {
@@ -236,7 +239,56 @@ struct LinkmarkDetailView: View {
     private func mainContent(for bm: YabaBookmark) -> some View {
         let hasReadable = linkHasReadableContent(bm)
         let folderTint = folderColor(for: bm)
-        LinkmarkNoReadableVersionView(accent: folderTint)
+        ZStack(alignment: .bottom) {
+            if hasReadable {
+                linkmarkReaderBackground(readerTheme: machine.state.readerTheme)
+                    .ignoresSafeArea()
+
+                LinkmarkReadItLaterWebView(
+                    markdown: readableBodyString(for: bm),
+                    inlineAssets: readerInlineAssets(for: bm),
+                    readerPreferences: ReaderPreferences(
+                        theme: machine.state.readerTheme,
+                        fontSize: machine.state.readerFontSize,
+                        lineHeight: machine.state.readerLineHeight
+                    ),
+                    appearance: .auto,
+                    annotationsJson: annotationsJson(for: bm),
+                    onHostEvent: { event in
+                        handleReaderHostEvent(event)
+                    },
+                    onInlineLinkTap: { event in
+                        guard let url = URL(string: event.url) else { return }
+                        UIApplication.shared.open(url)
+                    }
+                )
+                .ignoresSafeArea()
+                .id(documentReloadToken)
+                .preferredColorScheme(effectiveReaderColorScheme(readerTheme: machine.state.readerTheme))
+
+                LinkmarkReaderFloatingToolbar(
+                    folderAccent: folderTint,
+                    isVisible: true,
+                    canAnnotate: false,
+                    readerTheme: machine.state.readerTheme,
+                    readerFontSize: machine.state.readerFontSize,
+                    readerLineHeight: machine.state.readerLineHeight,
+                    onSelectTheme: { theme in
+                        Task { await machine.send(.onSetReaderTheme(theme)) }
+                    },
+                    onSelectFontSize: { fontSize in
+                        Task { await machine.send(.onSetReaderFontSize(fontSize)) }
+                    },
+                    onSelectLineHeight: { lineHeight in
+                        Task { await machine.send(.onSetReaderLineHeight(lineHeight)) }
+                    },
+                    onStickyNote: openAnnotationCreator
+                )
+                .padding(.bottom, 14)
+            } else {
+                LinkmarkNoReadableVersionView(accent: folderTint)
+            }
+        }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -275,6 +327,26 @@ struct LinkmarkDetailView: View {
 
     private func readableBodyString(for bm: YabaBookmark) -> String {
         bm.linkDetail?.markdown ?? ""
+    }
+
+    private func readerInlineAssets(for bm: YabaBookmark) -> [LinkmarkInlineAssetPayload] {
+        (bm.linkDetail?.inlineAssets ?? []).compactMap { item in
+            guard let bytes = item.bytes, !bytes.isEmpty else { return nil }
+            return LinkmarkInlineAssetPayload(
+                assetId: item.assetId,
+                pathExtension: normalizedInlineAssetPathExtension(item.pathExtension),
+                bytes: bytes
+            )
+        }
+    }
+
+    private func normalizedInlineAssetPathExtension(_ raw: String) -> String {
+        let normalized = raw
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .trimmingCharacters(in: CharacterSet(charactersIn: "."))
+            .lowercased()
+        if normalized == "jpg" { return "jpeg" }
+        return normalized.isEmpty ? "jpeg" : normalized
     }
 
     @ViewBuilder
@@ -324,6 +396,23 @@ struct LinkmarkDetailView: View {
                     duration: .short
                 )
             }
+        }
+    }
+
+    private func handleReaderHostEvent(_ event: WebHostEvent) {
+        switch event {
+        case .readerMetrics:
+            break
+        case let .initialContentLoad(result):
+            let resultJson = (result == .loaded) ? #"{"result":"loaded"}"# : #"{"result":"error"}"#
+            Task {
+                await machine.send(.onReaderWebInitialContentLoad(resultJson: resultJson))
+            }
+        case .tableOfContentsChanged:
+            // ToC handling will be enabled in a follow-up iteration.
+            break
+        default:
+            break
         }
     }
 

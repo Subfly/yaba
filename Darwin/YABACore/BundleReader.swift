@@ -6,8 +6,8 @@
 //  Web shells and their `chunks/` / `assets/` live under `WebComponents/` (see `webComponentURL`).
 //
 //  Web components layout matches `Extensions/yaba-web-components` Vite output: `editor.html` (CodeMirror
-//  Markdown / `YabaEditorBridge`; Darwin read-it-later uses this same shell), `canvas.html`,
-//  optional `epub-viewer.html`, plus `html-to-markdown.bundle.min.js` for JavaScriptCore (no WKWebView shell).
+//  Markdown / `YabaEditorBridge`), `preview.html` (Markdown preview / `YabaPreviewBridge`),
+//  `canvas.html`, `read-it-later.html`, optional `epub-viewer.html`, plus `html-to-markdown.bundle.min.js` for JavaScriptCore (no WKWebView shell).
 //
 
 import Foundation
@@ -75,6 +75,7 @@ public enum BundleReader {
         // (matches `vite.config.ts` `build.rollupOptions.input` in yaba-web-components).
         let entryNames = [
             "read-it-later.html",
+            "preview.html",
             "editor.html",
             "canvas.html",
             "epub-viewer.html",
@@ -119,7 +120,7 @@ public enum BundleReader {
         return nil
     }
     
-    /// Minified linkedom + Readability + unified/rehype/remark script for [HTMLToMarkdownProcessor] (`html-to-markdown.bundle.min.js`).
+    /// Minified linkedom + Readability + unified/rehype/remark for [HTMLToMarkdownProcessor] (`html-to-markdown.bundle.min.js`). JS returns `{ markdown }` only; inline image rewriting to `yaba-asset://` is done in Swift.
     public static func htmlToMarkdownBundleURL(in bundle: Bundle = .main) -> URL? {
         webComponentURL(named: "html-to-markdown.bundle.min.js", in: bundle)
     }

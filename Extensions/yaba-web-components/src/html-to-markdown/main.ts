@@ -1,6 +1,5 @@
 import { Readability } from "@mozilla/readability"
 import { parseHTML } from "linkedom"
-import type { Root } from "mdast"
 import rehypeFormat from "rehype-format"
 import rehypeIgnore from "rehype-ignore"
 import rehypeParse from "rehype-parse"
@@ -12,20 +11,12 @@ import rehypeVideo from "rehype-video"
 import remarkGfm from "remark-gfm"
 import remarkStringify from "remark-stringify"
 import { unified } from "unified"
-import { visit } from "unist-util-visit"
-import { v4 as uuidv4 } from "uuid"
 
-type HtmlToMarkdownAsset = {
-  assetId: string
-  url: string
-}
-
+/** JSC global: `(html, baseURL?) => JSON.stringify({ markdown })` — image → `yaba-asset` rewriting runs in Swift. */
 type HtmlToMarkdownJsonResult = {
   markdown: string
-  assets: HtmlToMarkdownAsset[]
 }
 
-/** JSC global: `(html, baseURL?) => JSON.stringify({ markdown, assets })` */
 type HtmlToMarkdownGlobal = (html: string, baseURL?: string) => string
 
 type ParsedArticle = ReturnType<Readability["parse"]>
@@ -135,72 +126,23 @@ function extractReadableHtml(htmlStr: string): string {
   return s
 }
 
-/** Strip markdown image destination wrappers / titles; first whitespace-separated segment is the URL. */
-function extractImageDestination(raw: string): string {
-  const trimmed = raw.trim().replace(/^<|>$/gu, "").trim()
-  const first = trimmed.split(/\s/u)[0] ?? ""
-  return first.trim()
-}
-
-/**
- * Resolve a markdown image URL to an absolute http(s) URL for download.
- * Relative paths require `baseURL` (typically the cleaned page URL).
- */
-function resolveImageUrl(raw: string, baseURL: string): string | null {
-  const trimmed = extractImageDestination(raw)
-  if (!trimmed || trimmed.toLowerCase().startsWith("data:")) return null
-
-  try {
-    let href: string
-    if (/^https?:\/\//iu.test(trimmed)) {
-      href = trimmed
-    } else if (trimmed.startsWith("//")) {
-      href = new URL(`https:${trimmed}`).href
-    } else {
-      const base = baseURL.trim()
-      if (!base) return null
-      href = new URL(trimmed, base).href
-    }
-    const u = new URL(href)
-    if (u.protocol !== "http:" && u.protocol !== "https:") return null
-    return href
-  } catch {
-    return null
-  }
-}
-
-/** Walk mdast images after HTML→markdown; assign UUID v4 `yaba-asset://` URLs and collect download map. */
-function rewriteMarkdownImages(tree: Root, baseURL: string, assets: HtmlToMarkdownAsset[]): void {
-  const base = baseURL.trim()
-  visit(tree, "image", (node) => {
-    const resolved = resolveImageUrl(node.url, base)
-    if (!resolved) return
-    const assetId = uuidv4()
-    assets.push({ assetId, url: resolved })
-    node.url = `yaba-asset://${assetId}`
-  })
-}
-
-function htmlToMarkdown(htmlStr: string, baseURL: string): HtmlToMarkdownJsonResult {
+function htmlToMarkdown(htmlStr: string, _baseURL: string): HtmlToMarkdownJsonResult {
   const readable = extractReadableHtml(htmlStr)
-  const assets: HtmlToMarkdownAsset[] = []
-  const base = baseURL ?? ""
-  const file = unified()
-    .use(rehypeParse, { fragment: true })
-    .use(rehypeSlug)
-    .use(rehypeIgnore)
-    .use(rehypeVideo)
-    .use(rehypeFormat)
-    .use(rehypeRaw)
-    .use(rehypePrism)
-    .use(rehypeRemark)
-    .use(remarkGfm)
-    .use(() => (tree: Root) => {
-      rewriteMarkdownImages(tree, base, assets)
-    })
-    .use(remarkStringify, { rule: "*" })
-    .processSync(readable)
-  return { markdown: String(file), assets }
+  const markdown = String(
+    unified()
+      .use(rehypeParse, { fragment: true })
+      .use(rehypeSlug)
+      .use(rehypeIgnore)
+      .use(rehypeVideo)
+      .use(rehypeFormat)
+      .use(rehypeRaw)
+      .use(rehypePrism)
+      .use(rehypeRemark)
+      .use(remarkGfm)
+      .use(remarkStringify, { rule: "*" })
+      .processSync(readable),
+  )
+  return { markdown }
 }
 
 const g = globalThis as typeof globalThis & { HTMLToMarkdown?: HtmlToMarkdownGlobal }

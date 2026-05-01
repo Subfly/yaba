@@ -57,6 +57,18 @@ body[data-yaba-page="read-it-later"] {
   color: var(--yaba-reader-on-bg, var(--yaba-on-bg));
 }
 
+body[data-yaba-page="preview"] {
+  background: var(--yaba-reader-bg, transparent);
+  color: var(--yaba-reader-on-bg, var(--yaba-on-bg));
+}
+
+/* Prevent wide markdown (e.g. GFM tables) from widening the document; inner .yaba-table-wrap / pre scroll instead. */
+body[data-yaba-page="preview"] #root,
+body[data-yaba-page="preview"] [data-yaba-preview-root] {
+  min-width: 0;
+  max-width: 100%;
+}
+
 /*
  * EPUB viewer shell: same outer rules as read-it-later (read-it-later.html).
  * Host page stays transparent for system theme so Compose shows through; EPUB spine iframes get solid shell

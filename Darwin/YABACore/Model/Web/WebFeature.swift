@@ -2,7 +2,7 @@
 //  WebFeature.swift
 //  YABACore
 //
-//  Bundled web shells for Darwin: CodeMirror editor (`editor.html`), same shell for read-it-later,
+//  Bundled web shells for Darwin: CodeMirror editor (`editor.html`), Markdown preview (`preview.html`),
 //  and Excalidraw canvas (`canvas.html`). Aligns with `YabaNativeHostFeature` in yaba-web-components.
 //
 
@@ -22,10 +22,8 @@ public enum WebFeature: Sendable {
         documentLoadGeneration: Int
     )
 
-    /// Read-it-later uses the same CodeMirror shell and bridge as `editor`; native supplies Markdown + reader prefs.
+    /// Saved link Markdown preview (`preview.html`, `YabaPreviewBridge`, `bridgeReady`: `preview`).
     case readItLater(
-        initialMarkdown: String,
-        assetsBaseUrl: String?,
         readerTheme: ReaderTheme,
         readerFontSize: ReaderFontSize,
         readerLineHeight: ReaderLineHeight,
@@ -42,8 +40,10 @@ public enum WebFeature: Sendable {
     /// `bridgeReady` `feature` string from the web layer (`native-host.ts`).
     public var expectedBridgeFeature: String {
         switch self {
-        case .editor, .readItLater:
+        case .editor:
             return "editor"
+        case .readItLater:
+            return "preview"
         case .canvas:
             return "canvas"
         }

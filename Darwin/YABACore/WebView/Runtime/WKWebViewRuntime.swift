@@ -203,6 +203,8 @@ public final class WKWebViewRuntime: NSObject {
         switch expectedBridgeFeature {
         case "canvas":
             return WebBridgeScripts.canvasBridgeReady
+        case "preview":
+            return WebBridgeScripts.previewBridgeReady
         default:
             return WebBridgeScripts.editorBridgeReady
         }
@@ -258,9 +260,9 @@ public final class WKWebViewRuntime: NSObject {
                 appearance: appearance,
                 bundle: bundle
             )
-        case let .readItLater(_, _, _, _, _, appearance, _):
+        case let .readItLater(_, _, _, appearance, _):
             return BundleReader.webShellURLWithQuery(
-                named: "editor.html",
+                named: "preview.html",
                 platform: .darwin,
                 appearance: appearance,
                 bundle: bundle

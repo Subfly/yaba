@@ -1,0 +1,125 @@
+/* Markdown preview: reader typography aligned with read-it-later / note reader shells. */
+.yaba-markdown-preview {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 100%;
+  outline: none;
+  font-family: var(--yaba-font-family);
+  font-size: var(--yaba-reader-font-size, 18px);
+  line-height: var(--yaba-reader-line-height, 1.6);
+  color: var(--yaba-reader-on-bg, var(--yaba-on-bg));
+  padding: 1rem;
+  padding-top: 8rem;
+  padding-bottom: 8rem;
+  overflow-wrap: break-word;
+}
+
+.yaba-markdown-preview img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.yaba-preview-blocked-image {
+  display: inline-block;
+  min-width: 3rem;
+  min-height: 3rem;
+  background: var(--yaba-surface-variant, color-mix(in srgb, var(--yaba-on-bg) 8%, transparent));
+  border-radius: 8px;
+}
+
+.yaba-markdown-preview p {
+  margin: 0 0 0.75em;
+}
+
+.yaba-markdown-preview h1 {
+  font-size: 2em;
+  margin: 0.67em 0 0.5em;
+  font-weight: 700;
+}
+
+.yaba-markdown-preview h2 {
+  font-size: 1.5em;
+  margin: 0.75em 0 0.5em;
+  font-weight: 600;
+}
+
+.yaba-markdown-preview h3 {
+  font-size: 1.25em;
+  margin: 0.83em 0 0.5em;
+  font-weight: 600;
+}
+
+.yaba-markdown-preview h4,
+.yaba-markdown-preview h5,
+.yaba-markdown-preview h6 {
+  font-size: 1em;
+  margin: 1em 0 0.5em;
+  font-weight: 600;
+}
+
+.yaba-markdown-preview ul,
+.yaba-markdown-preview ol {
+  margin: 0.5em 0;
+  padding-left: 1.5em;
+}
+
+.yaba-markdown-preview pre {
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9em;
+  padding: 0.5em 0.75em;
+  border-radius: 8px;
+  background: var(--yaba-surface-variant, color-mix(in srgb, var(--yaba-on-bg) 8%, transparent));
+}
+
+.yaba-markdown-preview blockquote {
+  border-left: 3px solid var(--yaba-outline, currentColor);
+  margin: 0.75em 0;
+  padding-left: 0.75em;
+  opacity: 0.9;
+}
+
+.yaba-markdown-preview a {
+  color: var(--yaba-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Wide GFM tables: scroll horizontally instead of stretching the page. */
+.yaba-markdown-preview .yaba-table-wrap {
+  display: block;
+  min-width: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  max-width: 100%;
+  margin: 0.75em 0;
+}
+
+.yaba-markdown-preview .yaba-table-wrap table {
+  border-collapse: collapse;
+  width: max-content;
+  max-width: none;
+  min-width: 100%;
+  margin: 0;
+}
+
+.yaba-markdown-preview .yaba-table-wrap th,
+.yaba-markdown-preview .yaba-table-wrap td {
+  border: 1px solid var(--yaba-outline, currentColor);
+  padding: 0.35em 0.5em;
+}
+
+.yaba-markdown-preview input[type="checkbox"] {
+  margin-right: 0.35em;
+  vertical-align: middle;
+}
+
+.yaba-markdown-preview ::selection {
+  background: var(--yaba-primary-container);
+  color: var(--yaba-on-primary-container);
+}

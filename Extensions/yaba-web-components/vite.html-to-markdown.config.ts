@@ -21,15 +21,6 @@ const jscShim = `(function (g) {
     };
   if (typeof g.navigator === "undefined") g.navigator = { userAgent: "JavaScriptCore" };
   if (typeof g.location === "undefined") g.location = { href: "" };
-  // The uuid npm package uses Web Crypto (getRandomValues / randomUUID); JavaScriptCore does not provide crypto by default.
-  if (typeof g.crypto === "undefined" || typeof g.crypto.getRandomValues !== "function") {
-    g.crypto = {
-      getRandomValues: function (arr) {
-        for (var i = 0; i < arr.length; i++) arr[i] = Math.floor(Math.random() * 256);
-        return arr;
-      },
-    };
-  }
 })(
   typeof globalThis !== "undefined"
     ? globalThis
