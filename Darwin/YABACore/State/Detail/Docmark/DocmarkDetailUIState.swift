@@ -7,25 +7,23 @@ import Foundation
 
 public struct DocmarkDetailUIState: Sendable {
     public var bookmarkId: String?
-    public var readerTheme: ReaderTheme
-    public var readerFontSize: ReaderFontSize
-    public var readerLineHeight: ReaderLineHeight
     public var reminderDate: Date?
-    public var webInitialContentLoadResultJson: String?
+    /// Populated by `onShareDocument`; clear with `onConsumePendingShare` after the share sheet dismisses.
+    public var pendingShareFileURL: URL?
+    public var showPdfSaveCopyPicker: Bool
+    public var pdfSaveCopyFileBaseName: String
 
     public init(
         bookmarkId: String? = nil,
-        readerTheme: ReaderTheme = .system,
-        readerFontSize: ReaderFontSize = .medium,
-        readerLineHeight: ReaderLineHeight = .normal,
         reminderDate: Date? = nil,
-        webInitialContentLoadResultJson: String? = nil
+        pendingShareFileURL: URL? = nil,
+        showPdfSaveCopyPicker: Bool = false,
+        pdfSaveCopyFileBaseName: String = ""
     ) {
         self.bookmarkId = bookmarkId
-        self.readerTheme = readerTheme
-        self.readerFontSize = readerFontSize
-        self.readerLineHeight = readerLineHeight
         self.reminderDate = reminderDate
-        self.webInitialContentLoadResultJson = webInitialContentLoadResultJson
+        self.pendingShareFileURL = pendingShareFileURL
+        self.showPdfSaveCopyPicker = showPdfSaveCopyPicker
+        self.pdfSaveCopyFileBaseName = pdfSaveCopyFileBaseName
     }
 }

@@ -8,6 +8,17 @@
 import Foundation
 import SwiftData
 
+/// PDF bytes + label for share / save-copy flows.
+public struct DocmarkExportPayload: Sendable {
+    public let pdfData: Data
+    public let label: String
+
+    public init(pdfData: Data, label: String) {
+        self.pdfData = pdfData
+        self.label = label
+    }
+}
+
 public enum DocmarkManager {
     /// Ensures a `DocBookmarkModel` row exists after base bookmark creation (empty metadata).
     public static func queueEnsureInitialDocDetail(bookmarkId: String) {
@@ -103,5 +114,30 @@ public enum DocmarkManager {
         if let metadataAuthor { row.metadataAuthor = metadataAuthor.nilIfEmpty }
         if let metadataDate { row.metadataDate = metadataDate.nilIfEmpty }
         bookmark.editedAt = .now
+    }
+
+    /// Loads stored PDF bytes and label for share / directory export.
+    public static func fetchExportPayload(bookmarkId: String) async throws -> DocmarkExportPayload? {
+        try await withCheckedThrowingContinuation { cont in
+            var result: DocmarkExportPayload?
+            CoreOperationQueue.shared.queue(name: "DocmarkExportPayload:\(bookmarkId)") { context in
+                guard let bookmark = try YabaCorePersistenceHelpers.bookmark(bookmarkId: bookmarkId, context: context) else {
+                    result = nil
+                    return
+                }
+                let data = bookmark.docDetail?.payload?.bytes
+                guard let data, !data.isEmpty else {
+                    result = nil
+                    return
+                }
+                result = DocmarkExportPayload(pdfData: data, label: bookmark.label)
+            } completion: { error in
+                if let error {
+                    cont.resume(throwing: error)
+                } else {
+                    cont.resume(returning: result)
+                }
+            }
+        }
     }
 }

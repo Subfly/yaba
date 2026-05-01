@@ -56,7 +56,7 @@ struct TagDetailView: View {
                             Task {
                                 await machine.send(.onToggleBookmarkSelection(bookmarkId: bookmark.bookmarkId))
                             }
-                        } else if bookmark.kind == .link || bookmark.kind == .image {
+                        } else if bookmark.kind.opensBookmarkDetailRoute {
                             onSelectBookmark(bookmark.bookmarkId)
                         }
                     }

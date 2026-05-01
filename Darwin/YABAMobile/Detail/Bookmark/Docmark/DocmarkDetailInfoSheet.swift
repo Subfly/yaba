@@ -1,0 +1,233 @@
+//
+//  DocmarkDetailInfoSheet.swift
+//  YABA
+//
+
+import SwiftData
+import SwiftUI
+
+struct DocmarkDetailInfoSheet: View {
+    @Environment(\.dismiss)
+    private var dismiss
+
+    let bookmark: YabaBookmark
+    let folderAccent: Color
+    let reminderDate: Date?
+    let onDeleteReminder: () -> Void
+    let onOpenFolder: (String) -> Void
+    let onOpenTag: (String) -> Void
+
+    var body: some View {
+        NavigationStack {
+            List {
+                Section {
+                    infoTextRow(
+                        icon: "text",
+                        value: bookmark.label
+                    )
+                    infoTextRow(
+                        icon: "paragraph",
+                        value: bookmark.bookmarkDescription?.trimmingCharacters(in: .whitespacesAndNewlines),
+                        emptyPlaceholder: "Bookmark Detail No Description Provided"
+                    )
+                    infoMetadataRow(
+                        icon: "clock-01",
+                        title: "Bookmark Detail Created At Title",
+                        value: bookmark.createdAt.formatted(date: .abbreviated, time: .shortened)
+                    )
+                    if bookmark.createdAt != bookmark.editedAt {
+                        infoMetadataRow(
+                            icon: "edit-02",
+                            title: "Bookmark Detail Edited At Title",
+                            value: bookmark.editedAt.formatted(date: .abbreviated, time: .shortened)
+                        )
+                    }
+                    if let reminderDate {
+                        infoMetadataRow(
+                            icon: "notification-01",
+                            title: "Bookmark Detail Remind Me Title",
+                            value: reminderDate.formatted(date: .abbreviated, time: .shortened)
+                        )
+                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                            Button(role: .destructive) {
+                                onDeleteReminder()
+                            } label: {
+                                VStack(spacing: 2) {
+                                    YabaIconView(bundleKey: "delete-02")
+                                        .frame(width: 22, height: 22)
+                                    Text("Delete")
+                                        .font(.caption2)
+                                }
+                            }
+                            .tint(.red)
+                        }
+                    }
+                } header: {
+                    sectionHeader("Info", icon: "information-circle")
+                }
+
+                if hasExtractedMetadata {
+                    Section {
+                        metadataRow("Bookmark Detail Metadata Title Label", icon: "text", value: bookmark.docDetail?.metadataTitle)
+                        metadataRow(
+                            "Bookmark Creation Metadata Description Label",
+                            icon: "paragraph",
+                            value: bookmark.docDetail?.metadataDescription
+                        )
+                        metadataRow(
+                            "Bookmark Creation Metadata Author Label",
+                            icon: "user-edit-01",
+                            value: bookmark.docDetail?.metadataAuthor
+                        )
+                        metadataRow(
+                            "Bookmark Creation Metadata Date Label",
+                            icon: "calendar-03",
+                            value: bookmark.docDetail?.metadataDate
+                        )
+                    } header: {
+                        sectionHeader("Bookmark Creation Metadata Section Title", icon: "database-01")
+                    }
+                }
+
+                if let folder = bookmark.folder {
+                    Section {
+                        PresentableFolderItemView(
+                            model: folder,
+                            nullModelPresentableColor: .blue,
+                            onPressed: {
+                                onOpenFolder(folder.folderId)
+                            }
+                        )
+                    } header: {
+                        sectionHeader("Folder", icon: "folder-01")
+                    }
+                }
+
+                Section {
+                    if bookmark.tags.isEmpty {
+                        ContentUnavailableView {
+                            Label {
+                                Text("Bookmark Detail No Tags Added Title")
+                            } icon: {
+                                YabaIconView(bundleKey: "tags")
+                                    .scaledToFit()
+                                    .frame(width: 52, height: 52)
+                                    .foregroundStyle(folderAccent)
+                            }
+                        } description: {
+                            Text("Bookmark Detail No Tags Added Description")
+                        }
+                    } else {
+                        ForEach(bookmark.tags) { tag in
+                            PresentableTagItemView(
+                                model: tag,
+                                nullModelPresentableColor: .blue,
+                                onPressed: {
+                                    onOpenTag(tag.tagId)
+                                },
+                                onNavigateToEdit: {}
+                            )
+                        }
+                    }
+                } header: {
+                    sectionHeader("Tags Title", icon: "tag-01")
+                }
+            }
+            .listStyle(.sidebar)
+            .scrollContentBackground(.hidden)
+            .tint(folderAccent)
+            .navigationTitle("Bookmark Detail Sheet Navigation Title")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") {
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+
+    private var hasExtractedMetadata: Bool {
+        let d = bookmark.docDetail
+        let fields = [
+            d?.metadataTitle,
+            d?.metadataDescription,
+            d?.metadataAuthor,
+            d?.metadataDate,
+        ]
+        return fields.contains { v in
+            guard let v else { return false }
+            return !v.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        }
+    }
+
+    @ViewBuilder
+    private func metadataRow(_ key: LocalizedStringKey, icon: String, value: String?) -> some View {
+        if let value, !value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            HStack(alignment: .top, spacing: 12) {
+                YabaIconView(bundleKey: icon)
+                    .frame(width: 22, height: 22)
+                    .foregroundStyle(folderAccent)
+                    .padding(.top, 2)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(key)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Text(value)
+                        .font(.body)
+                }
+            }
+        }
+    }
+
+    private func infoTextRow(
+        icon: String,
+        value: String?,
+        emptyPlaceholder: LocalizedStringKey? = nil
+    ) -> some View {
+        HStack(alignment: .top, spacing: 12) {
+            YabaIconView(bundleKey: icon)
+                .frame(width: 22, height: 22)
+                .foregroundStyle(folderAccent)
+                .padding(.top, 1)
+
+            if let value = value?.trimmingCharacters(in: .whitespacesAndNewlines), !value.isEmpty {
+                Text(value)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .multilineTextAlignment(.leading)
+            } else if let emptyPlaceholder {
+                Text(emptyPlaceholder)
+                    .foregroundStyle(.secondary)
+                    .italic()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .multilineTextAlignment(.leading)
+            }
+        }
+    }
+
+    private func infoMetadataRow(icon: String, title: LocalizedStringKey, value: String) -> some View {
+        HStack(alignment: .top, spacing: 12) {
+            HStack(alignment: .center, spacing: 10) {
+                YabaIconView(bundleKey: icon)
+                    .frame(width: 22, height: 22)
+                    .foregroundStyle(folderAccent)
+                Text(title)
+                    .foregroundStyle(.secondary)
+            }
+            Spacer(minLength: 8)
+            Text(value)
+                .font(.footnote.weight(.semibold))
+        }
+    }
+
+    private func sectionHeader(_ title: LocalizedStringKey, icon: String) -> some View {
+        Label {
+            Text(title)
+        } icon: {
+            YabaIconView(bundleKey: icon)
+                .frame(width: 20, height: 20)
+                .foregroundStyle(folderAccent)
+        }
+    }
+}
