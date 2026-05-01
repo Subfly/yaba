@@ -5,7 +5,6 @@
 import SwiftData
 import SwiftUI
 import UIKit
-import WebKit
 
 /// SwiftData-driven link bookmark detail + Milkdown readable host.
 struct LinkmarkDetailView: View {
@@ -26,43 +25,10 @@ struct LinkmarkDetailView: View {
     private var machine = LinkmarkDetailStateMachine()
 
     @State
-    private var documentReloadToken = UUID()
-
-    @State
-    private var showDetailSheet = false
-    
-    @State
-    private var showEditSheet = false
-
-    @State
-    private var showMoveSheet = false
-
-    @State
-    private var showShareURLSheet = false
-    
-    @State
-    private var showReminderSheet = false
-
-    @State
-    private var showDeleteAlert = false
-
-    @State
     private var reminderDraft = Date().addingTimeInterval(3600)
 
     @State
     private var activityItems: [Any] = []
-
-    @State
-    private var showActivitySheet = false
-
-    @State
-    private var markdownExportRequest: MarkdownExportRequest?
-
-    @State
-    private var showMarkdownExportDirectoryPicker = false
-
-    @State
-    private var readerChromeVisible = true
 
     init(
         bookmarkId: String,
@@ -102,16 +68,7 @@ struct LinkmarkDetailView: View {
             guard let newUrl else { return }
             Task { await machine.send(.onLinkSourceUrl(newUrl)) }
         }
-        .onChange(of: bookmark?.linkDetail?.markdown) { _, _ in
-            documentReloadToken = UUID()
-        }
-        .onChange(of: bookmark?.linkDetail?.inlineAssets.count) { _, _ in
-            documentReloadToken = UUID()
-        }
-        .onChange(of: documentReloadToken) { _, _ in
-            readerChromeVisible = true
-        }
-        .sheet(isPresented: $showDetailSheet) {
+        .sheet(isPresented: machine.showDetailSheetBinding) {
             if let bm = bookmark {
                 LinkmarkDetailInfoSheet(
                     bookmark: bm,
@@ -121,22 +78,22 @@ struct LinkmarkDetailView: View {
                         Task { await machine.send(.onCancelReminder) }
                     },
                     onOpenFolder: { folderId in
-                        showDetailSheet = false
+                        machine.apply { $0.showDetailSheet = false }
                         onOpenFolder(folderId)
                     },
                     onOpenTag: { tagId in
-                        showDetailSheet = false
+                        machine.apply { $0.showDetailSheet = false }
                         onOpenTag(tagId)
                     }
                 )
             }
         }
-        .sheet(isPresented: $showEditSheet) {
+        .sheet(isPresented: machine.showEditSheetBinding) {
             if let bm = bookmark {
                 BookmarkFlowSheet(context: BookmarkFlowContext.edit(bookmarkId: bm.bookmarkId))
             }
         }
-        .sheet(isPresented: $showMoveSheet) {
+        .sheet(isPresented: machine.showMoveSheetBinding) {
             if let bm = bookmark {
                 NavigationStack {
                     SelectFolderContent(
@@ -150,28 +107,35 @@ struct LinkmarkDetailView: View {
                                     targetFolderId: target
                                 )
                             }
-                            showMoveSheet = false
+                            machine.apply { $0.showMoveSheet = false }
                         }
                     )
                 }
             }
         }
-        .sheet(isPresented: $showShareURLSheet) {
+        .sheet(isPresented: machine.showShareURLSheetBinding) {
             if let urlStr = bookmark?.linkDetail?.url, let u = URL(string: urlStr) {
                 ShareSheet(bookmarkLink: u)
             }
         }
-        .sheet(isPresented: $showActivitySheet) {
+        .sheet(isPresented: machine.showActivitySheetBinding) {
             ActivityItemsShareSheet(items: activityItems)
         }
-        .sheet(isPresented: $showMarkdownExportDirectoryPicker) {
+        .sheet(isPresented: machine.showMarkdownExportDirectoryPickerBinding) {
             MarkdownExportDirectoryPicker { url in
                 Task { @MainActor in
-                    finalizeMarkdownExport(selectedDirectory: url)
+                    machine.finalizeMarkdownExport(selectedDirectory: url)
                 }
             }
         }
-        .sheet(isPresented: $showReminderSheet) {
+        .sheet(isPresented: machine.showPdfExportDirectoryPickerBinding) {
+            MarkdownExportDirectoryPicker { url in
+                Task { @MainActor in
+                    machine.finalizePdfExportDirectorySelection(url)
+                }
+            }
+        }
+        .sheet(isPresented: machine.showReminderSheetBinding) {
             NavigationStack {
                 DatePicker(
                     "Setup Reminder Picker Title",
@@ -184,7 +148,7 @@ struct LinkmarkDetailView: View {
                 .navigationTitle("Setup Reminder Title")
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
-                        Button("Cancel") { showReminderSheet = false }
+                        Button("Cancel") { machine.apply { $0.showReminderSheet = false } }
                     }
                     ToolbarItem(placement: .confirmationAction) {
                         Button("Done") {
@@ -198,13 +162,13 @@ struct LinkmarkDetailView: View {
                                     )
                                 )
                             }
-                            showReminderSheet = false
+                            machine.apply { $0.showReminderSheet = false }
                         }
                     }
                 }
             }
         }
-        .alert("Delete Bookmark Title", isPresented: $showDeleteAlert) {
+        .alert("Delete Bookmark Title", isPresented: machine.showDeleteAlertBinding) {
             Button("Cancel", role: .cancel) {}
             Button("Delete", role: .destructive) {
                 Task {
@@ -247,20 +211,23 @@ struct LinkmarkDetailView: View {
                         UIApplication.shared.open(url)
                     },
                     onScrollShowChrome: {
-                        readerChromeVisible = true
+                        machine.apply { $0.readerChromeVisible = true }
                     },
                     onScrollHideChrome: {
-                        readerChromeVisible = false
+                        machine.apply { $0.readerChromeVisible = false }
                     },
+                    readerPdfExport: Binding(
+                        get: { machine.state.readerPdfExport },
+                        set: { newValue in machine.apply { $0.readerPdfExport = newValue } }
+                    ),
                     onRuntimeReady: { _ in }
                 )
                 .ignoresSafeArea()
-                .id(documentReloadToken)
                 .preferredColorScheme(effectiveReaderColorScheme(readerTheme: machine.state.readerTheme))
 
                 LinkmarkReaderFloatingToolbar(
                     folderAccent: folderTint,
-                    isVisible: readerChromeVisible,
+                    isVisible: machine.state.readerChromeVisible,
                     readerTheme: machine.state.readerTheme,
                     readerFontSize: machine.state.readerFontSize,
                     readerLineHeight: machine.state.readerLineHeight,
@@ -273,37 +240,36 @@ struct LinkmarkDetailView: View {
                     onSelectLineHeight: { lineHeight in
                         Task { await machine.send(.onSetReaderLineHeight(lineHeight)) }
                     }
-                )
-                .padding(.bottom, 14)
+                ).padding(.bottom, 14)
             } else {
                 LinkmarkNoReadableVersionView(accent: folderTint)
             }
         }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        homeToolbarIcon("arrow-left-01")
-                    }
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        showDetailSheet = true
-                    } label: {
-                        homeToolbarIcon("information-circle")
-                    }
-                }
-                if #available(iOS 26, *) {
-                    ToolbarSpacer(.fixed, placement: .topBarTrailing)
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    overflowMenu(for: bm)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    dismiss()
+                } label: {
+                    homeToolbarIcon("arrow-left-01")
                 }
             }
-            .tint(folderTint)
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    machine.apply { $0.showDetailSheet = true }
+                } label: {
+                    homeToolbarIcon("information-circle")
+                }
+            }
+            if #available(iOS 26, *) {
+                ToolbarSpacer(.fixed, placement: .topBarTrailing)
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                overflowMenu(for: bm)
+            }
+        }
+        .tint(folderTint)
     }
 
     private func folderColor(for bm: YabaBookmark) -> Color {
@@ -385,13 +351,13 @@ struct LinkmarkDetailView: View {
                 .tint(YabaColor.green.getUIColor())
             }
             Button {
-                showEditSheet = true
+                machine.apply { $0.showEditSheet = true }
             } label: {
                 overflowMenuItemLabel("Edit", icon: "edit-02")
             }
             .tint(YabaColor.orange.getUIColor())
             Button {
-                showMoveSheet = true
+                machine.apply { $0.showMoveSheet = true }
             } label: {
                 overflowMenuItemLabel("Move", icon: "arrow-move-up-right")
             }
@@ -408,7 +374,11 @@ struct LinkmarkDetailView: View {
             Menu {
                 Button {
                     Task { @MainActor in
-                        startMarkdownExport(markdown: readableBodyString(for: bm), bookmark: bm)
+                        machine.startMarkdownExport(
+                            markdown: readableBodyString(for: bm),
+                            bookmarkLabel: bm.label,
+                            inlineSources: markdownExportInlineSources(for: bm)
+                        )
                     }
                 } label: {
                     overflowMenuItemLabel(
@@ -418,7 +388,15 @@ struct LinkmarkDetailView: View {
                 }
                 .tint(YabaColor.gray.getUIColor())
                 Button {
-                    
+                    guard linkHasReadableContent(bm) else {
+                        CoreToastManager.shared.show(
+                            message: LocalizedStringKey("Bookmark Detail Markdown Export Failed Message"),
+                            iconType: .error,
+                            duration: .short
+                        )
+                        return
+                    }
+                    machine.preparePdfExport(bookmarkLabel: bm.label)
                 } label: {
                     overflowMenuItemLabel(
                         "Bookmark Detail Export Format PDF Title",
@@ -432,14 +410,14 @@ struct LinkmarkDetailView: View {
             .tint(YabaColor.blue.getUIColor())
             if machine.state.reminderDate == nil {
                 Button {
-                    showReminderSheet = true
+                    machine.apply { $0.showReminderSheet = true }
                 } label: {
                     overflowMenuItemLabel("Remind Me", icon: "notification-01")
                 }
                 .tint(YabaColor.yellow.getUIColor())
             }
             Button {
-                showShareURLSheet = true
+                machine.apply { $0.showShareURLSheet = true }
             } label: {
                 overflowMenuItemLabel("Share", icon: "share-03")
             }
@@ -457,7 +435,7 @@ struct LinkmarkDetailView: View {
                 .tint(YabaColor.red.getUIColor())
             }
             Button {
-                showDeleteAlert = true
+                machine.apply { $0.showDeleteAlert = true }
             } label: {
                 overflowMenuItemLabel("Delete", icon: "delete-02")
             }
@@ -486,39 +464,10 @@ struct LinkmarkDetailView: View {
         }
     }
 
-    private func startMarkdownExport(markdown: String, bookmark: YabaBookmark?) {
-        guard let bookmark else { return }
-        let trimmed = markdown.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else {
-            CoreToastManager.shared.show(
-                message: LocalizedStringKey("Bookmark Detail Markdown Export Failed Message"),
-                iconType: .error,
-                duration: .short
-            )
-            return
-        }
-        let inlineSources: [MarkdownExportInlineSource] = (bookmark.linkDetail?.inlineAssets ?? []).compactMap { item in
+    private func markdownExportInlineSources(for bm: YabaBookmark) -> [MarkdownExportInlineSource] {
+        (bm.linkDetail?.inlineAssets ?? []).compactMap { item in
             guard let bytes = item.bytes, !bytes.isEmpty else { return nil }
             return MarkdownExportInlineSource(assetId: item.assetId, pathExtension: item.pathExtension, bytes: bytes)
-        }
-        markdownExportRequest = MarkdownExportRequest(
-            markdown: trimmed + "\n",
-            baseFolderName: MarkdownExportSupport.sanitizeBaseFolderName(bookmark.label),
-            assets: MarkdownExportSupport.exportAssets(from: inlineSources)
-        )
-        showMarkdownExportDirectoryPicker = true
-    }
-
-    private func finalizeMarkdownExport(selectedDirectory: URL?) {
-        defer { markdownExportRequest = nil }
-        guard let selectedDirectory, let request = markdownExportRequest else { return }
-        let didWrite = MarkdownExportSupport.writeBundle(request, into: selectedDirectory)
-        if !didWrite {
-            CoreToastManager.shared.show(
-                message: LocalizedStringKey("Bookmark Detail Markdown Export Failed Message"),
-                iconType: .error,
-                duration: .short
-            )
         }
     }
 }

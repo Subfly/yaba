@@ -80,6 +80,22 @@ public enum MarkdownExportSupport {
         }
     }
 
+    /// Writes `<parent>/<safeBaseName>.pdf` using the same security-scoped access pattern as `writeBundle`.
+    public static func writePdf(data: Data, into parentDirectory: URL, fileBaseName: String) -> Bool {
+        let scoped = parentDirectory.startAccessingSecurityScopedResource()
+        defer {
+            if scoped { parentDirectory.stopAccessingSecurityScopedResource() }
+        }
+        let safeName = sanitizeBaseFolderName(fileBaseName, emptyFallback: "reader")
+        let fileURL = parentDirectory.appendingPathComponent("\(safeName).pdf", isDirectory: false)
+        do {
+            try data.write(to: fileURL, options: .atomic)
+            return true
+        } catch {
+            return false
+        }
+    }
+
     public static func sanitizeBaseFolderName(_ label: String, emptyFallback: String = "note") -> String {
         let trimmed = label.trimmingCharacters(in: .whitespacesAndNewlines)
         if trimmed.isEmpty { return emptyFallback }

@@ -112,4 +112,133 @@ public final class LinkmarkDetailStateMachine: YabaBaseObservableState<LinkmarkD
             )
         }
     }
+
+    // MARK: - Sheet & alert bindings (SwiftUI)
+
+    public var showDetailSheetBinding: Binding<Bool> {
+        Binding(
+            get: { self.state.showDetailSheet },
+            set: { newValue in self.apply { $0.showDetailSheet = newValue } }
+        )
+    }
+
+    public var showEditSheetBinding: Binding<Bool> {
+        Binding(
+            get: { self.state.showEditSheet },
+            set: { newValue in self.apply { $0.showEditSheet = newValue } }
+        )
+    }
+
+    public var showMoveSheetBinding: Binding<Bool> {
+        Binding(
+            get: { self.state.showMoveSheet },
+            set: { newValue in self.apply { $0.showMoveSheet = newValue } }
+        )
+    }
+
+    public var showShareURLSheetBinding: Binding<Bool> {
+        Binding(
+            get: { self.state.showShareURLSheet },
+            set: { newValue in self.apply { $0.showShareURLSheet = newValue } }
+        )
+    }
+
+    public var showReminderSheetBinding: Binding<Bool> {
+        Binding(
+            get: { self.state.showReminderSheet },
+            set: { newValue in self.apply { $0.showReminderSheet = newValue } }
+        )
+    }
+
+    public var showDeleteAlertBinding: Binding<Bool> {
+        Binding(
+            get: { self.state.showDeleteAlert },
+            set: { newValue in self.apply { $0.showDeleteAlert = newValue } }
+        )
+    }
+
+    public var showActivitySheetBinding: Binding<Bool> {
+        Binding(
+            get: { self.state.showActivitySheet },
+            set: { newValue in self.apply { $0.showActivitySheet = newValue } }
+        )
+    }
+
+    public var showMarkdownExportDirectoryPickerBinding: Binding<Bool> {
+        Binding(
+            get: { self.state.showMarkdownExportDirectoryPicker },
+            set: { newValue in self.apply { $0.showMarkdownExportDirectoryPicker = newValue } }
+        )
+    }
+
+    public var showPdfExportDirectoryPickerBinding: Binding<Bool> {
+        Binding(
+            get: { self.state.showPdfExportDirectoryPicker },
+            set: { newValue in self.apply { $0.showPdfExportDirectoryPicker = newValue } }
+        )
+    }
+
+    // MARK: - Markdown export (UI hands `BookmarkModel`-derived fields; models stay internal to YABACore)
+
+    public func startMarkdownExport(
+        markdown: String,
+        bookmarkLabel: String,
+        inlineSources: [MarkdownExportInlineSource]
+    ) {
+        let trimmed = markdown.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            CoreToastManager.shared.show(
+                message: LocalizedStringKey("Bookmark Detail Markdown Export Failed Message"),
+                iconType: .error,
+                duration: .short
+            )
+            return
+        }
+        let request = MarkdownExportRequest(
+            markdown: trimmed + "\n",
+            baseFolderName: MarkdownExportSupport.sanitizeBaseFolderName(bookmarkLabel),
+            assets: MarkdownExportSupport.exportAssets(from: inlineSources)
+        )
+        apply {
+            $0.markdownExportRequest = request
+            $0.showMarkdownExportDirectoryPicker = true
+        }
+    }
+
+    public func finalizeMarkdownExport(selectedDirectory: URL?) {
+        let request = state.markdownExportRequest
+        apply { $0.markdownExportRequest = nil }
+        guard let selectedDirectory, let request else { return }
+        let didWrite = MarkdownExportSupport.writeBundle(request, into: selectedDirectory)
+        if !didWrite {
+            CoreToastManager.shared.show(
+                message: LocalizedStringKey("Bookmark Detail Markdown Export Failed Message"),
+                iconType: .error,
+                duration: .short
+            )
+        }
+    }
+
+    // MARK: - Reader PDF export (directory picker + WKWebView.createPDF)
+
+    public func preparePdfExport(bookmarkLabel: String) {
+        let base = MarkdownExportSupport.sanitizeBaseFolderName(bookmarkLabel, emptyFallback: "reader")
+        apply {
+            $0.pdfExportFileBaseName = base
+            $0.showPdfExportDirectoryPicker = true
+        }
+    }
+
+    public func finalizePdfExportDirectorySelection(_ parentDirectory: URL?) {
+        let baseName = state.pdfExportFileBaseName
+        apply {
+            $0.showPdfExportDirectoryPicker = false
+            $0.pdfExportFileBaseName = ""
+            if let parentDirectory, !baseName.isEmpty {
+                $0.readerPdfExport = LinkmarkReaderPdfExport(parentDirectory: parentDirectory, fileBaseName: baseName)
+            } else {
+                $0.readerPdfExport = nil
+            }
+        }
+    }
 }
