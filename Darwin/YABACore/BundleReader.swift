@@ -5,6 +5,10 @@
 //  Resolves bundled files by **resource name**. Icons/metadata use a flat lookup at bundle root.
 //  Web shells and their `chunks/` / `assets/` live under `WebComponents/` (see `webComponentURL`).
 //
+//  Web components layout matches `Extensions/yaba-web-components` Vite output: `editor.html` (CodeMirror
+//  Markdown / `YabaEditorBridge`), `read-it-later.html`, `epub-viewer.html`, `canvas.html`, plus
+//  `html-to-markdown.bundle.min.js` for JavaScriptCore (no WKWebView shell).
+//
 
 import Foundation
 
@@ -15,7 +19,7 @@ public enum BundleReaderError: Error, Sendable {
 public enum BundleReader {
     // MARK: - URL resolution (flat bundle layout)
 
-    /// Looks up a file in the bundle by **file name only** (e.g. `icon_categories_header.json`, `viewer.html`).
+    /// Looks up a file in the bundle by **file name only** (e.g. `icon_categories_header.json`, `read-it-later.html`).
     public static func urlForBundledFileName(_ fileName: String, in bundle: Bundle = .main) -> URL? {
         let trimmed = fileName.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
         guard !trimmed.isEmpty else { return nil }
@@ -67,13 +71,12 @@ public enum BundleReader {
         if let dir = webComponentsDirectoryURL(in: bundle) {
             return dir
         }
+        // Fallback discovery order when `WebComponents/` is missing as a directory URL but files exist
+        // (matches `vite.config.ts` `build.rollupOptions.input` in yaba-web-components).
         let entryNames = [
             "read-it-later.html",
-            "viewer.html",
             "editor.html",
             "canvas.html",
-            "converter.html",
-            "pdf-viewer.html",
             "epub-viewer.html",
         ]
         for name in entryNames {
