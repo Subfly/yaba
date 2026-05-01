@@ -236,81 +236,32 @@ struct LinkmarkDetailView: View {
     private func mainContent(for bm: YabaBookmark) -> some View {
         let hasReadable = linkHasReadableContent(bm)
         let folderTint = folderColor(for: bm)
-        Group {
-            if !hasReadable {
-                LinkmarkNoReadableVersionView(accent: folderTint)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else {
-                ZStack(alignment: .top) {
-                    linkmarkReaderBackground(readerTheme: machine.state.readerTheme)
-                    MarkdownPreview(
-                        markdown: readableBodyString(for: bm),
-                        configuration: MarkdownPreviewConfiguration(
-                            showFrontMatter: true,
-                            showLinkReferenceBlocks: true,
-                            useWebViewForHtmlBlocks: true,
-                            assetRegistry: imageAssetRegistry(for: bm),
-                            baseURLForRelativeLinks: linkSourceURL(for: bm)
-                        ),
-                        theme: markdownThemeTokens(
-                            state: machine.state,
-                            systemColorScheme: colorScheme
-                        )
-                    )
-                    .id("\(bm.bookmarkId)-\(documentReloadToken)")
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-
-                    VStack {
-                        Spacer()
-                        LinkmarkReaderFloatingToolbar(
-                            folderAccent: folderTint,
-                            isVisible: readerCanAnnotate,
-                            canAnnotate: readerCanAnnotate,
-                            readerTheme: machine.state.readerTheme,
-                            readerFontSize: machine.state.readerFontSize,
-                            readerLineHeight: machine.state.readerLineHeight,
-                            onSelectTheme: { r in Task { await machine.send(.onSetReaderTheme(r)) } },
-                            onSelectFontSize: { f in Task { await machine.send(.onSetReaderFontSize(f)) } },
-                            onSelectLineHeight: { lh in Task { await machine.send(.onSetReaderLineHeight(lh)) } },
-                            onStickyNote: {
-                                openAnnotationCreator()
-                            }
-                        )
-                        .safeAreaPadding([.bottom])
-                        .padding(.bottom, 24)
+        LinkmarkNoReadableVersionView(accent: folderTint)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        homeToolbarIcon("arrow-left-01")
                     }
                 }
-                .environment(
-                    \.colorScheme,
-                    effectiveReaderColorScheme(readerTheme: machine.state.readerTheme)
-                )
-                .ignoresSafeArea()
-            }
-        }
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                Button {
-                    dismiss()
-                } label: {
-                    homeToolbarIcon("arrow-left-01")
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        showDetailSheet = true
+                    } label: {
+                        homeToolbarIcon("information-circle")
+                    }
+                }
+                if #available(iOS 26, *) {
+                    ToolbarSpacer(.fixed, placement: .topBarTrailing)
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    overflowMenu(for: bm)
                 }
             }
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    showDetailSheet = true
-                } label: {
-                    homeToolbarIcon("information-circle")
-                }
-            }
-            if #available(iOS 26, *) {
-                ToolbarSpacer(.fixed, placement: .topBarTrailing)
-            }
-            ToolbarItem(placement: .topBarTrailing) {
-                overflowMenu(for: bm)
-            }
-        }
-        .tint(folderTint)
+            .tint(folderTint)
     }
 
     private func folderColor(for bm: YabaBookmark) -> Color {
@@ -346,44 +297,6 @@ struct LinkmarkDetailView: View {
     private func linkSourceURL(for bm: YabaBookmark) -> URL? {
         guard let s = bm.linkDetail?.url.trimmingCharacters(in: .whitespacesAndNewlines), !s.isEmpty else { return nil }
         return URL(string: s)
-    }
-
-    private func imageAssetRegistry(for bm: YabaBookmark) -> MarkdownImageAssetRegistry {
-        guard let link = bm.linkDetail else { return MarkdownImageAssetRegistry() }
-        var map: [String: Data] = [:]
-        for a in link.inlineAssets {
-            guard let bytes = a.bytes, !bytes.isEmpty else { continue }
-            map[a.assetId] = bytes
-        }
-        return MarkdownImageAssetRegistry(assetsById: map)
-    }
-
-    private func markdownThemeTokens(
-        state: LinkmarkDetailUIState,
-        systemColorScheme: ColorScheme
-    ) -> MarkdownThemeTokens {
-        let effective: ColorScheme = {
-            switch state.readerTheme {
-            case .light: return .light
-            case .dark: return .dark
-            case .system: return systemColorScheme
-            case .sepia: return .light
-            }
-        }()
-        var tokens = MarkdownThemeTokens.standard(colorScheme: effective)
-        if state.readerTheme == .sepia {
-            tokens.codeBackground = Color(red: 0.94, green: 0.9, blue: 0.82)
-            tokens.tableHeader = Color(red: 0.96, green: 0.93, blue: 0.86)
-        }
-        let baseSize: CGFloat = switch state.readerFontSize {
-        case .small: 15
-        case .medium: 17
-        case .large: 20
-        }
-        tokens.body = .system(size: baseSize)
-        tokens.monospaced = .system(size: baseSize, design: .monospaced)
-        tokens.largeHeading = .system(size: baseSize + 9, weight: .bold)
-        return tokens
     }
 
     private func annotationsJson(for bm: YabaBookmark) -> String {

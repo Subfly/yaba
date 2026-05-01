@@ -10,37 +10,6 @@
     " " : {
 
     },
-    "— page break —" : {
-
-    },
-    "::%@" : {
-
-    },
-    ":%@:" : {
-
-    },
-    "[" : {
-
-    },
-    "[%@]" : {
-
-    },
-    "[%@]: %@ %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "[%1$@]: %2$@ %3$@"
-          }
-        }
-      }
-    },
-    "[%lld]" : {
-
-    },
-    "]" : {
-
-    },
     "%@" : {
       "localizations" : {
         "en" : {
@@ -161,31 +130,8 @@
       },
       "shouldTranslate" : false
     },
-    "%lld." : {
-
-    },
     "• %@:" : {
       "shouldTranslate" : false
-    },
-    "^%@ (%d)" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "^%1$@ (%2$d)"
-          }
-        }
-      }
-    },
-    "^%@ (%lld)" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "^%1$@ (%2$lld)"
-          }
-        }
-      }
     },
     "+%lld" : {
       "shouldTranslate" : false
@@ -10344,9 +10290,6 @@
           }
         }
       }
-    },
-    "Diagram: %@" : {
-
     },
     "Display ${selectedCollection}" : {
       "localizations" : {
@@ -25929,9 +25872,6 @@
         }
       }
     },
-    "Markdown" : {
-
-    },
     "MARKDOWN" : {
       "comment" : "Name of Markdown file type",
       "extractionState" : "manual",
@@ -25944,9 +25884,6 @@
         }
       },
       "shouldTranslate" : false
-    },
-    "Markdown gallery" : {
-
     },
     "Menu Item Open Web Label" : {
       "comment" : "Label of open in browser button",
@@ -26139,9 +26076,6 @@
           }
         }
       }
-    },
-    "Mode" : {
-
     },
     "Move" : {
       "comment" : "Label to show for move related functionality",
@@ -35162,9 +35096,6 @@
         }
       }
     },
-    "References" : {
-
-    },
     "Refresh" : {
       "comment" : "Label to show for refresh related functions",
       "extractionState" : "manual",
@@ -43706,9 +43637,6 @@
         }
       }
     },
-    "stableKey=%d" : {
-
-    },
     "Sync" : {
       "comment" : "Sync",
       "localizations" : {
@@ -45430,12 +45358,6 @@
           }
         }
       }
-    },
-    "Tab" : {
-
-    },
-    "Table of contents" : {
-
     },
     "Tag" : {
       "comment" : "Standalone tag label",
@@ -47169,9 +47091,6 @@
           }
         }
       }
-    },
-    "Unsupported: %@" : {
-
     },
     "URL Error Text" : {
       "comment" : "Error to show when a url can not be created",
