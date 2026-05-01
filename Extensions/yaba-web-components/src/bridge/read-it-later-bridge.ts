@@ -6,18 +6,9 @@ import {
 } from "@/theme/reader-document-vars"
 import type { EditorCommandPayload } from "./editor-commands"
 import { getEmptyFormattingState } from "./editor-formatting"
-import { getDomSelectionSnapshot } from "./dom-selection-snapshot"
 import { postToYabaNativeHost } from "./yaba-native-host"
 import { publishShellLoad } from "./shell-host-events"
-import {
-  applyAnnotationColorDecorations,
-  domSelectionOverlapsAnnotation,
-  unwrapAnnotationMarks,
-  wrapSelectionInAnnotation,
-} from "./read-it-later-annotations"
-import type { AnnotationForRendering } from "./read-it-later-types"
 import { resetReadItLaterTocState, scheduleReadItLaterTocPublish } from "./read-it-later-toc"
-import type { SelectionSnapshot } from "./selection-snapshot"
 
 export type ReaderTheme = "system" | "dark" | "light" | "sepia"
 export type ReaderFontSize = "small" | "medium" | "large"
@@ -41,7 +32,6 @@ let readerPreferences: ReaderPreferences = {
   fontSize: "medium",
   lineHeight: "normal",
 }
-let storedAnnotations: AnnotationForRendering[] = []
 let systemColorSchemeMedia: MediaQueryList | null = null
 let systemColorSchemeListener: (() => void) | null = null
 
@@ -87,10 +77,8 @@ function applyReaderPreferences(): void {
 }
 
 function publishReadItLaterMetrics(): void {
-  const can = getCanCreateAnnotationInner()
   const payload = {
     type: "readerMetrics" as const,
-    canCreateAnnotation: can,
     currentPage: 1,
     pageCount: 1,
   }
@@ -121,17 +109,6 @@ function applyLocalImagePolicy(root: HTMLElement): void {
   })
 }
 
-function getCanCreateAnnotationInner(): boolean {
-  if (!contentRoot) return false
-  const sel = window.getSelection()
-  if (!sel || sel.rangeCount === 0) return false
-  const range = sel.getRangeAt(0)
-  if (range.collapsed) return false
-  if (!contentRoot.contains(range.commonAncestorContainer)) return false
-  if (domSelectionOverlapsAnnotation(contentRoot, range)) return false
-  return true
-}
-
 function applyHtmlToContent(html: string, options?: { assetsBaseUrl?: string }): void {
   if (!contentRoot) return
   const root = contentRoot
@@ -141,9 +118,6 @@ function applyHtmlToContent(html: string, options?: { assetsBaseUrl?: string }):
   }
   root.innerHTML = payload
   applyLocalImagePolicy(root)
-  if (storedAnnotations.length > 0) {
-    applyAnnotationColorDecorations(root, storedAnnotations)
-  }
 }
 
 function wireImageErrorHandlers(root: HTMLElement): void {
@@ -157,27 +131,8 @@ function wireImageErrorHandlers(root: HTMLElement): void {
   root.addEventListener("error", onErr, true)
 }
 
-function onAnnotationClick(ev: MouseEvent): void {
-  const t = (ev.target as HTMLElement | null)?.closest?.(
-    ".yaba-annotation-decoration[data-annotation-id]",
-  ) as HTMLElement | null
-  if (!t) return
-  const id = t.getAttribute("data-annotation-id")
-  if (!id) return
-  ev.preventDefault()
-  const win = window as Window & {
-    YabaReadItLaterBridge?: YabaReadItLaterBridge
-  }
-  win.YabaReadItLaterBridge?.onAnnotationTap?.(id)
-}
-
 export interface YabaReadItLaterBridge {
   isReady: () => boolean
-  getSelectionSnapshot: () => SelectionSnapshot | null
-  getSelectedText: () => string
-  getCanCreateAnnotation: () => boolean
-  setAnnotations: (annotationsJson: string) => void
-  scrollToAnnotation: (annotationId: string) => void
   setPlatform: (platform: Platform) => void
   setAppearance: (mode: AppearanceMode) => void
   setCursorColor: (color: string) => void
@@ -194,9 +149,6 @@ export interface YabaReadItLaterBridge {
   focus: () => void
   unFocus: () => void
   dispatch: (command: EditorCommandPayload) => void
-  applyAnnotationToSelection: (annotationId: string) => boolean
-  removeAnnotationFromDocument: (annotationId: string) => number
-  onAnnotationTap?: (id: string) => void
   navigateToTocItem: (id: string, extrasJson?: string | null) => void
   exportMarkdown: () => string
   startPdfExportJob: (jobId: string) => void
@@ -232,10 +184,6 @@ export function initReadItLaterBridge(getRoot: () => HTMLElement | null): void {
   applyReaderPreferences()
   if (contentRoot) {
     wireImageErrorHandlers(contentRoot)
-    contentRoot.addEventListener("click", onAnnotationClick)
-    document.addEventListener("selectionchange", () => {
-      publishReadItLaterMetrics()
-    })
   }
 
   const commitReaderHtml = (html: string, options?: { assetsBaseUrl?: string }): void => {
@@ -260,30 +208,6 @@ export function initReadItLaterBridge(getRoot: () => HTMLElement | null): void {
   const win = window as Window & { YabaReadItLaterBridge?: YabaReadItLaterBridge }
   win.YabaReadItLaterBridge = {
     isReady: () => !!contentRoot,
-    getSelectionSnapshot: () => (contentRoot ? getDomSelectionSnapshot(contentRoot) : null),
-    getSelectedText: () => {
-      const s = getDomSelectionSnapshot(contentRoot)
-      return s?.selectedText ?? ""
-    },
-    getCanCreateAnnotation: () => getCanCreateAnnotationInner(),
-    setAnnotations: (annotationsJson: string) => {
-      if (!contentRoot) return
-      try {
-        const annotations: AnnotationForRendering[] =
-          annotationsJson && annotationsJson.trim() ? JSON.parse(annotationsJson) : []
-        storedAnnotations = annotations
-        applyAnnotationColorDecorations(contentRoot, storedAnnotations)
-      } catch {
-        storedAnnotations = []
-      }
-    },
-    scrollToAnnotation: (annotationId: string) => {
-      if (!contentRoot) return
-      const el = contentRoot.querySelector(
-        `.yaba-annotation-decoration[data-annotation-id="${cssEscapeForSelector(annotationId)}"]`,
-      ) as HTMLElement | null
-      el?.scrollIntoView({ behavior: "smooth", block: "center" })
-    },
     setPlatform: (p: Platform) => {
       platform = p
       applyReaderPreferences()
@@ -339,29 +263,6 @@ export function initReadItLaterBridge(getRoot: () => HTMLElement | null): void {
     dispatch: () => {
       /* no rich-text commands on passive reader */
     },
-    applyAnnotationToSelection: (annotationId: string) => {
-      if (!contentRoot) return false
-      const sel = window.getSelection()
-      if (!sel || sel.rangeCount === 0) return false
-      const range = sel.getRangeAt(0)
-      const ok = wrapSelectionInAnnotation(range, annotationId, contentRoot)
-      if (ok) {
-        applyAnnotationColorDecorations(contentRoot, storedAnnotations)
-        publishReadItLaterMetrics()
-        scheduleReadItLaterTocPublish(contentRoot)
-      }
-      sel.removeAllRanges()
-      return ok
-    },
-    removeAnnotationFromDocument: (annotationId: string) => {
-      if (!contentRoot) return 0
-      const n = unwrapAnnotationMarks(contentRoot, annotationId)
-      if (n > 0) {
-        scheduleReadItLaterTocPublish(contentRoot)
-        publishReadItLaterMetrics()
-      }
-      return n
-    },
     navigateToTocItem: (tocItemId: string) => {
       if (!contentRoot) return
       const m = /^toc-h-(\d+)$/.exec(tocItemId)
@@ -383,11 +284,4 @@ export function initReadItLaterBridge(getRoot: () => HTMLElement | null): void {
   if (contentRoot) {
     publishReadItLaterMetrics()
   }
-}
-
-function cssEscapeForSelector(value: string): string {
-  if (typeof CSS !== "undefined" && typeof CSS.escape === "function") {
-    return CSS.escape(value)
-  }
-  return value.replace(/["\\]/g, "\\$&")
 }

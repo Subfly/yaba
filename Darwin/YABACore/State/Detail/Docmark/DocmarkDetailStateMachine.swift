@@ -75,12 +75,6 @@ public final class DocmarkDetailStateMachine: YabaBaseObservableState<DocmarkDet
             apply { $0.readerFontSize = s }
         case let .onSetReaderLineHeight(l):
             apply { $0.readerLineHeight = l }
-        case let .onDeleteAnnotation(annotationId):
-            AnnotationManager.queueDeleteAnnotation(annotationId: annotationId)
-        case let .onScrollToAnnotation(annotationId):
-            apply { $0.scrollToAnnotationId = annotationId }
-        case .onClearScrollToAnnotation:
-            apply { $0.scrollToAnnotationId = nil }
         case let .updateDocMetadata(bookmarkId, summary, type):
             DocmarkManager.queueCreateOrUpdateDocDetails(bookmarkId: bookmarkId, summary: summary, docmarkType: type)
         }

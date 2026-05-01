@@ -27,8 +27,7 @@ public enum WebFeature: Sendable {
         readerTheme: ReaderTheme,
         readerFontSize: ReaderFontSize,
         readerLineHeight: ReaderLineHeight,
-        appearance: WebAppearance,
-        annotationsJson: String
+        appearance: WebAppearance
     )
 
     case canvas(

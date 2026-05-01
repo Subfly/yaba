@@ -65,16 +65,7 @@ struct LinkmarkDetailView: View {
     private var showMarkdownExportDirectoryPicker = false
 
     @State
-    private var annotationSheetMode: AnnotationCreationSheetMode?
-
-    @State
-    private var readerRuntime: WKWebViewRuntime?
-
-    @State
     private var readerChromeVisible = true
-
-    @State
-    private var readerCanAnnotate = false
 
     @State
     private var tocNavigateItemId: String?
@@ -145,39 +136,11 @@ struct LinkmarkDetailView: View {
                         onOpenTag(tagId)
                     },
                     selectedTab: $sheetTab,
-                    onScrollToAnnotation: { annotationId in
-                        showDetailSheet = false
-                        Task { await machine.send(.onScrollToAnnotation(annotationId: annotationId)) }
-                    },
-                    onEditAnnotation: { annotationId in
-                        presentAnnotationSheetAfterClosingDetail(annotationId: annotationId)
-                    },
-                    onDeleteAnnotation: { annotationId in
-                        showDetailSheet = false
-                        Task { await deleteReadableAnnotation(annotationId: annotationId) }
-                    },
                     onTocItemTap: { item in
                         tocNavigateItemId = item.id
                         showDetailSheet = false
                     }
                 )
-            }
-        }
-        .sheet(item: $annotationSheetMode) { mode in
-            AnnotationCreationSheet(mode: mode) { outcome in
-                annotationSheetMode = nil
-                switch outcome {
-                case .cancelled:
-                    break
-                case .persisted:
-                    if case let .edit(ann) = mode {
-                        Task { await syncMarkdownDirectiveColorAfterEdit(annotationId: ann.annotationId) }
-                    }
-                case let .readableCreateRequested(annotationId, request):
-                    Task { await commitReadableAnnotationCreate(annotationId: annotationId, request: request) }
-                case let .readableDeleteRequested(annotationId):
-                    Task { await deleteReadableAnnotation(annotationId: annotationId) }
-                }
             }
         }
         .sheet(isPresented: $showEditSheet) {
@@ -288,16 +251,7 @@ struct LinkmarkDetailView: View {
                         lineHeight: machine.state.readerLineHeight
                     ),
                     appearance: .auto,
-                    annotationsJson: annotationsJson(for: bm),
                     tocNavigateItemId: $tocNavigateItemId,
-                    scrollToAnnotationId: Binding(
-                        get: { machine.state.scrollToAnnotationId },
-                        set: { newValue in
-                            if newValue == nil {
-                                Task { await machine.send(.onClearScrollToAnnotation) }
-                            }
-                        }
-                    ),
                     onHostEvent: { event in
                         handleReaderHostEvent(event)
                     },
@@ -305,18 +259,13 @@ struct LinkmarkDetailView: View {
                         guard let url = URL(string: event.url) else { return }
                         UIApplication.shared.open(url)
                     },
-                    onAnnotationTap: { annotationId in
-                        openAnnotationEditor(annotationId: annotationId)
-                    },
                     onScrollShowChrome: {
                         readerChromeVisible = true
                     },
                     onScrollHideChrome: {
                         readerChromeVisible = false
                     },
-                    onRuntimeReady: { runtime in
-                        readerRuntime = runtime
-                    }
+                    onRuntimeReady: { _ in }
                 )
                 .ignoresSafeArea()
                 .id(documentReloadToken)
@@ -324,8 +273,7 @@ struct LinkmarkDetailView: View {
 
                 LinkmarkReaderFloatingToolbar(
                     folderAccent: folderTint,
-                    isVisible: readerChromeVisible || readerCanAnnotate,
-                    canAnnotate: readerCanAnnotate,
+                    isVisible: readerChromeVisible,
                     readerTheme: machine.state.readerTheme,
                     readerFontSize: machine.state.readerFontSize,
                     readerLineHeight: machine.state.readerLineHeight,
@@ -337,8 +285,7 @@ struct LinkmarkDetailView: View {
                     },
                     onSelectLineHeight: { lineHeight in
                         Task { await machine.send(.onSetReaderLineHeight(lineHeight)) }
-                    },
-                    onStickyNote: openAnnotationCreator
+                    }
                 )
                 .padding(.bottom, 14)
             } else {
@@ -427,117 +374,8 @@ struct LinkmarkDetailView: View {
         return URL(string: s)
     }
 
-    private func annotationsJson(for bm: YabaBookmark) -> String {
-        let ann = bm.annotations.filter { $0.type == .readable }
-        return AnnotationRenderingPayloadBuilder.readableJSON(from: ann)
-    }
-
-    private func commitReadableAnnotationCreate(annotationId: String, request: AnnotationReadableCreateRequest) async {
-        guard let bm = bookmark else { return }
-        let md = bm.linkDetail?.markdown ?? ""
-        let context = prefixSuffix(from: request.selectionDraft)
-        do {
-            let updated = try LinkmarkReadableMarkdownAnnotations.insertDirective(
-                markdown: md,
-                selectedText: request.selectionDraft.quoteText ?? "",
-                prefixText: context.prefix,
-                suffixText: context.suffix,
-                annotationId: annotationId,
-                color: request.colorRole
-            )
-            await machine.send(
-                .onAnnotationReadableCreateCommitted(request: request, annotationId: annotationId, html: updated)
-            )
-        } catch {
-            CoreToastManager.shared.show(
-                message: LocalizedStringKey("Annotation Selection Required Message"),
-                iconType: .error,
-                duration: .short
-            )
-        }
-    }
-
-    private func deleteReadableAnnotation(annotationId: String) async {
-        guard let bm = bookmark else { return }
-        let md = bm.linkDetail?.markdown ?? ""
-        let updated = LinkmarkReadableMarkdownAnnotations.removeDirective(markdown: md, annotationId: annotationId)
-        await machine.send(.onAnnotationReadableDeleteCommitted(annotationId: annotationId, html: updated))
-    }
-
-    private func syncMarkdownDirectiveColorAfterEdit(annotationId: String) async {
-        guard let bm = bookmark,
-              let ann = bm.annotations.first(where: { $0.annotationId == annotationId }),
-              ann.type == .readable
-        else {
-            return
-        }
-        let md = bm.linkDetail?.markdown ?? ""
-        let updated = LinkmarkReadableMarkdownAnnotations.setDirectiveColor(
-            markdown: md,
-            annotationId: annotationId,
-            color: ann.colorRole
-        )
-        guard updated != md else { return }
-        ReadableContentManager.queueUpdateReadableBodyFromWebEditor(bookmarkId: bm.bookmarkId, html: updated)
-    }
-
-    private func makeReadableDraftFromPreviewSnapshot(json: String, bookmarkId: String) -> ReadableSelectionDraft? {
-        guard let data = json.data(using: .utf8),
-              let dto = try? JSONDecoder().decode(PreviewSelectionSnapshotDTO.self, from: data)
-        else {
-            return nil
-        }
-        let text = dto.selectedText.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !text.isEmpty else { return nil }
-        let extras = PreviewSelectionExtras(prefixText: dto.prefixText, suffixText: dto.suffixText)
-        let extrasJson = (try? JSONEncoder().encode(extras)).flatMap { String(data: $0, encoding: .utf8) }
-        return ReadableSelectionDraft(
-            bookmarkId: bookmarkId,
-            quoteText: text,
-            extrasJson: extrasJson,
-            annotationType: .readable
-        )
-    }
-
-    private func prefixSuffix(from draft: ReadableSelectionDraft) -> (prefix: String?, suffix: String?) {
-        guard let raw = draft.extrasJson,
-              let data = raw.data(using: .utf8),
-              let e = try? JSONDecoder().decode(PreviewSelectionExtras.self, from: data)
-        else {
-            return (nil, nil)
-        }
-        return (e.prefixText, e.suffixText)
-    }
-
-    private func openAnnotationCreator() {
-        guard let bm = bookmark else { return }
-        guard linkHasReadableContent(bm) else { return }
-        Task { @MainActor in
-            var draft: ReadableSelectionDraft?
-            for _ in 0 ..< 6 {
-                if let runtime = readerRuntime {
-                    let json = (try? await runtime.evaluateJavaScriptStringResult(WebPreviewBridgeScripts.getSelectionSnapshot())) ?? ""
-                    draft = makeReadableDraftFromPreviewSnapshot(json: json, bookmarkId: bm.bookmarkId)
-                }
-                if draft != nil { break }
-                try? await Task.sleep(nanoseconds: 80_000_000)
-            }
-            if let draft {
-                annotationSheetMode = .create(draft)
-            } else {
-                CoreToastManager.shared.show(
-                    message: LocalizedStringKey("Annotation Selection Required Message"),
-                    iconType: .error,
-                    duration: .short
-                )
-            }
-        }
-    }
-
     private func handleReaderHostEvent(_ event: WebHostEvent) {
         switch event {
-        case let .readerMetrics(ev):
-            readerCanAnnotate = ev.canCreateAnnotation
         case let .initialContentLoad(result):
             let resultJson = (result == .loaded) ? #"{"result":"loaded"}"# : #"{"result":"error"}"#
             Task {
@@ -545,20 +383,6 @@ struct LinkmarkDetailView: View {
             }
         default:
             break
-        }
-    }
-
-    private func openAnnotationEditor(annotationId: String) {
-        guard let ann = bookmark?.annotations.first(where: { $0.annotationId == annotationId }) else { return }
-        annotationSheetMode = .edit(ann)
-    }
-
-    private func presentAnnotationSheetAfterClosingDetail(annotationId: String) {
-        guard let ann = bookmark?.annotations.first(where: { $0.annotationId == annotationId }) else { return }
-        showDetailSheet = false
-        Task { @MainActor in
-            try? await Task.sleep(nanoseconds: 200_000_000)
-            annotationSheetMode = .edit(ann)
         }
     }
 
@@ -710,17 +534,6 @@ struct LinkmarkDetailView: View {
             )
         }
     }
-}
-
-private struct PreviewSelectionSnapshotDTO: Codable {
-    let selectedText: String
-    let prefixText: String?
-    let suffixText: String?
-}
-
-private struct PreviewSelectionExtras: Codable {
-    let prefixText: String?
-    let suffixText: String?
 }
 
 /// Same CUV pattern as the old reader-not-available empty state (legacy `ReaderView` was removed during the Darwin rebuild).

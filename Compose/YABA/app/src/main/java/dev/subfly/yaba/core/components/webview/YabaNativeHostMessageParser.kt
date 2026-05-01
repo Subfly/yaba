@@ -23,7 +23,6 @@ internal object YabaNativeHostMessageParser {
 
     fun parse(
         json: String,
-        onAnnotationTap: ((String) -> Unit)?,
         onMathTap: ((MathTapEvent) -> Unit)?,
         onInlineLinkTap: ((InlineLinkTapEvent) -> Unit)?,
         onInlineMentionTap: ((InlineMentionTapEvent) -> Unit)?,
@@ -39,11 +38,6 @@ internal object YabaNativeHostMessageParser {
             "readerMetrics" -> parseReaderMetrics(root)
             "canvasMetrics" -> parseCanvasMetrics(root)
             "canvasStyleState" -> parseCanvasStyleState(root)
-            "annotationTap" -> {
-                val id = root.optString("id", "")
-                if (id.isNotBlank()) onAnnotationTap?.invoke(id)
-                null
-            }
             "mathTap" -> {
                 val kind = root.optString("kind", "")
                 val pos = root.optInt("pos", -1)
@@ -173,7 +167,6 @@ internal object YabaNativeHostMessageParser {
     }
 
     private fun parseReaderMetrics(root: JSONObject): YabaWebHostEvent.ReaderMetrics {
-        val can = root.optBoolean("canCreateAnnotation")
         val page = root.optInt("currentPage", 1).coerceAtLeast(1)
         val count = root.optInt("pageCount", 1).coerceAtLeast(1)
         val formatting =
@@ -183,7 +176,6 @@ internal object YabaNativeHostMessageParser {
                 null
             }
         return YabaWebHostEvent.ReaderMetrics(
-            canCreateAnnotation = can,
             currentPage = page,
             pageCount = count,
             editorFormatting = formatting,

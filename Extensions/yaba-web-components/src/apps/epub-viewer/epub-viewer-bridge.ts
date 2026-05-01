@@ -12,96 +12,6 @@ import { publishEpubReaderMetrics } from "@/bridge/reader-metrics-host"
 import { publishToc, resetPublishedToc, type TocItemJson, type TocJson } from "@/bridge/toc-host-events"
 import { postToYabaNativeHost } from "@/bridge/yaba-native-host"
 
-interface EpubHighlightInput {
-  id: string
-  colorRole: string
-  cfiRange: string
-}
-
-/**
- * epub.js 0.3.x draws highlights as SVG marks; [iframe View#highlight] merges these attrs over defaults
- * (`fill: yellow`, `fill-opacity: 0.3`). Match YABA annotation palette (epub-viewer.css).
- */
-const EPUB_HIGHLIGHT_DEFAULT_CLASS = "epubjs-hl"
-
-const colorRoleToEpubHighlightStyles: Record<string, Record<string, string>> = {
-  NONE: {
-    fill: "rgba(255, 214, 10, 0.35)",
-    "fill-opacity": "1",
-    "mix-blend-mode": "multiply",
-  },
-  YELLOW: {
-    fill: "rgba(255, 214, 10, 0.35)",
-    "fill-opacity": "1",
-    "mix-blend-mode": "multiply",
-  },
-  BLUE: {
-    fill: "rgba(88, 166, 255, 0.35)",
-    "fill-opacity": "1",
-    "mix-blend-mode": "multiply",
-  },
-  BROWN: {
-    fill: "rgba(193, 154, 107, 0.35)",
-    "fill-opacity": "1",
-    "mix-blend-mode": "multiply",
-  },
-  CYAN: {
-    fill: "rgba(0, 188, 212, 0.35)",
-    "fill-opacity": "1",
-    "mix-blend-mode": "multiply",
-  },
-  GRAY: {
-    fill: "rgba(158, 158, 158, 0.35)",
-    "fill-opacity": "1",
-    "mix-blend-mode": "multiply",
-  },
-  GREEN: {
-    fill: "rgba(102, 187, 106, 0.35)",
-    "fill-opacity": "1",
-    "mix-blend-mode": "multiply",
-  },
-  INDIGO: {
-    fill: "rgba(92, 107, 192, 0.35)",
-    "fill-opacity": "1",
-    "mix-blend-mode": "multiply",
-  },
-  MINT: {
-    fill: "rgba(38, 166, 154, 0.35)",
-    "fill-opacity": "1",
-    "mix-blend-mode": "multiply",
-  },
-  ORANGE: {
-    fill: "rgba(255, 167, 38, 0.35)",
-    "fill-opacity": "1",
-    "mix-blend-mode": "multiply",
-  },
-  PINK: {
-    fill: "rgba(236, 64, 122, 0.3)",
-    "fill-opacity": "1",
-    "mix-blend-mode": "multiply",
-  },
-  PURPLE: {
-    fill: "rgba(171, 71, 188, 0.3)",
-    "fill-opacity": "1",
-    "mix-blend-mode": "multiply",
-  },
-  RED: {
-    fill: "rgba(239, 83, 80, 0.3)",
-    "fill-opacity": "1",
-    "mix-blend-mode": "multiply",
-  },
-  TEAL: {
-    fill: "rgba(38, 166, 154, 0.3)",
-    "fill-opacity": "1",
-    "mix-blend-mode": "multiply",
-  },
-}
-
-function epubHighlightStylesForColorRole(colorRole: string | undefined): Record<string, string> {
-  const key = (colorRole ?? "YELLOW").toUpperCase()
-  return colorRoleToEpubHighlightStyles[key] ?? colorRoleToEpubHighlightStyles.YELLOW
-}
-
 interface ReaderPreferencesInput {
   theme?: string
   fontSize?: string
@@ -111,10 +21,6 @@ interface ReaderPreferencesInput {
 interface YabaEpubBridge {
   isReady: () => boolean
   setEpubUrl: (url: string) => boolean
-  getSelectionSnapshot: () => Record<string, unknown> | null
-  getCanCreateAnnotation: () => boolean
-  setAnnotations: (annotationsJson: string) => void
-  scrollToAnnotation: (annotationId: string) => void
   getCurrentPageNumber: () => number
   getPageCount: () => number
   nextPage: () => boolean
@@ -122,7 +28,6 @@ interface YabaEpubBridge {
   setPlatform: (platform: Platform) => void
   setAppearance: (appearance: AppearanceMode) => void
   setReaderPreferences: (preferences: Partial<ReaderPreferencesInput>) => void
-  onAnnotationTap?: (id: string) => void
   navigateToTocItem: (id: string, extrasJson?: string | null) => void
 }
 
@@ -138,22 +43,11 @@ let currentPlatform: Platform = "android"
 let currentAppearance: AppearanceMode = "auto"
 let book: Book | null = null
 let rendition: Rendition | null = null
-let lastSelection: { cfiRange: string; selectedText: string } | null = null
 let currentPageNum = 1
 let spineLength = 1
 let lastRelocatedStartCfi: string | null = null
-const annotationCfiById = new Map<string, string>()
-/** When [setAnnotations] runs before async [setEpubUrl] finishes, host JSON is applied after [publishShellLoad]. */
-let pendingAnnotationsJson: string | null = null
 let viewportRecoveryTimer: ReturnType<typeof setTimeout> | null = null
 let viewportStabilityHandlersInstalled = false
-let annotationRefreshTimer: ReturnType<typeof setTimeout> | null = null
-let lastAnnotationTapMeta: { id: string; atMs: number } | null = null
-let lastAppliedAnnotations: EpubHighlightInput[] = []
-
-/** Avoid duplicate selection listeners if content hook runs more than once per document. */
-const selectionClearRegisteredDocs = new WeakSet<Document>()
-const ANNOTATION_TAP_DEDUP_MS = 450
 
 interface MergedEpubReaderPrefs {
   theme: ReaderThemeName
@@ -306,45 +200,11 @@ function syncReaderVarsIntoAllEpubContents(): void {
   }
 }
 
-function clearHighlights(): void {
-  const r = rendition
-  if (r) {
-    for (const cfi of annotationCfiById.values()) {
-      try {
-        r.annotations.remove(cfi, "highlight")
-      } catch {
-        /* ignore */
-      }
-    }
-  }
-  annotationCfiById.clear()
-}
-
 function clearViewportRecoveryTimer(): void {
   if (viewportRecoveryTimer) {
     clearTimeout(viewportRecoveryTimer)
     viewportRecoveryTimer = null
   }
-}
-
-function clearAnnotationRefreshTimer(): void {
-  if (annotationRefreshTimer) {
-    clearTimeout(annotationRefreshTimer)
-    annotationRefreshTimer = null
-  }
-}
-
-function shouldDispatchAnnotationTap(annotationId: string): boolean {
-  const now = typeof performance !== "undefined" ? performance.now() : Date.now()
-  const last = lastAnnotationTapMeta
-  if (last && last.id === annotationId && now - last.atMs < ANNOTATION_TAP_DEDUP_MS) {
-    return false
-  }
-  lastAnnotationTapMeta = {
-    id: annotationId,
-    atMs: now,
-  }
-  return true
 }
 
 /**
@@ -371,31 +231,6 @@ function ensureViewportStabilityHandlers(): void {
   window.visualViewport?.addEventListener("resize", onResize, { passive: true })
 }
 
-/**
- * epub.js debounces selection internally (~250ms) before emitting `selected`.
- * A faster `selectionchange` handler can race and clear [lastSelection] before the bridge
- * receives the CFI, so we only clear after a longer debounce and only when the DOM
- * selection is actually gone (tap away / collapse).
- */
-function registerSelectionClearWhenCollapsed(contents: Contents): void {
-  const doc = contents.document
-  if (selectionClearRegisteredDocs.has(doc)) return
-  selectionClearRegisteredDocs.add(doc)
-
-  let t: ReturnType<typeof setTimeout> | null = null
-  const onSel = (): void => {
-    if (t) clearTimeout(t)
-    t = setTimeout(() => {
-      t = null
-      const sel = contents.window.getSelection()
-      if (!sel || sel.rangeCount === 0 || sel.isCollapsed || !sel.toString().trim()) {
-        lastSelection = null
-      }
-    }, 500)
-  }
-  doc.addEventListener("selectionchange", onSel, { passive: true })
-}
-
 export function initEpubViewerBridge(platform: Platform, appearance: AppearanceMode): void {
   currentPlatform = platform
   currentAppearance = appearance
@@ -410,52 +245,6 @@ export function initEpubViewerBridge(platform: Platform, appearance: AppearanceM
 
   const win = window as Window & { YabaEpubBridge?: YabaEpubBridge }
 
-  function renderHighlights(list: EpubHighlightInput[]): void {
-    const r = rendition
-    if (!r) return
-    clearHighlights()
-    for (const h of list) {
-      if (!h.cfiRange) continue
-      annotationCfiById.set(h.id, h.cfiRange)
-      try {
-        r.annotations.add(
-          "highlight",
-          h.cfiRange,
-          { id: h.id },
-          (e: Event) => {
-            e.preventDefault()
-            e.stopPropagation()
-            if (!shouldDispatchAnnotationTap(h.id)) return
-            win.YabaEpubBridge?.onAnnotationTap?.(h.id)
-          },
-          EPUB_HIGHLIGHT_DEFAULT_CLASS,
-          epubHighlightStylesForColorRole(h.colorRole),
-        )
-      } catch {
-        /* ignore invalid cfi */
-      }
-    }
-  }
-
-  function scheduleHighlightRefresh(delayMs = 100): void {
-    clearAnnotationRefreshTimer()
-    annotationRefreshTimer = setTimeout(() => {
-      annotationRefreshTimer = null
-      renderHighlights(lastAppliedAnnotations)
-    }, delayMs)
-  }
-
-  function applyAnnotationsPayload(annotationsJson: string): void {
-    let list: EpubHighlightInput[] = []
-    try {
-      list = annotationsJson.trim().length > 0 ? (JSON.parse(annotationsJson) as EpubHighlightInput[]) : []
-    } catch {
-      list = []
-    }
-    lastAppliedAnnotations = list
-    renderHighlights(list)
-  }
-
   win.YabaEpubBridge = {
     isReady: () => shellReady,
     setEpubUrl(url: string): boolean {
@@ -463,13 +252,8 @@ export function initEpubViewerBridge(platform: Platform, appearance: AppearanceM
       void (async () => {
         try {
           resetPublishedToc()
-          clearHighlights()
-          clearAnnotationRefreshTimer()
-          lastAppliedAnnotations = []
-          lastSelection = null
           clearViewportRecoveryTimer()
           lastRelocatedStartCfi = null
-          lastAnnotationTapMeta = null
           if (rendition) {
             try {
               rendition.destroy()
@@ -489,7 +273,6 @@ export function initEpubViewerBridge(platform: Platform, appearance: AppearanceM
 
           const root = document.getElementById("epub-root")
           if (!root) {
-            pendingAnnotationsJson = null
             publishShellLoad("error")
             return
           }
@@ -512,7 +295,6 @@ export function initEpubViewerBridge(platform: Platform, appearance: AppearanceM
           rendition.hooks.content.register((contents: Contents) => {
             const doc = contents.document
             syncReaderVarsFromHostToIframeDoc(doc)
-            registerSelectionClearWhenCollapsed(contents)
             const style = doc.createElement("style")
             style.id = "yaba-epub-content-style"
             style.textContent = getEpubContentOverrideCss()
@@ -520,7 +302,6 @@ export function initEpubViewerBridge(platform: Platform, appearance: AppearanceM
           })
 
           rendition.on("relocated", (location: Location) => {
-            lastSelection = null
             const relocatedCfi = location.start.cfi
             if (typeof relocatedCfi === "string" && relocatedCfi.trim().length > 0) {
               lastRelocatedStartCfi = relocatedCfi
@@ -529,67 +310,21 @@ export function initEpubViewerBridge(platform: Platform, appearance: AppearanceM
             if (typeof relocatedIndex === "number" && Number.isFinite(relocatedIndex)) {
               currentPageNum = relocatedIndex + 1
             }
-            // Re-apply highlights after pagination settles to keep CFI overlays aligned.
-            scheduleHighlightRefresh(16)
             queueMicrotask(() => publishEpubReaderMetrics())
-          })
-
-          rendition.on("selected", (cfiRange: string, contents: Contents) => {
-            const selectedText = contents.window.getSelection()?.toString() ?? ""
-            if (cfiRange && selectedText.trim().length > 0) {
-              lastSelection = { cfiRange, selectedText: selectedText.trim() }
-            }
-            queueMicrotask(() => publishEpubReaderMetrics())
-          })
-
-          rendition.on("rendered", () => {
-            scheduleHighlightRefresh(16)
           })
 
           await rendition.display()
           currentPageNum = 1
           syncReaderVarsIntoAllEpubContents()
           publishShellLoad("loaded")
-          if (pendingAnnotationsJson !== null) {
-            const pending = pendingAnnotationsJson
-            pendingAnnotationsJson = null
-            applyAnnotationsPayload(pending)
-          }
         } catch (e) {
           console.error("EPUB load failed", e)
-          pendingAnnotationsJson = null
           resetPublishedToc()
           publishToc({ items: [] })
           publishShellLoad("error")
         }
       })()
       return true
-    },
-    getSelectionSnapshot(): Record<string, unknown> | null {
-      if (!lastSelection) return null
-      return {
-        cfiRange: lastSelection.cfiRange,
-        selectedText: lastSelection.selectedText,
-        prefixText: "",
-        suffixText: "",
-      }
-    },
-    getCanCreateAnnotation(): boolean {
-      return !!(lastSelection && lastSelection.selectedText.trim().length > 0)
-    },
-    setAnnotations(annotationsJson: string): void {
-      if (!rendition) {
-        pendingAnnotationsJson = annotationsJson
-        return
-      }
-      pendingAnnotationsJson = null
-      applyAnnotationsPayload(annotationsJson)
-    },
-    scrollToAnnotation(annotationId: string): void {
-      const cfi = annotationCfiById.get(annotationId)
-      if (cfi && rendition) {
-        void rendition.display(cfi)
-      }
     },
     getCurrentPageNumber(): number {
       return currentPageNum

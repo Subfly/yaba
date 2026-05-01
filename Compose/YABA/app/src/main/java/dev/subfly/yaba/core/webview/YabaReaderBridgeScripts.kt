@@ -44,17 +44,6 @@ fun YabaWebAppearance.toJsAppearanceLiteral(): String =
  */
 object YabaEditorBridgeScripts {
 
-    fun getSelectionSnapshotScript(): String =
-        """
-        (function() {
-            try {
-                var snap = window.YabaEditorBridge.getSelectionSnapshot();
-                if (!snap) return null;
-                return JSON.stringify(snap);
-            } catch(e) { return null; }
-        })();
-        """.trimIndent()
-
     fun getSelectedTextScript(): String =
         """
         (function() {
@@ -64,15 +53,6 @@ object YabaEditorBridgeScripts {
                 }
                 return window.YabaEditorBridge.getSelectedText() || "";
             } catch(e) { return ""; }
-        })();
-        """.trimIndent()
-
-    fun getCanCreateAnnotationScript(): String =
-        """
-        (function() {
-            try {
-                return !!(window.YabaEditorBridge && window.YabaEditorBridge.getCanCreateAnnotation && window.YabaEditorBridge.getCanCreateAnnotation());
-            } catch(e) { return false; }
         })();
         """.trimIndent()
 
@@ -88,19 +68,6 @@ object YabaEditorBridgeScripts {
             } catch(e) { return ""; }
         })();
         """.trimIndent()
-
-    fun scrollToAnnotationScript(annotationId: String): String {
-        val escaped = escapeForJsSingleQuotedString(annotationId)
-        return """
-        (function() {
-            try {
-                if (window.YabaEditorBridge && window.YabaEditorBridge.scrollToAnnotation) {
-                    window.YabaEditorBridge.scrollToAnnotation('$escaped');
-                }
-            } catch(e) {}
-        })();
-        """.trimIndent()
-    }
 
     /**
      * @param documentJson Rich-text document JSON string; escaped for embedding
@@ -174,34 +141,6 @@ object YabaEditorBridgeScripts {
         })();
         """.trimIndent()
 
-    /**
-     * [annotationsJsonEscaped] must be safe inside a single-quoted JS string (use [escapeForJsSingleQuotedString] on JSON text).
-     */
-    fun setAnnotationsJsonParseScript(annotationsJsonEscaped: String): String =
-        """
-        (function() {
-            try {
-                var json = JSON.parse('$annotationsJsonEscaped');
-                if (window.YabaEditorBridge && window.YabaEditorBridge.setAnnotations) {
-                    window.YabaEditorBridge.setAnnotations(JSON.stringify(json));
-                }
-            } catch(e) {}
-        })();
-        """.trimIndent()
-
-    fun installAnnotationTapScript(): String =
-        """
-        (function() {
-            if (window.YabaEditorBridge) {
-                window.YabaEditorBridge.onAnnotationTap = function(id) {
-                    if (id && window.YabaAndroidHost && window.YabaAndroidHost.postMessage) {
-                        window.YabaAndroidHost.postMessage(JSON.stringify({type:'annotationTap',id:id}));
-                    }
-                };
-            }
-        })();
-        """.trimIndent()
-
     fun getDocumentJsonScript(): String =
         """
         (function() {
@@ -225,34 +164,6 @@ object YabaEditorBridgeScripts {
             } catch(e) { return ""; }
         })();
         """.trimIndent()
-
-    fun applyAnnotationToSelectionScript(annotationId: String): String {
-        val escaped = escapeForJsSingleQuotedString(annotationId)
-        return """
-        (function() {
-            try {
-                if (window.YabaEditorBridge && window.YabaEditorBridge.applyAnnotationToSelection) {
-                    return window.YabaEditorBridge.applyAnnotationToSelection('$escaped') ? 'true' : 'false';
-                }
-            } catch(e) {}
-            return 'false';
-        })();
-        """.trimIndent()
-    }
-
-    fun removeAnnotationFromDocumentScript(annotationId: String): String {
-        val escaped = escapeForJsSingleQuotedString(annotationId)
-        return """
-        (function() {
-            try {
-                if (window.YabaEditorBridge && window.YabaEditorBridge.removeAnnotationFromDocument) {
-                    return String(window.YabaEditorBridge.removeAnnotationFromDocument('$escaped'));
-                }
-            } catch(e) {}
-            return '0';
-        })();
-        """.trimIndent()
-    }
 
     fun setEditableScript(editable: Boolean): String =
         """
@@ -379,39 +290,6 @@ object YabaEditorBridgeScripts {
  */
 object YabaPdfReaderBridgeScripts {
 
-    fun getSelectionSnapshotScript(): String =
-        """
-        (function() {
-            try {
-                var snap = window.YabaPdfBridge.getSelectionSnapshot();
-                if (!snap) return null;
-                return JSON.stringify(snap);
-            } catch(e) { return null; }
-        })();
-        """.trimIndent()
-
-    fun getCanCreateAnnotationScript(): String =
-        """
-        (function() {
-            try {
-                return !!(window.YabaPdfBridge && window.YabaPdfBridge.getCanCreateAnnotation && window.YabaPdfBridge.getCanCreateAnnotation());
-            } catch(e) { return false; }
-        })();
-        """.trimIndent()
-
-    fun scrollToAnnotationScript(annotationId: String): String {
-        val escaped = escapeForJsSingleQuotedString(annotationId)
-        return """
-        (function() {
-            try {
-                if (window.YabaPdfBridge && window.YabaPdfBridge.scrollToAnnotation) {
-                    window.YabaPdfBridge.scrollToAnnotation('$escaped');
-                }
-            } catch(e) {}
-        })();
-        """.trimIndent()
-    }
-
     const val GET_PAGE_COUNT_SCRIPT: String =
         "(function(){ try { return window.YabaPdfBridge?.getPageCount?.() ?? 0; } catch(e){ return 0; } })();"
 
@@ -451,33 +329,6 @@ object YabaPdfReaderBridgeScripts {
         })();
         """.trimIndent()
 
-    /**
-     * [annotationsJsonEscaped] must be safe inside a single-quoted JS string.
-     */
-    fun setAnnotationsStringArgScript(annotationsJsonEscaped: String): String =
-        """
-        (function() {
-            try {
-                if (window.YabaPdfBridge && window.YabaPdfBridge.setAnnotations) {
-                    window.YabaPdfBridge.setAnnotations('$annotationsJsonEscaped');
-                }
-            } catch(e) {}
-        })();
-        """.trimIndent()
-
-    fun installAnnotationTapScript(): String =
-        """
-        (function() {
-            if (window.YabaPdfBridge) {
-                window.YabaPdfBridge.onAnnotationTap = function(id) {
-                    if (id && window.YabaAndroidHost && window.YabaAndroidHost.postMessage) {
-                        window.YabaAndroidHost.postMessage(JSON.stringify({type:'annotationTap',id:id}));
-                    }
-                };
-            }
-        })();
-        """.trimIndent()
-
     fun navigateToTocItemScript(id: String, extrasJson: String?): String {
         val idEscaped = escapeForJsSingleQuotedString(id)
         val extrasArg =
@@ -502,39 +353,6 @@ object YabaPdfReaderBridgeScripts {
  * EPUB.js reader — [window.YabaEpubBridge].
  */
 object YabaEpubReaderBridgeScripts {
-
-    fun getSelectionSnapshotScript(): String =
-        """
-        (function() {
-            try {
-                var snap = window.YabaEpubBridge.getSelectionSnapshot();
-                if (!snap) return null;
-                return JSON.stringify(snap);
-            } catch(e) { return null; }
-        })();
-        """.trimIndent()
-
-    fun getCanCreateAnnotationScript(): String =
-        """
-        (function() {
-            try {
-                return !!(window.YabaEpubBridge && window.YabaEpubBridge.getCanCreateAnnotation && window.YabaEpubBridge.getCanCreateAnnotation());
-            } catch(e) { return false; }
-        })();
-        """.trimIndent()
-
-    fun scrollToAnnotationScript(annotationId: String): String {
-        val escaped = escapeForJsSingleQuotedString(annotationId)
-        return """
-        (function() {
-            try {
-                if (window.YabaEpubBridge && window.YabaEpubBridge.scrollToAnnotation) {
-                    window.YabaEpubBridge.scrollToAnnotation('$escaped');
-                }
-            } catch(e) {}
-        })();
-        """.trimIndent()
-    }
 
     const val GET_PAGE_COUNT_SCRIPT: String =
         "(function(){ try { return window.YabaEpubBridge?.getPageCount?.() ?? 0; } catch(e){ return 0; } })();"
@@ -586,30 +404,6 @@ object YabaEpubReaderBridgeScripts {
                     });
                 }
             } catch(e) {}
-        })();
-        """.trimIndent()
-
-    fun setAnnotationsStringArgScript(annotationsJsonEscaped: String): String =
-        """
-        (function() {
-            try {
-                if (window.YabaEpubBridge && window.YabaEpubBridge.setAnnotations) {
-                    window.YabaEpubBridge.setAnnotations('$annotationsJsonEscaped');
-                }
-            } catch(e) {}
-        })();
-        """.trimIndent()
-
-    fun installAnnotationTapScript(): String =
-        """
-        (function() {
-            if (window.YabaEpubBridge) {
-                window.YabaEpubBridge.onAnnotationTap = function(id) {
-                    if (id && window.YabaAndroidHost && window.YabaAndroidHost.postMessage) {
-                        window.YabaAndroidHost.postMessage(JSON.stringify({type:'annotationTap',id:id}));
-                    }
-                };
-            }
         })();
         """.trimIndent()
 

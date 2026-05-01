@@ -6,7 +6,6 @@ import dev.subfly.yaba.core.database.dao.BookmarkDao
 import dev.subfly.yaba.core.database.dao.CanvasBookmarkDao
 import dev.subfly.yaba.core.database.dao.DocBookmarkDao
 import dev.subfly.yaba.core.database.dao.FolderDao
-import dev.subfly.yaba.core.database.dao.AnnotationDao
 import dev.subfly.yaba.core.database.dao.ImageBookmarkDao
 import dev.subfly.yaba.core.database.dao.LinkBookmarkDao
 import dev.subfly.yaba.core.database.dao.NoteBookmarkDao
@@ -77,7 +76,4 @@ object DatabaseProvider {
 
     val tagBookmarkDao: TagBookmarkDao
         get() = database().tagBookmarkDao()
-
-    val annotationDao: AnnotationDao
-        get() = database().annotationDao()
 }

@@ -10,7 +10,6 @@ public struct DocmarkDetailUIState: Sendable {
     public var readerTheme: ReaderTheme
     public var readerFontSize: ReaderFontSize
     public var readerLineHeight: ReaderLineHeight
-    public var scrollToAnnotationId: String?
     public var reminderDate: Date?
     public var webInitialContentLoadResultJson: String?
 
@@ -19,7 +18,6 @@ public struct DocmarkDetailUIState: Sendable {
         readerTheme: ReaderTheme = .system,
         readerFontSize: ReaderFontSize = .medium,
         readerLineHeight: ReaderLineHeight = .normal,
-        scrollToAnnotationId: String? = nil,
         reminderDate: Date? = nil,
         webInitialContentLoadResultJson: String? = nil
     ) {
@@ -27,7 +25,6 @@ public struct DocmarkDetailUIState: Sendable {
         self.readerTheme = readerTheme
         self.readerFontSize = readerFontSize
         self.readerLineHeight = readerLineHeight
-        self.scrollToAnnotationId = scrollToAnnotationId
         self.reminderDate = reminderDate
         self.webInitialContentLoadResultJson = webInitialContentLoadResultJson
     }

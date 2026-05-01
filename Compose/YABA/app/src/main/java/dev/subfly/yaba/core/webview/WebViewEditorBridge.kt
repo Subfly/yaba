@@ -1,8 +1,8 @@
 package dev.subfly.yaba.core.webview
 
 /**
- * Rich-text editor WebView: JSON document I/O, formatting commands, plus the same annotation/selection
- * surface as [WebViewReaderBridge] for the readable mirror.
+ * Rich-text editor WebView: JSON document I/O, formatting commands, plus the same reader surface
+ * used by readable mirrors.
  */
 interface WebViewEditorBridge : WebViewReaderBridge {
     override suspend fun getDocumentJson(): String

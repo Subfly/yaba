@@ -15,7 +15,6 @@ public enum NativeHostRouterDarwin {
         expectedBridgeFeature: String?,
         onBridgeReady: @escaping () -> Void,
         onHostEvent: @escaping (WebHostEvent) -> Void,
-        onAnnotationTap: @escaping (String) -> Void,
         onMathTap: @escaping (MathTapEvent) -> Void,
         onInlineLinkTap: @escaping (InlineLinkTapEvent) -> Void,
         onInlineMentionTap: @escaping (InlineMentionTapEvent) -> Void
@@ -37,7 +36,6 @@ public enum NativeHostRouterDarwin {
             default:
                 if let event = NativeHostMessageParserDarwin.parse(
                     json: json,
-                    onAnnotationTap: onAnnotationTap,
                     onMathTap: onMathTap,
                     onInlineLinkTap: onInlineLinkTap,
                     onInlineMentionTap: onInlineMentionTap

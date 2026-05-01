@@ -34,15 +34,12 @@ import androidx.compose.ui.unit.dp
 import dev.subfly.yaba.core.components.NoContentView
 import dev.subfly.yaba.core.components.YabaIcon
 import dev.subfly.yaba.core.components.webview.YabaWebView
-import dev.subfly.yaba.core.navigation.creation.AnnotationCreationRoute
 import dev.subfly.yaba.ui.detail.bookmark.components.BookmarkDetailContentTopBar
 import dev.subfly.yaba.ui.detail.bookmark.components.bookmarkFolderAccentColor
 import dev.subfly.yaba.ui.detail.bookmark.doc.components.DocmarkContentDropdownMenu
 import dev.subfly.yaba.ui.detail.bookmark.doc.components.DocmarkReaderFloatingToolbar
 import dev.subfly.yaba.ui.detail.bookmark.util.bookmarkDetailIconButtonColors
-import dev.subfly.yaba.util.LocalAppStateManager
 import dev.subfly.yaba.util.LocalContentNavigator
-import dev.subfly.yaba.util.LocalCreationContentNavigator
 import dev.subfly.yaba.core.model.utils.DocmarkType
 import dev.subfly.yaba.core.state.detail.DetailWebShellPhase
 import dev.subfly.yaba.core.state.detail.docmark.DocmarkDetailEvent
@@ -58,7 +55,6 @@ import dev.subfly.yaba.core.webview.YabaWebScrollDirection
 import kotlinx.coroutines.launch
 
 private data class ReaderMetricsUiState(
-    val hasSelection: Boolean = false,
     val currentPage: Int = 1,
     val pageCount: Int = 1,
 )
@@ -76,8 +72,6 @@ internal fun DocmarkContentLayout(
     onShowRemindMePicker: () -> Unit = {},
 ) {
     val navigator = LocalContentNavigator.current
-    val creationNavigator = LocalCreationContentNavigator.current
-    val appStateManager = LocalAppStateManager.current
     val scope = rememberCoroutineScope()
 
     var readerBridge by remember { mutableStateOf<WebViewReaderBridge?>(null) }
@@ -93,8 +87,6 @@ internal fun DocmarkContentLayout(
     var isToolbarVisible by remember { mutableStateOf(true) }
 
     val documentPath = state.documentAbsolutePath ?: ""
-    val bookmarkId = state.bookmark?.id
-
     val folderAccent = remember(state.bookmark) { bookmarkFolderAccentColor(state.bookmark) }
     val menuIconButtonColors = bookmarkDetailIconButtonColors(folderAccent)
     val webBaseUrl = remember(state.docmarkType) {
@@ -108,7 +100,6 @@ internal fun DocmarkContentLayout(
         documentPath,
         state.readerPreferences,
         appearance,
-        state.annotations,
     ) {
         when (state.docmarkType) {
             DocmarkType.PDF ->
@@ -116,7 +107,6 @@ internal fun DocmarkContentLayout(
                     pdfUrl = documentPath,
                     platform = YabaWebPlatform.Android,
                     appearance = appearance,
-                    annotations = state.annotations,
                 )
 
             DocmarkType.EPUB ->
@@ -125,7 +115,6 @@ internal fun DocmarkContentLayout(
                     readerPreferences = state.readerPreferences,
                     platform = YabaWebPlatform.Android,
                     appearance = appearance,
-                    annotations = state.annotations,
                 )
         }
     }
@@ -170,13 +159,6 @@ internal fun DocmarkContentLayout(
                 DetailWebShellPhase.Bootstrapping,
                 DetailWebShellPhase.Ready -> {
                     if (webShellPhase == DetailWebShellPhase.Ready) {
-                        LaunchedEffect(state.scrollToAnnotationId, readerBridge) {
-                            val annotationId = state.scrollToAnnotationId ?: return@LaunchedEffect
-                            val bridge = readerBridge ?: return@LaunchedEffect
-                            bridge.scrollToAnnotation(annotationId)
-                            onEvent(DocmarkDetailEvent.OnClearScrollToAnnotation)
-                        }
-
                         LaunchedEffect(state.pendingTocNavigate, readerBridge) {
                             val pending = state.pendingTocNavigate ?: return@LaunchedEffect
                             val bridge = readerBridge ?: return@LaunchedEffect
@@ -189,8 +171,7 @@ internal fun DocmarkContentLayout(
                             docmarkType = state.docmarkType,
                             readerPreferences = state.readerPreferences,
                             color = folderAccent,
-                            isVisible = isToolbarVisible || readerMetrics.hasSelection,
-                            hasSelection = readerMetrics.hasSelection,
+                            isVisible = isToolbarVisible,
                             canGoPrev = readerMetrics.currentPage > 1,
                             canGoNext = readerMetrics.currentPage < readerMetrics.pageCount,
                             onEvent = onEvent,
@@ -202,22 +183,6 @@ internal fun DocmarkContentLayout(
                             onNextPage = {
                                 scope.launch {
                                     readerBridge?.nextPage()
-                                }
-                            },
-                            onAnnotationClick = {
-                                val bridge = readerBridge ?: return@DocmarkReaderFloatingToolbar
-                                val resolvedBookmarkId =
-                                    bookmarkId ?: return@DocmarkReaderFloatingToolbar
-                                scope.launch {
-                                    val draft = bridge.getSelectionSnapshot(resolvedBookmarkId)
-                                    creationNavigator.add(
-                                        AnnotationCreationRoute(
-                                            bookmarkId = resolvedBookmarkId,
-                                            selectionDraft = draft,
-                                            annotationId = null,
-                                        ),
-                                    )
-                                    appStateManager.onShowCreationContent()
                                 }
                             },
                         )
@@ -233,7 +198,6 @@ internal fun DocmarkContentLayout(
                                     is YabaWebHostEvent.ReaderMetrics -> {
                                         val nextMetrics =
                                             ReaderMetricsUiState(
-                                                hasSelection = ev.canCreateAnnotation,
                                                 currentPage = ev.currentPage,
                                                 pageCount = ev.pageCount.coerceAtLeast(1),
                                             )
@@ -258,17 +222,6 @@ internal fun DocmarkContentLayout(
                                 }
                             },
                             onReaderBridgeReady = { bridge -> readerBridge = bridge },
-                            onAnnotationTap = { annotationId ->
-                                val resolvedBookmarkId = bookmarkId ?: return@YabaWebView
-                                creationNavigator.add(
-                                    AnnotationCreationRoute(
-                                        bookmarkId = resolvedBookmarkId,
-                                        selectionDraft = null,
-                                        annotationId = annotationId,
-                                    ),
-                                )
-                                appStateManager.onShowCreationContent()
-                            },
                         )
                         if (webShellPhase == DetailWebShellPhase.Bootstrapping) {
                             Box(

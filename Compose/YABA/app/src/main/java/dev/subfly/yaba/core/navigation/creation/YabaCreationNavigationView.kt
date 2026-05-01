@@ -12,7 +12,6 @@ import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDe
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import dev.subfly.yaba.ui.creation.annotation.AnnotationCreationContent
 import dev.subfly.yaba.ui.creation.bookmark.BookmarkCreationRouteSelectionContent
 import dev.subfly.yaba.ui.creation.bookmark.canvmark.CanvmarkCreationContent
 import dev.subfly.yaba.ui.creation.bookmark.docmark.DocmarkCreationContent
@@ -120,13 +119,6 @@ fun YabaCreationNavigationView(
             }
             entry<TagSelectionRoute> { key ->
                 TagSelectionContent(alreadySelectedTagIds = key.selectedTagIds)
-            }
-            entry<AnnotationCreationRoute> { key ->
-                AnnotationCreationContent(
-                    bookmarkId = key.bookmarkId,
-                    selectionDraft = key.selectionDraft,
-                    annotationId = key.annotationId,
-                )
             }
             entry<NotemarkTableCreationRoute> {
                 NotemarkTableCreationContent()

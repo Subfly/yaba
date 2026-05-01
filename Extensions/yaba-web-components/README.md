@@ -1,6 +1,6 @@
 # YABA Web Components
 
-WebView-hosted bundles for YABA: **CodeMirror 6** Markdown note editor (GFM), **markdown preview** (`react-markdown` + GFM + sanitized HTML for Darwin link reading), **read-it-later** (static HTML reader with selection + annotations), **Excalidraw** canvas, and **EPUB.js** reader, plus a standalone **`dist/html-to-markdown.bundle.min.js`** (linkedom + Mozilla Readability, then unified/rehype/remark + GFM) for Darwin JavaScriptCore. Built with Vite 7, React 19 (editor/canvas/preview), and TypeScript.
+WebView-hosted bundles for YABA: **CodeMirror 6** Markdown note editor (GFM), **markdown preview** (`react-markdown` + GFM + sanitized HTML for Darwin link reading), **read-it-later** (static HTML reader), **Excalidraw** canvas, and **EPUB.js** reader, plus a standalone **`dist/html-to-markdown.bundle.min.js`** (linkedom + Mozilla Readability, then unified/rehype/remark + GFM) for Darwin JavaScriptCore. Built with Vite 7, React 19 (editor/canvas/preview), and TypeScript.
 
 ## Build
 
@@ -17,7 +17,7 @@ Output: `dist/editor.html`, `dist/preview.html`, `dist/read-it-later.html`, `dis
 |------|---------|
 | `editor.html` | CodeMirror Markdown note editor (GFM) |
 | `preview.html` | Saved link **Markdown** reader: `react-markdown` + `remark-gfm` + sanitized raw HTML; `YabaPreviewBridge`; `bridgeReady`: `preview` |
-| `read-it-later.html` | Saved link reader: injects HTML into the DOM; selection + annotation bridge (not CodeMirror) |
+| `read-it-later.html` | Saved link reader: injects HTML into the DOM |
 | `html-to-markdown.bundle.min.js` | No HTML shell: `globalThis.HTMLToMarkdown(html, baseURL?)` → JSON `{ markdown, assets }` for Darwin JSC |
 | `canvas.html` | Excalidraw canvas |
 | `epub-viewer.html` | EPUB reader (epub.js) |
@@ -45,7 +45,7 @@ Hosts call these via `evaluateJavascript` / `evaluateJavaScript` on the loaded p
 
 ### `window.YabaEditorBridge` (`editor.html`)
 
-Markdown-first surface: `setMarkdown` / `getMarkdown`, annotations, note autosave idle, heading TOC, theme, etc. See [`src/bridge/editor-bridge.ts`](src/bridge/editor-bridge.ts).
+Markdown-first surface: `setMarkdown` / `getMarkdown`, note autosave idle, heading TOC, theme, etc. See [`src/bridge/editor-bridge.ts`](src/bridge/editor-bridge.ts).
 
 Native apps that still call TipTap-era APIs (`setDocumentJson`, `dispatch`, in-WebView PDF export, …) must be updated separately.
 
@@ -55,7 +55,7 @@ Darwin link readable view: `setMarkdown`, reader theme prefs (`setReaderPreferen
 
 ### `window.YabaReadItLaterBridge` (`read-it-later.html`)
 
-Passive HTML surface: `setHtml` / `setReaderHtml` load article HTML; `setAnnotations` applies highlight colors to `span.yaba-annotation-mark` regions; selection and `applyAnnotationToSelection` / `removeAnnotationFromDocument` operate on the live DOM. Typing mirrors a subset of `YabaEditorBridge` where native still expects the same method names.
+Passive HTML surface: `setHtml` / `setReaderHtml` load article HTML. Typing mirrors a subset of `YabaEditorBridge` where native still expects the same method names.
 
 ### `globalThis.HTMLToMarkdown` (`html-to-markdown.bundle.min.js`)
 
@@ -78,7 +78,7 @@ Structured JSON envelopes are defined in `src/bridge/contracts/native-host.ts`, 
 ## Features (editor)
 
 - Markdown source editing with GFM highlighting (`@codemirror/lang-markdown` + `markdownLanguage`)
-- Extensibility: `yabaExtras` compartment + `EditorSurface.setYabaExtras` for custom layers (annotations use a separate state field today)
+- Extensibility: `yabaExtras` compartment + `EditorSurface.setYabaExtras` for custom layers
 - Exports: Markdown via `exportMarkdown` / `getMarkdown` (PDF generation is native-side)
 
 ## Follow-ups

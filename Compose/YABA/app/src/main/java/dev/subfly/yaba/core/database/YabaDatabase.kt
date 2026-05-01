@@ -8,7 +8,6 @@ import dev.subfly.yaba.core.database.dao.BookmarkDao
 import dev.subfly.yaba.core.database.dao.CanvasBookmarkDao
 import dev.subfly.yaba.core.database.dao.DocBookmarkDao
 import dev.subfly.yaba.core.database.dao.FolderDao
-import dev.subfly.yaba.core.database.dao.AnnotationDao
 import dev.subfly.yaba.core.database.dao.ImageBookmarkDao
 import dev.subfly.yaba.core.database.dao.LinkBookmarkDao
 import dev.subfly.yaba.core.database.dao.NoteBookmarkDao
@@ -18,7 +17,6 @@ import dev.subfly.yaba.core.database.entities.BookmarkEntity
 import dev.subfly.yaba.core.database.entities.CanvasBookmarkEntity
 import dev.subfly.yaba.core.database.entities.DocBookmarkEntity
 import dev.subfly.yaba.core.database.entities.FolderEntity
-import dev.subfly.yaba.core.database.entities.AnnotationEntity
 import dev.subfly.yaba.core.database.entities.ImageBookmarkEntity
 import dev.subfly.yaba.core.database.entities.LinkBookmarkEntity
 import dev.subfly.yaba.core.database.entities.NoteBookmarkEntity
@@ -39,7 +37,6 @@ const val YABA_DATABASE_FILE_NAME = "yaba.db"
         DocBookmarkEntity::class,
         NoteBookmarkEntity::class,
         CanvasBookmarkEntity::class,
-        AnnotationEntity::class,
     ],
     version = YABA_DATABASE_VERSION,
     exportSchema = true,
@@ -55,5 +52,4 @@ abstract class YabaDatabase : RoomDatabase() {
     abstract fun noteBookmarkDao(): NoteBookmarkDao
     abstract fun canvasBookmarkDao(): CanvasBookmarkDao
     abstract fun tagBookmarkDao(): TagBookmarkDao
-    abstract fun annotationDao(): AnnotationDao
 }

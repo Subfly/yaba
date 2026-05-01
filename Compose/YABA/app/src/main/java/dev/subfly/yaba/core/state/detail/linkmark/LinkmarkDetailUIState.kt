@@ -1,7 +1,6 @@
 package dev.subfly.yaba.core.state.detail.linkmark
 
 import androidx.compose.runtime.Immutable
-import dev.subfly.yaba.core.model.ui.AnnotationUiModel
 import dev.subfly.yaba.core.model.ui.BookmarkPreviewUiModel
 import dev.subfly.yaba.core.model.utils.ReaderPreferences
 import dev.subfly.yaba.core.state.detail.DetailWebShellPhase
@@ -17,15 +16,12 @@ data class LinkmarkDetailUIState(
     /** Base URL for resolving ../assets/ in document JSON (file://... with trailing slash). */
     val assetsBaseUrl: String? = null,
     val readerPreferences: ReaderPreferences = ReaderPreferences(),
-    val annotations: List<AnnotationUiModel> = emptyList(),
     val isLoading: Boolean = false,
     /** True when the readable WebView reported a failed initial load (one-shot). */
     val readerWebContentLoadFailed: Boolean = false,
     /** Scheduled reminder fire date as epoch millis, null when no reminder is pending. */
     val reminderDateEpochMillis: Long? = null,
     val hasNotificationPermission: Boolean = false,
-    /** When set, the reader should scroll to this annotation and then clear. */
-    val scrollToAnnotationId: String? = null,
     val toc: Toc? = null,
     val pendingTocNavigate: Pair<String, String?>? = null,
 )

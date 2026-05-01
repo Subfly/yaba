@@ -8,7 +8,6 @@ import UIKit
 
 enum LinkmarkDetailSheetTab: String, CaseIterable, Identifiable, Hashable {
     case info
-    case annotations
     case contents
 
     var id: String { rawValue }
@@ -16,7 +15,6 @@ enum LinkmarkDetailSheetTab: String, CaseIterable, Identifiable, Hashable {
     var icon: String {
         switch self {
         case .info: return "information-circle"
-        case .annotations: return "sticky-note-03"
         case .contents: return "align-box-middle-center"
         }
     }
@@ -24,7 +22,6 @@ enum LinkmarkDetailSheetTab: String, CaseIterable, Identifiable, Hashable {
     var title: LocalizedStringKey {
         switch self {
         case .info: return "Bookmark Detail Sheet Tab Info Title"
-        case .annotations: return "Bookmark Detail Sheet Tab Annotations Title"
         case .contents: return "Bookmark Detail Sheet Tab Contents Title"
         }
     }
@@ -79,9 +76,6 @@ struct LinkmarkDetailInfoSheet: View {
     let onOpenFolder: (String) -> Void
     let onOpenTag: (String) -> Void
     @Binding var selectedTab: LinkmarkDetailSheetTab
-    let onScrollToAnnotation: (String) -> Void
-    let onEditAnnotation: (String) -> Void
-    let onDeleteAnnotation: (String) -> Void
     let onTocItemTap: (LinkmarkMarkdownTocItem) -> Void
 
     var body: some View {
@@ -116,8 +110,6 @@ struct LinkmarkDetailInfoSheet: View {
         switch selectedTab {
         case .info:
             linkInfoScroll
-        case .annotations:
-            annotationsList
         case .contents:
             tocList
         }
@@ -259,35 +251,6 @@ struct LinkmarkDetailInfoSheet: View {
         }
         .listStyle(.sidebar)
         .scrollContentBackground(.hidden)
-    }
-
-    private var annotationsList: some View {
-        let items = bookmark.annotations.filter { $0.type == .readable }
-        return Group {
-            if items.isEmpty {
-                emptyStateContent(
-                    icon: "sticky-note-03",
-                    title: "Bookmark Detail No Annotations Title",
-                    message: "Bookmark Detail No Annotations Message"
-                )
-            } else {
-                List(items, id: \.annotationId) { a in
-                    AnnotationItemView(
-                        annotation: a,
-                        onPress: {
-                            onScrollToAnnotation(a.annotationId)
-                        },
-                        onEdit: {
-                            onEditAnnotation(a.annotationId)
-                        },
-                        onDelete: {
-                            onDeleteAnnotation(a.annotationId)
-                        }
-                    )
-                }
-                .listStyle(.sidebar)
-            }
-        }
     }
 
     private var tocList: some View {

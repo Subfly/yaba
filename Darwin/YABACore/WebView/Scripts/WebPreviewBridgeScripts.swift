@@ -71,23 +71,6 @@ public enum WebPreviewBridgeScripts {
         """
     }
 
-    /// `AnnotationForRendering[]` JSON: `[{"id":"…","colorRole":"…"}]`.
-    public static func setAnnotations(jsonArrayBody: String) -> String {
-        let json = jsonArrayBody.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "[]" : jsonArrayBody
-        let escaped = WebJsEscaping.escapeForJsSingleQuotedString(json)
-        return """
-        (function(){
-          try {
-            var b = window.YabaPreviewBridge;
-            if (!b || !b.setAnnotations) { return "no_bridge"; }
-            var parsed = JSON.parse('\(escaped)');
-            b.setAnnotations(JSON.stringify(parsed));
-            return "ok";
-          } catch(e) { return String(e); }
-        })();
-        """
-    }
-
     public static func setWebChromeInsets(topPx: CGFloat) -> String {
         let t = Int(round(topPx))
         return """
@@ -118,59 +101,6 @@ public enum WebPreviewBridgeScripts {
             b.navigateToTocItem(\(idJs), \(extrasJs));
             return "ok";
           } catch(e) { return String(e); }
-        })();
-        """
-    }
-
-    public static func scrollToAnnotation(annotationId: String) -> String {
-        let escaped = WebJsEscaping.escapeForJsSingleQuotedString(annotationId)
-        return """
-        (function(){
-          try {
-            var b = window.YabaPreviewBridge;
-            if (!b || !b.scrollToAnnotation) { return "no_bridge"; }
-            b.scrollToAnnotation('\(escaped)');
-            return "ok";
-          } catch(e) { return String(e); }
-        })();
-        """
-    }
-
-    public static func getSelectionSnapshot() -> String {
-        """
-        (function(){
-          try {
-            var b = window.YabaPreviewBridge;
-            if (!b || !b.getSelectionSnapshot) { return ""; }
-            var snapshot = b.getSelectionSnapshot();
-            if (!snapshot) { return ""; }
-            return JSON.stringify(snapshot);
-          } catch(e) { return ""; }
-        })();
-        """
-    }
-
-    public static func getSelectedText() -> String {
-        """
-        (function(){
-          try {
-            var b = window.YabaPreviewBridge;
-            if (!b || !b.getSelectedText) { return ""; }
-            var t = b.getSelectedText();
-            return (t && typeof t === "string") ? t : "";
-          } catch(e) { return ""; }
-        })();
-        """
-    }
-
-    public static func getCanCreateAnnotation() -> String {
-        """
-        (function(){
-          try {
-            var b = window.YabaPreviewBridge;
-            if (!b || !b.getCanCreateAnnotation) { return "0"; }
-            return b.getCanCreateAnnotation() ? "1" : "0";
-          } catch(e) { return "0"; }
         })();
         """
     }

@@ -45,13 +45,6 @@ public enum DocmarkType: String, Codable, CaseIterable, Sendable {
     case epub = "EPUB"
 }
 
-/// Matches [AnnotationType] in Compose.
-public enum AnnotationType: String, Codable, CaseIterable, Sendable {
-    case readable = "READABLE"
-    case pdf = "PDF"
-    case epub = "EPUB"
-}
-
 /// Legacy app-side compatibility enum kept in YABACore after YABA model cleanup.
 public enum BookmarkType: Int, Codable, CaseIterable, Sendable {
     case none = 1

@@ -7,12 +7,10 @@ export function resetPublishedEditorHostState(): void {
   lastPublishedEditorStateJson = null
 }
 
-export function publishEditorHostState(canCreateAnnotation: () => boolean): void {
+export function publishEditorHostState(): void {
   const formatting = getActiveFormattingState()
-  const can = canCreateAnnotation()
   const payload = {
     type: "readerMetrics" as const,
-    canCreateAnnotation: can,
     currentPage: 1,
     pageCount: 1,
     formatting,

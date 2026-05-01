@@ -11,7 +11,6 @@ import Foundation
 public enum NativeHostMessageParserDarwin {
     public static func parse(
         json: String,
-        onAnnotationTap: ((String) -> Void)? = nil,
         onMathTap: ((MathTapEvent) -> Void)? = nil,
         onInlineLinkTap: ((InlineLinkTapEvent) -> Void)? = nil,
         onInlineMentionTap: ((InlineMentionTapEvent) -> Void)? = nil
@@ -38,10 +37,6 @@ public enum NativeHostMessageParserDarwin {
             return parseCanvasMetrics(root)
         case "canvasStyleState":
             return parseCanvasStyleState(root)
-        case "annotationTap":
-            let id = root["id"] as? String ?? ""
-            if !id.isEmpty { onAnnotationTap?(id) }
-            return nil
         case "mathTap":
             let kind = root["kind"] as? String ?? ""
             let pos = root["pos"] as? Int ?? -1
@@ -123,7 +118,6 @@ public enum NativeHostMessageParserDarwin {
     }
 
     private static func parseReaderMetrics(_ root: [String: Any]) -> WebHostEvent {
-        let can = root["canCreateAnnotation"] as? Bool ?? false
         let page = max(1, root["currentPage"] as? Int ?? 1)
         let count = max(1, root["pageCount"] as? Int ?? 1)
         var formatting: EditorFormattingState?
@@ -132,7 +126,6 @@ public enum NativeHostMessageParserDarwin {
         }
         return .readerMetrics(
             ReaderMetricsEvent(
-                canCreateAnnotation: can,
                 currentPage: page,
                 pageCount: count,
                 formatting: formatting

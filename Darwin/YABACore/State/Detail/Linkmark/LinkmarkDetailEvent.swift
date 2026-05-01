@@ -21,25 +21,6 @@ public enum LinkmarkDetailEvent: Sendable {
     case onSetReaderTheme(ReaderTheme)
     case onSetReaderFontSize(ReaderFontSize)
     case onSetReaderLineHeight(ReaderLineHeight)
-    case onCreateAnnotation(
-        annotationId: String,
-        colorRole: YabaColor,
-        note: String?,
-        quoteText: String?
-    )
-    case onUpdateAnnotation(annotationId: String, colorRole: YabaColor, note: String?)
-    case onDeleteAnnotation(annotationId: String)
-    case onAnnotationReadableCreateCommitted(
-        request: AnnotationReadableCreateRequest,
-        annotationId: String,
-        html: String
-    )
-    case onAnnotationReadableDeleteCommitted(
-        annotationId: String,
-        html: String
-    )
-    case onScrollToAnnotation(annotationId: String)
-    case onClearScrollToAnnotation
     case onRequestNotificationPermission
     case onScheduleReminder(fireAt: Date, titleKey: String, messageKey: String)
     case onCancelReminder

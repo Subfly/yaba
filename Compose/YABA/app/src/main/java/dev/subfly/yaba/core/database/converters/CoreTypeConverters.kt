@@ -1,7 +1,6 @@
 package dev.subfly.yaba.core.database.converters
 
 import androidx.room3.TypeConverter
-import dev.subfly.yaba.core.model.annotation.AnnotationType
 import org.json.JSONArray
 import dev.subfly.yaba.core.model.utils.BookmarkKind
 import dev.subfly.yaba.core.model.utils.DocmarkType
@@ -26,13 +25,6 @@ object CoreTypeConverters {
 
     @TypeConverter
     fun intToYabaColor(value: Int?): YabaColor? = value?.let { YabaColor.fromCode(it) }
-
-    @TypeConverter
-    fun annotationTypeToString(value: AnnotationType?): String? = value?.name
-
-    @TypeConverter
-    fun stringToAnnotationType(value: String?): AnnotationType? =
-        value?.let { runCatching { AnnotationType.valueOf(it) }.getOrNull() }
 
     @TypeConverter
     fun docmarkTypeToString(value: DocmarkType?): String? = value?.name

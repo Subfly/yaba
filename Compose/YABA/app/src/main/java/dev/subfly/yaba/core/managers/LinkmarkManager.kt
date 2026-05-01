@@ -1,15 +1,11 @@
 package dev.subfly.yaba.core.managers
 
 import dev.subfly.yaba.core.database.DatabaseProvider
-import dev.subfly.yaba.core.database.entities.AnnotationEntity
 import dev.subfly.yaba.core.database.entities.LinkBookmarkEntity
 import dev.subfly.yaba.core.database.mappers.toUiModel
 import dev.subfly.yaba.core.filesystem.BookmarkFileManager
-import dev.subfly.yaba.core.model.ui.AnnotationUiModel
 import dev.subfly.yaba.core.model.ui.LinkmarkUiModel
 import dev.subfly.yaba.core.queue.CoreOperationQueue
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import kotlin.time.Instant
 
 /**
@@ -22,7 +18,6 @@ object LinkmarkManager {
     private val linkBookmarkDao get() = DatabaseProvider.linkBookmarkDao
     private val folderDao get() = DatabaseProvider.folderDao
     private val tagDao get() = DatabaseProvider.tagDao
-    private val annotationDao get() = DatabaseProvider.annotationDao
 
     suspend fun getBookmarkUrl(bookmarkId: String): String? =
         linkBookmarkDao.getByBookmarkId(bookmarkId)?.url
@@ -67,10 +62,6 @@ object LinkmarkManager {
         )
     }
 
-    fun observeAnnotations(bookmarkId: String): Flow<List<AnnotationUiModel>> =
-        annotationDao.observeByBookmarkId(bookmarkId)
-            .map { list -> list.map { it.toUiModel() } }
-
     fun createOrUpdateLinkDetails(
         bookmarkId: String,
         url: String,
@@ -108,15 +99,4 @@ object LinkmarkManager {
         return candidate.substringBefore("?").substringBefore("#")
     }
 
-    private fun AnnotationEntity.toUiModel(): AnnotationUiModel =
-        AnnotationUiModel(
-            id = id,
-            type = type,
-            colorRole = colorRole,
-            note = note,
-            quoteText = quoteText,
-            extrasJson = extrasJson,
-            createdAt = createdAt,
-            editedAt = editedAt,
-        )
 }

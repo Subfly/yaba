@@ -10,9 +10,7 @@ import dev.subfly.yaba.core.database.models.BookmarkWithRelations
 import dev.subfly.yaba.core.filesystem.BookmarkFileManager
 import dev.subfly.yaba.core.filesystem.access.YabaFileAccessor
 import dev.subfly.yaba.core.managers.AllBookmarksManager
-import dev.subfly.yaba.core.managers.AnnotationManager
 import dev.subfly.yaba.core.managers.ReadableContentManager
-import dev.subfly.yaba.core.model.annotation.AnnotationType
 import dev.subfly.yaba.core.model.ui.BookmarkPreviewUiModel
 import dev.subfly.yaba.core.model.utils.ReaderFontSize
 import dev.subfly.yaba.core.model.utils.ReaderLineHeight
@@ -53,13 +51,6 @@ class LinkmarkDetailStateMachine :
             is LinkmarkDetailEvent.OnSetReaderTheme -> onSetReaderTheme(event.theme)
             is LinkmarkDetailEvent.OnSetReaderFontSize -> onSetReaderFontSize(event.fontSize)
             is LinkmarkDetailEvent.OnSetReaderLineHeight -> onSetReaderLineHeight(event.lineHeight)
-            is LinkmarkDetailEvent.OnCreateAnnotation -> onCreateAnnotation(event)
-            is LinkmarkDetailEvent.OnUpdateAnnotation -> onUpdateAnnotation(event)
-            is LinkmarkDetailEvent.OnDeleteAnnotation -> onDeleteAnnotation(event)
-            is LinkmarkDetailEvent.OnAnnotationReadableCreateCommitted -> onAnnotationReadableCreateCommitted(event)
-            is LinkmarkDetailEvent.OnAnnotationReadableDeleteCommitted -> onAnnotationReadableDeleteCommitted(event)
-            is LinkmarkDetailEvent.OnScrollToAnnotation -> onScrollToAnnotation(event)
-            LinkmarkDetailEvent.OnClearScrollToAnnotation -> onClearScrollToAnnotation()
             is LinkmarkDetailEvent.OnTocChanged -> onTocChanged(event.toc)
             is LinkmarkDetailEvent.OnNavigateToTocItem -> onNavigateToTocItem(event)
             LinkmarkDetailEvent.OnClearTocNavigation -> onClearTocNavigation()
@@ -122,7 +113,6 @@ class LinkmarkDetailStateMachine :
                                     linkDetails = linkDetails?.toUiModel(),
                                     readableDocumentJson = documentJson,
                                     assetsBaseUrl = assetsBaseUrl,
-                                    annotations = readableView?.annotations ?: emptyList(),
                                     isLoading =
                                         documentJson.isNullOrBlank().not() &&
                                         initialReaderLoadSettled.not(),
@@ -231,78 +221,6 @@ class LinkmarkDetailStateMachine :
                 readerPreferences = state.readerPreferences.copy(lineHeight = lineHeight),
             )
         }
-    }
-
-    private fun onCreateAnnotation(event: LinkmarkDetailEvent.OnCreateAnnotation) {
-        val bookmarkId = bookmarkIdFlow.value ?: return
-        AnnotationManager.createAnnotation(
-            annotationId = event.annotationId,
-            bookmarkId = bookmarkId,
-            type = AnnotationType.READABLE,
-            colorRole = event.colorRole,
-            note = event.note,
-            quoteText = event.quoteText,
-            extrasJson = null,
-        )
-    }
-
-    private fun onUpdateAnnotation(event: LinkmarkDetailEvent.OnUpdateAnnotation) {
-        val bookmarkId = bookmarkIdFlow.value ?: return
-        AnnotationManager.updateAnnotation(
-            bookmarkId = bookmarkId,
-            annotationId = event.annotationId,
-            colorRole = event.colorRole,
-            note = event.note,
-        )
-    }
-
-    private fun onDeleteAnnotation(event: LinkmarkDetailEvent.OnDeleteAnnotation) {
-        val bookmarkId = bookmarkIdFlow.value ?: return
-        AnnotationManager.deleteAnnotation(bookmarkId, event.annotationId)
-    }
-
-    private fun onAnnotationReadableCreateCommitted(
-        event: LinkmarkDetailEvent.OnAnnotationReadableCreateCommitted,
-    ) {
-        val activeBookmarkId = bookmarkIdFlow.value ?: return
-        val req = event.request
-        if (req.selectionDraft.bookmarkId != activeBookmarkId) return
-        launch {
-            ReadableContentManager.syncReadableDocumentMirror(
-                bookmarkId = req.selectionDraft.bookmarkId,
-                documentJson = event.documentJson,
-            )
-            AnnotationManager.createAnnotation(
-                annotationId = event.annotationId,
-                bookmarkId = req.selectionDraft.bookmarkId,
-                type = AnnotationType.READABLE,
-                colorRole = req.colorRole,
-                note = req.note,
-                quoteText = req.selectionDraft.quote.displayText.ifBlank { null },
-                extrasJson = null,
-            )
-        }
-    }
-
-    private fun onAnnotationReadableDeleteCommitted(
-        event: LinkmarkDetailEvent.OnAnnotationReadableDeleteCommitted,
-    ) {
-        val bookmarkId = bookmarkIdFlow.value ?: return
-        launch {
-            ReadableContentManager.syncReadableDocumentMirror(
-                bookmarkId = bookmarkId,
-                documentJson = event.documentJson,
-            )
-            AnnotationManager.deleteAnnotation(bookmarkId, event.annotationId)
-        }
-    }
-
-    private fun onScrollToAnnotation(event: LinkmarkDetailEvent.OnScrollToAnnotation) {
-        updateState { it.copy(scrollToAnnotationId = event.annotationId) }
-    }
-
-    private fun onClearScrollToAnnotation() {
-        updateState { it.copy(scrollToAnnotationId = null) }
     }
 
     private fun onTocChanged(toc: Toc?) {

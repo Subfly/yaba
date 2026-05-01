@@ -232,78 +232,6 @@
         }
       }
     },
-    "Annotation Apply Failed Message" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Successfully created annotation."
-          }
-        }
-      }
-    },
-    "Annotation Delete Confirmation Message" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Are you sure you want to delete this annotation? This operation can not be undone!"
-          }
-        }
-      }
-    },
-    "Annotation Delete Confirmation Title" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Delete Annotation"
-          }
-        }
-      }
-    },
-    "Annotation Note Placeholder" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Write your note here…"
-          }
-        }
-      }
-    },
-    "Annotation Quote Empty Message" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No quote selected…"
-          }
-        }
-      }
-    },
-    "Annotation Selection Required Message" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "You should select a portion of text in order to create annotations!"
-          }
-        }
-      }
-    },
-    "Annotation Sync Failed Message" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Annotation could not be created!"
-          }
-        }
-      }
-    },
     "Announcement CloudKit Deletion Title" : {
       "comment" : "One time title for announcement that indicates Cloud Kit Database Deletion",
       "extractionState" : "manual",
@@ -1817,26 +1745,6 @@
         }
       }
     },
-    "Bookmark Detail No Annotations Message" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No annotations found. Create your first annotation by selecting a text, and then clicking on the “create annotation” button in the reader."
-          }
-        }
-      }
-    },
-    "Bookmark Detail No Annotations Title" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No annotations created yet…"
-          }
-        }
-      }
-    },
     "Bookmark Detail No Description Provided" : {
       "comment" : "Description placeholder in bookmark detail",
       "localizations" : {
@@ -2511,16 +2419,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Details"
-          }
-        }
-      }
-    },
-    "Bookmark Detail Sheet Tab Annotations Title" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Annotations"
           }
         }
       }
@@ -5536,6 +5434,7 @@
       }
     },
     "Color" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -5637,16 +5536,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "已复制到剪贴板"
-          }
-        }
-      }
-    },
-    "Create Annotation" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Create Annotation"
           }
         }
       }
@@ -9684,26 +9573,6 @@
         }
       }
     },
-    "Delete Annotation Message" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Are you sure you want to delete this annotation? This operation could not be undone!"
-          }
-        }
-      }
-    },
-    "Delete Annotation Title" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Delete Annotation"
-          }
-        }
-      }
-    },
     "Delete Bookmark Title" : {
       "comment" : "Title to show in dialog when a bookmark is deleting",
       "extractionState" : "manual",
@@ -10571,16 +10440,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "编辑"
-          }
-        }
-      }
-    },
-    "Edit Annotation" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Edit Annotation"
           }
         }
       }
@@ -28068,6 +27927,7 @@
       }
     },
     "Note" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

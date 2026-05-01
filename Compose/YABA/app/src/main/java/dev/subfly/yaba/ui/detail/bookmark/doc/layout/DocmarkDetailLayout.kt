@@ -13,14 +13,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedListItem
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -36,10 +34,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
-import dev.subfly.yaba.core.components.NoContentView
 import dev.subfly.yaba.core.components.YabaIcon
-import dev.subfly.yaba.core.components.item.annotation.AnnotationItemView
-import dev.subfly.yaba.core.navigation.creation.AnnotationCreationRoute
 import dev.subfly.yaba.core.navigation.main.FolderDetailRoute
 import dev.subfly.yaba.core.navigation.main.TagDetailRoute
 import dev.subfly.yaba.ui.detail.bookmark.components.BookmarkDetailPageSegmentedRow
@@ -51,9 +46,7 @@ import dev.subfly.yaba.ui.detail.composables.BookmarkDetailLabel
 import dev.subfly.yaba.ui.detail.composables.BookmarkDetailReminderSectionContent
 import dev.subfly.yaba.ui.detail.composables.BookmarkDetailTagSectionContent
 import dev.subfly.yaba.ui.detail.composables.BookmarkExtractedMetadataSection
-import dev.subfly.yaba.util.LocalAppStateManager
 import dev.subfly.yaba.util.LocalContentNavigator
-import dev.subfly.yaba.util.LocalCreationContentNavigator
 import dev.subfly.yaba.util.formatDateTime
 import dev.subfly.yaba.core.model.utils.YabaColor
 import dev.subfly.yaba.core.state.detail.docmark.DocmarkDetailEvent
@@ -68,8 +61,6 @@ internal fun DocmarkDetailLayout(
     onShowRemindMePicker: () -> Unit = {},
 ) {
     val navigator = LocalContentNavigator.current
-    val creationNavigator = LocalCreationContentNavigator.current
-    val appStateManager = LocalAppStateManager.current
     val mainColor by remember(state.bookmark) {
         mutableStateOf(state.bookmark?.parentFolder?.color ?: YabaColor.RED)
     }
@@ -245,60 +236,6 @@ internal fun DocmarkDetailLayout(
                     )
                 }
 
-                DocmarkDetailPage.ANNOTATIONS -> {
-                    if (state.annotations.isEmpty()) {
-                        item {
-                            Surface(
-                                modifier = Modifier
-                                    .animateItem()
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 12.dp),
-                                shape = RoundedCornerShape(12.dp),
-                                color = MaterialTheme.colorScheme.surface,
-                            ) {
-                                NoContentView(
-                                    modifier = Modifier
-                                        .padding(12.dp)
-                                        .padding(vertical = 24.dp),
-                                    iconName = "displeased",
-                                    labelRes = R.string.bookmark_detail_no_tags_added_title,
-                                    message = {
-                                        Text(text = stringResource(R.string.bookmark_detail_no_tags_added_description))
-                                    },
-                                )
-                            }
-                        }
-                    } else {
-                        itemsIndexed(
-                            items = state.annotations,
-                            key = { _, annotation -> annotation.id },
-                        ) { index, annotation ->
-                            AnnotationItemView(
-                                modifier = Modifier
-                                    .animateItem()
-                                    .padding(vertical = 4.dp),
-                                model = annotation,
-                                index = index,
-                                count = state.annotations.size,
-                                onPress = {
-                                    onHide()
-                                    onEvent(DocmarkDetailEvent.OnScrollToAnnotation(annotation.id))
-                                },
-                                onEdit = {
-                                    creationNavigator.add(
-                                        AnnotationCreationRoute(
-                                            bookmarkId = bookmark.id,
-                                            selectionDraft = null,
-                                            annotationId = annotation.id,
-                                        ),
-                                    )
-                                    appStateManager.onShowCreationContent()
-                                },
-                                onDelete = { onEvent(DocmarkDetailEvent.OnDeleteAnnotation(annotation.id)) },
-                            )
-                        }
-                    }
-                }
             }
             item { Spacer(modifier = Modifier.height(56.dp)) }
         }

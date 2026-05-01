@@ -1,7 +1,6 @@
 package dev.subfly.yaba.core.state.detail.docmark
 
 import dev.subfly.yaba.core.database.DatabaseProvider
-import dev.subfly.yaba.core.database.entities.AnnotationEntity
 import dev.subfly.yaba.core.database.mappers.toPreviewUiModel
 import dev.subfly.yaba.core.database.mappers.toUiModel
 import dev.subfly.yaba.core.database.models.BookmarkWithRelations
@@ -9,9 +8,7 @@ import dev.subfly.yaba.core.filesystem.BookmarkFileManager
 import dev.subfly.yaba.core.filesystem.access.YabaFileAccessor
 import dev.subfly.yaba.core.managers.AllBookmarksManager
 import dev.subfly.yaba.core.managers.DocmarkManager
-import dev.subfly.yaba.core.managers.AnnotationManager
 import dev.subfly.yaba.core.managers.ReadableContentManager
-import dev.subfly.yaba.core.model.ui.AnnotationUiModel
 import dev.subfly.yaba.core.model.ui.BookmarkPreviewUiModel
 import dev.subfly.yaba.core.model.utils.DocmarkType
 import dev.subfly.yaba.core.model.utils.ReaderFontSize
@@ -47,9 +44,6 @@ class DocmarkDetailStateMachine : BaseStateMachine<DocmarkDetailUIState, Docmark
             is DocmarkDetailEvent.OnSetReaderTheme -> onSetReaderTheme(event.theme)
             is DocmarkDetailEvent.OnSetReaderFontSize -> onSetReaderFontSize(event.fontSize)
             is DocmarkDetailEvent.OnSetReaderLineHeight -> onSetReaderLineHeight(event.lineHeight)
-            is DocmarkDetailEvent.OnDeleteAnnotation -> onDeleteAnnotation(event.annotationId)
-            is DocmarkDetailEvent.OnScrollToAnnotation -> onScrollToAnnotation(event.annotationId)
-            DocmarkDetailEvent.OnClearScrollToAnnotation -> onClearScrollToAnnotation()
             is DocmarkDetailEvent.OnTocChanged -> onTocChanged(event.toc)
             is DocmarkDetailEvent.OnNavigateToTocItem -> onNavigateToTocItem(event)
             DocmarkDetailEvent.OnClearTocNavigation -> onClearTocNavigation()
@@ -87,16 +81,13 @@ class DocmarkDetailStateMachine : BaseStateMachine<DocmarkDetailUIState, Docmark
                     updateState { it.copy(isLoading = true) }
                     val bookmarkFlow = DatabaseProvider.bookmarkDao.observeByIdWithRelations(id)
                     val docFlow = DatabaseProvider.docBookmarkDao.observeByBookmarkId(id)
-                    val annotationsFlow = DatabaseProvider.annotationDao.observeByBookmarkId(id)
                     combine(
                         bookmarkFlow,
                         docFlow,
-                        annotationsFlow,
-                    ) { bookmark, doc, anns ->
+                    ) { bookmark, doc ->
                         flow {
                             val docmarkType = doc?.type ?: DocmarkType.PDF
                             val documentPath = DocmarkManager.resolveDocumentAbsolutePath(id, docmarkType)
-                            val annsUi = anns.map { it.toAnnotationUiModel() }
                             emit(
                                 currentState().copy(
                                     bookmark = bookmark?.toBookmarkPreviewUiModel(),
@@ -107,7 +98,6 @@ class DocmarkDetailStateMachine : BaseStateMachine<DocmarkDetailUIState, Docmark
                                     metadataDate = doc?.metadataDate,
                                     docmarkType = docmarkType,
                                     documentAbsolutePath = documentPath,
-                                    annotations = annsUi,
                                     isLoading = documentPath.isNullOrBlank().not(),
                                     webContentLoadFailed = false,
                                 ),
@@ -128,7 +118,6 @@ class DocmarkDetailStateMachine : BaseStateMachine<DocmarkDetailUIState, Docmark
                         metadataDate = newState.metadataDate,
                         docmarkType = newState.docmarkType,
                         documentAbsolutePath = newState.documentAbsolutePath,
-                        annotations = newState.annotations,
                         isLoading = if (preserveShell) false else newState.isLoading,
                         webContentLoadFailed =
                             if (preserveShell) current.webContentLoadFailed
@@ -242,22 +231,6 @@ class DocmarkDetailStateMachine : BaseStateMachine<DocmarkDetailUIState, Docmark
         }
     }
 
-    private fun onDeleteAnnotation(annotationId: String) {
-        val bookmarkId = bookmarkIdFlow.value ?: return
-        AnnotationManager.deleteAnnotation(
-            bookmarkId = bookmarkId,
-            annotationId = annotationId,
-        )
-    }
-
-    private fun onScrollToAnnotation(annotationId: String) {
-        updateState { it.copy(scrollToAnnotationId = annotationId) }
-    }
-
-    private fun onClearScrollToAnnotation() {
-        updateState { it.copy(scrollToAnnotationId = null) }
-    }
-
     private fun onTocChanged(toc: Toc?) {
         updateState { it.copy(toc = toc) }
     }
@@ -300,18 +273,6 @@ class DocmarkDetailStateMachine : BaseStateMachine<DocmarkDetailUIState, Docmark
         bookmarkIdFlow.value = null
         super.clear()
     }
-
-    private fun AnnotationEntity.toAnnotationUiModel(): AnnotationUiModel =
-        AnnotationUiModel(
-            id = id,
-            type = type,
-            colorRole = colorRole,
-            note = note,
-            quoteText = quoteText,
-            extrasJson = extrasJson,
-            createdAt = createdAt,
-            editedAt = editedAt,
-        )
 
     private suspend fun BookmarkWithRelations.toBookmarkPreviewUiModel(): BookmarkPreviewUiModel {
         val folderUi = folder.toUiModel()

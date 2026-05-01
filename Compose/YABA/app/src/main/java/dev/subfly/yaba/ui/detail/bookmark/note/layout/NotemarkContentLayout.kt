@@ -497,7 +497,6 @@ internal fun NotemarkContentLayout(
                                 onScrollDirectionChanged = { _ -> },
                                 onReaderBridgeReady = {},
                                 onEditorBridgeReady = { editorBridge = it },
-                                onAnnotationTap = {},
                                 onMathTap = { ev: MathTapEvent ->
                                     scope.launch {
                                         openCreationSheet(

@@ -16,7 +16,6 @@ public final class WKWebViewRuntime: NSObject {
 
     public var onHostEvent: ((WebHostEvent) -> Void)?
     public var onBridgeReady: (() -> Void)?
-    public var onAnnotationTap: ((String) -> Void)?
     public var onMathTap: ((MathTapEvent) -> Void)?
     public var onInlineLinkTap: ((InlineLinkTapEvent) -> Void)?
     public var onInlineMentionTap: ((InlineMentionTapEvent) -> Void)?
@@ -146,9 +145,6 @@ public final class WKWebViewRuntime: NSObject {
             onHostEvent: { [weak self] event in
                 self?.onHostEvent?(event)
             },
-            onAnnotationTap: { [weak self] id in
-                self?.onAnnotationTap?(id)
-            },
             onMathTap: { [weak self] ev in
                 self?.onMathTap?(ev)
             },
@@ -260,7 +256,7 @@ public final class WKWebViewRuntime: NSObject {
                 appearance: appearance,
                 bundle: bundle
             )
-        case let .readItLater(_, _, _, appearance, _):
+        case let .readItLater(_, _, _, appearance):
             return BundleReader.webShellURLWithQuery(
                 named: "preview.html",
                 platform: .darwin,

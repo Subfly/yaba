@@ -4,7 +4,6 @@ import { languages } from "@codemirror/language-data"
 import { Compartment, EditorState, type Extension } from "@codemirror/state"
 import { EditorView, placeholder } from "@codemirror/view"
 import { basicSetup } from "codemirror"
-import { annotationExtensions } from "./annotation-extension"
 
 export interface YabaEditorExtensionCompartments {
   placeholder: Compartment
@@ -54,7 +53,6 @@ export function createYabaMarkdownExtensions(c: YabaEditorExtensionCompartments)
         backgroundColor: "var(--yaba-primary-container, rgba(72, 93, 146, 0.25))",
       },
     }),
-    ...annotationExtensions,
     c.yabaExtras.of([]),
   ]
 }

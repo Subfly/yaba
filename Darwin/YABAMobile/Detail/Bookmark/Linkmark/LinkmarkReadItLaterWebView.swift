@@ -98,12 +98,9 @@ struct LinkmarkReadItLaterWebView: UIViewRepresentable {
     let inlineAssets: [LinkmarkInlineAssetPayload]
     let readerPreferences: ReaderPreferences
     let appearance: WebAppearance
-    let annotationsJson: String
     @Binding var tocNavigateItemId: String?
-    @Binding var scrollToAnnotationId: String?
     let onHostEvent: (WebHostEvent) -> Void
     let onInlineLinkTap: (InlineLinkTapEvent) -> Void
-    let onAnnotationTap: ((String) -> Void)?
     let onScrollShowChrome: (() -> Void)?
     let onScrollHideChrome: (() -> Void)?
     let onRuntimeReady: ((WKWebViewRuntime) -> Void)?
@@ -117,7 +114,7 @@ struct LinkmarkReadItLaterWebView: UIViewRepresentable {
     }
 
     func updateUIView(_ uiView: WKWebView, context: Context) {
-        context.coordinator.updateBindings(toc: $tocNavigateItemId, scroll: $scrollToAnnotationId)
+        context.coordinator.updateBindings(toc: $tocNavigateItemId)
         context.coordinator.update(parent: self)
     }
 
@@ -131,7 +128,6 @@ struct LinkmarkReadItLaterWebView: UIViewRepresentable {
         private var lastMarkdownApplied = ""
         private var lastPrefsFingerprint = ""
         private var tocNavigateBinding = Binding<String?>.constant(nil)
-        private var scrollAnnotationBinding = Binding<String?>.constant(nil)
 
         init(parent: LinkmarkReadItLaterWebView) {
             self.parent = parent
@@ -157,18 +153,14 @@ struct LinkmarkReadItLaterWebView: UIViewRepresentable {
             runtime.onInlineLinkTap = { [weak self] event in
                 self?.parent.onInlineLinkTap(event)
             }
-            runtime.onAnnotationTap = { [weak self] id in
-                self?.parent.onAnnotationTap?(id)
-            }
             runtime.webView.scrollView.contentInsetAdjustmentBehavior = .never
             if #available(iOS 13.0, *) {
                 runtime.webView.scrollView.automaticallyAdjustsScrollIndicatorInsets = false
             }
         }
 
-        func updateBindings(toc: Binding<String?>, scroll: Binding<String?>) {
+        func updateBindings(toc: Binding<String?>) {
             tocNavigateBinding = toc
-            scrollAnnotationBinding = scroll
         }
 
         func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -203,8 +195,7 @@ struct LinkmarkReadItLaterWebView: UIViewRepresentable {
                     readerTheme: parent.readerPreferences.theme,
                     readerFontSize: parent.readerPreferences.fontSize,
                     readerLineHeight: parent.readerPreferences.lineHeight,
-                    appearance: parent.appearance,
-                    annotationsJson: parent.annotationsJson
+                    appearance: parent.appearance
                 )
             )
         }
@@ -214,7 +205,6 @@ struct LinkmarkReadItLaterWebView: UIViewRepresentable {
             let markdown = parent.markdown
             let prefs = parent.readerPreferences
             let appearance = parent.appearance
-            let annotationsJson = parent.annotationsJson
 
             let fp = "\(prefs.theme.rawValue)|\(prefs.fontSize.rawValue)|\(prefs.lineHeight.rawValue)"
             let markdownChanged = markdown != lastMarkdownApplied
@@ -233,15 +223,8 @@ struct LinkmarkReadItLaterWebView: UIViewRepresentable {
                 _ = try? await runtime.evaluateJavaScriptStringResult(
                     WebPreviewBridgeScripts.setMarkdown(markdown)
                 )
-                _ = try? await runtime.evaluateJavaScriptStringResult(
-                    WebPreviewBridgeScripts.setAnnotations(jsonArrayBody: annotationsJson)
-                )
                 lastMarkdownApplied = markdown
                 lastPrefsFingerprint = fp
-            } else {
-                _ = try? await runtime.evaluateJavaScriptStringResult(
-                    WebPreviewBridgeScripts.setAnnotations(jsonArrayBody: annotationsJson)
-                )
             }
 
             await flushNavigationCommands()
@@ -254,13 +237,6 @@ struct LinkmarkReadItLaterWebView: UIViewRepresentable {
                     WebPreviewBridgeScripts.navigateToTocItem(id: tocId, extrasJson: nil)
                 )
                 tocNavigateBinding.wrappedValue = nil
-            }
-
-            if let annId = scrollAnnotationBinding.wrappedValue, !annId.isEmpty {
-                _ = try? await runtime.evaluateJavaScriptStringResult(
-                    WebPreviewBridgeScripts.scrollToAnnotation(annotationId: annId)
-                )
-                scrollAnnotationBinding.wrappedValue = nil
             }
         }
     }

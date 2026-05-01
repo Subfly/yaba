@@ -131,9 +131,6 @@ final class BookmarkModel {
     @Relationship(deleteRule: .cascade, inverse: \CanvasBookmarkModel.bookmark)
     var canvasDetail: CanvasBookmarkModel?
 
-    @Relationship(deleteRule: .cascade, inverse: \AnnotationModel.bookmark)
-    var annotations: [AnnotationModel] = []
-
     init(
         bookmarkId: String = UUID().uuidString,
         kindRaw: Int = BookmarkKind.link.rawValue,
@@ -415,44 +412,6 @@ final class InlineAssetModel {
         self.pathExtension = pathExtension
         self.bytes = bytes
         self.linkBookmark = linkBookmark
-    }
-}
-
-// MARK: - Annotation
-
-@Model
-final class AnnotationModel {
-    var annotationId: String = UUID().uuidString
-    var typeRaw: String = AnnotationType.readable.rawValue
-    var colorRoleRaw: Int = 0
-    var note: String?
-    var quoteText: String?
-    var extrasJson: String?
-    var createdAt: Date = Date.now
-    var editedAt: Date = Date.now
-
-    var bookmark: BookmarkModel?
-
-    init(
-        annotationId: String = UUID().uuidString,
-        typeRaw: String = AnnotationType.readable.rawValue,
-        colorRoleRaw: Int = 0,
-        note: String? = nil,
-        quoteText: String? = nil,
-        extrasJson: String? = nil,
-        createdAt: Date = .now,
-        editedAt: Date = .now,
-        bookmark: BookmarkModel? = nil
-    ) {
-        self.annotationId = annotationId
-        self.typeRaw = typeRaw
-        self.colorRoleRaw = colorRoleRaw
-        self.note = note
-        self.quoteText = quoteText
-        self.extrasJson = extrasJson
-        self.createdAt = createdAt
-        self.editedAt = editedAt
-        self.bookmark = bookmark
     }
 }
 

@@ -23,12 +23,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,20 +35,13 @@ import androidx.compose.ui.unit.dp
 import dev.subfly.yaba.core.components.NoContentView
 import dev.subfly.yaba.core.components.YabaIcon
 import dev.subfly.yaba.core.components.webview.YabaWebView
-import dev.subfly.yaba.core.navigation.creation.AnnotationCreationRoute
 import dev.subfly.yaba.ui.detail.bookmark.components.BookmarkDetailContentTopBar
 import dev.subfly.yaba.ui.detail.bookmark.components.bookmarkFolderAccentColor
 import dev.subfly.yaba.ui.detail.bookmark.link.components.LinkmarkContentDropdownMenu
 import dev.subfly.yaba.ui.detail.bookmark.link.components.LinkmarkReaderFloatingToolbar
 import dev.subfly.yaba.ui.detail.bookmark.util.bookmarkDetailIconButtonColors
-import dev.subfly.yaba.util.LocalAppStateManager
 import dev.subfly.yaba.util.LocalContentNavigator
-import dev.subfly.yaba.util.LocalCreationContentNavigator
-import dev.subfly.yaba.util.LocalResultStore
-import dev.subfly.yaba.util.ResultStoreKeys
 import dev.subfly.yaba.util.rememberUrlLauncher
-import dev.subfly.yaba.core.common.IdGenerator
-import dev.subfly.yaba.core.model.annotation.AnnotationReadableCreateRequest
 import dev.subfly.yaba.core.state.detail.DetailWebShellPhase
 import dev.subfly.yaba.core.state.detail.linkmark.LinkmarkDetailEvent
 import dev.subfly.yaba.core.state.detail.linkmark.detailWebShellPhase
@@ -81,13 +72,7 @@ internal fun LinkmarkContentLayout(
     onShowRemindMePicker: () -> Unit = {},
 ) {
     val navigator = LocalContentNavigator.current
-    val creationNavigator = LocalCreationContentNavigator.current
-    val appStateManager = LocalAppStateManager.current
-    val resultStore = LocalResultStore.current
-
-    val appState by appStateManager.state.collectAsState()
     val openUrl = rememberUrlLauncher()
-    val scope = rememberCoroutineScope()
 
     var readerBridge by remember { mutableStateOf<WebViewReaderBridge?>(null) }
     val appearance = if (isSystemInDarkTheme()) YabaWebAppearance.Dark else YabaWebAppearance.Light
@@ -138,56 +123,11 @@ internal fun LinkmarkContentLayout(
         state.isLoading
     ) { mutableStateOf(true) }
     var isMenuExpanded by remember { mutableStateOf(false) }
-    var hasSelection by remember { mutableStateOf(false) }
-    var previousShowCreationContent by remember { mutableStateOf(false) }
 
     val folderAccent by remember(state.bookmark) {
         derivedStateOf { bookmarkFolderAccentColor(state.bookmark) }
     }
     val menuIconButtonColors = bookmarkDetailIconButtonColors(folderAccent)
-
-    LaunchedEffect(appState.showCreationContent) {
-        val show = appState.showCreationContent
-        if (previousShowCreationContent && show.not()) {
-            val createReq = resultStore.getResult<AnnotationReadableCreateRequest>(
-                ResultStoreKeys.ANNOTATION_READABLE_CREATE_REQUEST,
-            )
-            val deleteId = resultStore.getResult<String>(
-                ResultStoreKeys.ANNOTATION_READABLE_DELETE_REQUEST,
-            )
-            val bridge = readerBridge
-
-            when {
-                createReq != null && bridge != null -> {
-                    resultStore.removeResult(ResultStoreKeys.ANNOTATION_READABLE_CREATE_REQUEST)
-                    val annotationId = IdGenerator.newId()
-                    if (bridge.applyAnnotationToSelection(annotationId)) {
-                        val json = bridge.getDocumentJson()
-                        onEvent(
-                            LinkmarkDetailEvent.OnAnnotationReadableCreateCommitted(
-                                annotationId = annotationId,
-                                request = createReq,
-                                documentJson = json,
-                            ),
-                        )
-                    }
-                }
-
-                deleteId != null && bridge != null -> {
-                    resultStore.removeResult(ResultStoreKeys.ANNOTATION_READABLE_DELETE_REQUEST)
-                    bridge.removeAnnotationFromDocument(deleteId)
-                    val json = bridge.getDocumentJson()
-                    onEvent(
-                        LinkmarkDetailEvent.OnAnnotationReadableDeleteCommitted(
-                            annotationId = deleteId,
-                            documentJson = json,
-                        ),
-                    )
-                }
-            }
-        }
-        previousShowCreationContent = show
-    }
 
     Box(
         modifier = modifier
@@ -223,13 +163,6 @@ internal fun LinkmarkContentLayout(
                 DetailWebShellPhase.Bootstrapping,
                 DetailWebShellPhase.Ready -> {
                     if (webShellPhase == DetailWebShellPhase.Ready) {
-                        LaunchedEffect(state.scrollToAnnotationId) {
-                            val annotationId = state.scrollToAnnotationId ?: return@LaunchedEffect
-                            val bridge = readerBridge ?: return@LaunchedEffect
-                            bridge.scrollToAnnotation(annotationId)
-                            onEvent(LinkmarkDetailEvent.OnClearScrollToAnnotation)
-                        }
-
                         LaunchedEffect(state.pendingTocNavigate, readerBridge) {
                             val pending = state.pendingTocNavigate ?: return@LaunchedEffect
                             val bridge = readerBridge ?: return@LaunchedEffect
@@ -240,26 +173,9 @@ internal fun LinkmarkContentLayout(
                         LinkmarkReaderFloatingToolbar(
                             modifier = Modifier.padding(bottom = 8.dp),
                             color = folderAccent,
-                            isVisible = isReaderToolbarVisible || hasSelection,
+                            isVisible = isReaderToolbarVisible,
                             readerPreferences = state.readerPreferences,
-                            hasSelection = hasSelection,
                             onEvent = onEvent,
-                            onAnnotationClick = {
-                                val bridge = readerBridge ?: return@LinkmarkReaderFloatingToolbar
-                                val bookmarkId =
-                                    state.bookmark?.id ?: return@LinkmarkReaderFloatingToolbar
-                                scope.launch {
-                                    val draft = bridge.getSelectionSnapshot(bookmarkId)
-                                    creationNavigator.add(
-                                        AnnotationCreationRoute(
-                                            bookmarkId = bookmarkId,
-                                            selectionDraft = draft,
-                                            annotationId = null,
-                                        ),
-                                    )
-                                    appStateManager.onShowCreationContent()
-                                }
-                            },
                         )
                     }
 
@@ -273,13 +189,9 @@ internal fun LinkmarkContentLayout(
                                 readerPreferences = state.readerPreferences,
                                 platform = YabaWebPlatform.Android,
                                 appearance = appearance,
-                                annotations = state.annotations,
                             ),
                             onHostEvent = { ev ->
                                 when (ev) {
-                                    is YabaWebHostEvent.ReaderMetrics ->
-                                        hasSelection = ev.canCreateAnnotation
-
                                     is YabaWebHostEvent.InitialContentLoad ->
                                         onEvent(LinkmarkDetailEvent.OnReaderWebInitialContentLoad(ev.result))
 
@@ -297,17 +209,6 @@ internal fun LinkmarkContentLayout(
                                     true
                             },
                             onReaderBridgeReady = { bridge -> readerBridge = bridge },
-                            onAnnotationTap = { annotationId ->
-                                val bookmarkId = state.bookmark?.id ?: return@YabaWebView
-                                creationNavigator.add(
-                                    AnnotationCreationRoute(
-                                        bookmarkId = bookmarkId,
-                                        selectionDraft = null,
-                                        annotationId = annotationId,
-                                    ),
-                                )
-                                appStateManager.onShowCreationContent()
-                            },
                         )
                         if (webShellPhase == DetailWebShellPhase.Bootstrapping) {
                             Box(

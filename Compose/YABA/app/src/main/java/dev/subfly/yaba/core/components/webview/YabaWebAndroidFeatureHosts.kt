@@ -46,7 +46,6 @@ private fun BindNativeHostBridge(
     onReset: () -> Unit,
     onBridgeReady: () -> Unit,
     onHostEvent: (YabaWebHostEvent) -> Unit = {},
-    onAnnotationTap: (String) -> Unit = {},
     onMathTap: (MathTapEvent) -> Unit = {},
     onInlineLinkTap: (InlineLinkTapEvent) -> Unit = {},
     onInlineMentionTap: (InlineMentionTapEvent) -> Unit = {},
@@ -57,7 +56,6 @@ private fun BindNativeHostBridge(
             expectedBridgeFeature = expectedBridgeFeature,
             onBridgeReady = onBridgeReady,
             onHostEvent = onHostEvent,
-            onAnnotationTap = onAnnotationTap,
             onMathTap = onMathTap,
             onInlineLinkTap = onInlineLinkTap,
             onInlineMentionTap = onInlineMentionTap,
@@ -79,7 +77,6 @@ internal fun YabaReadableViewerFeatureHost(
     onUrlClick: (String) -> Boolean,
     onScrollDirectionChanged: (YabaWebScrollDirection) -> Unit,
     onReaderBridgeReady: (WebViewReaderBridge?) -> Unit,
-    onAnnotationTap: (String) -> Unit,
     onInlineLinkTap: (InlineLinkTapEvent) -> Unit,
     onInlineMentionTap: (InlineMentionTapEvent) -> Unit,
 ) {
@@ -100,7 +97,6 @@ internal fun YabaReadableViewerFeatureHost(
     val loadUrl = remember(baseUrl, assetLoaderUrl) { assetLoaderUrl ?: baseUrl }
 
     var bridgeReadyFromWeb by remember(loadUrl) { mutableStateOf(false) }
-    val onAnnotationTapState = rememberUpdatedState(onAnnotationTap)
     val onInlineLinkTapState = rememberUpdatedState(onInlineLinkTap)
     val onInlineMentionTapState = rememberUpdatedState(onInlineMentionTap)
 
@@ -155,7 +151,6 @@ internal fun YabaReadableViewerFeatureHost(
         onReset = { bridgeReadyFromWeb = false },
         onBridgeReady = { bridgeReadyFromWeb = true },
         onHostEvent = { onHostEventState.value(it) },
-        onAnnotationTap = { onAnnotationTapState.value(it) },
         onInlineLinkTap = { onInlineLinkTapState.value(it) },
         onInlineMentionTap = { onInlineMentionTapState.value(it) },
     )
@@ -226,16 +221,6 @@ internal fun YabaReadableViewerFeatureHost(
             webView,
             WebChromeInsets(topChromeInsetPx = effectiveChromeInsetPx)
         )
-    }
-
-    LaunchedEffect(isPageReady, bridgeReadyFromWeb, rendererCrashed) {
-        if (!isPageReady || rendererCrashed || !bridgeReadyFromWeb) return@LaunchedEffect
-        installEditorAnnotationTap(webView)
-    }
-
-    LaunchedEffect(isPageReady, bridgeReadyFromWeb, feature.annotations, rendererCrashed) {
-        if (!isPageReady || rendererCrashed || !bridgeReadyFromWeb) return@LaunchedEffect
-        RichTextWebViewReaderBridge(webView).setAnnotations(feature.annotations)
     }
 
     AndroidView(
@@ -315,7 +300,6 @@ internal fun YabaEditorFeatureHost(
     onHostEvent: (YabaWebHostEvent) -> Unit,
     onUrlClick: (String) -> Boolean,
     onEditorBridgeReady: (WebViewEditorBridge?) -> Unit,
-    onAnnotationTap: (String) -> Unit,
     onMathTap: (MathTapEvent) -> Unit,
     onInlineLinkTap: (InlineLinkTapEvent) -> Unit,
     onInlineMentionTap: (InlineMentionTapEvent) -> Unit,
@@ -345,7 +329,6 @@ internal fun YabaEditorFeatureHost(
     val loadUrl = remember(baseUrl, assetLoaderUrl) { assetLoaderUrl ?: baseUrl }
 
     var bridgeReadyFromWeb by remember(loadUrl) { mutableStateOf(false) }
-    val onAnnotationTapState = rememberUpdatedState(onAnnotationTap)
     val onMathTapState = rememberUpdatedState(onMathTap)
     val onInlineLinkTapState = rememberUpdatedState(onInlineLinkTap)
     val onInlineMentionTapState = rememberUpdatedState(onInlineMentionTap)
@@ -372,7 +355,6 @@ internal fun YabaEditorFeatureHost(
         onReset = { bridgeReadyFromWeb = false },
         onBridgeReady = { bridgeReadyFromWeb = true },
         onHostEvent = { onHostEventState.value(it) },
-        onAnnotationTap = { onAnnotationTapState.value(it) },
         onMathTap = { onMathTapState.value(it) },
         onInlineLinkTap = { onInlineLinkTapState.value(it) },
         onInlineMentionTap = { onInlineMentionTapState.value(it) },
@@ -451,11 +433,6 @@ internal fun YabaEditorFeatureHost(
             feature.assetsBaseUrl
         )
         RichTextWebViewEditorBridge(webView).setEditable(true)
-    }
-
-    LaunchedEffect(isPageReady, bridgeReadyFromWeb, rendererCrashed) {
-        if (!isPageReady || rendererCrashed || !bridgeReadyFromWeb) return@LaunchedEffect
-        installEditorAnnotationTap(webView)
     }
 
     AndroidView(
@@ -879,7 +856,6 @@ internal fun YabaPdfViewerFeatureHost(
     onHostEvent: (YabaWebHostEvent) -> Unit,
     onScrollDirectionChanged: (YabaWebScrollDirection) -> Unit,
     onReaderBridgeReady: (WebViewReaderBridge?) -> Unit,
-    onAnnotationTap: (String) -> Unit,
     onInlineLinkTap: (InlineLinkTapEvent) -> Unit,
     onInlineMentionTap: (InlineMentionTapEvent) -> Unit,
 ) {
@@ -899,7 +875,6 @@ internal fun YabaPdfViewerFeatureHost(
     val loadUrl = remember(baseUrl, assetLoaderUrl) { assetLoaderUrl ?: baseUrl }
 
     var bridgeReadyFromWeb by remember(loadUrl) { mutableStateOf(false) }
-    val onAnnotationTapState = rememberUpdatedState(onAnnotationTap)
     val onInlineLinkTapState = rememberUpdatedState(onInlineLinkTap)
     val onInlineMentionTapState = rememberUpdatedState(onInlineMentionTap)
 
@@ -952,7 +927,6 @@ internal fun YabaPdfViewerFeatureHost(
         onReset = { bridgeReadyFromWeb = false },
         onBridgeReady = { bridgeReadyFromWeb = true },
         onHostEvent = { onHostEventState.value(it) },
-        onAnnotationTap = { onAnnotationTapState.value(it) },
         onInlineLinkTap = { onInlineLinkTapState.value(it) },
         onInlineMentionTap = { onInlineMentionTapState.value(it) },
     )
@@ -997,16 +971,6 @@ internal fun YabaPdfViewerFeatureHost(
     ) {
         if (!isPageReady || rendererCrashed || !bridgeReadyFromWeb) return@LaunchedEffect
         applyPdfTheme(webView, feature.platform, feature.appearance)
-    }
-
-    LaunchedEffect(isPageReady, bridgeReadyFromWeb, rendererCrashed) {
-        if (!isPageReady || rendererCrashed || !bridgeReadyFromWeb) return@LaunchedEffect
-        installPdfAnnotationTap(webView)
-    }
-
-    LaunchedEffect(isPageReady, bridgeReadyFromWeb, feature.annotations, rendererCrashed) {
-        if (!isPageReady || rendererCrashed || !bridgeReadyFromWeb) return@LaunchedEffect
-        PdfWebViewReaderBridge(webView).setAnnotations(feature.annotations)
     }
 
     AndroidView(
@@ -1181,7 +1145,6 @@ internal fun YabaEpubViewerFeatureHost(
     onHostEvent: (YabaWebHostEvent) -> Unit,
     onScrollDirectionChanged: (YabaWebScrollDirection) -> Unit,
     onReaderBridgeReady: (WebViewReaderBridge?) -> Unit,
-    onAnnotationTap: (String) -> Unit,
     onInlineLinkTap: (InlineLinkTapEvent) -> Unit,
     onInlineMentionTap: (InlineMentionTapEvent) -> Unit,
 ) {
@@ -1201,7 +1164,6 @@ internal fun YabaEpubViewerFeatureHost(
     val loadUrl = remember(baseUrl, assetLoaderUrl) { assetLoaderUrl ?: baseUrl }
 
     var bridgeReadyFromWeb by remember(loadUrl) { mutableStateOf(false) }
-    val onAnnotationTapState = rememberUpdatedState(onAnnotationTap)
     val onInlineLinkTapState = rememberUpdatedState(onInlineLinkTap)
     val onInlineMentionTapState = rememberUpdatedState(onInlineMentionTap)
 
@@ -1254,7 +1216,6 @@ internal fun YabaEpubViewerFeatureHost(
         onReset = { bridgeReadyFromWeb = false },
         onBridgeReady = { bridgeReadyFromWeb = true },
         onHostEvent = { onHostEventState.value(it) },
-        onAnnotationTap = { onAnnotationTapState.value(it) },
         onInlineLinkTap = { onInlineLinkTapState.value(it) },
         onInlineMentionTap = { onInlineMentionTapState.value(it) },
     )
@@ -1305,16 +1266,6 @@ internal fun YabaEpubViewerFeatureHost(
             feature.platform,
             feature.appearance
         )
-    }
-
-    LaunchedEffect(isPageReady, bridgeReadyFromWeb, rendererCrashed) {
-        if (!isPageReady || rendererCrashed || !bridgeReadyFromWeb) return@LaunchedEffect
-        installEpubAnnotationTap(webView)
-    }
-
-    LaunchedEffect(isPageReady, bridgeReadyFromWeb, feature.annotations, rendererCrashed) {
-        if (!isPageReady || rendererCrashed || !bridgeReadyFromWeb) return@LaunchedEffect
-        EpubWebViewReaderBridge(webView).setAnnotations(feature.annotations)
     }
 
     AndroidView(

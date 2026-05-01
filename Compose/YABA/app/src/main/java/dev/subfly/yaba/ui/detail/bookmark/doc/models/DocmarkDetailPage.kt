@@ -6,5 +6,4 @@ internal enum class DocmarkDetailPage(
 ) {
     INFO(iconName = "information-circle", label = "Info"),
     CONTENTS(iconName = "align-box-middle-center", label = "Contents"),
-    ANNOTATIONS(iconName = "sticky-note-03", label = "Annotations"),
 }

@@ -8,13 +8,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -25,9 +20,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import dev.subfly.yaba.core.components.NoContentView
-import dev.subfly.yaba.core.components.item.annotation.AnnotationItemView
-import dev.subfly.yaba.core.navigation.creation.AnnotationCreationRoute
 import dev.subfly.yaba.core.navigation.main.FolderDetailRoute
 import dev.subfly.yaba.core.navigation.main.TagDetailRoute
 import dev.subfly.yaba.ui.detail.bookmark.components.bookmarkDetailTocLazyItems
@@ -40,9 +32,7 @@ import dev.subfly.yaba.ui.detail.composables.BookmarkDetailFolderSectionContent
 import dev.subfly.yaba.ui.detail.composables.BookmarkDetailReminderSectionContent
 import dev.subfly.yaba.ui.detail.composables.BookmarkDetailTagSectionContent
 import dev.subfly.yaba.ui.detail.composables.BookmarkExtractedMetadataSection
-import dev.subfly.yaba.util.LocalAppStateManager
 import dev.subfly.yaba.util.LocalContentNavigator
-import dev.subfly.yaba.util.LocalCreationContentNavigator
 import dev.subfly.yaba.core.model.utils.YabaColor
 import dev.subfly.yaba.core.state.detail.linkmark.LinkmarkDetailEvent
 import dev.subfly.yaba.core.state.detail.linkmark.LinkmarkDetailUIState
@@ -55,8 +45,6 @@ internal fun LinkmarkDetailLayout(
     onEvent: (LinkmarkDetailEvent) -> Unit,
 ) {
     val navigator = LocalContentNavigator.current
-    val creationNavigator = LocalCreationContentNavigator.current
-    val appStateManager = LocalAppStateManager.current
 
     val mainColor by remember(state.bookmark) {
         mutableStateOf(state.bookmark?.parentFolder?.color ?: YabaColor.BLUE)
@@ -182,59 +170,6 @@ internal fun LinkmarkDetailLayout(
                     )
                 }
 
-                DetailPage.ANNOTATIONS -> {
-                    if (state.annotations.isEmpty()) {
-                        item(key = "NO_ANNOTATIONS") {
-                            Surface(
-                                modifier = Modifier
-                                    .animateItem()
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 12.dp),
-                                shape = RoundedCornerShape(12.dp),
-                                color = MaterialTheme.colorScheme.surface,
-                            ) {
-                                // TODO: LOCALIZATIONS
-                                NoContentView(
-                                    modifier = Modifier.padding(12.dp).padding(vertical = 24.dp),
-                                    iconName = "displeased",
-                                    labelRes = R.string.bookmark_detail_no_tags_added_title,
-                                    message = { Text(text = stringResource(R.string.bookmark_detail_no_tags_added_description)) },
-                                )
-                            }
-                        }
-                    } else {
-                        itemsIndexed(
-                            items = state.annotations,
-                            key = { _, a -> a.id },
-                        ) { index, annotation ->
-                            AnnotationItemView(
-                                modifier = Modifier
-                                    .animateItem()
-                                    .padding(vertical = 4.dp),
-                                model = annotation,
-                                index = index,
-                                count = state.annotations.size,
-                                onPress = {
-                                    onHide()
-                                    onEvent(LinkmarkDetailEvent.OnScrollToAnnotation(annotation.id))
-                                },
-                                onEdit = {
-                                    creationNavigator.add(
-                                        AnnotationCreationRoute(
-                                            bookmarkId = state.bookmark.id,
-                                            selectionDraft = null,
-                                            annotationId = annotation.id,
-                                        ),
-                                    )
-                                    appStateManager.onShowCreationContent()
-                                },
-                                onDelete = {
-                                    onEvent(LinkmarkDetailEvent.OnDeleteAnnotation(annotation.id))
-                                },
-                            )
-                        }
-                    }
-                }
             }
             item(key = "EXTRA_SPACER") { Spacer(modifier = Modifier.height(56.dp)) }
         }

@@ -4,15 +4,12 @@ package dev.subfly.yaba.core.managers
 
 import dev.subfly.yaba.core.common.CoreConstants
 import dev.subfly.yaba.core.database.DatabaseProvider
-import dev.subfly.yaba.core.database.entities.AnnotationEntity
 import dev.subfly.yaba.core.filesystem.access.FileAccessProvider
-import dev.subfly.yaba.core.model.ui.AnnotationUiModel
 import dev.subfly.yaba.core.queue.CoreOperationQueue
 import dev.subfly.yaba.core.unfurl.ReadableAsset
 import dev.subfly.yaba.core.unfurl.ReadableUnfurl
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
@@ -23,7 +20,6 @@ import kotlinx.coroutines.withContext
  */
 object ReadableContentManager {
     private val linkBookmarkDao get() = DatabaseProvider.linkBookmarkDao
-    private val annotationDao get() = DatabaseProvider.annotationDao
     private val accessProvider = FileAccessProvider
 
     fun saveReadableContent(bookmarkId: String, readable: ReadableUnfurl) {
@@ -79,7 +75,7 @@ object ReadableContentManager {
     }
 
     /**
-     * Docmarks: ensure `readable/current.json` exists for annotation UI when only PDF is present.
+     * Docmarks: ensure `readable/current.json` exists when only PDF is present.
      */
     fun ensureDocmarkReadablePlaceholderIfNeeded(bookmarkId: String) {
         CoreOperationQueue.queue("EnsureDocmarkReadable:$bookmarkId") {
@@ -112,16 +108,13 @@ object ReadableContentManager {
     }
 
     /**
-     * Observes the current readable for a **link** bookmark: link row + file body + all annotations.
+     * Observes the current readable for a **link** bookmark: link row + file body.
      */
     fun observeLinkReadable(
         bookmarkId: String,
     ): Flow<LinkmarkReadableView?> {
-        return combine(
-            linkBookmarkDao.observeByBookmarkId(bookmarkId),
-            annotationDao.observeByBookmarkId(bookmarkId),
-        ) { link, anns -> Pair(link, anns) }
-            .flatMapLatest { (link, anns) ->
+        return linkBookmarkDao.observeByBookmarkId(bookmarkId)
+            .flatMapLatest { link ->
                 flow {
                     if (link == null) {
                         emit(null)
@@ -133,12 +126,10 @@ object ReadableContentManager {
                         return@flow
                     }
                     val body = readVersionByPath(rel)
-                    val annsUi = anns.map { it.toAnnotationUiModel() }
                     emit(
                         LinkmarkReadableView(
                             body = body,
                             assetRelativePaths = link.readableAssetRelativePaths,
-                            annotations = annsUi,
                         ),
                     )
                 }
@@ -147,26 +138,13 @@ object ReadableContentManager {
 
     suspend fun readVersionByPath(relativePath: String): String? =
         accessProvider.readText(relativePath)
-
-    private fun AnnotationEntity.toAnnotationUiModel(): AnnotationUiModel =
-        AnnotationUiModel(
-            id = id,
-            type = type,
-            colorRole = colorRole,
-            note = note,
-            quoteText = quoteText,
-            extrasJson = extrasJson,
-            createdAt = createdAt,
-            editedAt = editedAt,
-        )
 }
 
 /**
  * TODO: REMOVE
- * In-memory view for the link reader (one payload + annotations for that bookmark).
+ * In-memory view for the link reader.
  */
 data class LinkmarkReadableView(
     val body: String?,
     val assetRelativePaths: List<String>,
-    val annotations: List<AnnotationUiModel>,
 )

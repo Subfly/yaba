@@ -8,18 +8,15 @@
 import Foundation
 
 public struct ReaderMetricsEvent: Sendable, Codable, Equatable {
-    public var canCreateAnnotation: Bool
     public var currentPage: Int
     public var pageCount: Int
     public var formatting: EditorFormattingState?
 
     public init(
-        canCreateAnnotation: Bool,
         currentPage: Int,
         pageCount: Int,
         formatting: EditorFormattingState? = nil
     ) {
-        self.canCreateAnnotation = canCreateAnnotation
         self.currentPage = currentPage
         self.pageCount = pageCount
         self.formatting = formatting

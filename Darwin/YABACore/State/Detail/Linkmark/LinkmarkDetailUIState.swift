@@ -12,7 +12,6 @@ public struct LinkmarkDetailUIState: Sendable {
     public var readerTheme: ReaderTheme
     public var readerFontSize: ReaderFontSize
     public var readerLineHeight: ReaderLineHeight
-    public var scrollToAnnotationId: String?
     public var lastExportMarkdown: String?
     public var lastExportPdfBase64: String?
     public var reminderDate: Date?
@@ -25,7 +24,6 @@ public struct LinkmarkDetailUIState: Sendable {
         readerTheme: ReaderTheme = .system,
         readerFontSize: ReaderFontSize = .medium,
         readerLineHeight: ReaderLineHeight = .normal,
-        scrollToAnnotationId: String? = nil,
         lastExportMarkdown: String? = nil,
         lastExportPdfBase64: String? = nil,
         reminderDate: Date? = nil,
@@ -37,7 +35,6 @@ public struct LinkmarkDetailUIState: Sendable {
         self.readerTheme = readerTheme
         self.readerFontSize = readerFontSize
         self.readerLineHeight = readerLineHeight
-        self.scrollToAnnotationId = scrollToAnnotationId
         self.lastExportMarkdown = lastExportMarkdown
         self.lastExportPdfBase64 = lastExportPdfBase64
         self.reminderDate = reminderDate

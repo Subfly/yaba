@@ -1,6 +1,5 @@
 package dev.subfly.yaba.core.webview
 
-import dev.subfly.yaba.core.model.ui.AnnotationUiModel
 import dev.subfly.yaba.core.model.utils.ReaderPreferences
 
 /** Which web shell to load and what data to drive it with. */
@@ -11,7 +10,6 @@ sealed class YabaWebFeature {
         val readerPreferences: ReaderPreferences,
         val platform: YabaWebPlatform,
         val appearance: YabaWebAppearance,
-        val annotations: List<AnnotationUiModel>,
     ) : YabaWebFeature()
 
     data class Editor(
@@ -56,7 +54,6 @@ sealed class YabaWebFeature {
         val pdfUrl: String,
         val platform: YabaWebPlatform,
         val appearance: YabaWebAppearance,
-        val annotations: List<AnnotationUiModel>,
     ) : YabaWebFeature()
 
     data class EpubViewer(
@@ -64,6 +61,5 @@ sealed class YabaWebFeature {
         val readerPreferences: ReaderPreferences,
         val platform: YabaWebPlatform,
         val appearance: YabaWebAppearance,
-        val annotations: List<AnnotationUiModel>,
     ) : YabaWebFeature()
 }

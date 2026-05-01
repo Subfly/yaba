@@ -1,10 +1,8 @@
 package dev.subfly.yaba.core.state.detail.linkmark
 
-import dev.subfly.yaba.core.model.annotation.AnnotationReadableCreateRequest
 import dev.subfly.yaba.core.model.utils.ReaderFontSize
 import dev.subfly.yaba.core.model.utils.ReaderLineHeight
 import dev.subfly.yaba.core.model.utils.ReaderTheme
-import dev.subfly.yaba.core.model.utils.YabaColor
 import dev.subfly.yaba.core.webview.Toc
 import dev.subfly.yaba.core.webview.WebShellLoadResult
 
@@ -18,29 +16,6 @@ sealed interface LinkmarkDetailEvent {
     data class OnSetReaderTheme(val theme: ReaderTheme) : LinkmarkDetailEvent
     data class OnSetReaderFontSize(val fontSize: ReaderFontSize) : LinkmarkDetailEvent
     data class OnSetReaderLineHeight(val lineHeight: ReaderLineHeight) : LinkmarkDetailEvent
-    data class OnCreateAnnotation(
-        val annotationId: String,
-        val colorRole: YabaColor = YabaColor.NONE,
-        val note: String? = null,
-        val quoteText: String? = null,
-    ) : LinkmarkDetailEvent
-    data class OnUpdateAnnotation(
-        val annotationId: String,
-        val colorRole: YabaColor,
-        val note: String?,
-    ) : LinkmarkDetailEvent
-    data class OnDeleteAnnotation(val annotationId: String) : LinkmarkDetailEvent
-    data class OnAnnotationReadableCreateCommitted(
-        val annotationId: String,
-        val request: AnnotationReadableCreateRequest,
-        val documentJson: String,
-    ) : LinkmarkDetailEvent
-    data class OnAnnotationReadableDeleteCommitted(
-        val annotationId: String,
-        val documentJson: String,
-    ) : LinkmarkDetailEvent
-    data class OnScrollToAnnotation(val annotationId: String) : LinkmarkDetailEvent
-    data object OnClearScrollToAnnotation : LinkmarkDetailEvent
     data class OnTocChanged(val toc: Toc?) : LinkmarkDetailEvent
     data class OnNavigateToTocItem(val id: String, val extrasJson: String?) : LinkmarkDetailEvent
     data object OnClearTocNavigation : LinkmarkDetailEvent

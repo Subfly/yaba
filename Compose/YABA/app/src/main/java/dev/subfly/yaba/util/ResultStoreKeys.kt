@@ -14,6 +14,4 @@ object ResultStoreKeys {
     const val INLINE_LINK_ACTION = "inline_link_action"
     const val INLINE_MENTION_INSERT = "inline_mention_insert"
     const val INLINE_MENTION_ACTION = "inline_mention_action"
-    const val ANNOTATION_READABLE_CREATE_REQUEST = "annotation_readable_create_request"
-    const val ANNOTATION_READABLE_DELETE_REQUEST = "annotation_readable_delete_request"
 }

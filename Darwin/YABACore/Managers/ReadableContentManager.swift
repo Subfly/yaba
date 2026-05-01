@@ -78,28 +78,6 @@ public enum ReadableContentManager {
         }
     }
 
-    /// After a WebView edit (annotations), writes the current JSON back to SwiftData.
-    public static func queueUpdateReadableBodyFromWebEditor(bookmarkId: String, html: String) {
-        CoreOperationQueue.shared.queue(name: "ReadableFromWeb:\(bookmarkId)") { context in
-            guard let bookmark = try YabaCorePersistenceHelpers.bookmark(bookmarkId: bookmarkId, context: context) else {
-                return
-            }
-            if let link = bookmark.linkDetail {
-                link.markdown = html
-            } else if let note = bookmark.noteDetail {
-                let data = Data(html.utf8)
-                if let payload = note.payload {
-                    payload.documentBody = data
-                } else {
-                    let payload = NoteBookmarkPayloadModel(documentBody: data, noteBookmark: note)
-                    context.insert(payload)
-                    note.payload = payload
-                }
-            }
-            bookmark.editedAt = .now
-        }
-    }
-
     // MARK: - Private
 
     private static func applyUnfurl(_ unfurl: ReadableUnfurl, to link: LinkBookmarkModel, context: ModelContext) {

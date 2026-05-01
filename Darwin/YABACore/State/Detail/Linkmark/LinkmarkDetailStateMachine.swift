@@ -58,45 +58,6 @@ public final class LinkmarkDetailStateMachine: YabaBaseObservableState<LinkmarkD
             apply { $0.readerFontSize = s }
         case let .onSetReaderLineHeight(l):
             apply { $0.readerLineHeight = l }
-        case let .onCreateAnnotation(annotationId, colorRole, note, quoteText):
-            guard let bid = state.bookmarkId else { return }
-            AnnotationManager.queueInsertAnnotation(
-                bookmarkId: bid,
-                type: .readable,
-                annotationId: annotationId,
-                colorRoleRaw: colorRole.rawValue,
-                note: note,
-                quoteText: quoteText,
-                extrasJson: nil
-            )
-        case let .onUpdateAnnotation(annotationId, colorRole, note):
-            AnnotationManager.queueUpdateAnnotation(
-                annotationId: annotationId,
-                colorRoleRaw: colorRole.rawValue,
-                note: note
-            )
-        case let .onDeleteAnnotation(annotationId):
-            AnnotationManager.queueDeleteAnnotation(annotationId: annotationId)
-        case let .onAnnotationReadableCreateCommitted(request, annotationId, html):
-            guard let bid = state.bookmarkId else { return }
-            ReadableContentManager.queueUpdateReadableBodyFromWebEditor(bookmarkId: bid, html: html)
-            AnnotationManager.queueInsertAnnotation(
-                bookmarkId: bid,
-                type: .readable,
-                annotationId: annotationId,
-                colorRoleRaw: request.colorRole.rawValue,
-                note: request.note?.nilIfEmpty,
-                quoteText: request.selectionDraft.quoteText,
-                extrasJson: nil
-            )
-        case let .onAnnotationReadableDeleteCommitted(annotationId, html):
-            guard let bid = state.bookmarkId else { return }
-            ReadableContentManager.queueUpdateReadableBodyFromWebEditor(bookmarkId: bid, html: html)
-            AnnotationManager.queueDeleteAnnotation(annotationId: annotationId)
-        case let .onScrollToAnnotation(annotationId):
-            apply { $0.scrollToAnnotationId = annotationId }
-        case .onClearScrollToAnnotation:
-            apply { $0.scrollToAnnotationId = nil }
         case .onRequestNotificationPermission:
             _ = await ReminderManager.requestAuthorization()
             let granted = await ReminderManager.authorizationGranted()

@@ -6,7 +6,6 @@ import rehypeRaw from "rehype-raw"
 import type { Components } from "react-markdown"
 import { postToYabaNativeHost } from "@/bridge/yaba-native-host"
 import { previewImageSrc, previewUrlTransformForLinks } from "./preview-asset-url"
-import { preprocessYabaAnnotationDirectives } from "./preview-markdown-directives"
 import { previewRehypeSanitizePlugin } from "./preview-sanitize"
 
 function linkLabel(children: ReactNode): string {
@@ -104,7 +103,6 @@ export function MarkdownPreviewBody({ markdown }: { markdown: string }) {
   const headingCounter = useRef(0)
   headingCounter.current = 0
   const components = buildMarkdownComponents(headingCounter)
-  const processedMarkdown = preprocessYabaAnnotationDirectives(markdown ?? "")
 
   return (
     <div className="yaba-markdown-preview">
@@ -114,7 +112,7 @@ export function MarkdownPreviewBody({ markdown }: { markdown: string }) {
         urlTransform={(url) => previewUrlTransformForLinks(url, defaultUrlTransform)}
         components={components}
       >
-        {processedMarkdown}
+        {markdown ?? ""}
       </ReactMarkdown>
     </div>
   )

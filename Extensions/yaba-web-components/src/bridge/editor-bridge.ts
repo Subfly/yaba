@@ -7,8 +7,6 @@ import {
   rewriteAssetPathsInMarkdown,
 } from "@/editor-view/asset-paths"
 import { buildHeadingTocFromMarkdown, findHeadingOffsetForTocItemId } from "@/editor-view/toc-from-markdown"
-import type { AnnotationForRendering } from "@/editor-view/annotation-extension"
-import { annotationModel, selectionOverlapsAnnotationRange } from "@/editor-view/annotation-extension"
 import type { Platform, AppearanceMode } from "@/theme"
 import { applyTheme, parseUrlParams } from "@/theme"
 import {
@@ -44,9 +42,6 @@ export interface YabaEditorBridge {
   isReady: () => boolean
   getSelectionSnapshot: () => SelectionSnapshot | null
   getSelectedText: () => string
-  getCanCreateAnnotation: () => boolean
-  setAnnotations: (annotationsJson: string) => void
-  scrollToAnnotation: (annotationId: string) => void
   setPlatform: (platform: Platform) => void
   setAppearance: (mode: AppearanceMode) => void
   setCursorColor: (color: string) => void
@@ -63,9 +58,6 @@ export interface YabaEditorBridge {
   focus: () => void
   unFocus: () => void
   exportMarkdown: () => string
-  applyAnnotationToSelection: (annotationId: string) => boolean
-  removeAnnotationFromDocument: (annotationId: string) => number
-  onAnnotationTap?: (id: string) => void
   navigateToTocItem: (id: string, extrasJson?: string | null) => void
 }
 
@@ -148,19 +140,8 @@ function captureStoredCursorFromView(): void {
   lastStoredCursor = { anchor: m.anchor, head: m.head }
 }
 
-function getCanCreateAnnotationForCurrentSelection(): boolean {
-  const s = editorSurface
-  if (!s) return false
-  const m = s.view.state.selection.main
-  if (m.empty) return false
-  const page = document.body?.dataset.yabaPage
-  if (page === "editor") return true
-  const ranges = s.view.state.field(annotationModel).ranges
-  return !selectionOverlapsAnnotationRange(ranges, m.from, m.to)
-}
-
 function publishCurrentEditorState(): void {
-  publishEditorHostState(getCanCreateAnnotationForCurrentSelection)
+  publishEditorHostState()
 }
 
 function focusEditorRestoringCursor(): void {
@@ -278,19 +259,6 @@ export function initEditorBridge(
       if (m.empty) return ""
       return v.state.doc.sliceString(m.from, m.to).trim()
     },
-    getCanCreateAnnotation: () => getCanCreateAnnotationForCurrentSelection(),
-    setAnnotations: (annotationsJson: string) => {
-      try {
-        const annotations: AnnotationForRendering[] =
-          annotationsJson && annotationsJson.trim() ? JSON.parse(annotationsJson) : []
-        editorSurface?.setAnnotationPalette(annotations)
-      } catch {
-        editorSurface?.setAnnotationPalette([])
-      }
-    },
-    scrollToAnnotation: (annotationId: string) => {
-      editorSurface?.scrollToAnnotation(annotationId)
-    },
     setPlatform: (p: Platform) => {
       platform = p
       applyReaderPreferences()
@@ -332,7 +300,7 @@ export function initEditorBridge(
         if (options?.assetsBaseUrl && md.includes("../assets/")) {
           md = rewriteAssetPathsInMarkdown(md, options.assetsBaseUrl)
         }
-        s.setMarkdown(md, { resetAnnotations: true })
+        s.setMarkdown(md)
         applyInitialFocusStateAfterContent(s, () => {
           publishCurrentEditorState()
         })
@@ -377,13 +345,6 @@ export function initEditorBridge(
       const md = win.YabaEditorBridge?.getMarkdown() ?? ""
       return md.trimEnd() + "\n"
     },
-    applyAnnotationToSelection: (annotationId: string) => {
-      const s = editorSurface
-      if (!s) return false
-      return s.applyAnnotationToSelection(annotationId)
-    },
-    removeAnnotationFromDocument: (annotationId: string) =>
-      editorSurface?.removeAnnotationFromDocument(annotationId) ?? 0,
     navigateToTocItem: (id: string, _extrasJson?: string | null) => {
       const s = editorSurface
       if (!s) return

@@ -64,24 +64,6 @@ public enum WebEditorBridgeScripts {
         """
     }
 
-    public static func installEditorAnnotationTapHandler() -> String {
-        """
-        (function(){
-          try {
-            if (window.YabaEditorBridge) {
-              window.YabaEditorBridge.onAnnotationTap = function(id) {
-                var host = window.YabaNativeHost || window.YabaAndroidHost;
-                if (id && host && host.postMessage) {
-                  host.postMessage(JSON.stringify({type:'annotationTap',id:id}));
-                }
-              };
-            }
-            return "ok";
-          } catch(e) { return String(e); }
-        })();
-        """
-    }
-
     public static func setReaderPreferences(_ prefs: ReaderPreferences) -> String {
         let obj: [String: String] = [
             "theme": prefs.theme.rawValue,
@@ -129,23 +111,6 @@ public enum WebEditorBridgeScripts {
             if (b.setPlatform) { b.setPlatform('\(platformLit)'); }
             if (b.setAppearance) { b.setAppearance('\(appearanceLit)'); }
             if (b.setReaderPreferences) { b.setReaderPreferences(\(json)); }
-            return "ok";
-          } catch(e) { return String(e); }
-        })();
-        """
-    }
-
-    /// `AnnotationForRendering[]` JSON: `[{"id":"…","colorRole":"…"}]`.
-    public static func setAnnotations(jsonArrayBody: String) -> String {
-        let json = jsonArrayBody.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "[]" : jsonArrayBody
-        let escaped = WebJsEscaping.escapeForJsSingleQuotedString(json)
-        return """
-        (function(){
-          try {
-            var b = window.YabaEditorBridge;
-            if (!b || !b.setAnnotations) { return "no_bridge"; }
-            var parsed = JSON.parse('\(escaped)');
-            b.setAnnotations(JSON.stringify(parsed));
             return "ok";
           } catch(e) { return String(e); }
         })();
@@ -233,34 +198,6 @@ public enum WebEditorBridgeScripts {
         """
     }
 
-    public static func scrollToAnnotation(annotationId: String) -> String {
-        let escaped = WebJsEscaping.escapeForJsSingleQuotedString(annotationId)
-        return """
-        (function(){
-          try {
-            var b = window.YabaEditorBridge;
-            if (!b || !b.scrollToAnnotation) { return "no_bridge"; }
-            b.scrollToAnnotation('\(escaped)');
-            return "ok";
-          } catch(e) { return String(e); }
-        })();
-        """
-    }
-
-    public static func getSelectionSnapshot() -> String {
-        """
-        (function(){
-          try {
-            var b = window.YabaEditorBridge;
-            if (!b || !b.getSelectionSnapshot) { return ""; }
-            var snapshot = b.getSelectionSnapshot();
-            if (!snapshot) { return ""; }
-            return JSON.stringify(snapshot);
-          } catch(e) { return ""; }
-        })();
-        """
-    }
-
     public static func getSelectedText() -> String {
         """
         (function(){
@@ -274,43 +211,4 @@ public enum WebEditorBridgeScripts {
         """
     }
 
-    public static func getCanCreateAnnotation() -> String {
-        """
-        (function(){
-          try {
-            var b = window.YabaEditorBridge;
-            if (!b || !b.getCanCreateAnnotation) { return "0"; }
-            return b.getCanCreateAnnotation() ? "1" : "0";
-          } catch(e) { return "0"; }
-        })();
-        """
-    }
-
-    public static func applyAnnotationToSelection(annotationId: String) -> String {
-        let escaped = WebJsEscaping.escapeForJsSingleQuotedString(annotationId)
-        return """
-        (function(){
-          try {
-            var b = window.YabaEditorBridge;
-            if (!b || !b.applyAnnotationToSelection) { return "0"; }
-            return b.applyAnnotationToSelection('\(escaped)') ? "1" : "0";
-          } catch(e) { return "0"; }
-        })();
-        """
-    }
-
-    public static func removeAnnotationFromDocument(annotationId: String) -> String {
-        let escaped = WebJsEscaping.escapeForJsSingleQuotedString(annotationId)
-        return """
-        (function(){
-          try {
-            var b = window.YabaEditorBridge;
-            if (!b || !b.removeAnnotationFromDocument) { return "0"; }
-            var removed = b.removeAnnotationFromDocument('\(escaped)');
-            if (typeof removed !== 'number' || !isFinite(removed)) { return "0"; }
-            return String(Math.max(0, Math.floor(removed)));
-          } catch(e) { return "0"; }
-        })();
-        """
-    }
 }

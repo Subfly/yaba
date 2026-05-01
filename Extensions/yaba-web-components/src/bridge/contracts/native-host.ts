@@ -12,7 +12,6 @@ export type YabaNativeHostPayload =
   | { type: "canvasAutosaveIdle" }
   | {
       type: "readerMetrics"
-      canCreateAnnotation: boolean
       currentPage: number
       pageCount: number
       /** Rich-text editor toolbar state; omitted in PDF/EPUB/readable viewer. */
@@ -87,7 +86,6 @@ export type YabaNativeHostPayload =
       fillStyleKey: "solid" | "hachure" | "cross-hatch" | "zigzag"
       mixedFillStyle: boolean
     }
-  | { type: "annotationTap"; id: string }
   | { type: "mathTap"; kind: "inline" | "block"; pos: number; latex: string }
   | {
       type: "inlineLinkTap"

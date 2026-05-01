@@ -16,9 +16,6 @@ public enum DocmarkDetailEvent: Sendable {
     case onSetReaderTheme(ReaderTheme)
     case onSetReaderFontSize(ReaderFontSize)
     case onSetReaderLineHeight(ReaderLineHeight)
-    case onDeleteAnnotation(annotationId: String)
-    case onScrollToAnnotation(annotationId: String)
-    case onClearScrollToAnnotation
     case onRequestNotificationPermission
     case onScheduleReminder(titleKey: String, messageKey: String, fireAt: Date)
     case onCancelReminder

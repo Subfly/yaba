@@ -132,20 +132,6 @@ extension TagModel {
     }
 }
 
-// MARK: - Annotation
-
-extension AnnotationModel {
-    /// Parsed annotation kind from persisted `typeRaw`.
-    var type: AnnotationType {
-        AnnotationType(rawValue: typeRaw) ?? .readable
-    }
-
-    /// Accent color for list chrome; derived from `colorRoleRaw`, not synced separately.
-    var colorRole: YabaColor {
-        YabaColor.from(colorCode: colorRoleRaw)
-    }
-}
-
 // MARK: - Doc bookmark subtype
 
 extension DocBookmarkModel {

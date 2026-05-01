@@ -10,7 +10,6 @@ internal fun createNativeHostMessageHandler(
     expectedBridgeFeature: String?,
     onBridgeReady: () -> Unit,
     onHostEvent: (YabaWebHostEvent) -> Unit,
-    onAnnotationTap: (String) -> Unit,
     onMathTap: (MathTapEvent) -> Unit,
     onInlineLinkTap: (InlineLinkTapEvent) -> Unit,
     onInlineMentionTap: (InlineMentionTapEvent) -> Unit,
@@ -28,7 +27,6 @@ internal fun createNativeHostMessageHandler(
             else ->
                 YabaNativeHostMessageParser.parse(
                     json = json,
-                    onAnnotationTap = onAnnotationTap,
                     onMathTap = onMathTap,
                     onInlineLinkTap = onInlineLinkTap,
                     onInlineMentionTap = onInlineMentionTap,

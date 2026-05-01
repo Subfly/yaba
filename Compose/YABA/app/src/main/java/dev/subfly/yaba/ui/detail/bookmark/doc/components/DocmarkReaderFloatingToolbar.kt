@@ -1,6 +1,5 @@
 package dev.subfly.yaba.ui.detail.bookmark.doc.components
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -42,13 +41,11 @@ internal fun BoxScope.DocmarkReaderFloatingToolbar(
     readerPreferences: ReaderPreferences,
     color: YabaColor,
     isVisible: Boolean,
-    hasSelection: Boolean,
     canGoPrev: Boolean,
     canGoNext: Boolean,
     onEvent: (DocmarkDetailEvent) -> Unit,
     onPrevPage: () -> Unit,
     onNextPage: () -> Unit,
-    onAnnotationClick: () -> Unit,
 ) {
     val paneInfo = LocalPaneInfo.current
     val isTwoPaneLayout = paneInfo.isTwoPaneLayout
@@ -101,17 +98,6 @@ internal fun BoxScope.DocmarkReaderFloatingToolbar(
                         selectedLineHeight = readerPreferences.lineHeight,
                         onSelectLineHeight = { onEvent(DocmarkDetailEvent.OnSetReaderLineHeight(it)) },
                     )
-                }
-                AnimatedContent(targetState = hasSelection) { has ->
-                    if (has) {
-                        IconButton(
-                            onClick = onAnnotationClick,
-                            colors = bookmarkReaderToolbarIconButtonColors(color),
-                            shapes = IconButtonDefaults.shapes(),
-                        ) {
-                            YabaIcon(name = "sticky-note-03", color = Color.White)
-                        }
-                    }
                 }
                 IconButton(
                     onClick = onNextPage,
@@ -174,17 +160,6 @@ internal fun BoxScope.DocmarkReaderFloatingToolbar(
                     selectedLineHeight = readerPreferences.lineHeight,
                     onSelectLineHeight = { onEvent(DocmarkDetailEvent.OnSetReaderLineHeight(it)) },
                 )
-            }
-            AnimatedContent(targetState = hasSelection) { has ->
-                if (has) {
-                    IconButton(
-                        onClick = onAnnotationClick,
-                        colors = bookmarkReaderToolbarIconButtonColors(color),
-                        shapes = IconButtonDefaults.shapes(),
-                    ) {
-                        YabaIcon(name = "sticky-note-03", color = Color.White)
-                    }
-                }
             }
             IconButton(
                 onClick = onNextPage,

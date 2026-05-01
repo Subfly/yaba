@@ -9,14 +9,12 @@ import SwiftUI
 struct LinkmarkReaderFloatingToolbar: View {
     let folderAccent: Color
     let isVisible: Bool
-    let canAnnotate: Bool
     let readerTheme: ReaderTheme
     let readerFontSize: ReaderFontSize
     let readerLineHeight: ReaderLineHeight
     let onSelectTheme: (ReaderTheme) -> Void
     let onSelectFontSize: (ReaderFontSize) -> Void
     let onSelectLineHeight: (ReaderLineHeight) -> Void
-    let onStickyNote: () -> Void
 
     var body: some View {
         Group {
@@ -25,7 +23,6 @@ struct LinkmarkReaderFloatingToolbar: View {
                     toolbarMenus(padLabels: true)
                 }
                 .glassEffect(.regular.interactive())
-                .animation(.smooth, value: canAnnotate)
             } else {
                 toolbarMenus(padLabels: false)
                     .padding(.horizontal, 14)
@@ -92,12 +89,6 @@ struct LinkmarkReaderFloatingToolbar: View {
                 }
             } label: {
                 menuLabelIcon("cursor-text", padLabels: padLabels, color: folderAccent)
-            }
-            if canAnnotate {
-                Button(action: onStickyNote) {
-                    menuLabelIcon("sticky-note-03", padLabels: padLabels, color: folderAccent)
-                }
-                .buttonStyle(.plain)
             }
         }
     }
