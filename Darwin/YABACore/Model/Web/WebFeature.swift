@@ -2,25 +2,17 @@
 //  WebFeature.swift
 //  YABACore
 //
-//  Which bundled shell to load and what data drives it — parity with the Android app `WebFeature`.
+//  Bundled web shells for Darwin: CodeMirror editor (`editor.html`), same shell for read-it-later,
+//  and Excalidraw canvas (`canvas.html`). Aligns with `YabaNativeHostFeature` in yaba-web-components.
 //
 
 import Foundation
 
 /// Bundled web feature selection for `WKWebViewRuntime`.
 public enum WebFeature: Sendable {
-    case readableViewer(
-        initialDocumentJson: String,
-        assetsBaseUrl: String?,
-        readerTheme: ReaderTheme,
-        readerFontSize: ReaderFontSize,
-        readerLineHeight: ReaderLineHeight,
-        appearance: WebAppearance,
-        annotationsJson: String
-    )
-
+    /// CodeMirror Markdown editor (`editor.html`, `YabaEditorBridge`, `bridgeReady`: `editor`).
     case editor(
-        initialDocumentJson: String,
+        initialMarkdown: String,
         assetsBaseUrl: String?,
         placeholderText: String?,
         appearance: WebAppearance,
@@ -30,26 +22,10 @@ public enum WebFeature: Sendable {
         documentLoadGeneration: Int
     )
 
-    case canvas(
-        initialSceneJson: String,
-        appearance: WebAppearance,
-        sceneLoadGeneration: Int
-    )
-
-    case htmlConverter(inputHtml: String?, baseUrl: String?)
-
-    case pdfExtractor(input: WebPdfExtractorInput?)
-
-    case epubExtractor(input: WebEpubExtractorInput?)
-
-    case pdfViewer(
-        pdfUrl: String,
-        appearance: WebAppearance,
-        annotationsJson: String
-    )
-
-    case epubViewer(
-        epubUrl: String,
+    /// Read-it-later uses the same CodeMirror shell and bridge as `editor`; native supplies Markdown + reader prefs.
+    case readItLater(
+        initialMarkdown: String,
+        assetsBaseUrl: String?,
         readerTheme: ReaderTheme,
         readerFontSize: ReaderFontSize,
         readerLineHeight: ReaderLineHeight,
@@ -57,29 +33,19 @@ public enum WebFeature: Sendable {
         annotationsJson: String
     )
 
-    /// Bridge `feature` string expected in `bridgeReady` messages (matches Android / host WebViews).
+    case canvas(
+        initialSceneJson: String,
+        appearance: WebAppearance,
+        sceneLoadGeneration: Int
+    )
+
+    /// `bridgeReady` `feature` string from the web layer (`native-host.ts`).
     public var expectedBridgeFeature: String {
         switch self {
-        case .readableViewer: return "viewer"
-        case .editor: return "editor"
-        case .canvas: return "canvas"
-        case .htmlConverter, .pdfExtractor, .epubExtractor: return "converter"
-        case .pdfViewer: return "pdf"
-        case .epubViewer: return "epub"
+        case .editor, .readItLater:
+            return "editor"
+        case .canvas:
+            return "canvas"
         }
-    }
-}
-
-public struct WebPdfExtractorInput: Sendable {
-    public var pdfUrl: String?
-    public init(pdfUrl: String? = nil) {
-        self.pdfUrl = pdfUrl
-    }
-}
-
-public struct WebEpubExtractorInput: Sendable {
-    public var epubUrl: String?
-    public init(epubUrl: String? = nil) {
-        self.epubUrl = epubUrl
     }
 }

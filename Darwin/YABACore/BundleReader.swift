@@ -6,8 +6,8 @@
 //  Web shells and their `chunks/` / `assets/` live under `WebComponents/` (see `webComponentURL`).
 //
 //  Web components layout matches `Extensions/yaba-web-components` Vite output: `editor.html` (CodeMirror
-//  Markdown / `YabaEditorBridge`), `read-it-later.html`, `epub-viewer.html`, `canvas.html`, plus
-//  `html-to-markdown.bundle.min.js` for JavaScriptCore (no WKWebView shell).
+//  Markdown / `YabaEditorBridge`; Darwin read-it-later uses this same shell), `canvas.html`,
+//  optional `epub-viewer.html`, plus `html-to-markdown.bundle.min.js` for JavaScriptCore (no WKWebView shell).
 //
 
 import Foundation
@@ -122,5 +122,37 @@ public enum BundleReader {
     /// Minified linkedom + Readability + unified/rehype/remark script for [HTMLToMarkdownProcessor] (`html-to-markdown.bundle.min.js`).
     public static func htmlToMarkdownBundleURL(in bundle: Bundle = .main) -> URL? {
         webComponentURL(named: "html-to-markdown.bundle.min.js", in: bundle)
+    }
+
+    // MARK: - WKWebView shells (editor + canvas)
+
+    public static func getEditorURL(in bundle: Bundle = .main) -> URL? {
+        webComponentURL(named: "editor.html", in: bundle)
+    }
+
+    public static func getCanvasURL(in bundle: Bundle = .main) -> URL? {
+        webComponentURL(named: "canvas.html", in: bundle)
+    }
+
+    /// File URL with `platform`, `appearance`, and optional `cursor` query for theme bootstrap in the web bundle.
+    public static func webShellURLWithQuery(
+        named fileName: String,
+        platform: WebPlatform,
+        appearance: WebAppearance,
+        cursor: String? = nil,
+        bundle: Bundle = .main
+    ) -> URL? {
+        guard let base = webComponentURL(named: fileName, in: bundle) else { return nil }
+        var components = URLComponents(url: base, resolvingAgainstBaseURL: false)
+        var items: [URLQueryItem] = [
+            URLQueryItem(name: "platform", value: platform.rawValue),
+            URLQueryItem(name: "appearance", value: appearance.rawValue),
+        ]
+        let trimmedCursor = cursor?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        if !trimmedCursor.isEmpty {
+            items.append(URLQueryItem(name: "cursor", value: trimmedCursor))
+        }
+        components?.queryItems = items
+        return components?.url
     }
 }

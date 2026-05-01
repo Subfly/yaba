@@ -109,6 +109,7 @@ public enum NativeHostMessageParserDarwin {
             }
             return nil
         case "converterJob", "bridgeReady":
+            // Darwin does not host WKWebView import converters; `bridgeReady` is handled in `NativeHostRouterDarwin`.
             return nil
         default:
             return nil
@@ -255,24 +256,4 @@ public enum NativeHostMessageParserDarwin {
         guard let arr = root[key] as? [Any] else { return [] }
         return arr.compactMap { $0 as? String }.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
     }
-}
-
-public struct MathTapEvent: Sendable {
-    public var isBlock: Bool
-    public var documentPos: Int
-    public var latex: String
-}
-
-public struct InlineLinkTapEvent: Sendable {
-    public var documentPos: Int
-    public var text: String
-    public var url: String
-}
-
-public struct InlineMentionTapEvent: Sendable {
-    public var documentPos: Int
-    public var text: String
-    public var bookmarkId: String
-    public var bookmarkKindCode: Int
-    public var bookmarkLabel: String
 }

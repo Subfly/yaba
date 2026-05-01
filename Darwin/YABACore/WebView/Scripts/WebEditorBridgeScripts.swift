@@ -1,17 +1,18 @@
 //
-//  WebViewerBridgeScripts.swift
+//  WebEditorBridgeScripts.swift
 //  YABACore
 //
-//  JavaScript bodies for `window.YabaEditorBridge` in `viewer.html` (TipTap bridge).
+//  `evaluateJavaScript` bodies for `window.YabaEditorBridge` on CodeMirror `editor.html`
+//  (and read-it-later, which uses the same shell).
 //
 
+import CoreGraphics
 import Foundation
 
-/// Scripts evaluated after `bridgeReady` for the readable viewer — aligned with `yaba-web-components` bridge types.
-public enum WebViewerBridgeScripts {
-    /// TipTap document JSON for `window.YabaEditorBridge.setDocumentJson` plus optional `assetsBaseUrl` for `../assets/` resolution.
-    public static func setDocumentJson(documentJson: String, assetsBaseUrl: String?) -> String {
-        let escaped = WebJsEscaping.escapeForJsSingleQuotedString(documentJson)
+public enum WebEditorBridgeScripts {
+    /// CodeMirror / GFM markdown plus optional `assetsBaseUrl` for `../assets/` resolution.
+    public static func setMarkdown(_ markdown: String, assetsBaseUrl: String?) -> String {
+        let escaped = WebJsEscaping.escapeForJsSingleQuotedString(markdown)
         let options: String
         if let assetsBaseUrl {
             let u = WebJsEscaping.escapeForJsSingleQuotedString(assetsBaseUrl)
@@ -23,15 +24,14 @@ public enum WebViewerBridgeScripts {
         (function(){
           try {
             var b = window.YabaEditorBridge;
-            if (!b || !b.setDocumentJson) { return "no_bridge"; }
-            b.setDocumentJson('\(escaped)'\(options));
+            if (!b || !b.setMarkdown) { return "no_bridge"; }
+            b.setMarkdown('\(escaped)'\(options));
             return "ok";
           } catch(e) { return String(e); }
         })();
         """
     }
 
-    /// Parity with Android `YabaEditorBridgeScripts.setEditableScript` (read-only viewer).
     public static func setEditable(_ editable: Bool) -> String {
         let lit = editable ? "true" : "false"
         return """
@@ -46,8 +46,6 @@ public enum WebViewerBridgeScripts {
         """
     }
 
-    /// Locks the document viewport so the page cannot be pinch-zoomed (parity with Android WebView zoom disabled).
-    /// Injects or updates the viewport meta tag; evaluate after the reader shell / document is loaded.
     public static func disableViewportZoom() -> String {
         """
         (function(){
@@ -66,7 +64,6 @@ public enum WebViewerBridgeScripts {
         """
     }
 
-    /// Parity with Android `YabaEditorBridgeScripts.installAnnotationTapScript` (posts via the native host transport).
     public static func installEditorAnnotationTapHandler() -> String {
         """
         (function(){
@@ -108,7 +105,6 @@ public enum WebViewerBridgeScripts {
         """
     }
 
-    /// Parity with Android `YabaReaderBridgeScripts.applyReaderPreferencesScript` (platform → appearance → reader prefs).
     public static func applyReaderHostPreferences(
         appearance: WebAppearance,
         prefs: ReaderPreferences
@@ -123,7 +119,7 @@ public enum WebViewerBridgeScripts {
         else {
             return #"(() => "bad_json")()"#
         }
-        let platformLit = WebJsEscaping.escapeForJsSingleQuotedString("darwin")
+        let platformLit = WebJsEscaping.escapeForJsSingleQuotedString(WebPlatform.darwin.rawValue)
         let appearanceLit = WebJsEscaping.escapeForJsSingleQuotedString(appearance.rawValue)
         return """
         (function(){
@@ -199,6 +195,20 @@ public enum WebViewerBridgeScripts {
         return out
     }
 
+    public static func setPlaceholder(_ text: String) -> String {
+        let escaped = WebJsEscaping.escapeForJsSingleQuotedString(text)
+        return """
+        (function(){
+          try {
+            var b = window.YabaEditorBridge;
+            if (!b || !b.setPlaceholder) { return "no_bridge"; }
+            b.setPlaceholder('\(escaped)');
+            return "ok";
+          } catch(e) { return String(e); }
+        })();
+        """
+    }
+
     public static func exportMarkdown() -> String {
         """
         (function(){
@@ -211,16 +221,14 @@ public enum WebViewerBridgeScripts {
         """
     }
 
-    public static func startPdfExportJob(jobId: String) -> String {
-        let escaped = WebJsEscaping.escapeForJsSingleQuotedString(jobId)
-        return """
+    public static func getMarkdown() -> String {
+        """
         (function(){
           try {
             var b = window.YabaEditorBridge;
-            if (!b || !b.startPdfExportJob) { return "no_bridge"; }
-            b.startPdfExportJob('\(escaped)');
-            return "ok";
-          } catch(e) { return String(e); }
+            if (!b || !b.getMarkdown) { return ""; }
+            return b.getMarkdown() || "";
+          } catch(e) { return ""; }
         })();
         """
     }
@@ -239,7 +247,6 @@ public enum WebViewerBridgeScripts {
         """
     }
 
-    /// Returns selection snapshot JSON (`{ selectedText, prefixText?, suffixText? }`) or empty string.
     public static func getSelectionSnapshot() -> String {
         """
         (function(){
@@ -254,7 +261,6 @@ public enum WebViewerBridgeScripts {
         """
     }
 
-    /// Plain selected text in the editor (read-only reader); use when `getSelectionSnapshot` JSON is unavailable.
     public static func getSelectedText() -> String {
         """
         (function(){
@@ -268,7 +274,6 @@ public enum WebViewerBridgeScripts {
         """
     }
 
-    /// Returns "1" when current selection can create annotation, otherwise "0".
     public static func getCanCreateAnnotation() -> String {
         """
         (function(){
@@ -281,7 +286,6 @@ public enum WebViewerBridgeScripts {
         """
     }
 
-    /// Returns "1" if annotation mark was applied to current selection, otherwise "0".
     public static func applyAnnotationToSelection(annotationId: String) -> String {
         let escaped = WebJsEscaping.escapeForJsSingleQuotedString(annotationId)
         return """
@@ -295,7 +299,6 @@ public enum WebViewerBridgeScripts {
         """
     }
 
-    /// Returns number of removed annotation marks as string.
     public static func removeAnnotationFromDocument(annotationId: String) -> String {
         let escaped = WebJsEscaping.escapeForJsSingleQuotedString(annotationId)
         return """

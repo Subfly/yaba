@@ -15,9 +15,4 @@ public enum WebJson {
         }
         return s
     }
-
-    public static func shellLoadResultJson(_ result: WebShellLoadResult) -> String {
-        let s = result == .loaded ? "loaded" : "error"
-        return "{\"result\":\"\(s)\"}"
-    }
 }

@@ -5,7 +5,7 @@
 
 import WebKit
 
-/// Tunable knobs for `WKWebViewRuntime` (security-first defaults).
+/// Tunable knobs for `WKWebViewRuntime`.
 public struct WebRuntimeConfiguration: @unchecked Sendable {
     public var websiteDataStore: WKWebsiteDataStore
 

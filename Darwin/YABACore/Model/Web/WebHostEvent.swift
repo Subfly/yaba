@@ -2,18 +2,15 @@
 //  WebHostEvent.swift
 //  YABACore
 //
-//  Parity with Compose `WebHostEvent`.
+//  Events from `window.YabaNativeHost.postMessage` (see `Extensions/yaba-web-components/.../native-host.ts`).
 //
 
 import Foundation
 
 public enum WebHostEvent: Sendable {
     case loadState(WebLoadState)
+    case initialContentLoad(WebShellLoadResult)
     case readerMetrics(ReaderMetricsEvent)
-    case pdfConverterSuccess(payloadJson: String)
-    case pdfConverterFailure(message: String)
-    case epubConverterSuccess(payloadJson: String)
-    case epubConverterFailure(message: String)
     case noteEditorIdleForAutosave
     case canvasIdleForAutosave
     case canvasMetrics(CanvasHostMetrics)

@@ -28,22 +28,10 @@ public final class WKWebViewRuntime: NSObject {
     private let navProxy = NavigationProxy()
     private let uiProxy = UIDelegateProxy()
 
-    /// Compose parity: `WebViewClient.onPageFinished` and web `bridgeReady` must both be true before treating the shell as ready.
+    /// `WebViewClient.onPageFinished` and web `bridgeReady` must both be true before treating the shell as ready.
     private var pageLoadFinishedForCycle = false
     private var webPostedBridgeReadyForCycle = false
     private var emittedCombinedBridgeReadyForCycle = false
-
-    /// Parity with Android `YabaWebBridgeScripts.EDITOR_BRIDGE_READY` / `waitForBridgeReady` when `postMessage` is delayed or not delivered to `WKUserContentController`.
-    private static let editorBridgeIsReadyJavaScript =
-        """
-        (function() {
-            try {
-                return !!(window.YabaEditorBridge && window.YabaEditorBridge.isReady && window.YabaEditorBridge.isReady());
-            } catch (e) {
-                return false;
-            }
-        })();
-        """
 
     public init(configuration: WebRuntimeConfiguration = WebRuntimeConfiguration()) {
         self.configuration = configuration
@@ -70,7 +58,7 @@ public final class WKWebViewRuntime: NSObject {
         webView.uiDelegate = uiProxy
         webView.isOpaque = false
         webView.backgroundColor = .clear
-        
+
         #if DEBUG
         if #available(iOS 16.4, macOS 13.3, macCatalyst 16.4, *) {
             webView.isInspectable = true
@@ -112,7 +100,7 @@ public final class WKWebViewRuntime: NSObject {
         webView.loadFileURL(url, allowingReadAccessTo: readAccess)
     }
 
-    /// Evaluates JavaScript and returns the JSON-string decoded result (Compose parity).
+    /// Evaluates JavaScript and returns the JSON-string decoded result.
     @MainActor
     public func evaluateJavaScriptStringResult(_ script: String) async throws -> String {
         try await withCheckedThrowingContinuation { cont in
@@ -132,6 +120,7 @@ public final class WKWebViewRuntime: NSObject {
         }
     }
 
+    @MainActor
     fileprivate func handleScriptMessage(_ message: WKScriptMessage) {
         guard message.name == NativeHostRouterDarwin.nativeHostScriptMessageName else { return }
         let body: String
@@ -147,6 +136,7 @@ public final class WKWebViewRuntime: NSObject {
         dispatchNativeHostJSON(body)
     }
 
+    @MainActor
     private func dispatchNativeHostJSON(_ json: String) {
         let handler = NativeHostRouterDarwin.createMessageHandler(
             expectedBridgeFeature: expectedBridgeFeature,
@@ -179,26 +169,28 @@ public final class WKWebViewRuntime: NSObject {
         emittedCombinedBridgeReadyForCycle = false
     }
 
-    /// Web posted `bridgeReady` for `expectedBridgeFeature`; emit app-level ready only after `WKNavigationDelegate` page load finished.
+    @MainActor
     fileprivate func markWebPostedBridgeReadyFromWeb() {
         webPostedBridgeReadyForCycle = true
         emitCombinedBridgeReadyIfNeeded()
     }
 
+    @MainActor
     fileprivate func markPageLoadFinishedForBridgeReadiness() {
         pageLoadFinishedForCycle = true
         emitCombinedBridgeReadyIfNeeded()
-        startEditorBridgeReadinessProbingIfNeeded()
+        startBridgeReadinessProbingIfNeeded()
     }
 
-    /// If the web layer never posts `bridgeReady` to `window.webkit.messageHandlers` (but TipTap is up), mark ready from JS, same as Android polling.
-    fileprivate func startEditorBridgeReadinessProbingIfNeeded() {
+    /// When `postMessage` does not reach the handler, poll the loaded bridge (editor or canvas) like Android.
+    fileprivate func startBridgeReadinessProbingIfNeeded() {
         guard !emittedCombinedBridgeReadyForCycle else { return }
+        let probeJS = bridgeReadyProbeJavaScript()
         Task { @MainActor [weak self] in
             guard let self else { return }
             for _ in 0 ..< 50 {
                 if self.emittedCombinedBridgeReadyForCycle { return }
-                if await self.checkEditorBridgeReadyViaJavaScript() {
+                if await self.checkBridgeReadyViaJavaScript(probeJS) {
                     self.markWebPostedBridgeReadyFromWeb()
                     return
                 }
@@ -207,10 +199,19 @@ public final class WKWebViewRuntime: NSObject {
         }
     }
 
+    private func bridgeReadyProbeJavaScript() -> String {
+        switch expectedBridgeFeature {
+        case "canvas":
+            return WebBridgeScripts.canvasBridgeReady
+        default:
+            return WebBridgeScripts.editorBridgeReady
+        }
+    }
+
     @MainActor
-    fileprivate func checkEditorBridgeReadyViaJavaScript() async -> Bool {
+    fileprivate func checkBridgeReadyViaJavaScript(_ script: String) async -> Bool {
         await withCheckedContinuation { (cont: CheckedContinuation<Bool, Never>) in
-            self.webView.evaluateJavaScript(Self.editorBridgeIsReadyJavaScript) { result, _ in
+            self.webView.evaluateJavaScript(script) { result, _ in
                 if let b = result as? Bool {
                     cont.resume(returning: b)
                 } else if let n = result as? NSNumber {
@@ -222,6 +223,7 @@ public final class WKWebViewRuntime: NSObject {
         }
     }
 
+    @MainActor
     fileprivate func emitCombinedBridgeReadyIfNeeded() {
         guard pageLoadFinishedForCycle, webPostedBridgeReadyForCycle, !emittedCombinedBridgeReadyForCycle else { return }
         emittedCombinedBridgeReadyForCycle = true
@@ -239,13 +241,9 @@ public final class WKWebViewRuntime: NSObject {
         case "file":
             return .allow
         case "yaba-asset":
-            // Readable inline assets (`ReadableViewerAssets`) are served by `WKURLSchemeHandler`.
             return .allow
         case "http", "https":
-            if configuration.allowsRemoteNavigation || configuration.allowsRemoteHTTP {
-                return .allow
-            }
-            return .cancel
+            return .allow
         default:
             return .cancel
         }
@@ -253,49 +251,28 @@ public final class WKWebViewRuntime: NSObject {
 
     private static func resolveShellURL(for feature: WebFeature, bundle: Bundle) -> URL? {
         switch feature {
-        case .readableViewer:
-            return BundleReader.getViewerURL(in: bundle)
-        case .editor:
-            return BundleReader.getEditorURL(in: bundle)
-        case .canvas:
-            return BundleReader.getCanvasURL(in: bundle)
-        case .htmlConverter, .pdfExtractor, .epubExtractor:
-            return BundleReader.getConverterURL(in: bundle)
-        case .pdfViewer:
-            return BundleReader.getPdfViewerURL(in: bundle)
-        case .epubViewer:
-            return BundleReader.getEpubViewerURL(in: bundle)
+        case let .editor(_, _, _, appearance, _, _, _, _):
+            return BundleReader.webShellURLWithQuery(
+                named: "editor.html",
+                platform: .darwin,
+                appearance: appearance,
+                bundle: bundle
+            )
+        case let .readItLater(_, _, _, _, _, appearance, _):
+            return BundleReader.webShellURLWithQuery(
+                named: "editor.html",
+                platform: .darwin,
+                appearance: appearance,
+                bundle: bundle
+            )
+        case let .canvas(_, appearance, _):
+            return BundleReader.webShellURLWithQuery(
+                named: "canvas.html",
+                platform: .darwin,
+                appearance: appearance,
+                bundle: bundle
+            )
         }
-    }
-
-}
-
-// MARK: - Readable viewer shell
-
-public extension WKWebViewRuntime {
-    /// Loads `viewer.html` with platform/appearance query params (`yaba-web-components` / Milkdown Crepe).
-    @MainActor
-    func loadBundledViewerShell(
-        platform: WebPlatform = .darwin,
-        appearance: WebAppearance = .auto,
-        cursor: String? = nil,
-        bundle: Bundle = .main
-    ) {
-        expectedBridgeFeature = "viewer"
-        guard let fileURL = BundleReader.viewerURLWithQuery(
-            platform: platform,
-            appearance: appearance,
-            cursor: cursor,
-            bundle: bundle
-        ),
-            let readAccess = BundleReader.webComponentsBaseURL(in: bundle)
-        else {
-            onHostEvent?(.loadState(.idle))
-            return
-        }
-        resetBridgeReadinessCycle()
-        onHostEvent?(.loadState(.loading(progressFraction: 0)))
-        webView.loadFileURL(fileURL, allowingReadAccessTo: readAccess)
     }
 }
 
@@ -305,12 +282,6 @@ private final class NavigationProxy: NSObject, WKNavigationDelegate {
     weak var owner: WKWebViewRuntime?
 
     func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
-        // Do NOT call `resetBridgeReadinessCycle` here. It is already invoked in `loadBundledShell` /
-        // `loadBundledViewerShell` before `loadFileURL`, and in `didFail` / `webViewWebContentProcessDidTerminate`.
-        //
-        // `didStartProvisionalNavigation` is delivered asynchronously. If it runs *after* the page has
-        // already posted `bridgeReady` but *before* `didFinish`, resetting would clear
-        // `webPostedBridgeReadyForCycle` and the combined `onBridgeReady` would never fire.
         DispatchQueue.main.async { [weak self] in
             self?.owner?.onHostEvent?(.loadState(.loading(progressFraction: nil)))
         }
