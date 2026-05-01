@@ -1,4 +1,3 @@
-import type { Editor } from "@tiptap/core"
 import { getActiveFormattingState } from "./editor-formatting"
 import { postToYabaNativeHost } from "./yaba-native-host"
 
@@ -8,11 +7,8 @@ export function resetPublishedEditorHostState(): void {
   lastPublishedEditorStateJson = null
 }
 
-export function publishEditorHostState(
-  editor: Editor | null,
-  canCreateAnnotation: () => boolean,
-): void {
-  const formatting = getActiveFormattingState(editor)
+export function publishEditorHostState(canCreateAnnotation: () => boolean): void {
+  const formatting = getActiveFormattingState()
   const can = canCreateAnnotation()
   const payload = {
     type: "readerMetrics" as const,

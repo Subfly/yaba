@@ -1,21 +1,22 @@
-import { useState } from "react"
-import { TiptapEditorView } from "@/tiptap/TiptapEditorView"
+import { useCallback, useRef } from "react"
+import type { ViewUpdate } from "@codemirror/view"
+import { EditorViewRoot } from "@/editor-view/EditorViewRoot"
+import type { EditorSurface } from "@/editor-view/surface"
 import { initEditorBridge } from "@/bridge/editor-bridge"
 
 function EditorApp() {
-  const [editable] = useState(true)
+  const viewActivityRef = useRef<((u: ViewUpdate) => void) | null>(null)
+
+  const onSurfaceReady = useCallback((surface: EditorSurface) => {
+    initEditorBridge(surface, viewActivityRef)
+  }, [])
 
   return (
     <div
       data-yaba-editor
       style={{ width: "100%", height: "100%", backgroundColor: "transparent" }}
     >
-      <TiptapEditorView
-        editable={editable}
-        variant="editor"
-        onEditorReady={initEditorBridge}
-        assetsBaseUrl={undefined}
-      />
+      <EditorViewRoot onSurfaceReady={onSurfaceReady} viewActivityRef={viewActivityRef} />
     </div>
   )
 }

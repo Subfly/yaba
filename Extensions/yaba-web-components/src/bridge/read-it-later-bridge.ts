@@ -4,7 +4,7 @@ import {
   applyReaderThemeCssVars,
   applyReaderTypographyCssVars,
 } from "@/theme/reader-document-vars"
-import type { EditorCommandPayload } from "./editor-bridge"
+import type { EditorCommandPayload } from "./editor-commands"
 import { getEmptyFormattingState } from "./editor-formatting"
 import { getDomSelectionSnapshot } from "./dom-selection-snapshot"
 import { postToYabaNativeHost } from "./yaba-native-host"

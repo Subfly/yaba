@@ -1,4 +1,4 @@
-/* Read-it-later: static HTML (no ProseMirror). Typography mirrors TipTap reader shell. */
+/* Read-it-later: static HTML. Typography mirrors the note editor reader shell. */
 #yaba-read-it-later-content {
   width: 100%;
   min-height: 100%;
@@ -80,7 +80,7 @@
   text-underline-offset: 2px;
 }
 
-/* Annotation highlights — same tokens as TipTap reader (.yaba-editor-container .ProseMirror) */
+/* Annotation highlights — same tokens as note editor reader */
 #yaba-read-it-later-content ::selection {
   background: var(--yaba-primary-container);
   color: var(--yaba-on-primary-container);

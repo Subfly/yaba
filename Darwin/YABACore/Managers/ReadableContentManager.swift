@@ -42,7 +42,6 @@ public enum ReadableContentManager {
             }
             applyUnfurl(unfurl, to: link, context: context)
             bookmark.editedAt = .now
-            ReadableAssetResolver.shared.register(unfurl: unfurl)
         }
     }
 
@@ -59,7 +58,6 @@ public enum ReadableContentManager {
             }
             applyUnfurl(unfurl, to: link, context: context)
             bookmark.editedAt = .now
-            ReadableAssetResolver.shared.register(unfurl: unfurl)
         }
     }
 

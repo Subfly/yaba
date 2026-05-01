@@ -1,32 +1,24 @@
-import type { Editor } from "@tiptap/core"
+import { EditorView } from "@codemirror/view"
 
 import type { SelectionSnapshot } from "./selection-snapshot"
 export type { SelectionSnapshot } from "./selection-snapshot"
 
-/**
- * Extracts quote context from the editor for highlight creation (no positional anchors).
- * Returns null if there is no valid text selection.
- */
-export function getSelectionSnapshot(editor: Editor | null): SelectionSnapshot | null {
-  if (!editor) return null
+export function getSelectionSnapshotFromView(view: EditorView | null): SelectionSnapshot | null {
+  if (!view) return null
 
-  const { state } = editor
-  const { doc, selection } = state
-  const { from, to } = selection
-
+  const { from, to } = view.state.selection.main
   if (from === to) return null
 
-  const selectedText = doc.textBetween(from, to, "\n")
+  const doc = view.state.doc
+  const selectedText = doc.sliceString(from, to)
   if (!selectedText.trim()) return null
 
-  const $from = doc.resolve(from)
-  const $to = doc.resolve(to)
   const prefixLength = 30
   const suffixLength = 30
-  const prefixStart = Math.max($from.start(), from - prefixLength)
-  const suffixEnd = Math.min($to.end(), to + suffixLength)
-  const rawPrefix = doc.textBetween(prefixStart, from, "\n")
-  const rawSuffix = doc.textBetween(to, suffixEnd, "\n")
+  const prefixStart = Math.max(0, from - prefixLength)
+  const suffixEnd = Math.min(doc.length, to + suffixLength)
+  const rawPrefix = doc.sliceString(prefixStart, from)
+  const rawSuffix = doc.sliceString(to, suffixEnd)
 
   return {
     selectedText: selectedText.trim(),

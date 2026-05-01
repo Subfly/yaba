@@ -1,5 +1,3 @@
-import type { Editor } from "@tiptap/core"
-
 export interface EditorFormattingState {
   headingLevel: number
   bold: boolean
@@ -62,44 +60,14 @@ export function getEmptyFormattingState(): EditorFormattingState {
   }
 }
 
-export function getActiveFormattingState(editor: Editor | null): EditorFormattingState {
-  if (!editor) return getEmptyFormattingState()
-  const inTable = editor.isActive("table")
-  const headingLevel =
-    (editor.isActive("heading")
-      ? Number(editor.getAttributes("heading")?.level ?? 0)
-      : 0) || 0
-  return {
-    headingLevel: Math.max(0, Math.min(6, headingLevel)),
-    bold: editor.isActive("bold"),
-    italic: editor.isActive("italic"),
-    underline: editor.isActive("underline"),
-    strikethrough: editor.isActive("strike"),
-    subscript: editor.isActive("subscript"),
-    superscript: editor.isActive("superscript"),
-    code: editor.isActive("code"),
-    codeBlock: editor.isActive("codeBlock"),
-    blockquote: editor.isActive("blockquote"),
-    bulletList: editor.isActive("bulletList"),
-    orderedList: editor.isActive("orderedList"),
-    taskList: editor.isActive("taskList"),
-    inlineMath: editor.isActive("inlineMath"),
-    blockMath: editor.isActive("blockMath"),
-    canUndo: editor.can().undo(),
-    canRedo: editor.can().redo(),
-    canIndent: editor.can().sinkListItem("listItem"),
-    canOutdent: editor.can().liftListItem("listItem"),
-    inTable,
-    canAddRowBefore: inTable && editor.can().addRowBefore(),
-    canAddRowAfter: inTable && editor.can().addRowAfter(),
-    canDeleteRow: inTable && editor.can().deleteRow(),
-    canAddColumnBefore: inTable && editor.can().addColumnBefore(),
-    canAddColumnAfter: inTable && editor.can().addColumnAfter(),
-    canDeleteColumn: inTable && editor.can().deleteColumn(),
-    textHighlight: editor.isActive("highlight"),
-  }
+/**
+ * Markdown/CodeMirror editor: native toolbar state is not yet derived from syntax;
+ * publish empty formatting until dedicated toggle support lands.
+ */
+export function getActiveFormattingState(): EditorFormattingState {
+  return getEmptyFormattingState()
 }
 
-export function getActiveFormattingJson(editor: Editor | null): string {
-  return JSON.stringify(getActiveFormattingState(editor))
+export function getActiveFormattingJson(): string {
+  return JSON.stringify(getActiveFormattingState())
 }

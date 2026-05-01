@@ -79,7 +79,7 @@ html, body {
   box-sizing: border-box !important;
 }
 
-/* Body text: Quicksand; monospace stacks for code only (matches TipTap reader). */
+/* Body text: Quicksand; monospace stacks for code only (matches note reader). */
 body, p, li, td, th, blockquote, figcaption, h1, h2, h3, h4, h5, h6, span, div, em, strong, small, label, dt, dd {
   font-family: var(--yaba-font-family, "Quicksand", -apple-system, BlinkMacSystemFont, sans-serif) !important;
 }

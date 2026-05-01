@@ -165,8 +165,6 @@ public final class LinkmarkCreationStateMachine: YabaBaseObservableState<Linkmar
             $0.pendingReadableUnfurl = readable
             $0.converterError = nil
         }
-        ReadableAssetResolver.shared.register(unfurl: readable)
-        // Do not persist readable versions on fetch while editing; user saves via Done (upserts latest) or uses detail refresh.
     }
 
     private func persistFromState() async {

@@ -20,7 +20,7 @@ interface EpubHighlightInput {
 
 /**
  * epub.js 0.3.x draws highlights as SVG marks; [iframe View#highlight] merges these attrs over defaults
- * (`fill: yellow`, `fill-opacity: 0.3`). Match TipTap annotation palette (epub-viewer.css).
+ * (`fill: yellow`, `fill-opacity: 0.3`). Match YABA annotation palette (epub-viewer.css).
  */
 const EPUB_HIGHLIGHT_DEFAULT_CLASS = "epubjs-hl"
 

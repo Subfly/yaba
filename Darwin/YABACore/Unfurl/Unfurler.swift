@@ -52,30 +52,30 @@ public struct RawHtmlFetch: Sendable {
 }
 
 public enum Unfurler {
-    /// Fetch → metadata (raw HTML) → HTML→Markdown → markdown image download/rewrite → preview image/icon bytes.
+    /// Fetch → metadata (raw HTML) → HTML→Markdown → download inline images → preview image/icon bytes.
     public static func unfurl(_ urlString: String) async throws -> LinkUnfurlResult {
         let fetch = try await fetchRawHtml(urlString)
         let meta = try LinkMetadataExtractor.extract(html: fetch.html, pageUrl: fetch.normalizedUrl)
         let baseForAssets = meta.cleanedUrl.nilIfEmpty ?? fetch.normalizedUrl
-        
+
         let htmlForMarkdown: String
         do {
             htmlForMarkdown = try HTMLPurifier.purify(fetch.html, baseUri: fetch.normalizedUrl)
         } catch {
             throw UnfurlError.htmlSanitizationFailed(String(describing: error))
         }
-        
-        let markdown: String
+
+        let conversion: HTMLToMarkdownConversionResult
         do {
-            markdown = try HTMLToMarkdownProcessor.convert(html: htmlForMarkdown)
+            conversion = try HTMLToMarkdownProcessor.convert(html: htmlForMarkdown, baseURL: baseForAssets)
         } catch {
             throw UnfurlError.htmlToMarkdownFailed(String(describing: error))
         }
-        
-        let readable = await MarkdownReadableAssetProcessor.process(markdown: markdown, baseURL: baseForAssets)
+
+        let readable = await downloadReadableInlineAssets(conversion: conversion)
         let previewImageData = await downloadPreviewImageBytes(urlString: meta.image)
         let previewIconData = await downloadPreviewImageBytes(urlString: meta.logo)
-        
+
         return LinkUnfurlResult(
             metadata: meta,
             readable: readable,
@@ -143,5 +143,66 @@ public enum Unfurler {
             normalized = protocolPart + cleanedPath
         }
         return normalized
+    }
+
+    // MARK: - Readable inline images
+
+    private static func downloadReadableInlineAssets(conversion: HTMLToMarkdownConversionResult) async -> ReadableUnfurl {
+        var payloads: [ReadableAssetPayload] = []
+        payloads.reserveCapacity(conversion.assets.count)
+
+        for asset in conversion.assets {
+            let trimmedUrl = asset.url.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard let url = URL(string: trimmedUrl),
+                  url.scheme == "http" || url.scheme == "https"
+            else { continue }
+
+            guard let rawBytes = try? await UnfurlHttpClient.getBytes(url: url), !rawBytes.isEmpty else { continue }
+
+            let compressed = YabaImageCompression.compressDataPreservingFormat(rawBytes)
+            let ext = mapStoredImageExtension(inferReadableImageExtension(bytes: compressed, urlString: trimmedUrl))
+            payloads.append(
+                ReadableAssetPayload(assetId: asset.assetId, pathExtension: ext, bytes: compressed)
+            )
+        }
+
+        return ReadableUnfurl(markdown: conversion.markdown, assets: payloads)
+    }
+
+    /// Parity with Compose `mapAssetExtensionForPath`.
+    private static func mapStoredImageExtension(_ ext: String) -> String {
+        let e = ext.lowercased().trimmingCharacters(in: .whitespacesAndNewlines).replacingOccurrences(of: ".", with: "")
+        if e == "jpg" { return "jpeg" }
+        return e.isEmpty ? "jpeg" : e
+    }
+
+    /// Parity with Compose `inferImageExtension`.
+    private static func inferReadableImageExtension(bytes: Data, urlString: String) -> String {
+        guard bytes.count >= 3 else { return inferReadableImageExtensionFromURL(urlString) }
+        let b = [UInt8](bytes.prefix(12))
+        if b.count >= 3 && b[0] == 0xFF && b[1] == 0xD8 && b[2] == 0xFF {
+            return "jpg"
+        }
+        if b.count >= 4 && b[0] == 0x89 && b[1] == 0x50 && b[2] == 0x4E && b[3] == 0x47 {
+            return "png"
+        }
+        if b[0] == 0x47 && b[1] == 0x49 && b[2] == 0x46 {
+            return "gif"
+        }
+        if b.count >= 12 && b[0] == 0x52 && b[1] == 0x49 && b[2] == 0x46 && b[3] == 0x46
+            && b[8] == 0x57 && b[9] == 0x45 && b[10] == 0x42 && b[11] == 0x50
+        {
+            return "webp"
+        }
+        return inferReadableImageExtensionFromURL(urlString)
+    }
+
+    private static func inferReadableImageExtensionFromURL(_ urlString: String) -> String {
+        let urlLower = urlString.lowercased()
+        if urlLower.contains(".png") { return "png" }
+        if urlLower.contains(".gif") { return "gif" }
+        if urlLower.contains(".webp") { return "webp" }
+        if urlLower.contains(".jpeg") || urlLower.contains(".jpg") { return "jpg" }
+        return "jpg"
     }
 }
