@@ -54,6 +54,25 @@ public enum NotemarkManager {
         )
     }
 
+    /// Removes one inline asset row from a note bookmark (`NoteBookmarkModel.inlineAssets`).
+    public static func queueDeleteNoteInlineAsset(
+        bookmarkId: String,
+        assetId: String,
+        completion: ((Error?) -> Void)? = nil
+    ) {
+        CoreOperationQueue.shared.queue(
+            name: "DeleteNotemarkInlineAsset:\(bookmarkId):\(assetId)",
+            operation: { context in
+                try deleteNoteInlineAssetInternal(
+                    bookmarkId: bookmarkId,
+                    assetId: assetId,
+                    context: context
+                )
+            },
+            completion: completion
+        )
+    }
+
     private static func saveNoteDocumentInternal(
         bookmarkId: String,
         documentBody: Data?,
@@ -125,6 +144,20 @@ public enum NotemarkManager {
         )
         context.insert(row)
         note.inlineAssets.append(row)
+        bookmark.editedAt = .now
+    }
+
+    private static func deleteNoteInlineAssetInternal(
+        bookmarkId: String,
+        assetId: String,
+        context: ModelContext
+    ) throws {
+        guard let bookmark = try YabaCorePersistenceHelpers.bookmark(bookmarkId: bookmarkId, context: context) else {
+            return
+        }
+        guard let note = bookmark.noteDetail else { return }
+        guard let asset = note.inlineAssets.first(where: { $0.assetId == assetId }) else { return }
+        context.delete(asset)
         bookmark.editedAt = .now
     }
 

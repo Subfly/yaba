@@ -76,6 +76,8 @@ public final class NotemarkDetailStateMachine: YabaBaseObservableState<NotemarkD
                 bookmarkId: bookmarkId,
                 html: json
             )
+        case let .onDeleteNoteInlineAsset(bookmarkId, assetId):
+            NotemarkManager.queueDeleteNoteInlineAsset(bookmarkId: bookmarkId, assetId: assetId)
         }
     }
 

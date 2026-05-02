@@ -116,6 +116,9 @@ struct NotemarkDetailView: View {
                     onDeleteReminder: {
                         Task { await machine.send(.onCancelReminder) }
                     },
+                    onDeleteInlineAsset: { assetId in
+                        Task { await machine.send(.onDeleteNoteInlineAsset(bookmarkId: bm.bookmarkId, assetId: assetId)) }
+                    },
                     onOpenFolder: { folderId in
                         machine.apply { $0.showDetailSheet = false }
                         onOpenFolder(folderId)
