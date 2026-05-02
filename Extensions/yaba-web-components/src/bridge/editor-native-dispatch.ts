@@ -420,6 +420,9 @@ export function dispatchEditorNativeCommand(view: EditorView | null, payload: Ed
     case "toggleItalic":
       toggleItalicAsterisk(view)
       break
+    case "toggleHighlight":
+      toggleAroundSymmetric(view, "==")
+      break
     case "toggleStrikethrough":
       toggleAroundSymmetric(view, "~~")
       break

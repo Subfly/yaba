@@ -10,6 +10,8 @@ import Foundation
 public enum YabaEditorDispatchPayload {
     public static let toggleBold = #"{"type":"toggleBold"}"#
     public static let toggleItalic = #"{"type":"toggleItalic"}"#
+    /// Wraps selection with GFM-style `==highlight==`, or inserts `====` with caret between markers when empty.
+    public static let toggleHighlight = #"{"type":"toggleHighlight"}"#
     public static let toggleStrikethrough = #"{"type":"toggleStrikethrough"}"#
     public static let toggleCode = #"{"type":"toggleCode"}"#
     public static let toggleCodeBlock = #"{"type":"toggleCodeBlock"}"#

@@ -6,6 +6,7 @@ import { EditorView, placeholder } from "@codemirror/view"
 
 import { markdownCodeFontFaces, embeddedCodeFontFaces } from "./editor-code-fonts"
 import { YABA_EDITOR_BASIC_SETUP } from "./yaba-basic-setup"
+import { yabaHighlightMark } from "./yaba-highlight-mark"
 import { yabaMarkdownHighlightClasses } from "./yaba-markdown-highlight-classes"
 import { yabaMarkdownMathExtensions } from "./yaba-markdown-math-extension"
 import {
@@ -32,7 +33,7 @@ export function createYabaMarkdownExtensions(c: YabaEditorExtensionCompartments)
     markdown({
       base: markdownLanguage,
       codeLanguages: languages,
-      extensions: yabaMarkdownMathExtensions,
+      extensions: [...yabaMarkdownMathExtensions, yabaHighlightMark],
       completeHTMLTags: false,
     }),
     EditorView.lineWrapping,
@@ -59,6 +60,10 @@ export function createYabaMarkdownExtensions(c: YabaEditorExtensionCompartments)
       ".cm-content": {
         caretColor: "var(--yaba-cursor, var(--yaba-primary))",
         minHeight: "100%",
+      },
+      ".cm-cursor": {
+        borderLeftWidth: "2px",
+        borderLeftStyle: "solid",
       },
       ".cm-placeholder": {
         color: "var(--yaba-on-surface-variant, #888)",

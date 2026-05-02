@@ -1,6 +1,7 @@
 import { HighlightStyle } from "@codemirror/language"
 import { markdownLanguage } from "@codemirror/lang-markdown"
 import { tags as t } from "@lezer/highlight"
+import { yabaHighlightMarkTag } from "./yaba-highlight-mark"
 import { yabaMathFenceTag, yabaMathShellTag } from "./yaba-markdown-math-extension"
 
 /**
@@ -18,6 +19,7 @@ export const yabaMarkdownHighlightClasses = HighlightStyle.define(
     { tag: t.emphasis, class: "yaba-md-emphasis" },
     { tag: t.strong, class: "yaba-md-strong" },
     { tag: t.strikethrough, class: "yaba-md-strike" },
+    { tag: yabaHighlightMarkTag, class: "yaba-md-mark" },
     { tag: t.link, class: "yaba-md-link" },
     { tag: t.url, class: "yaba-md-url" },
     { tag: t.list, class: "yaba-md-list" },

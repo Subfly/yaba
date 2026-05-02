@@ -43,7 +43,7 @@ export const previewSanitizeSchema: Options = {
     src: ["http", "https", "yaba-asset"],
     cite: ["http", "https"],
   }),
-  tagNames: [...new Set([...(defaultSchema.tagNames ?? []), ...katexTagNames])],
+  tagNames: [...new Set([...(defaultSchema.tagNames ?? []), ...katexTagNames, "mark"])],
   attributes: {
     ...defaultSchema.attributes,
     span: [...(defaultSchema.attributes?.span ?? []), "className", "style"],

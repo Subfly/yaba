@@ -112,6 +112,21 @@
   text-underline-offset: 2px;
 }
 
+/* `==highlight==` (GFM-style marks via remark-mark-highlight; aligns with editor `.yaba-md-mark`). */
+.yaba-markdown-preview mark {
+  border-radius: 0.2em;
+  padding: 0.04em 0.06em;
+  margin: 0 0.02em;
+  background-color: color-mix(
+    in srgb,
+    var(--yaba-primary) 14%,
+    color-mix(in srgb, var(--yaba-reader-on-bg, var(--yaba-on-bg)) 6%, transparent)
+  );
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  color: inherit;
+}
+
 /* Wide GFM tables: scroll horizontally instead of stretching the page. */
 .yaba-markdown-preview .yaba-table-wrap {
   display: block;

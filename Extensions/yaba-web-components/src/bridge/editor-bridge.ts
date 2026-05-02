@@ -369,6 +369,7 @@ export function initEditorBridge(
     },
     dispatch: (payload: EditorCommandPayload) => {
       dispatchEditorNativeCommand(editorSurface?.view ?? null, payload)
+      scheduleNoteAutosaveAfterEditorActivity()
     },
   }
 

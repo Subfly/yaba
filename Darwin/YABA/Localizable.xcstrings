@@ -232,6 +232,28 @@
         }
       }
     },
+    "Add Link Label" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add Link"
+          }
+        }
+      }
+    },
+    "Add Link Text To Display Label" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Text to display"
+          }
+        }
+      }
+    },
     "Announcement CloudKit Deletion Title" : {
       "comment" : "One time title for announcement that indicates Cloud Kit Database Deletion",
       "extractionState" : "manual",
@@ -4437,28 +4459,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "指向视频的链接，例如 YouTube 或 Vimeo 上的视频。"
-          }
-        }
-      }
-    },
-    "Add Link Label" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Add Link"
-          }
-        }
-      }
-    },
-    "Add Link Text To Display Label" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Text to display"
           }
         }
       }
@@ -11800,6 +11800,9 @@
       }
     },
     "Heading %lld" : {
+
+    },
+    "Highlight" : {
 
     },
     "Home Announcements Title" : {

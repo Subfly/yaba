@@ -5,6 +5,8 @@ import dev.subfly.yaba.core.model.utils.YabaColor
 object YabaEditorCommands {
     const val ToggleBold = """{"type":"toggleBold"}"""
     const val ToggleItalic = """{"type":"toggleItalic"}"""
+    /** GFM-style `==highlight==` (Markdown editor); mirrors Darwin `toggleHighlight`. */
+    const val ToggleHighlight = """{"type":"toggleHighlight"}"""
     const val ToggleStrikethrough = """{"type":"toggleStrikethrough"}"""
     const val ToggleSubscript = """{"type":"toggleSubscript"}"""
     const val ToggleSuperscript = """{"type":"toggleSuperscript"}"""

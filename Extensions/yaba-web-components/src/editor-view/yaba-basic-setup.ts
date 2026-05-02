@@ -10,7 +10,7 @@
  * `yaba-editor-extensions.ts`, keyed via `EditorView.darkTheme`.
  */
 import { closeBrackets, autocompletion, closeBracketsKeymap, completionKeymap } from "@codemirror/autocomplete"
-import { defaultKeymap, history, historyKeymap } from "@codemirror/commands"
+import { defaultKeymap, history, historyKeymap, insertBlankLine } from "@codemirror/commands"
 import { bracketMatching, foldGutter, foldKeymap, indentOnInput } from "@codemirror/language"
 import { lintKeymap } from "@codemirror/lint"
 import { highlightSelectionMatches, searchKeymap } from "@codemirror/search"
@@ -46,6 +46,7 @@ export const YABA_EDITOR_BASIC_SETUP: Extension[] = [
   highlightActiveLine(),
   highlightSelectionMatches(),
   keymap.of([
+    { key: "Enter", run: insertBlankLine },
     ...closeBracketsKeymap,
     ...defaultKeymap,
     ...searchKeymap,

@@ -189,9 +189,12 @@ struct NotemarkEditorFloatingToolbar: View {
 
     @ViewBuilder
     private func highlightButton() -> some View {
-        Button {} label: {
+        Button {
+            onDispatch(YabaEditorDispatchPayload.toggleHighlight)
+        } label: {
             menuLabelIcon("highlighter", color: folderAccent)
         }
+        .accessibilityLabel(Text("Highlight"))
     }
 
     @ViewBuilder
