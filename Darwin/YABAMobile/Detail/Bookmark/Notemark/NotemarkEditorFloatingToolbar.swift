@@ -70,7 +70,7 @@ struct NotemarkEditorFloatingToolbar: View {
                 } label: {
                     HStack {
                         toolbarGlyph(Self.headingIconKey(level), color: folderAccent)
-                        Text("Heading \(level)")
+                        Text("Notemark Option Heading Label \(level)")
                     }
                 }
             }
@@ -85,17 +85,17 @@ struct NotemarkEditorFloatingToolbar: View {
             Button {
                 onDispatch(YabaEditorDispatchPayload.toggleBold)
             } label: {
-                menuRow(icon: "text-bold", title: "Bold")
+                menuRow(icon: "text-bold", title: "Notemark Option Bold Label")
             }
             Button {
                 onDispatch(YabaEditorDispatchPayload.toggleItalic)
             } label: {
-                menuRow(icon: "text-italic", title: "Italic")
+                menuRow(icon: "text-italic", title: "Notemark Option Italic Label")
             }
             Button {
                 onDispatch(YabaEditorDispatchPayload.toggleStrikethrough)
             } label: {
-                menuRow(icon: "text-strikethrough", title: "Strikethrough")
+                menuRow(icon: "text-strikethrough", title: "Notemark Option Strikethrough Label")
             }
         } label: {
             menuLabelIcon("text-font", color: folderAccent)
@@ -108,82 +108,82 @@ struct NotemarkEditorFloatingToolbar: View {
             Button {
                 onRequestAddTableSheet()
             } label: {
-                menuRow(icon: "grid-table", title: "Table")
+                menuRow(icon: "grid-table", title: "Notemark Option Add Table Label")
             }
             Button {
                 onRequestAddLinkSheet()
             } label: {
-                menuRow(icon: "link-04", title: "Link")
+                menuRow(icon: "link-04", title: "Notemark Option Add Link Label")
             }
             Button {} label: {
-                menuRow(icon: "at", title: "Mention")
+                menuRow(icon: "at", title: "Notemark Option Add Mention Label")
             }
             Menu {
                 Button {} label: {
-                    menuRow(icon: "image-02", title: "Image from gallery")
+                    menuRow(icon: "image-02", title: "Notemark Option Pick Image From Gallery Label")
                 }
                 Button {} label: {
-                    menuRow(icon: "camera-01", title: "Image from camera")
+                    menuRow(icon: "camera-01", title: "Notemark Option Pick Image From Camera Label")
                 }
             } label: {
-                menuRow(icon: "image-add-02", title: "Image")
+                menuRow(icon: "image-add-02", title: "Notemark Option Add Image Label")
             }
             Menu {
                 Button {
                     onDispatch(YabaEditorDispatchPayload.toggleCode)
                 } label: {
-                    menuRow(icon: "code", title: "Inline code")
+                    menuRow(icon: "code", title: "Notemark Option Add Inline Code Label")
                 }
                 Button {
                     onDispatch(YabaEditorDispatchPayload.toggleCodeBlock)
                 } label: {
-                    menuRow(icon: "source-code-square", title: "Code block")
+                    menuRow(icon: "source-code-square", title: "Notemark Option Add Code Block Label")
                 }
             } label: {
-                menuRow(icon: "source-code", title: "Code")
+                menuRow(icon: "source-code", title: "Notemark Option Add Code Label")
             }
             Button {
                 onDispatch(YabaEditorDispatchPayload.toggleQuote)
             } label: {
-                menuRow(icon: "quote-down", title: "Blockquote")
+                menuRow(icon: "quote-down", title: "Notemark Option Add Blockquote Label")
             }
             Button {
                 onDispatch(YabaEditorDispatchPayload.insertHr)
             } label: {
-                menuRow(icon: "solid-line-01", title: "Horizontal line")
+                menuRow(icon: "solid-line-01", title: "Notemark Option Add Horizontal Line Label")
             }
             Menu {
                 Button {
                     onDispatch(YabaEditorDispatchPayload.toggleBulletedList)
                 } label: {
-                    menuRow(icon: "left-to-right-list-bullet", title: "Unordered list")
+                    menuRow(icon: "left-to-right-list-bullet", title: "Notemark Option Add Unordered List Label")
                 }
                 Button {
                     onDispatch(YabaEditorDispatchPayload.toggleNumberedList)
                 } label: {
-                    menuRow(icon: "left-to-right-list-number", title: "Ordered list")
+                    menuRow(icon: "left-to-right-list-number", title: "Notemark Option Add Ordered List Label")
                 }
                 Button {
                     onDispatch(YabaEditorDispatchPayload.toggleTaskList)
                 } label: {
-                    menuRow(icon: "check-list", title: "Task list")
+                    menuRow(icon: "check-list", title: "Notemark Option Add Task List Label")
                 }
             } label: {
-                menuRow(icon: "left-to-right-list-dash", title: "List")
+                menuRow(icon: "left-to-right-list-dash", title: "Notemark Option Add List Label")
             }
             Menu {
                 Button {
                     onDispatch(YabaEditorDispatchPayload.insertInlineMathEmpty)
                 } label: {
-                    menuRow(icon: "absolute", title: "Inline math")
+                    menuRow(icon: "absolute", title: "Notemark Option Add Inline Math Label")
                 }
                 Button {
                     onDispatch(YabaEditorDispatchPayload.insertBlockMathEmpty)
                 } label: {
-                    menuRow(icon: "alpha-square", title: "Block math")
+                    menuRow(icon: "alpha-square", title: "Notemark Option Add Block Math Label")
                 }
             } label: {
-                menuRow(icon: "calculator", title: "Math")
+                menuRow(icon: "calculator", title: "Notemark Option Add Math Label")
             }
         } label: {
             menuLabelIcon("add-01", color: folderAccent)
@@ -197,7 +197,6 @@ struct NotemarkEditorFloatingToolbar: View {
         } label: {
             menuLabelIcon("highlighter", color: folderAccent)
         }
-        .accessibilityLabel(Text("Highlight"))
     }
 
     @ViewBuilder
@@ -206,12 +205,12 @@ struct NotemarkEditorFloatingToolbar: View {
             Button {
                 onDispatch(YabaEditorDispatchPayload.indent)
             } label: {
-                menuRow(icon: "text-indent-more", title: "Indent")
+                menuRow(icon: "text-indent-more", title: "Notemark Option Add Indent Label")
             }
             Button {
                 onDispatch(YabaEditorDispatchPayload.outdent)
             } label: {
-                menuRow(icon: "text-indent-less", title: "Outdent")
+                menuRow(icon: "text-indent-less", title: "Notemark Option Add Outdent Label")
             }
         } label: {
             menuLabelIcon("text-indent", color: folderAccent)
@@ -229,7 +228,6 @@ struct NotemarkEditorFloatingToolbar: View {
                 toolbarGlyphMirroredX("undo-03", color: folderAccent)
             }
         }
-        .accessibilityLabel(Text("Line break"))
     }
 
     @ViewBuilder
@@ -238,12 +236,12 @@ struct NotemarkEditorFloatingToolbar: View {
             Button {
                 onDispatch(YabaEditorDispatchPayload.undo)
             } label: {
-                menuRow(icon: "undo-02", title: "Undo")
+                menuRow(icon: "undo-02", title: "Notemark Option Do Undo Label")
             }
             Button {
                 onDispatch(YabaEditorDispatchPayload.redo)
             } label: {
-                menuRow(icon: "redo-02", title: "Redo")
+                menuRow(icon: "redo-02", title: "Notemark Option Do Redo Label")
             }
         } label: {
             menuLabelIcon("repeat", color: folderAccent)
@@ -257,12 +255,11 @@ struct NotemarkEditorFloatingToolbar: View {
         } label: {
             menuLabelIcon("tick-01", color: folderAccent)
         }
-        .accessibilityLabel(Text("Done"))
     }
 
     // MARK: Pieces
 
-    private func menuRow(icon: String, title: String) -> some View {
+    private func menuRow(icon: String, title: LocalizedStringKey) -> some View {
         HStack {
             toolbarGlyph(icon, color: folderAccent)
             Text(title)

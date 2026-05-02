@@ -255,7 +255,14 @@
       }
     },
     "Add Table Label" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add Table"
+          }
+        }
+      }
     },
     "Announcement CloudKit Deletion Title" : {
       "comment" : "One time title for announcement that indicates Cloud Kit Database Deletion",
@@ -11803,10 +11810,15 @@
       }
     },
     "Heading %lld" : {
-
-    },
-    "Highlight" : {
-
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Heading %lld"
+          }
+        }
+      }
     },
     "Home Announcements Title" : {
       "comment" : "Title of announcements",
@@ -24493,9 +24505,6 @@
         }
       }
     },
-    "Line break" : {
-
-    },
     "Link" : {
       "comment" : "Header of Link in bookmark creation sheet",
       "extractionState" : "manual",
@@ -27850,6 +27859,266 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Note"
+          }
+        }
+      }
+    },
+    "Notemark Option Add Block Math Label" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Block Math"
+          }
+        }
+      }
+    },
+    "Notemark Option Add Blockquote Label" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Blockquote"
+          }
+        }
+      }
+    },
+    "Notemark Option Add Code Block Label" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Code Block"
+          }
+        }
+      }
+    },
+    "Notemark Option Add Code Label" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Code"
+          }
+        }
+      }
+    },
+    "Notemark Option Add Horizontal Line Label" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Horizontal Line"
+          }
+        }
+      }
+    },
+    "Notemark Option Add Image Label" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Image"
+          }
+        }
+      }
+    },
+    "Notemark Option Add Indent Label" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Indent"
+          }
+        }
+      }
+    },
+    "Notemark Option Add Inline Code Label" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inline Code"
+          }
+        }
+      }
+    },
+    "Notemark Option Add Inline Math Label" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inline Math"
+          }
+        }
+      }
+    },
+    "Notemark Option Add Link Label" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Link"
+          }
+        }
+      }
+    },
+    "Notemark Option Add List Label" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "List"
+          }
+        }
+      }
+    },
+    "Notemark Option Add Math Label" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Math"
+          }
+        }
+      }
+    },
+    "Notemark Option Add Mention Label" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mention"
+          }
+        }
+      }
+    },
+    "Notemark Option Add Ordered List Label" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordered List"
+          }
+        }
+      }
+    },
+    "Notemark Option Add Outdent Label" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Outdent"
+          }
+        }
+      }
+    },
+    "Notemark Option Add Table Label" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Table"
+          }
+        }
+      }
+    },
+    "Notemark Option Add Task List Label" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Task List"
+          }
+        }
+      }
+    },
+    "Notemark Option Add Unordered List Label" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unordered List"
+          }
+        }
+      }
+    },
+    "Notemark Option Bold Label" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bold"
+          }
+        }
+      }
+    },
+    "Notemark Option Do Redo Label" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Redo"
+          }
+        }
+      }
+    },
+    "Notemark Option Do Undo Label" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Undo"
+          }
+        }
+      }
+    },
+    "Notemark Option Heading Label %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Heading %lld"
+          }
+        }
+      }
+    },
+    "Notemark Option Italic Label" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Italic"
+          }
+        }
+      }
+    },
+    "Notemark Option Pick Image From Camera Label" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "From Camera"
+          }
+        }
+      }
+    },
+    "Notemark Option Pick Image From Gallery Label" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "From Gallery"
+          }
+        }
+      }
+    },
+    "Notemark Option Strikethrough Label" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Strikethrough"
           }
         }
       }
