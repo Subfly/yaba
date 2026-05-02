@@ -32,7 +32,24 @@ public enum YabaEditorDispatchPayload {
         return #"{"type":"setHeading","level":\#(l)}"#
     }
 
-    public static func insertLink(text: String, url: String) -> String {
+    /// When `asImage` is true, inserts `![text](url)` via the editor’s `insertLink` bridge with `image: true`
+    /// (same dispatch path as normal links so bundled `editor.js` stays in sync).
+    public static func insertLink(text: String, url: String, asImage: Bool = false) -> String {
+        if asImage {
+            struct InsertLinkAsImagePayload: Encodable {
+                let type: String
+                let text: String
+                let url: String
+                let image: Bool
+            }
+            do {
+                return try WebJson.encodeToString(
+                    InsertLinkAsImagePayload(type: "insertLink", text: text, url: url, image: true)
+                )
+            } catch {
+                return #"{"type":"insertLink","text":"","url":"","image":true}"#
+            }
+        }
         struct InsertLinkPayload: Encodable {
             let type: String
             let text: String
@@ -42,20 +59,6 @@ public enum YabaEditorDispatchPayload {
             return try WebJson.encodeToString(InsertLinkPayload(type: "insertLink", text: text, url: url))
         } catch {
             return #"{"type":"insertLink","text":"","url":""}"#
-        }
-    }
-
-    /// Inserts `![alt](url)` at the selection (empty alt yields `![](url)`).
-    public static func insertImageLink(alt: String, url: String) -> String {
-        struct InsertImageLinkPayload: Encodable {
-            let type: String
-            let alt: String
-            let url: String
-        }
-        do {
-            return try WebJson.encodeToString(InsertImageLinkPayload(type: "insertImageLink", alt: alt, url: url))
-        } catch {
-            return #"{"type":"insertImageLink","alt":"","url":""}"#
         }
     }
 

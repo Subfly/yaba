@@ -199,7 +199,7 @@ struct NotemarkDetailView: View {
                     case .link:
                         dispatchEditorCommand(YabaEditorDispatchPayload.insertLink(text: text, url: url))
                     case .image:
-                        dispatchEditorCommand(YabaEditorDispatchPayload.insertImageLink(alt: text, url: url))
+                        dispatchEditorCommand(YabaEditorDispatchPayload.insertLink(text: text, url: url, asImage: true))
                     }
                     showAddLinkSheet = false
                 }

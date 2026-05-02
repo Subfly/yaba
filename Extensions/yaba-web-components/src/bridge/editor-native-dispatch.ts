@@ -580,23 +580,8 @@ export function dispatchEditorNativeCommand(view: EditorView | null, payload: Ed
       const url = typeof payload.url === "string" ? payload.url : ""
       const linkText = text.trim()
       const linkUrl = url.trim()
-      const inserted = buildMarkdownLink(linkText, linkUrl)
-      const { state } = view
-      const main = state.selection.main
-      const from = main.from
-      const to = main.to
-      view.dispatch({
-        changes: { from, to, insert: inserted },
-        selection: EditorSelection.cursor(from + inserted.length),
-      })
-      break
-    }
-    case "insertImageLink": {
-      const altRaw = typeof payload.alt === "string" ? payload.alt : ""
-      const url = typeof payload.url === "string" ? payload.url : ""
-      const alt = altRaw.trim()
-      const linkUrl = url.trim()
-      const inserted = buildMarkdownImage(alt, linkUrl)
+      const isImage = payload.image === true
+      const inserted = isImage ? buildMarkdownImage(linkText, linkUrl) : buildMarkdownLink(linkText, linkUrl)
       const { state } = view
       const main = state.selection.main
       const from = main.from
