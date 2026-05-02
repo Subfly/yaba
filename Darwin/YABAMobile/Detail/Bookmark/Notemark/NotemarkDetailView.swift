@@ -15,6 +15,7 @@ struct NotemarkDetailView: View {
     let bookmarkId: String
     let onOpenFolder: (String) -> Void
     let onOpenTag: (String) -> Void
+    let onOpenBookmark: (String) -> Void
 
     @Environment(\.dismiss)
     private var dismiss
@@ -82,11 +83,13 @@ struct NotemarkDetailView: View {
     init(
         bookmarkId: String,
         onOpenFolder: @escaping (String) -> Void = { _ in },
-        onOpenTag: @escaping (String) -> Void = { _ in }
+        onOpenTag: @escaping (String) -> Void = { _ in },
+        onOpenBookmark: @escaping (String) -> Void = { _ in }
     ) {
         self.bookmarkId = bookmarkId
         self.onOpenFolder = onOpenFolder
         self.onOpenTag = onOpenTag
+        self.onOpenBookmark = onOpenBookmark
         var d = FetchDescriptor<YabaBookmark>(
             predicate: #Predicate<YabaBookmark> { $0.bookmarkId == bookmarkId }
         )
@@ -324,6 +327,7 @@ struct NotemarkDetailView: View {
                     onHostEvent: { event in
                         handlePreviewHostEvent(event)
                     },
+                    onInlineLinkTap: handlePreviewInlineLinkTap,
                     onRuntimeReady: { runtime in
                         previewRuntime = runtime
                         sendSurfaceModeAnnouncement(to: runtime)
@@ -340,7 +344,7 @@ struct NotemarkDetailView: View {
                         Task { @MainActor in
                             await applyPreviewTaskCheckboxToggle(bracketOpen: ev.bracketOpen, bookmarkId: bm.bookmarkId)
                         }
-                    }
+                    },
                 )
                 .id("\(bm.bookmarkId)-preview")
                 .opacity(machine.state.surfaceMode == .preview ? 1 : 0)
@@ -665,6 +669,36 @@ struct NotemarkDetailView: View {
         Task { @MainActor in
             await resignNotemarkEditorFirstResponder()
         }
+    }
+
+    private func handlePreviewInlineLinkTap(_ event: InlineLinkTapEvent) {
+        let trimmed = event.url.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let mentionId = bookmarkIdFromYabaMentionURL(trimmed), !mentionId.isEmpty {
+            onOpenBookmark(mentionId)
+            return
+        }
+        guard let url = URL(string: trimmed) else { return }
+        UIApplication.shared.open(url)
+    }
+
+    /// `[label](yaba-mention://<bookmarkId>)` — host carries the bookmark id Swift stored when inserting mentions.
+    private func bookmarkIdFromYabaMentionURL(_ raw: String) -> String? {
+        guard let url = URL(string: raw), url.scheme?.lowercased() == "yaba-mention" else {
+            return nil
+        }
+
+        if let host = url.host?.trimmingCharacters(in: .whitespacesAndNewlines), !host.isEmpty {
+            let decoded = host.removingPercentEncoding ?? host
+            return decoded.isEmpty ? nil : decoded
+        }
+
+        if let frag = url.path.trimmingCharacters(in: CharacterSet(charactersIn: "/")).split(separator: "/", omittingEmptySubsequences: true).first {
+            let s = String(frag).trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !s.isEmpty else { return nil }
+            return s.removingPercentEncoding ?? s
+        }
+
+        return nil
     }
 
     private func handlePreviewHostEvent(_ event: WebHostEvent) {

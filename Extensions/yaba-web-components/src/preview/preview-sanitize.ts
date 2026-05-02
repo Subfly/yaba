@@ -39,7 +39,7 @@ const commonSvgMarkup = ["className", "style"] as const
 export const previewSanitizeSchema: Options = {
   ...defaultSchema,
   protocols: mergeProtocols(defaultSchema.protocols ?? {}, {
-    href: ["http", "https", "mailto", "tel", "yaba-asset"],
+    href: ["http", "https", "mailto", "tel", "yaba-asset", "yaba-mention"],
     src: ["http", "https", "data", "blob", "yaba-asset"],
     cite: ["http", "https"],
   }),

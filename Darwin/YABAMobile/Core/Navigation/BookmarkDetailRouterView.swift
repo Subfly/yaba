@@ -12,6 +12,7 @@ struct BookmarkDetailRouterView: View {
     let bookmarkId: String
     let onOpenFolder: (String) -> Void
     let onOpenTag: (String) -> Void
+    let onOpenBookmark: (String) -> Void
 
     @Query
     private var bookmarks: [YabaBookmark]
@@ -19,11 +20,13 @@ struct BookmarkDetailRouterView: View {
     init(
         bookmarkId: String,
         onOpenFolder: @escaping (String) -> Void = { _ in },
-        onOpenTag: @escaping (String) -> Void = { _ in }
+        onOpenTag: @escaping (String) -> Void = { _ in },
+        onOpenBookmark: @escaping (String) -> Void = { _ in }
     ) {
         self.bookmarkId = bookmarkId
         self.onOpenFolder = onOpenFolder
         self.onOpenTag = onOpenTag
+        self.onOpenBookmark = onOpenBookmark
         var d = FetchDescriptor<YabaBookmark>(
             predicate: #Predicate<YabaBookmark> { $0.bookmarkId == bookmarkId }
         )
@@ -57,7 +60,8 @@ struct BookmarkDetailRouterView: View {
                     NotemarkDetailView(
                         bookmarkId: bookmarkId,
                         onOpenFolder: onOpenFolder,
-                        onOpenTag: onOpenTag
+                        onOpenTag: onOpenTag,
+                        onOpenBookmark: onOpenBookmark
                     )
                 default:
                     EmptyView()

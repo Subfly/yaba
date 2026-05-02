@@ -76,7 +76,8 @@ struct YabaNavigationView: View {
                 },
                 onOpenTag: { tagId in
                     detailRouter.openTag(id: tagId)
-                }
+                },
+                onOpenBookmark: onOpenBookmark
             )
         }
     }

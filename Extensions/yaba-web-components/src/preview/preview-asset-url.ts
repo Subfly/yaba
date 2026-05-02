@@ -20,6 +20,7 @@ function decodeURIComponentSafe(s: string): string {
 /**
  * Extract `<id>` from any URL/path ending with `/assets/<id>.<ext>`.
  * Supports canonical `../assets/...` and absolute URLs rewritten by editor bridges.
+ * TODO: REMOVE
  */
 function assetIdFromAssetsPath(raw: string): string | undefined {
   const cleaned = stripQueryHash(raw.trim())
@@ -77,6 +78,9 @@ export function previewImageSrc(raw: string | undefined): string | undefined {
 export function previewUrlTransformForLinks(value: string, defaultTransform: (v: string) => string): string {
   const v = value.trim()
   if (v.startsWith("yaba-asset:") || v.startsWith("yaba-asset://")) {
+    return v
+  }
+  if (v.startsWith("yaba-mention:") || v.startsWith("yaba-mention://")) {
     return v
   }
   return defaultTransform(v)

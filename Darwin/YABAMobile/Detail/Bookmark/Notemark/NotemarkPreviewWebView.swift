@@ -16,6 +16,7 @@ struct NotemarkPreviewWebView: UIViewRepresentable {
     let appearance: WebAppearance
     let markdownScrollHydrate: NotemarkWebScrollHydrate
     let onHostEvent: (WebHostEvent) -> Void
+    let onInlineLinkTap: (InlineLinkTapEvent) -> Void
     var onRuntimeReady: ((WKWebViewRuntime) -> Void)?
     var onPreviewHighlightMarkTap: ((PreviewHighlightMarkTapEvent) -> Void)?
     var onPreviewTaskCheckboxTap: ((PreviewTaskCheckboxTapEvent) -> Void)?
@@ -76,6 +77,10 @@ struct NotemarkPreviewWebView: UIViewRepresentable {
             runtime.onPreviewTaskCheckboxTap = { [weak self] ev in
                 guard let self else { return }
                 self.parent.onPreviewTaskCheckboxTap?(ev)
+            }
+            runtime.onInlineLinkTap = { [weak self] event in
+                guard let self else { return }
+                self.parent.onInlineLinkTap(event)
             }
         }
 
