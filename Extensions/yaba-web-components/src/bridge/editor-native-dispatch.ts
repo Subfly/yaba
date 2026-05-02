@@ -37,6 +37,15 @@ function buildMarkdownLink(text: string, url: string): string {
   return `[${escapedText}](${escapedUrl})`
 }
 
+function buildMarkdownImage(alt: string, url: string): string {
+  const escapedAlt = escapeMarkdownLinkText(alt)
+  const escapedUrl = escapeMarkdownLinkUrl(url)
+  if (shouldWrapLinkUrlInAngleBrackets(url)) {
+    return `![${escapedAlt}](<${escapedUrl}>)`
+  }
+  return `![${escapedAlt}](${escapedUrl})`
+}
+
 /** GFM pipe table: header row + delimiter + body rows (`rows` = total cell lines including header). */
 function buildGfmTableMarkdown(rows: number, cols: number, _withHeaderRow: boolean): string {
   const r = Math.max(1, Math.min(20, Math.floor(rows)))
@@ -572,6 +581,22 @@ export function dispatchEditorNativeCommand(view: EditorView | null, payload: Ed
       const linkText = text.trim()
       const linkUrl = url.trim()
       const inserted = buildMarkdownLink(linkText, linkUrl)
+      const { state } = view
+      const main = state.selection.main
+      const from = main.from
+      const to = main.to
+      view.dispatch({
+        changes: { from, to, insert: inserted },
+        selection: EditorSelection.cursor(from + inserted.length),
+      })
+      break
+    }
+    case "insertImageLink": {
+      const altRaw = typeof payload.alt === "string" ? payload.alt : ""
+      const url = typeof payload.url === "string" ? payload.url : ""
+      const alt = altRaw.trim()
+      const linkUrl = url.trim()
+      const inserted = buildMarkdownImage(alt, linkUrl)
       const { state } = view
       const main = state.selection.main
       const from = main.from

@@ -14,7 +14,7 @@ struct NotemarkEditorFloatingToolbar: View {
     /// Done control — only while the software keyboard is on-screen (driven by the host).
     let showsDoneButton: Bool
     let onDispatch: (String) -> Void
-    let onRequestAddLinkSheet: () -> Void
+    let onRequestAddLinkSheet: (NotemarkAddLinkSheetMode) -> Void
     let onRequestAddTableSheet: () -> Void
     let onDismissKeyboard: () -> Void
 
@@ -111,7 +111,7 @@ struct NotemarkEditorFloatingToolbar: View {
                 menuRow(icon: "grid-table", title: "Notemark Option Add Table Label")
             }
             Button {
-                onRequestAddLinkSheet()
+                onRequestAddLinkSheet(.link)
             } label: {
                 menuRow(icon: "link-04", title: "Notemark Option Add Link Label")
             }
@@ -120,10 +120,15 @@ struct NotemarkEditorFloatingToolbar: View {
             }
             Menu {
                 Button {} label: {
-                    menuRow(icon: "image-02", title: "Notemark Option Pick Image From Gallery Label")
+                    menuRow(icon: "camera-01", title: "Notemark Option Pick Image From Camera Label")
                 }
                 Button {} label: {
-                    menuRow(icon: "camera-01", title: "Notemark Option Pick Image From Camera Label")
+                    menuRow(icon: "image-02", title: "Notemark Option Pick Image From Gallery Label")
+                }
+                Button {
+                    onRequestAddLinkSheet(.image)
+                } label: {
+                    menuRow(icon: "link-04", title: "Notemark Option Add Image From Link Label")
                 }
             } label: {
                 menuRow(icon: "image-add-02", title: "Notemark Option Add Image Label")

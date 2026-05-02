@@ -45,6 +45,20 @@ public enum YabaEditorDispatchPayload {
         }
     }
 
+    /// Inserts `![alt](url)` at the selection (empty alt yields `![](url)`).
+    public static func insertImageLink(alt: String, url: String) -> String {
+        struct InsertImageLinkPayload: Encodable {
+            let type: String
+            let alt: String
+            let url: String
+        }
+        do {
+            return try WebJson.encodeToString(InsertImageLinkPayload(type: "insertImageLink", alt: alt, url: url))
+        } catch {
+            return #"{"type":"insertImageLink","alt":"","url":""}"#
+        }
+    }
+
     /// Inserts a GFM pipe table at the selection — parity with Android `YabaEditorCommands.insertTablePayload`.
     public static func insertTable(rows: Int, cols: Int, withHeaderRow: Bool = false) -> String {
         struct InsertTablePayload: Encodable {

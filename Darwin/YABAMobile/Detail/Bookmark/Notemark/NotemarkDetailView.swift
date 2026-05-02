@@ -52,6 +52,9 @@ struct NotemarkDetailView: View {
     private var showAddLinkSheet = false
 
     @State
+    private var addLinkSheetMode: NotemarkAddLinkSheetMode = .link
+
+    @State
     private var showAddTableSheet = false
 
     @State
@@ -191,8 +194,13 @@ struct NotemarkDetailView: View {
         }
         .sheet(isPresented: $showAddLinkSheet) {
             NavigationStack {
-                NotemarkAddLinkSheet { text, url in
-                    dispatchEditorCommand(YabaEditorDispatchPayload.insertLink(text: text, url: url))
+                NotemarkAddLinkSheet(mode: addLinkSheetMode) { text, url in
+                    switch addLinkSheetMode {
+                    case .link:
+                        dispatchEditorCommand(YabaEditorDispatchPayload.insertLink(text: text, url: url))
+                    case .image:
+                        dispatchEditorCommand(YabaEditorDispatchPayload.insertImageLink(alt: text, url: url))
+                    }
                     showAddLinkSheet = false
                 }
             }
@@ -313,7 +321,8 @@ struct NotemarkDetailView: View {
                     onDispatch: { payload in
                         dispatchEditorCommand(payload)
                     },
-                    onRequestAddLinkSheet: {
+                    onRequestAddLinkSheet: { mode in
+                        addLinkSheetMode = mode
                         showAddLinkSheet = true
                     },
                     onRequestAddTableSheet: {

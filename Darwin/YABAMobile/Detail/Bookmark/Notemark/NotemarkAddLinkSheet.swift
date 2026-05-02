@@ -5,9 +5,16 @@
 
 import SwiftUI
 
+enum NotemarkAddLinkSheetMode: Hashable, Sendable {
+    case link
+    case image
+}
+
 struct NotemarkAddLinkSheet: View {
     @Environment(\.dismiss)
     private var dismiss
+
+    let mode: NotemarkAddLinkSheetMode
 
     @State
     private var linkText = ""
@@ -17,9 +24,17 @@ struct NotemarkAddLinkSheet: View {
 
     let onSubmit: (String, String) -> Void
 
+    init(
+        mode: NotemarkAddLinkSheetMode = .link,
+        onSubmit: @escaping (String, String) -> Void
+    ) {
+        self.mode = mode
+        self.onSubmit = onSubmit
+    }
+
     var body: some View {
         List {
-            TextField("Add Link Text To Display Label", text: $linkText)
+            TextField(firstFieldTitleKey, text: $linkText)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
             TextField("Bookmark URL Placeholder", text: $linkUrl)
@@ -28,7 +43,7 @@ struct NotemarkAddLinkSheet: View {
                 .keyboardType(.URL)
         }
         .listStyle(.sidebar)
-        .navigationTitle("Add Link Label")
+        .navigationTitle(navigationTitleKey)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
@@ -44,6 +59,24 @@ struct NotemarkAddLinkSheet: View {
         }.presentationDetents([.fraction(0.3)])
     }
 
+    private var navigationTitleKey: LocalizedStringKey {
+        switch mode {
+        case .link:
+            "Add Link Label"
+        case .image:
+            "Add Image Link Label"
+        }
+    }
+
+    private var firstFieldTitleKey: LocalizedStringKey {
+        switch mode {
+        case .link:
+            "Add Link Text To Display Label"
+        case .image:
+            "Add Image Alt Text Label"
+        }
+    }
+
     private var trimmedLinkText: String {
         linkText.trimmingCharacters(in: .whitespacesAndNewlines)
     }
@@ -53,6 +86,11 @@ struct NotemarkAddLinkSheet: View {
     }
 
     private var canSubmit: Bool {
-        !trimmedLinkText.isEmpty && !trimmedLinkUrl.isEmpty
+        switch mode {
+        case .link:
+            !trimmedLinkText.isEmpty && !trimmedLinkUrl.isEmpty
+        case .image:
+            !trimmedLinkUrl.isEmpty
+        }
     }
 }

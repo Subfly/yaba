@@ -232,6 +232,26 @@
         }
       }
     },
+    "Add Image Alt Text Label" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alternative Text / Caption"
+          }
+        }
+      }
+    },
+    "Add Image Link Label" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add Image Link"
+          }
+        }
+      }
+    },
     "Add Link Label" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -27909,6 +27929,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Horizontal Line"
+          }
+        }
+      }
+    },
+    "Notemark Option Add Image From Link Label" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "From Link"
           }
         }
       }
