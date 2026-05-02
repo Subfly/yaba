@@ -32,6 +32,7 @@ final class NotemarkEditorContainerView: UIView {
 /// Bundled CodeMirror editor (`editor.html`) host for note bookmarks.
 struct NotemarkEditorWebView: UIViewRepresentable {
     let markdown: String
+    let inlineAssets: [YabaInlineAssetPayload]
     let readerPreferences: ReaderPreferences
     let appearance: WebAppearance
     let markdownScrollHydrate: NotemarkWebScrollHydrate
@@ -59,6 +60,7 @@ struct NotemarkEditorWebView: UIViewRepresentable {
 
     final class Coordinator: NSObject {
         private(set) var parent: NotemarkEditorWebView
+        fileprivate let schemeHandler: YabaInlineAssetSchemeHandler
         let runtime: WKWebViewRuntime
         private var hasLoadedShell = false
         private var isBridgeReady = false
@@ -70,8 +72,15 @@ struct NotemarkEditorWebView: UIViewRepresentable {
 
         init(parent: NotemarkEditorWebView) {
             self.parent = parent
+            let handler = YabaInlineAssetSchemeHandler()
+            handler.updateAssets(parent.inlineAssets)
+            self.schemeHandler = handler
             self.runtime = WKWebViewRuntime(
-                configuration: WebRuntimeConfiguration(usesInputAccessoryHostingWebView: true)
+                configuration: WebRuntimeConfiguration(
+                    websiteDataStore: .nonPersistent(),
+                    yabaAssetSchemeHandler: handler,
+                    usesInputAccessoryHostingWebView: true
+                )
             )
             super.init()
             runtime.onBridgeReady = { [weak self] in
@@ -104,6 +113,7 @@ struct NotemarkEditorWebView: UIViewRepresentable {
         @MainActor
         func update(parent: NotemarkEditorWebView) {
             self.parent = parent
+            schemeHandler.updateAssets(parent.inlineAssets)
             if !hasLoadedShell {
                 hasLoadedShell = true
                 runtime.loadBundledShell(

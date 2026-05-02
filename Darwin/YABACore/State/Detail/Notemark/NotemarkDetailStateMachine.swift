@@ -79,6 +79,37 @@ public final class NotemarkDetailStateMachine: YabaBaseObservableState<NotemarkD
         }
     }
 
+    // MARK: - Note inline images (camera / gallery)
+
+    /// Persists bytes on the note bookmark, then yields editor bridge JSON to insert `![](yaba-asset://…)`.
+    /// Pass `storedPathExtension` when the source already implies a type (e.g. camera JPEG); otherwise it is inferred from `data` (gallery).
+    public func handlePickedInlineImage(
+        data: Data,
+        bookmarkId: String,
+        storedPathExtension: String? = nil,
+        onAssetPersisted: @escaping @MainActor (String) -> Void
+    ) {
+        let assetId = UUID().uuidString
+        let rawExt = storedPathExtension ?? inferredInlineImagePathExtension(for: data)
+        let ext = normalizedStoredInlineImageExtension(rawExt)
+        NotemarkManager.queueAppendNoteInlineAsset(
+            bookmarkId: bookmarkId,
+            assetId: assetId,
+            pathExtension: ext,
+            bytes: data
+        ) { error in
+            guard error == nil else { return }
+            let insert = YabaEditorDispatchPayload.insertLink(
+                text: "",
+                url: "yaba-asset://\(assetId)",
+                asImage: true
+            )
+            Task { @MainActor in
+                onAssetPersisted(insert)
+            }
+        }
+    }
+
     // MARK: - Editor snapshot (WKWebView bridge)
 
     public func persistEditorSnapshot(runtime: WKWebViewRuntime) async {
@@ -264,5 +295,29 @@ public final class NotemarkDetailStateMachine: YabaBaseObservableState<NotemarkD
                 $0.editorPdfExport = nil
             }
         }
+    }
+    
+    /// Sniff JPEG / PNG / WebP from magic bytes; default `jpg`.
+    private func inferredInlineImagePathExtension(for data: Data) -> String {
+        guard !data.isEmpty else { return "jpg" }
+        let b = [UInt8](data.prefix(12))
+        if b.count >= 3, b[0] == 0xFF, b[1] == 0xD8 { return "jpg" }
+        if b.count >= 8, b[0] == 0x89, b[1] == 0x50, b[2] == 0x4E, b[3] == 0x47 { return "png" }
+        if b.count >= 12,
+           b[0] == 0x52, b[1] == 0x49, b[2] == 0x46, b[3] == 0x46,
+           b[8] == 0x57, b[9] == 0x45, b[10] == 0x42, b[11] == 0x50
+        {
+            return "webp"
+        }
+        return "jpg"
+    }
+
+    private func normalizedStoredInlineImageExtension(_ raw: String) -> String {
+        let t = raw
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .trimmingCharacters(in: CharacterSet(charactersIn: "."))
+            .lowercased()
+        if t == "jpeg" { return "jpg" }
+        return t.isEmpty ? "jpg" : t
     }
 }

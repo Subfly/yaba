@@ -7,6 +7,7 @@ import SwiftData
 import SwiftUI
 import UIKit
 import WebKit
+import PhotosUI
 
 /// SwiftData-driven note bookmark detail + CodeMirror editor host (`editor.html`).
 /// Sheet/export state lives on ``NotemarkDetailStateMachine`` (parity with ``LinkmarkDetailView`` / ``LinkmarkDetailStateMachine``).
@@ -56,6 +57,12 @@ struct NotemarkDetailView: View {
 
     @State
     private var showAddTableSheet = false
+
+    @State
+    private var notemarkGalleryPhotoItem: PhotosPickerItem?
+
+    @State
+    private var showNotemarkCameraCapture = false
 
     @State
     private var highlightColorMarkEdit: HighlightColorMarkTapEvent?
@@ -213,6 +220,22 @@ struct NotemarkDetailView: View {
                 }
             }
         }
+        .fullScreenCover(isPresented: $showNotemarkCameraCapture) {
+            CameraCapturePicker(
+                onDismiss: { showNotemarkCameraCapture = false },
+                onCapture: { data in
+                    showNotemarkCameraCapture = false
+                    guard let bm = bookmark else { return }
+                    machine.handlePickedInlineImage(
+                        data: data,
+                        bookmarkId: bm.bookmarkId,
+                        storedPathExtension: "jpg",
+                        onAssetPersisted: { dispatchEditorCommand($0) }
+                    )
+                }
+            )
+            .ignoresSafeArea()
+        }
         .sheet(isPresented: $showHighlightColorSheet) {
             YabaColorPicker(selection: $highlightColorPick, onDismiss: {
                 handleHighlightColorPickerDismissed()
@@ -251,6 +274,7 @@ struct NotemarkDetailView: View {
             ZStack {
                 NotemarkEditorWebView(
                     markdown: markdown,
+                    inlineAssets: notemarkPreviewInlineAssets(for: bm),
                     readerPreferences: readerPreferences,
                     appearance: .auto,
                     markdownScrollHydrate: editorScrollHydrate,
@@ -331,7 +355,11 @@ struct NotemarkDetailView: View {
                     },
                     onDismissKeyboard: {
                         dismissNotemarkEditorKeyboard()
-                    }
+                    },
+                    onRequestPickImageFromCamera: {
+                        showNotemarkCameraCapture = true
+                    },
+                    galleryPhotoItem: $notemarkGalleryPhotoItem
                 )
                 Spacer(minLength: 0)
             }
@@ -393,6 +421,23 @@ struct NotemarkDetailView: View {
             }
         }
         .tint(folderTint)
+        .onChange(of: notemarkGalleryPhotoItem) { _, new in
+            Task {
+                guard let new else { return }
+                guard let data = try? await new.loadTransferable(type: Data.self) else {
+                    await MainActor.run { notemarkGalleryPhotoItem = nil }
+                    return
+                }
+                await MainActor.run {
+                    machine.handlePickedInlineImage(
+                        data: data,
+                        bookmarkId: bm.bookmarkId,
+                        onAssetPersisted: { dispatchEditorCommand($0) }
+                    )
+                    notemarkGalleryPhotoItem = nil
+                }
+            }
+        }
     }
 
     private func folderColor(for bm: YabaBookmark) -> Color {

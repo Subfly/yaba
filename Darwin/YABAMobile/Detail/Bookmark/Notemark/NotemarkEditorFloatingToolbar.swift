@@ -3,6 +3,7 @@
 //  YABA
 //
 
+import PhotosUI
 import SwiftUI
 
 // MARK: - Editor floating toolbar
@@ -11,12 +12,16 @@ import SwiftUI
 struct NotemarkEditorFloatingToolbar: View {
     let folderAccent: Color
     let isVisible: Bool
-    /// Done control — only while the software keyboard is on-screen (driven by the host).
     let showsDoneButton: Bool
     let onDispatch: (String) -> Void
     let onRequestAddLinkSheet: (NotemarkAddLinkSheetMode) -> Void
     let onRequestAddTableSheet: () -> Void
     let onDismissKeyboard: () -> Void
+    let onRequestPickImageFromCamera: () -> Void
+    var galleryPhotoItem: Binding<PhotosPickerItem?>
+
+    @State
+    private var showGalleryPhotoPicker = false
 
     var body: some View {
         Group {
@@ -35,6 +40,11 @@ struct NotemarkEditorFloatingToolbar: View {
                     }
             }
         }
+        .photosPicker(
+            isPresented: $showGalleryPhotoPicker,
+            selection: galleryPhotoItem,
+            matching: .images
+        )
         .fixedSize(horizontal: true, vertical: false)
         .opacity(isVisible ? 1 : 0)
         .offset(y: isVisible ? 0 : 24)
@@ -119,10 +129,14 @@ struct NotemarkEditorFloatingToolbar: View {
                 menuRow(icon: "at", title: "Notemark Option Add Mention Label")
             }
             Menu {
-                Button {} label: {
+                Button {
+                    onRequestPickImageFromCamera()
+                } label: {
                     menuRow(icon: "camera-01", title: "Notemark Option Pick Image From Camera Label")
                 }
-                Button {} label: {
+                Button {
+                    showGalleryPhotoPicker = true
+                } label: {
                     menuRow(icon: "image-02", title: "Notemark Option Pick Image From Gallery Label")
                 }
                 Button {

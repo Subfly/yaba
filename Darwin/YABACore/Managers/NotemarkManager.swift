@@ -31,6 +31,29 @@ public enum NotemarkManager {
         }
     }
 
+    /// Appends an inline image asset to a note bookmark (`NoteBookmarkModel.inlineAssets`).
+    public static func queueAppendNoteInlineAsset(
+        bookmarkId: String,
+        assetId: String,
+        pathExtension: String,
+        bytes: Data,
+        completion: ((Error?) -> Void)? = nil
+    ) {
+        CoreOperationQueue.shared.queue(
+            name: "AppendNotemarkInlineAsset:\(bookmarkId):\(assetId)",
+            operation: { context in
+                try appendNoteInlineAssetInternal(
+                    bookmarkId: bookmarkId,
+                    assetId: assetId,
+                    pathExtension: pathExtension,
+                    bytes: bytes,
+                    context: context
+                )
+            },
+            completion: completion
+        )
+    }
+
     private static func saveNoteDocumentInternal(
         bookmarkId: String,
         documentBody: Data?,
@@ -78,5 +101,40 @@ public enum NotemarkManager {
         context.insert(payload)
         noteDetail.payload = payload
         return payload
+    }
+
+    private static func appendNoteInlineAssetInternal(
+        bookmarkId: String,
+        assetId: String,
+        pathExtension: String,
+        bytes: Data,
+        context: ModelContext
+    ) throws {
+        guard let bookmark = try YabaCorePersistenceHelpers.bookmark(bookmarkId: bookmarkId, context: context) else {
+            return
+        }
+        let note = try ensureNoteDetail(bookmark: bookmark, context: context)
+        _ = try ensureNotePayload(noteDetail: note, context: context)
+        let normalizedExt = normalizeStoredInlineAssetExtension(pathExtension)
+        let row = InlineAssetModel(
+            assetId: assetId,
+            pathExtension: normalizedExt,
+            bytes: bytes,
+            linkBookmark: nil,
+            noteBookmark: note
+        )
+        context.insert(row)
+        note.inlineAssets.append(row)
+        bookmark.editedAt = .now
+    }
+
+    private static func normalizeStoredInlineAssetExtension(_ raw: String) -> String {
+        let t = raw
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .trimmingCharacters(in: CharacterSet(charactersIn: "."))
+            .lowercased()
+        if t == "jpeg" { return "jpg" }
+        if t.isEmpty { return "jpg" }
+        return t
     }
 }
