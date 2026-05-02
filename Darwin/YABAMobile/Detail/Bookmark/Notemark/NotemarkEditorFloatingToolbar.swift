@@ -14,7 +14,7 @@ struct NotemarkEditorFloatingToolbar: View {
     let isVisible: Bool
     let showsDoneButton: Bool
     let onDispatch: (String) -> Void
-    let onRequestAddLinkSheet: (NotemarkAddLinkSheetMode) -> Void
+    let onRequestAddLinkSheet: (AddLinkSheetMode) -> Void
     let onRequestAddTableSheet: () -> Void
     let onRequestAddMentionSheet: () -> Void
     let onDismissKeyboard: () -> Void

@@ -121,6 +121,9 @@
 		967242C12F9EB9F70087D617 /* Exceptions for "YABAMobile" folder in "YABAShare" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Core/Components/Add/AddLinkSheet.swift,
+				Core/Components/Add/AddMentionSheet.swift,
+				Core/Components/Add/AddTableSheet.swift,
 				Core/Components/Item/Bookmark/BookmarkItemState.swift,
 				Core/Components/Item/Bookmark/BookmarkItemView.swift,
 				Core/Components/Item/Bookmark/PresentableBookmarkItemView.swift,
@@ -175,6 +178,9 @@
 				Creation/Bookmark/Shared/BookmarkFormFolderTagRows.swift,
 				Creation/Folder/FolderCreationContent.swift,
 				Creation/Tag/TagCreationContent.swift,
+				Detail/Bookmark/Canvmark/CanvmarkDetailInfoSheet.swift,
+				Detail/Bookmark/Canvmark/CanvmarkDetailView.swift,
+				Detail/Bookmark/Canvmark/CanvmarkEditorFloatingToolbar.swift,
 				Detail/Bookmark/Docmark/DocmarkDetailInfoSheet.swift,
 				Detail/Bookmark/Docmark/DocmarkDetailView.swift,
 				Detail/Bookmark/Imagemark/ImagemarkDetailInfoSheet.swift,
@@ -182,9 +188,6 @@
 				Detail/Bookmark/Linkmark/LinkmarkDetailInfoSheet.swift,
 				Detail/Bookmark/Linkmark/LinkmarkDetailView.swift,
 				Detail/Bookmark/Linkmark/LinkmarkToolbar.swift,
-				Detail/Bookmark/Notemark/NotemarkAddLinkSheet.swift,
-				Detail/Bookmark/Notemark/NotemarkAddMentionSheet.swift,
-				Detail/Bookmark/Notemark/NotemarkAddTableSheet.swift,
 				Detail/Bookmark/Notemark/NotemarkDetailInfoSheet.swift,
 				Detail/Bookmark/Notemark/NotemarkDetailView.swift,
 				Detail/Bookmark/Notemark/NotemarkEditorFloatingToolbar.swift,
@@ -227,6 +230,9 @@
 		967242C22F9EB9F70087D617 /* Exceptions for "YABAMobile" folder in "YABAShareMac" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Core/Components/Add/AddLinkSheet.swift,
+				Core/Components/Add/AddMentionSheet.swift,
+				Core/Components/Add/AddTableSheet.swift,
 				Core/Components/ColorPicker/YabaColorPicker.swift,
 				Core/Components/Gradient/AnimatedGradient.swift,
 				Core/Components/Icon/YabaIconView.swift,
@@ -289,6 +295,9 @@
 				Creation/Bookmark/Shared/BookmarkFormFolderTagRows.swift,
 				Creation/Folder/FolderCreationContent.swift,
 				Creation/Tag/TagCreationContent.swift,
+				Detail/Bookmark/Canvmark/CanvmarkDetailInfoSheet.swift,
+				Detail/Bookmark/Canvmark/CanvmarkDetailView.swift,
+				Detail/Bookmark/Canvmark/CanvmarkEditorFloatingToolbar.swift,
 				Detail/Bookmark/Docmark/DocmarkDetailInfoSheet.swift,
 				Detail/Bookmark/Docmark/DocmarkDetailView.swift,
 				Detail/Bookmark/Imagemark/ImagemarkDetailInfoSheet.swift,
@@ -296,9 +305,6 @@
 				Detail/Bookmark/Linkmark/LinkmarkDetailInfoSheet.swift,
 				Detail/Bookmark/Linkmark/LinkmarkDetailView.swift,
 				Detail/Bookmark/Linkmark/LinkmarkToolbar.swift,
-				Detail/Bookmark/Notemark/NotemarkAddLinkSheet.swift,
-				Detail/Bookmark/Notemark/NotemarkAddMentionSheet.swift,
-				Detail/Bookmark/Notemark/NotemarkAddTableSheet.swift,
 				Detail/Bookmark/Notemark/NotemarkDetailInfoSheet.swift,
 				Detail/Bookmark/Notemark/NotemarkDetailView.swift,
 				Detail/Bookmark/Notemark/NotemarkEditorFloatingToolbar.swift,
@@ -341,6 +347,9 @@
 		967242C32F9EB9F70087D617 /* Exceptions for "YABAMobile" folder in "YABAStatusMenuItem" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Core/Components/Add/AddLinkSheet.swift,
+				Core/Components/Add/AddMentionSheet.swift,
+				Core/Components/Add/AddTableSheet.swift,
 				Core/Components/ColorPicker/YabaColorPicker.swift,
 				Core/Components/Gradient/AnimatedGradient.swift,
 				Core/Components/Icon/YabaIconView.swift,
@@ -402,6 +411,9 @@
 				Creation/Bookmark/Shared/BookmarkFormFolderTagRows.swift,
 				Creation/Folder/FolderCreationContent.swift,
 				Creation/Tag/TagCreationContent.swift,
+				Detail/Bookmark/Canvmark/CanvmarkDetailInfoSheet.swift,
+				Detail/Bookmark/Canvmark/CanvmarkDetailView.swift,
+				Detail/Bookmark/Canvmark/CanvmarkEditorFloatingToolbar.swift,
 				Detail/Bookmark/Docmark/DocmarkDetailInfoSheet.swift,
 				Detail/Bookmark/Docmark/DocmarkDetailView.swift,
 				Detail/Bookmark/Imagemark/ImagemarkDetailInfoSheet.swift,
@@ -409,9 +421,6 @@
 				Detail/Bookmark/Linkmark/LinkmarkDetailInfoSheet.swift,
 				Detail/Bookmark/Linkmark/LinkmarkDetailView.swift,
 				Detail/Bookmark/Linkmark/LinkmarkToolbar.swift,
-				Detail/Bookmark/Notemark/NotemarkAddLinkSheet.swift,
-				Detail/Bookmark/Notemark/NotemarkAddMentionSheet.swift,
-				Detail/Bookmark/Notemark/NotemarkAddTableSheet.swift,
 				Detail/Bookmark/Notemark/NotemarkDetailInfoSheet.swift,
 				Detail/Bookmark/Notemark/NotemarkDetailView.swift,
 				Detail/Bookmark/Notemark/NotemarkEditorFloatingToolbar.swift,
@@ -454,6 +463,9 @@
 		967242C42F9EB9F70087D617 /* Exceptions for "YABAMobile" folder in "YABAKeyboard" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Core/Components/Add/AddLinkSheet.swift,
+				Core/Components/Add/AddMentionSheet.swift,
+				Core/Components/Add/AddTableSheet.swift,
 				Core/Components/Item/AnnouncementView.swift,
 				Core/Components/Item/Bookmark/BookmarkItemState.swift,
 				Core/Components/Item/Bookmark/BookmarkItemView.swift,
@@ -509,6 +521,9 @@
 				Creation/Bookmark/Shared/BookmarkFormFolderTagRows.swift,
 				Creation/Folder/FolderCreationContent.swift,
 				Creation/Tag/TagCreationContent.swift,
+				Detail/Bookmark/Canvmark/CanvmarkDetailInfoSheet.swift,
+				Detail/Bookmark/Canvmark/CanvmarkDetailView.swift,
+				Detail/Bookmark/Canvmark/CanvmarkEditorFloatingToolbar.swift,
 				Detail/Bookmark/Docmark/DocmarkDetailInfoSheet.swift,
 				Detail/Bookmark/Docmark/DocmarkDetailView.swift,
 				Detail/Bookmark/Imagemark/ImagemarkDetailInfoSheet.swift,
@@ -516,9 +531,6 @@
 				Detail/Bookmark/Linkmark/LinkmarkDetailInfoSheet.swift,
 				Detail/Bookmark/Linkmark/LinkmarkDetailView.swift,
 				Detail/Bookmark/Linkmark/LinkmarkToolbar.swift,
-				Detail/Bookmark/Notemark/NotemarkAddLinkSheet.swift,
-				Detail/Bookmark/Notemark/NotemarkAddMentionSheet.swift,
-				Detail/Bookmark/Notemark/NotemarkAddTableSheet.swift,
 				Detail/Bookmark/Notemark/NotemarkDetailInfoSheet.swift,
 				Detail/Bookmark/Notemark/NotemarkDetailView.swift,
 				Detail/Bookmark/Notemark/NotemarkEditorFloatingToolbar.swift,
@@ -561,6 +573,9 @@
 		967242C52F9EB9F70087D617 /* Exceptions for "YABAMobile" folder in "YABAWidgetsExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Core/Components/Add/AddLinkSheet.swift,
+				Core/Components/Add/AddMentionSheet.swift,
+				Core/Components/Add/AddTableSheet.swift,
 				Core/Components/ColorPicker/YabaColorPicker.swift,
 				Core/Components/IconPicker/IconPickerView.swift,
 				Core/Components/Item/AnnouncementView.swift,
@@ -624,6 +639,9 @@
 				Creation/Bookmark/Shared/BookmarkFormFolderTagRows.swift,
 				Creation/Folder/FolderCreationContent.swift,
 				Creation/Tag/TagCreationContent.swift,
+				Detail/Bookmark/Canvmark/CanvmarkDetailInfoSheet.swift,
+				Detail/Bookmark/Canvmark/CanvmarkDetailView.swift,
+				Detail/Bookmark/Canvmark/CanvmarkEditorFloatingToolbar.swift,
 				Detail/Bookmark/Docmark/DocmarkDetailInfoSheet.swift,
 				Detail/Bookmark/Docmark/DocmarkDetailView.swift,
 				Detail/Bookmark/Imagemark/ImagemarkDetailInfoSheet.swift,
@@ -631,9 +649,6 @@
 				Detail/Bookmark/Linkmark/LinkmarkDetailInfoSheet.swift,
 				Detail/Bookmark/Linkmark/LinkmarkDetailView.swift,
 				Detail/Bookmark/Linkmark/LinkmarkToolbar.swift,
-				Detail/Bookmark/Notemark/NotemarkAddLinkSheet.swift,
-				Detail/Bookmark/Notemark/NotemarkAddMentionSheet.swift,
-				Detail/Bookmark/Notemark/NotemarkAddTableSheet.swift,
 				Detail/Bookmark/Notemark/NotemarkDetailInfoSheet.swift,
 				Detail/Bookmark/Notemark/NotemarkDetailView.swift,
 				Detail/Bookmark/Notemark/NotemarkEditorFloatingToolbar.swift,
@@ -676,6 +691,9 @@
 		967242C62F9EBA510087D617 /* Exceptions for "YABAMobile" folder in "YABA" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			platformFiltersByRelativePath = {
+				Core/Components/Add/AddLinkSheet.swift = (ios, );
+				Core/Components/Add/AddMentionSheet.swift = (ios, );
+				Core/Components/Add/AddTableSheet.swift = (ios, );
 				Core/Components/ColorPicker/YabaColorPicker.swift = (ios, );
 				Core/Components/Gradient/AnimatedGradient.swift = (ios, );
 				Core/Components/Icon/YabaIconView.swift = (ios, );
@@ -741,6 +759,9 @@
 				Creation/Bookmark/Shared/BookmarkFormFolderTagRows.swift = (ios, );
 				Creation/Folder/FolderCreationContent.swift = (ios, );
 				Creation/Tag/TagCreationContent.swift = (ios, );
+				Detail/Bookmark/Canvmark/CanvmarkDetailInfoSheet.swift = (ios, );
+				Detail/Bookmark/Canvmark/CanvmarkDetailView.swift = (ios, );
+				Detail/Bookmark/Canvmark/CanvmarkEditorFloatingToolbar.swift = (ios, );
 				Detail/Bookmark/Docmark/DocmarkDetailInfoSheet.swift = (ios, );
 				Detail/Bookmark/Docmark/DocmarkDetailView.swift = (ios, );
 				Detail/Bookmark/Imagemark/ImagemarkDetailInfoSheet.swift = (ios, );

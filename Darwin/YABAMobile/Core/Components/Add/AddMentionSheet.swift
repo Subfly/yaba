@@ -1,13 +1,13 @@
 //
-//  NotemarkAddMentionSheet.swift
+//  AddMentionSheet.swift
 //  YABA
 //
 
 import SwiftData
 import SwiftUI
 
-/// Inserts `[text](yaba-mention://{bookmarkId})` via the editor `insertLink` bridge.
-struct NotemarkAddMentionSheet: View {
+/// Builds `yaba-mention://` links for editors (Markdown, canvas, etc.).
+struct AddMentionSheet: View {
     @Environment(\.dismiss)
     private var dismiss
 
@@ -42,7 +42,7 @@ struct NotemarkAddMentionSheet: View {
                 showBookmarkPicker = true
             } label: {
                 if let bookmarkId = selectedBookmarkId {
-                    NotemarkMentionResolvedRowLabel(bookmarkId: bookmarkId)
+                    AddMentionResolvedRowLabel(bookmarkId: bookmarkId)
                 } else {
                     HStack {
                         Text("Add Mention No Bookmark Selected Label")
@@ -95,9 +95,8 @@ struct NotemarkAddMentionSheet: View {
     }
 }
 
-/// Resolves ``selectedBookmarkId`` using ``PresentableBookmarkListRowContent`` (same row as ``PresentableBookmarkItemView``).
-/// The enclosing list row ``Button`` opens the picker — no nested ``Button``.
-private struct NotemarkMentionResolvedRowLabel: View {
+/// Resolves the picked bookmark using ``PresentableBookmarkListRowContent``.
+private struct AddMentionResolvedRowLabel: View {
     let bookmarkId: String
 
     @Query

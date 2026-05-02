@@ -1,11 +1,11 @@
 //
-//  NotemarkAddTableSheet.swift
+//  AddTableSheet.swift
 //  YABA
 //
 
 import SwiftUI
 
-struct NotemarkAddTableSheet: View {
+struct AddTableSheet: View {
     @Environment(\.dismiss)
     private var dismiss
 

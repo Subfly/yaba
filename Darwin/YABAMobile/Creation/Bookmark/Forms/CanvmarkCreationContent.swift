@@ -31,6 +31,7 @@ struct CanvmarkCreationContent: View {
     let preselectedTagIds: [String]
     let editingBookmarkId: String?
     let onDone: () -> Void
+    var onCreatedBookmarkId: ((String) -> Void)? = nil
 
     private var isEditing: Bool {
         editingBookmarkId != nil
@@ -151,8 +152,13 @@ struct CanvmarkCreationContent: View {
                 Button {
                     Task {
                         await machine.send(.onSave)
-                        if machine.state.lastError == nil {
-                            onDone()
+                        guard machine.state.lastError == nil else { return }
+                        let createdId = machine.state.pendingSavedBookmarkId
+                        onDone()
+                        if let createdId {
+                            DispatchQueue.main.async {
+                                onCreatedBookmarkId?(createdId)
+                            }
                         }
                     }
                 } label: {

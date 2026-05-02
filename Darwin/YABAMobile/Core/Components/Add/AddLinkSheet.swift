@@ -1,20 +1,20 @@
 //
-//  NotemarkAddLinkSheet.swift
+//  AddLinkSheet.swift
 //  YABA
 //
 
 import SwiftUI
 
-enum NotemarkAddLinkSheetMode: Hashable, Sendable {
+enum AddLinkSheetMode: Hashable, Sendable {
     case link
     case image
 }
 
-struct NotemarkAddLinkSheet: View {
+struct AddLinkSheet: View {
     @Environment(\.dismiss)
     private var dismiss
 
-    let mode: NotemarkAddLinkSheetMode
+    let mode: AddLinkSheetMode
 
     @State
     private var linkText = ""
@@ -25,7 +25,7 @@ struct NotemarkAddLinkSheet: View {
     let onSubmit: (String, String) -> Void
 
     init(
-        mode: NotemarkAddLinkSheetMode = .link,
+        mode: AddLinkSheetMode = .link,
         onSubmit: @escaping (String, String) -> Void
     ) {
         self.mode = mode
@@ -56,7 +56,8 @@ struct NotemarkAddLinkSheet: View {
                 }
                 .disabled(!canSubmit)
             }
-        }.presentationDetents([.fraction(0.3)])
+        }
+        .presentationDetents([.fraction(0.3)])
     }
 
     private var navigationTitleKey: LocalizedStringKey {

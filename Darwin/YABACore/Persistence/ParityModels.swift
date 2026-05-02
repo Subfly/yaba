@@ -365,6 +365,9 @@ final class CanvasBookmarkModel {
     @Relationship(deleteRule: .cascade, inverse: \CanvasBookmarkPayloadModel.canvasBookmark)
     var payload: CanvasBookmarkPayloadModel?
 
+    @Relationship(deleteRule: .cascade, inverse: \InlineAssetModel.canvasBookmark)
+    var inlineAssets: [InlineAssetModel] = []
+
     var bookmark: BookmarkModel?
 
     init(payload: CanvasBookmarkPayloadModel? = nil, bookmark: BookmarkModel? = nil) {
@@ -405,19 +408,22 @@ final class InlineAssetModel {
 
     var linkBookmark: LinkBookmarkModel?
     var noteBookmark: NoteBookmarkModel?
+    var canvasBookmark: CanvasBookmarkModel?
 
     init(
         assetId: String = UUID().uuidString,
         pathExtension: String = "jpg",
         bytes: Data? = nil,
         linkBookmark: LinkBookmarkModel? = nil,
-        noteBookmark: NoteBookmarkModel? = nil
+        noteBookmark: NoteBookmarkModel? = nil,
+        canvasBookmark: CanvasBookmarkModel? = nil
     ) {
         self.assetId = assetId
         self.pathExtension = pathExtension
         self.bytes = bytes
         self.linkBookmark = linkBookmark
         self.noteBookmark = noteBookmark
+        self.canvasBookmark = canvasBookmark
     }
 }
 

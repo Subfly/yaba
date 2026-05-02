@@ -63,8 +63,12 @@ struct BookmarkDetailRouterView: View {
                         onOpenTag: onOpenTag,
                         onOpenBookmark: onOpenBookmark
                     )
-                default:
-                    EmptyView()
+                case .canvas:
+                    CanvmarkDetailView(
+                        bookmarkId: bookmarkId,
+                        onOpenFolder: onOpenFolder,
+                        onOpenTag: onOpenTag
+                    )
                 }
             } else {
                 EmptyView()

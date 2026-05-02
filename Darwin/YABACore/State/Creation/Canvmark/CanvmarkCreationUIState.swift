@@ -18,6 +18,7 @@ public struct CanvmarkCreationUIState: Sendable {
     public var isPinned: Bool
     public var isSaving: Bool
     public var lastError: String?
+    public var pendingSavedBookmarkId: String?
 
     public init(
         editingBookmarkId: String? = nil,
@@ -31,7 +32,8 @@ public struct CanvmarkCreationUIState: Sendable {
         cardImageSizing: CardImageSizing = .small,
         isPinned: Bool = false,
         isSaving: Bool = false,
-        lastError: String? = nil
+        lastError: String? = nil,
+        pendingSavedBookmarkId: String? = nil
     ) {
         self.editingBookmarkId = editingBookmarkId
         self.label = label
@@ -45,5 +47,6 @@ public struct CanvmarkCreationUIState: Sendable {
         self.isPinned = isPinned
         self.isSaving = isSaving
         self.lastError = lastError
+        self.pendingSavedBookmarkId = pendingSavedBookmarkId
     }
 }

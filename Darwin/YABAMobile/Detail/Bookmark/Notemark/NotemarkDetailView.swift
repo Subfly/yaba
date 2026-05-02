@@ -54,7 +54,7 @@ struct NotemarkDetailView: View {
     private var showAddLinkSheet = false
 
     @State
-    private var addLinkSheetMode: NotemarkAddLinkSheetMode = .link
+    private var addLinkSheetMode: AddLinkSheetMode = .link
 
     @State
     private var showAddTableSheet = false
@@ -210,7 +210,7 @@ struct NotemarkDetailView: View {
         }
         .sheet(isPresented: $showAddLinkSheet) {
             NavigationStack {
-                NotemarkAddLinkSheet(mode: addLinkSheetMode) { text, url in
+                AddLinkSheet(mode: addLinkSheetMode) { text, url in
                     switch addLinkSheetMode {
                     case .link:
                         dispatchEditorCommand(YabaEditorDispatchPayload.insertLink(text: text, url: url))
@@ -223,7 +223,7 @@ struct NotemarkDetailView: View {
         }
         .sheet(isPresented: $showAddTableSheet) {
             NavigationStack {
-                NotemarkAddTableSheet { rows, cols in
+                AddTableSheet { rows, cols in
                     dispatchEditorCommand(YabaEditorDispatchPayload.insertTable(rows: rows, cols: cols, withHeaderRow: false))
                     showAddTableSheet = false
                 }
@@ -231,7 +231,7 @@ struct NotemarkDetailView: View {
         }
         .sheet(isPresented: $showAddMentionSheet) {
             NavigationStack {
-                NotemarkAddMentionSheet(excludeBookmarkId: bookmarkId) { text, url in
+                AddMentionSheet(excludeBookmarkId: bookmarkId) { text, url in
                     dispatchEditorCommand(YabaEditorDispatchPayload.insertLink(text: text, url: url))
                     showAddMentionSheet = false
                 }

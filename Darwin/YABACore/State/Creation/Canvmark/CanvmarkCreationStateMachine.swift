@@ -15,6 +15,7 @@ public final class CanvmarkCreationStateMachine: YabaBaseObservableState<Canvmar
         switch event {
         case let .onInit(id, folderId, tagIds, uncategorizedFolderCreationRequired):
             apply {
+                $0.pendingSavedBookmarkId = nil
                 $0.editingBookmarkId = id
                 $0.selectedFolderId = folderId
                 $0.selectedTagIds = tagIds ?? []
@@ -89,6 +90,7 @@ public final class CanvmarkCreationStateMachine: YabaBaseObservableState<Canvmar
             return
         }
         apply { $0.lastError = nil; $0.isSaving = true }
+        let wasCreating = state.editingBookmarkId == nil
         let bid = state.editingBookmarkId ?? UUID().uuidString
         if state.editingBookmarkId != nil {
             AllBookmarksManager.queueUpdateBookmarkMetadata(
@@ -115,6 +117,11 @@ public final class CanvmarkCreationStateMachine: YabaBaseObservableState<Canvmar
             CanvmarkManager.queueSaveCanvasSceneData(bookmarkId: bid, sceneData: data)
         }
         CanvmarkManager.queueCreateOrUpdateCanvasDetails(bookmarkId: bid)
-        apply { $0.isSaving = false }
+        apply {
+            $0.isSaving = false
+            if wasCreating {
+                $0.pendingSavedBookmarkId = bid
+            }
+        }
     }
 }

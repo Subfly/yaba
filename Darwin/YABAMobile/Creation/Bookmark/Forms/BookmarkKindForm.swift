@@ -56,7 +56,8 @@ struct BookmarkKindForm: View {
                     preselectedFolderId: folderId,
                     preselectedTagIds: tagIds,
                     editingBookmarkId: nil,
-                    onDone: onDone
+                    onDone: onDone,
+                    onCreatedBookmarkId: onNoteCreatedNavigate
                 )
             }
         case let .edit(bookmark):
