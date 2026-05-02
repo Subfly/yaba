@@ -59,7 +59,7 @@ struct FolderDetailView: View {
                             Task {
                                 await machine.send(.onToggleBookmarkSelection(bookmarkId: bookmark.bookmarkId))
                             }
-                        } else if bookmark.kind.opensBookmarkDetailRoute {
+                        } else {
                             onSelectBookmark(bookmark.bookmarkId)
                         }
                     }

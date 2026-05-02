@@ -31,9 +31,7 @@ struct SearchView: View {
                 preferredSorting: preferredSorting,
                 preferredOrder: preferredSortOrder,
                 onNavigationCallback: { bookmark in
-                    if bookmark.kind.opensBookmarkDetailRoute {
-                        onSelectBookmark(bookmark.bookmarkId)
-                    }
+                    onSelectBookmark(bookmark.bookmarkId)
                 }
             )
         }

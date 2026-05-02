@@ -2055,7 +2055,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "You have not added any images to this note yet. Any image you added, including the ones you removed from the note will be available in here until you delete them, so you can always re-use them."
+            "value" : "You have not added any images to here yet. Any image you added, including the ones you removed from the content will be available in here until you delete them, so you can always re-use them."
           }
         }
       }

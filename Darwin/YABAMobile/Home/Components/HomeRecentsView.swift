@@ -33,9 +33,7 @@ struct HomeRecentsView: View {
                         isSelected: false,
                         isInSelectionMode: false,
                         onNavigationCallback: { b in
-                            if b.kind.opensBookmarkDetailRoute {
-                                onSelectBookmark(b.bookmarkId)
-                            }
+                            onSelectBookmark(b.bookmarkId)
                         }
                     )
                 }

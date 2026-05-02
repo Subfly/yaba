@@ -37,14 +37,6 @@ public extension BookmarkKind {
         case .canvas: return "canvas"
         }
     }
-
-    /// Kinds that navigate to `BookmarkDetailRouterView` from folder, tag, search, and home recents.
-    var opensBookmarkDetailRoute: Bool {
-        switch self {
-        case .link, .image, .file, .note: true
-        case .canvas: false
-        }
-    }
 }
 
 /// Darwin docmarks are PDF-only. Raw `"EPUB"` from parity/Compose maps to ``DocmarkType/pdf`` via `rawValue` fallback.
