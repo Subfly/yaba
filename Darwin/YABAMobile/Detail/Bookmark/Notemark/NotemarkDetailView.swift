@@ -48,6 +48,9 @@ struct NotemarkDetailView: View {
     @State
     private var isSoftwareKeyboardVisible = false
 
+    @State
+    private var showAddLinkSheet = false
+
     init(
         bookmarkId: String,
         onOpenFolder: @escaping (String) -> Void = { _ in },
@@ -171,6 +174,14 @@ struct NotemarkDetailView: View {
                 }
             }
         }
+        .sheet(isPresented: $showAddLinkSheet) {
+            NavigationStack {
+                NotemarkAddLinkSheet { text, url in
+                    dispatchEditorCommand(YabaEditorDispatchPayload.insertLink(text: text, url: url))
+                    showAddLinkSheet = false
+                }
+            }
+        }
         .alert("Delete Bookmark Title", isPresented: machine.showDeleteAlertBinding) {
             Button("Cancel", role: .cancel) {}
             Button("Delete", role: .destructive) {
@@ -254,6 +265,9 @@ struct NotemarkDetailView: View {
                     showsDoneButton: machine.state.surfaceMode == .editor && isSoftwareKeyboardVisible,
                     onDispatch: { payload in
                         dispatchEditorCommand(payload)
+                    },
+                    onRequestAddLinkSheet: {
+                        showAddLinkSheet = true
                     },
                     onDismissKeyboard: {
                         dismissNotemarkEditorKeyboard()

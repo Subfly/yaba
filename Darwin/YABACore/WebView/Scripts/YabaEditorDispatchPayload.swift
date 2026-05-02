@@ -30,6 +30,19 @@ public enum YabaEditorDispatchPayload {
         return #"{"type":"setHeading","level":\#(l)}"#
     }
 
+    public static func insertLink(text: String, url: String) -> String {
+        struct InsertLinkPayload: Encodable {
+            let type: String
+            let text: String
+            let url: String
+        }
+        do {
+            return try WebJson.encodeToString(InsertLinkPayload(type: "insertLink", text: text, url: url))
+        } catch {
+            return #"{"type":"insertLink","text":"","url":""}"#
+        }
+    }
+
     public static let insertInlineMathEmpty = #"{"type":"insertInlineMath","latex":""}"#
     public static let insertBlockMathEmpty = #"{"type":"insertBlockMath","latex":""}"#
 }

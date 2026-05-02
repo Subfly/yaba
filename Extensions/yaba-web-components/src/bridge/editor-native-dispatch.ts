@@ -7,6 +7,35 @@ import { EditorSelection, type EditorState } from "@codemirror/state"
 import type { EditorView } from "@codemirror/view"
 import type { EditorCommandPayload } from "./editor-commands"
 
+function escapeMarkdownLinkText(value: string): string {
+  return value
+    .replaceAll("\\", "\\\\")
+    .replaceAll("[", "\\[")
+    .replaceAll("]", "\\]")
+    .replaceAll("\r", "")
+    .replaceAll("\n", " ")
+}
+
+function escapeMarkdownLinkUrl(value: string): string {
+  return value
+    .replaceAll("\\", "\\\\")
+    .replaceAll("<", "\\<")
+    .replaceAll(">", "\\>")
+}
+
+function shouldWrapLinkUrlInAngleBrackets(url: string): boolean {
+  return /\s/.test(url) || /[()]/.test(url) || /[<>]/.test(url)
+}
+
+function buildMarkdownLink(text: string, url: string): string {
+  const escapedText = escapeMarkdownLinkText(text)
+  const escapedUrl = escapeMarkdownLinkUrl(url)
+  if (shouldWrapLinkUrlInAngleBrackets(url)) {
+    return `[${escapedText}](<${escapedUrl}>)`
+  }
+  return `[${escapedText}](${escapedUrl})`
+}
+
 function toggleAroundSymmetric(view: EditorView, mark: string): void {
   const open = mark
   const close = mark
@@ -406,6 +435,22 @@ export function dispatchEditorNativeCommand(view: EditorView | null, payload: Ed
     case "insertHr":
       insertHorizontalRule(view)
       break
+    case "insertLink": {
+      const text = typeof payload.text === "string" ? payload.text : ""
+      const url = typeof payload.url === "string" ? payload.url : ""
+      const linkText = text.trim()
+      const linkUrl = url.trim()
+      const inserted = buildMarkdownLink(linkText, linkUrl)
+      const { state } = view
+      const main = state.selection.main
+      const from = main.from
+      const to = main.to
+      view.dispatch({
+        changes: { from, to, insert: inserted },
+        selection: EditorSelection.cursor(from + inserted.length),
+      })
+      break
+    }
     case "insertHtmlBr":
       insertHtmlBrAndNewline(view)
       break

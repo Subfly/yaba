@@ -14,6 +14,7 @@ struct NotemarkEditorFloatingToolbar: View {
     /// Done control — only while the software keyboard is on-screen (driven by the host).
     let showsDoneButton: Bool
     let onDispatch: (String) -> Void
+    let onRequestAddLinkSheet: () -> Void
     let onDismissKeyboard: () -> Void
 
     var body: some View {
@@ -106,7 +107,9 @@ struct NotemarkEditorFloatingToolbar: View {
             Button {} label: {
                 menuRow(icon: "grid-table", title: "Table")
             }
-            Button {} label: {
+            Button {
+                onRequestAddLinkSheet()
+            } label: {
                 menuRow(icon: "link-04", title: "Link")
             }
             Button {} label: {

@@ -4441,6 +4441,28 @@
         }
       }
     },
+    "Add Link Label" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add Link"
+          }
+        }
+      }
+    },
+    "Add Link Text To Display Label" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Text to display"
+          }
+        }
+      }
+    },
     "Bookmark URL Placeholder" : {
       "comment" : "Placeholder to show when bookmark url is empty",
       "extractionState" : "manual",
