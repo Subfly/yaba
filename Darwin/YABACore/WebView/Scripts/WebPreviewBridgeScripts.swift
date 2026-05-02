@@ -93,4 +93,32 @@ public enum WebPreviewBridgeScripts {
         }
         return out
     }
+
+    /// Normalized scroll fraction `[0,1]` for `.yaba-preview-scroll` in `preview.html`.
+    public static func getSyncedScrollFraction() -> String {
+        """
+        (function(){
+          try {
+            var b = window.YabaPreviewBridge;
+            if (!b || !b.getSyncedScrollFraction) { return "0"; }
+            var s = b.getSyncedScrollFraction();
+            return (s && typeof s === "string") ? s : "0";
+          } catch(e) { return "0"; }
+        })();
+        """
+    }
+
+    public static func setSyncedScrollFraction(_ fraction: Double) -> String {
+        let t = fraction.isFinite ? fraction : 0.0
+        return """
+        (function(){
+          try {
+            var b = window.YabaPreviewBridge;
+            if (!b || !b.setSyncedScrollFraction) { return "no_bridge"; }
+            b.setSyncedScrollFraction(\(t));
+            return "ok";
+          } catch(e) { return String(e); }
+        })();
+        """
+    }
 }

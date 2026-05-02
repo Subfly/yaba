@@ -76,6 +76,29 @@
   background: var(--yaba-surface-variant, color-mix(in srgb, var(--yaba-on-bg) 8%, transparent));
 }
 
+/* Fenced Prism blocks unwrap <pre>; keep horizontal scroll predictable. */
+.yaba-markdown-preview .yaba-syntax-highlighter {
+  max-width: 100%;
+  margin: 0.65em 0;
+  overflow-x: auto;
+}
+
+/* Inline `code` only (highlighted fenced output uses `.yaba-syntax-highlighter-inner`). */
+.yaba-markdown-preview code:not(.yaba-syntax-highlighter-inner) {
+  padding: 0.12em 0.35em;
+  border-radius: 5px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.92em;
+  background: color-mix(in srgb, var(--yaba-on-bg) 12%, transparent);
+}
+
+.yaba-markdown-preview .katex-display {
+  margin: 1em 0;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
 .yaba-markdown-preview blockquote {
   border-left: 3px solid var(--yaba-outline, currentColor);
   margin: 0.75em 0;

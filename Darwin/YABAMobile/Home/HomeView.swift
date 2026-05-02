@@ -20,6 +20,8 @@ struct HomeView: View {
     let onSelectTag: (String) -> Void
     /// Opens bookmark detail when a supported row is tapped (e.g. link or image recents).
     let onSelectBookmark: (String) -> Void
+    /// After creating a note from the bookmark FAB flow; invoked once the creation sheet begins dismiss.
+    var onCreatedBookmarkNavigate: ((String) -> Void)? = nil
 
     @State
     private var homeState: HomeState = .init()
@@ -68,7 +70,10 @@ struct HomeView: View {
         .sheet(item: $homeState.bookmarkFlow) { context in
             BookmarkFlowSheet(context: context)
         }
-        .bookmarkCreateTwoStepSheets(typeSelection: $homeState.bookmarkTypeSelection)
+        .bookmarkCreateTwoStepSheets(
+            typeSelection: $homeState.bookmarkTypeSelection,
+            onCreatedBookmarkNavigate: onCreatedBookmarkNavigate
+        )
         // Sync UI disabled (see NetworkSyncManager / SyncView).
         // .sheet(isPresented: $homeState.shouldShowSyncSheet) {
         //     SyncView().interactiveDismissDisabled()

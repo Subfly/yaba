@@ -1,0 +1,501 @@
+//
+//  NotemarkDetailView.swift
+//  YABA
+//
+
+import SwiftData
+import SwiftUI
+import WebKit
+
+/// SwiftData-driven note bookmark detail + CodeMirror editor host (`editor.html`).
+/// Sheet/export state lives on ``NotemarkDetailStateMachine`` (parity with ``LinkmarkDetailView`` / ``LinkmarkDetailStateMachine``).
+struct NotemarkDetailView: View {
+    let bookmarkId: String
+    let onOpenFolder: (String) -> Void
+    let onOpenTag: (String) -> Void
+
+    @Environment(\.dismiss)
+    private var dismiss
+
+    @Environment(\.colorScheme)
+    private var colorScheme
+
+    @Query
+    private var bookmarks: [YabaBookmark]
+
+    @State
+    private var machine = NotemarkDetailStateMachine()
+
+    @State
+    private var reminderDraft = Date().addingTimeInterval(3600)
+
+    @State
+    private var editorRuntime: WKWebViewRuntime?
+
+    @State
+    private var previewRuntime: WKWebViewRuntime?
+
+    @State
+    private var previewSurfaceMarkdown: String = ""
+
+    @State
+    private var editorScrollHydrate = NotemarkWebScrollHydrate.inactive
+
+    @State
+    private var previewScrollHydrate = NotemarkWebScrollHydrate.inactive
+
+    init(
+        bookmarkId: String,
+        onOpenFolder: @escaping (String) -> Void = { _ in },
+        onOpenTag: @escaping (String) -> Void = { _ in }
+    ) {
+        self.bookmarkId = bookmarkId
+        self.onOpenFolder = onOpenFolder
+        self.onOpenTag = onOpenTag
+        var d = FetchDescriptor<YabaBookmark>(
+            predicate: #Predicate<YabaBookmark> { $0.bookmarkId == bookmarkId }
+        )
+        d.fetchLimit = 1
+        _bookmarks = Query(d, animation: .smooth)
+    }
+
+    var body: some View {
+        Group {
+            if let bm = bookmark {
+                if bm.kind == .note {
+                    mainContent(for: bm)
+                } else {
+                    EmptyView()
+                }
+            } else {
+                EmptyView()
+            }
+        }
+        .navigationBarBackButtonHidden()
+        .task {
+            await machine.send(.onInit(bookmarkId: bookmarkId))
+        }
+        .sheet(isPresented: machine.showDetailSheetBinding) {
+            if let bm = bookmark {
+                NotemarkDetailInfoSheet(
+                    bookmark: bm,
+                    folderAccent: folderColor(for: bm),
+                    reminderDate: machine.state.reminderDate,
+                    onDeleteReminder: {
+                        Task { await machine.send(.onCancelReminder) }
+                    },
+                    onOpenFolder: { folderId in
+                        machine.apply { $0.showDetailSheet = false }
+                        onOpenFolder(folderId)
+                    },
+                    onOpenTag: { tagId in
+                        machine.apply { $0.showDetailSheet = false }
+                        onOpenTag(tagId)
+                    }
+                )
+            }
+        }
+        .sheet(isPresented: machine.showEditSheetBinding) {
+            if let bm = bookmark {
+                BookmarkFlowSheet(context: BookmarkFlowContext.edit(bookmarkId: bm.bookmarkId))
+            }
+        }
+        .sheet(isPresented: machine.showMoveSheetBinding) {
+            if let bm = bookmark {
+                NavigationStack {
+                    SelectFolderContent(
+                        mode: .bookmarksMove,
+                        contextFolderId: bm.folder?.folderId,
+                        contextBookmarkIds: [bm.bookmarkId],
+                        onPick: { target in
+                            if let target {
+                                AllBookmarksManager.queueMoveBookmarksToFolder(
+                                    bookmarkIds: [bm.bookmarkId],
+                                    targetFolderId: target
+                                )
+                            }
+                            machine.apply { $0.showMoveSheet = false }
+                        }
+                    )
+                }
+            }
+        }
+        .sheet(isPresented: machine.showMarkdownExportDirectoryPickerBinding) {
+            MarkdownExportDirectoryPicker { url in
+                Task { @MainActor in
+                    machine.finalizeMarkdownExport(selectedDirectory: url)
+                }
+            }
+        }
+        .sheet(isPresented: machine.showPdfExportDirectoryPickerBinding) {
+            MarkdownExportDirectoryPicker { url in
+                Task { @MainActor in
+                    machine.finalizePdfExportDirectorySelection(url)
+                }
+            }
+        }
+        .sheet(isPresented: machine.showReminderSheetBinding) {
+            NavigationStack {
+                DatePicker(
+                    "Setup Reminder Picker Title",
+                    selection: $reminderDraft,
+                    in: Date()...,
+                    displayedComponents: [.date, .hourAndMinute]
+                )
+                .datePickerStyle(.graphical)
+                .padding()
+                .navigationTitle("Setup Reminder Title")
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Cancel") { machine.apply { $0.showReminderSheet = false } }
+                    }
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Done") {
+                            Task {
+                                await machine.send(.onRequestNotificationPermission)
+                                await machine.send(
+                                    .onScheduleReminder(
+                                        titleKey: "Reminder Default Title",
+                                        messageKey: "Reminder Default Body",
+                                        fireAt: reminderDraft
+                                    )
+                                )
+                            }
+                            machine.apply { $0.showReminderSheet = false }
+                        }
+                    }
+                }
+            }
+        }
+        .alert("Delete Bookmark Title", isPresented: machine.showDeleteAlertBinding) {
+            Button("Cancel", role: .cancel) {}
+            Button("Delete", role: .destructive) {
+                Task {
+                    await machine.send(.onDeleteBookmark(bookmarkId: bookmarkId))
+                    dismiss()
+                }
+            }
+        } message: {
+            if let bm = bookmark {
+                Text("Delete Content Message \(bm.label)")
+            }
+        }
+    }
+
+    private var bookmark: YabaBookmark? { bookmarks.first }
+
+    @ViewBuilder
+    private func mainContent(for bm: YabaBookmark) -> some View {
+        let folderTint = folderColor(for: bm)
+        let markdown = noteMarkdown(for: bm)
+        let readerPreferences = ReaderPreferences(
+            theme: machine.state.readerTheme,
+            fontSize: machine.state.readerFontSize,
+            lineHeight: machine.state.readerLineHeight
+        )
+        ZStack {
+            Color(uiColor: .systemBackground)
+                .ignoresSafeArea()
+
+            ZStack {
+                NotemarkEditorWebView(
+                    markdown: markdown,
+                    readerPreferences: readerPreferences,
+                    appearance: .auto,
+                    markdownScrollHydrate: editorScrollHydrate,
+                    onHostEvent: { event in
+                        handleEditorHostEvent(event)
+                    },
+                    onPersistDocument: { runtime in
+                        await machine.persistEditorSnapshot(runtime: runtime)
+                    },
+                    onRuntimeReady: { runtime in
+                        editorRuntime = runtime
+                        sendSurfaceModeAnnouncement(to: runtime)
+                    },
+                    pendingPdfExport: machine.editorPdfExportBinding
+                )
+                .id(bm.bookmarkId)
+                .opacity(machine.state.surfaceMode == .editor ? 1 : 0)
+                .allowsHitTesting(machine.state.surfaceMode == .editor)
+                .accessibilityHidden(machine.state.surfaceMode != .editor)
+
+                NotemarkPreviewWebView(
+                    markdown: previewSurfaceMarkdown,
+                    readerPreferences: readerPreferences,
+                    appearance: .auto,
+                    markdownScrollHydrate: previewScrollHydrate,
+                    onHostEvent: { event in
+                        handlePreviewHostEvent(event)
+                    },
+                    onRuntimeReady: { runtime in
+                        previewRuntime = runtime
+                        sendSurfaceModeAnnouncement(to: runtime)
+                    }
+                )
+                .id("\(bm.bookmarkId)-preview")
+                .opacity(machine.state.surfaceMode == .preview ? 1 : 0)
+                .allowsHitTesting(machine.state.surfaceMode == .preview)
+                .accessibilityHidden(machine.state.surfaceMode != .preview)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .ignoresSafeArea()
+            .preferredColorScheme(readerThemeColorScheme(machine.state.readerTheme))
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    dismiss()
+                } label: {
+                    homeToolbarIcon("arrow-left-01")
+                }
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    notemarkSurfaceModeToggleTapped(for: bm)
+                } label: {
+                    homeToolbarIcon(machine.state.surfaceMode == .editor ? "edit-01" : "book-open-01")
+                }
+                .animation(.smooth, value: machine.selectedMode)
+            }
+            if #available(iOS 26, *) {
+                ToolbarSpacer(.fixed, placement: .topBarTrailing)
+            } else {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Rectangle()
+                        .fill(Color.clear)
+                        .frame(width: 12)
+                        .allowsHitTesting(false)
+                        .accessibilityHidden(true)
+                }
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    machine.apply { $0.showDetailSheet = true }
+                } label: {
+                    homeToolbarIcon("information-circle")
+                }
+            }
+            if #available(iOS 26, *) {
+                ToolbarSpacer(.fixed, placement: .topBarTrailing)
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                overflowMenu(for: bm)
+            }
+        }
+        .tint(folderTint)
+    }
+
+    private func folderColor(for bm: YabaBookmark) -> Color {
+        bm.folder?.color.getUIColor() ?? .accentColor
+    }
+
+    private func noteMarkdown(for bm: YabaBookmark) -> String {
+        guard let data = bm.noteDetail?.payload?.documentBody,
+              let s = String(data: data, encoding: .utf8)
+        else {
+            return ""
+        }
+        return s
+    }
+
+    private func readerThemeColorScheme(_ theme: ReaderTheme) -> ColorScheme {
+        switch theme {
+        case .light, .sepia: return .light
+        case .dark: return .dark
+        case .system: return colorScheme
+        }
+    }
+
+    private func handleEditorHostEvent(_ event: WebHostEvent) {
+        switch event {
+        case let .initialContentLoad(result):
+            let resultJson = (result == .loaded) ? #"{"result":"loaded"}"# : #"{"result":"error"}"#
+            Task {
+                await machine.send(.onWebInitialContentLoad(resultJson: resultJson))
+            }
+        default:
+            break
+        }
+    }
+
+    private func sendSurfaceModeAnnouncement(to runtime: WKWebViewRuntime) {
+        Task { @MainActor in
+            let mode = machine.state.surfaceMode
+            let script = WebNotemarkBridgeScripts.dispatchSurfaceModeChange(mode)
+            _ = try? await runtime.evaluateJavaScriptStringResult(script)
+        }
+    }
+
+    private func notemarkSurfaceModeToggleTapped(for bm: YabaBookmark) {
+        Task { @MainActor in
+            await performNotemarkSurfaceModeToggle(bookmark: bm)
+        }
+    }
+
+    @MainActor
+    private func performNotemarkSurfaceModeToggle(bookmark bm: YabaBookmark) async {
+        let nextMode: NotemarkDetailSurfaceMode = machine.state.surfaceMode == .editor ? .preview : .editor
+
+        if machine.state.surfaceMode == .editor, nextMode == .preview {
+            let fraction = await readEditorScrollFraction()
+            let md = await readEditorMarkdown(bookmark: bm)
+            previewSurfaceMarkdown = md
+            previewScrollHydrate.enqueueFraction(fraction)
+        } else if machine.state.surfaceMode == .preview, nextMode == .editor {
+            let fraction = await readPreviewScrollFraction()
+            editorScrollHydrate.enqueueFraction(fraction)
+        }
+
+        withAnimation(.smooth) {
+            machine.apply { $0.surfaceMode = nextMode }
+        }
+        await broadcastSurfaceModeToBothRuntimes()
+    }
+
+    @MainActor
+    private func broadcastSurfaceModeToBothRuntimes() async {
+        let mode = machine.state.surfaceMode
+        let script = WebNotemarkBridgeScripts.dispatchSurfaceModeChange(mode)
+        if let editorRuntime {
+            _ = try? await editorRuntime.evaluateJavaScriptStringResult(script)
+        }
+        if let previewRuntime {
+            _ = try? await previewRuntime.evaluateJavaScriptStringResult(script)
+        }
+    }
+
+    private func readEditorScrollFraction() async -> Double {
+        guard let rt = editorRuntime else { return 0 }
+        guard let js = try? await rt.evaluateJavaScriptStringResult(WebEditorBridgeScripts.getSyncedScrollFraction()) else {
+            return 0
+        }
+        return parseNormalizedScrollFraction(js)
+    }
+
+    private func readPreviewScrollFraction() async -> Double {
+        guard let rt = previewRuntime else { return 0 }
+        guard let js = try? await rt.evaluateJavaScriptStringResult(WebPreviewBridgeScripts.getSyncedScrollFraction()) else {
+            return 0
+        }
+        return parseNormalizedScrollFraction(js)
+    }
+
+    private func readEditorMarkdown(bookmark bm: YabaBookmark) async -> String {
+        if let rt = editorRuntime,
+           let md = try? await rt.evaluateJavaScriptStringResult(WebEditorBridgeScripts.getMarkdown())
+        {
+            return md
+        }
+        return noteMarkdown(for: bm)
+    }
+
+    private func parseNormalizedScrollFraction(_ js: String) -> Double {
+        Double(js.trimmingCharacters(in: .whitespacesAndNewlines)) ?? 0
+    }
+
+    private func handlePreviewHostEvent(_ event: WebHostEvent) {
+        _ = event
+    }
+
+    @ViewBuilder
+    private func overflowMenu(for bm: YabaBookmark) -> some View {
+        Menu {
+            Button {
+                machine.apply { $0.showEditSheet = true }
+            } label: {
+                overflowMenuItemLabel("Edit", icon: "edit-02")
+            }
+            .tint(YabaColor.orange.getUIColor())
+            Button {
+                machine.apply { $0.showMoveSheet = true }
+            } label: {
+                overflowMenuItemLabel("Move", icon: "arrow-move-up-right")
+            }
+            .tint(YabaColor.teal.getUIColor())
+            Button {
+                AllBookmarksManager.queueToggleBookmarkPinned(bookmarkId: bm.bookmarkId)
+            } label: {
+                overflowMenuItemLabel(
+                    bm.isPinned ? "Bookmark Detail Unpin Action" : "Bookmark Detail Pin Action",
+                    icon: bm.isPinned ? "pin" : "pin-off"
+                )
+            }
+            .tint(YabaColor.yellow.getUIColor())
+            Menu {
+                Button {
+                    machine.startMarkdownExportFromEditor(runtime: editorRuntime, bookmarkLabel: bm.label)
+                } label: {
+                    overflowMenuItemLabel(
+                        "Bookmark Detail Export Format Markdown Title",
+                        icon: "document-attachment"
+                    )
+                }
+                .tint(YabaColor.gray.getUIColor())
+                Button {
+                    machine.preparePdfExportIfEditorHasBody(
+                        runtime: editorRuntime,
+                        persistedMarkdown: noteMarkdown(for: bm),
+                        bookmarkLabel: bm.label
+                    )
+                } label: {
+                    overflowMenuItemLabel(
+                        "Bookmark Detail Export Format PDF Title",
+                        icon: "pdf-02"
+                    )
+                }
+                .tint(YabaColor.red.getUIColor())
+            } label: {
+                overflowMenuItemLabel("Bookmark Detail Export Menu Title", icon: "download-01")
+            }
+            .tint(YabaColor.blue.getUIColor())
+            if machine.state.reminderDate == nil {
+                Button {
+                    machine.apply { $0.showReminderSheet = true }
+                } label: {
+                    overflowMenuItemLabel("Remind Me", icon: "notification-01")
+                }
+                .tint(YabaColor.yellow.getUIColor())
+            }
+            Divider()
+            if machine.state.reminderDate != nil {
+                Button {
+                    Task { await machine.send(.onCancelReminder) }
+                } label: {
+                    overflowMenuItemLabel(
+                        "Bookmark Detail Cancel Reminder Action",
+                        icon: "notification-off-03"
+                    )
+                }
+                .tint(YabaColor.red.getUIColor())
+            }
+            Button {
+                machine.apply { $0.showDeleteAlert = true }
+            } label: {
+                overflowMenuItemLabel("Delete", icon: "delete-02")
+            }
+            .tint(YabaColor.red.getUIColor())
+        } label: {
+            homeToolbarIcon("more-horizontal-circle-02")
+        }
+    }
+
+    @ViewBuilder
+    private func homeToolbarIcon(_ bundleKey: String) -> some View {
+        YabaIconView(bundleKey: bundleKey)
+            .frame(width: 22, height: 22)
+    }
+
+    @ViewBuilder
+    private func overflowMenuItemLabel(_ key: LocalizedStringKey, icon: String) -> some View {
+        Label {
+            Text(key)
+        } icon: {
+            YabaIconView(bundleKey: icon)
+                .scaledToFit()
+                .frame(width: 20, height: 20)
+        }
+    }
+}

@@ -13,13 +13,48 @@ public struct NotemarkDetailUIState: Sendable {
     public var reminderDate: Date?
     public var webInitialContentLoadResultJson: String?
 
+    /// Editor chrome (`editor.html`) typography / theme (parity with link reader prefs).
+    public var readerTheme: ReaderTheme
+    public var readerFontSize: ReaderFontSize
+    public var readerLineHeight: ReaderLineHeight
+
+    /// `.editor`: CodeMirror (`editor.html`); `.preview`: rendered Markdown (`preview.html`).
+    public var surfaceMode: NotemarkDetailSurfaceMode
+
+    public var showDetailSheet: Bool
+    public var showEditSheet: Bool
+    public var showMoveSheet: Bool
+    public var showReminderSheet: Bool
+    public var showDeleteAlert: Bool
+
+    public var markdownExportRequest: MarkdownExportRequest?
+    public var showMarkdownExportDirectoryPicker: Bool
+    public var showPdfExportDirectoryPicker: Bool
+    public var pdfExportFileBaseName: String
+    /// Consumed by `NotemarkEditorWebView` to snapshot the editor and write `<parent>/<base>.pdf`.
+    public var editorPdfExport: LinkmarkReaderPdfExport?
+
     public init(
         bookmarkId: String? = nil,
         inlineImageDocumentSrc: String? = nil,
         lastExportMarkdown: String? = nil,
         lastExportPdfBase64: String? = nil,
         reminderDate: Date? = nil,
-        webInitialContentLoadResultJson: String? = nil
+        webInitialContentLoadResultJson: String? = nil,
+        readerTheme: ReaderTheme = .system,
+        readerFontSize: ReaderFontSize = .medium,
+        readerLineHeight: ReaderLineHeight = .normal,
+        surfaceMode: NotemarkDetailSurfaceMode = .editor,
+        showDetailSheet: Bool = false,
+        showEditSheet: Bool = false,
+        showMoveSheet: Bool = false,
+        showReminderSheet: Bool = false,
+        showDeleteAlert: Bool = false,
+        markdownExportRequest: MarkdownExportRequest? = nil,
+        showMarkdownExportDirectoryPicker: Bool = false,
+        showPdfExportDirectoryPicker: Bool = false,
+        pdfExportFileBaseName: String = "",
+        editorPdfExport: LinkmarkReaderPdfExport? = nil
     ) {
         self.bookmarkId = bookmarkId
         self.inlineImageDocumentSrc = inlineImageDocumentSrc
@@ -27,5 +62,19 @@ public struct NotemarkDetailUIState: Sendable {
         self.lastExportPdfBase64 = lastExportPdfBase64
         self.reminderDate = reminderDate
         self.webInitialContentLoadResultJson = webInitialContentLoadResultJson
+        self.readerTheme = readerTheme
+        self.readerFontSize = readerFontSize
+        self.readerLineHeight = readerLineHeight
+        self.surfaceMode = surfaceMode
+        self.showDetailSheet = showDetailSheet
+        self.showEditSheet = showEditSheet
+        self.showMoveSheet = showMoveSheet
+        self.showReminderSheet = showReminderSheet
+        self.showDeleteAlert = showDeleteAlert
+        self.markdownExportRequest = markdownExportRequest
+        self.showMarkdownExportDirectoryPicker = showMarkdownExportDirectoryPicker
+        self.showPdfExportDirectoryPicker = showPdfExportDirectoryPicker
+        self.pdfExportFileBaseName = pdfExportFileBaseName
+        self.editorPdfExport = editorPdfExport
     }
 }

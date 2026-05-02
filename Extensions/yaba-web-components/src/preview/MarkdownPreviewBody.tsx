@@ -1,12 +1,61 @@
-import { useRef } from "react"
-import type { ReactNode } from "react"
+import { useEffect, useRef, useState } from "react"
+import type { CSSProperties, ReactNode } from "react"
 import ReactMarkdown, { defaultUrlTransform } from "react-markdown"
 import remarkGfm from "remark-gfm"
+import remarkMath from "remark-math"
+import type { SyntaxHighlighterProps } from "react-syntax-highlighter"
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
+import { oneDark, oneLight } from "react-syntax-highlighter/dist/esm/styles/prism"
+import rehypeKatex from "rehype-katex"
 import rehypeRaw from "rehype-raw"
 import type { Components } from "react-markdown"
 import { postToYabaNativeHost } from "@/bridge/yaba-native-host"
 import { previewImageSrc, previewUrlTransformForLinks } from "./preview-asset-url"
 import { previewRehypeSanitizePlugin } from "./preview-sanitize"
+
+function normalizeClassName(className: unknown): string {
+  if (className == null) return ""
+  if (typeof className === "string") return className
+  if (Array.isArray(className)) return className.filter((c): c is string => typeof c === "string").join(" ")
+  return ""
+}
+
+type PrismHighlightStyle = NonNullable<SyntaxHighlighterProps["style"]>
+
+/** Tracks light/dark from document `colorScheme` (set by preview theme) plus system fallback. */
+function usePreviewPrismTheme(): PrismHighlightStyle {
+  const readScheme = (): "light" | "dark" => {
+    if (typeof document === "undefined") return "light"
+    const cs = document.documentElement.style.colorScheme.trim().toLowerCase()
+    if (cs === "dark" || cs === "light") return cs
+    if (typeof window.matchMedia !== "function") return "light"
+    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
+  }
+
+  const [scheme, setScheme] = useState<"light" | "dark">(readScheme)
+
+  useEffect(() => {
+    setScheme(readScheme())
+    const onSchemeMaybeChanged = (): void => setScheme(readScheme())
+
+    const observer = new MutationObserver(onSchemeMaybeChanged)
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["style"],
+    })
+
+    const mq =
+      typeof window.matchMedia === "function" ? window.matchMedia("(prefers-color-scheme: dark)") : null
+    mq?.addEventListener?.("change", onSchemeMaybeChanged)
+
+    return () => {
+      observer.disconnect()
+      mq?.removeEventListener?.("change", onSchemeMaybeChanged)
+    }
+  }, [])
+
+  return scheme === "dark" ? oneDark : oneLight
+}
 
 function linkLabel(children: ReactNode): string {
   if (typeof children === "string") return children
@@ -19,12 +68,22 @@ function linkLabel(children: ReactNode): string {
   return ""
 }
 
-function buildMarkdownComponents(headingCounter: { current: number }): Components {
+function buildMarkdownComponents(
+  headingCounter: { current: number },
+  prismTheme: PrismHighlightStyle,
+): Components {
   headingCounter.current = 0
   const nextHeadingId = (): string => {
     const i = headingCounter.current
     headingCounter.current += 1
     return `toc-h-${i}`
+  }
+
+  const hlCustomStyle: CSSProperties = {
+    margin: 0,
+    padding: "0.6em 0.75em",
+    borderRadius: 8,
+    fontSize: "0.92em",
   }
 
   return {
@@ -61,6 +120,29 @@ function buildMarkdownComponents(headingCounter: { current: number }): Component
         {children}
       </a>
     ),
+    /** Avoid nested block containers (`<pre><div class="syntax">…`). */
+    pre: ({ children }) => children,
+    code: ({ className, children }) => {
+      const cls = normalizeClassName(className)
+      const match = /language-(\w+)/.exec(cls)
+      if (!match || match[1] === "math") {
+        return <code className={cls}>{children}</code>
+      }
+
+      const codeText = String(children).replace(/\n$/, "")
+      return (
+        <SyntaxHighlighter
+          className="yaba-syntax-highlighter"
+          PreTag="div"
+          language={match[1]}
+          style={prismTheme}
+          codeTagProps={{ className: "yaba-syntax-highlighter-inner" }}
+          customStyle={hlCustomStyle}
+        >
+          {codeText}
+        </SyntaxHighlighter>
+      )
+    },
     h1: ({ children, ...p }) => (
       <h1 id={nextHeadingId()} {...p}>
         {children}
@@ -102,13 +184,14 @@ function buildMarkdownComponents(headingCounter: { current: number }): Component
 export function MarkdownPreviewBody({ markdown }: { markdown: string }) {
   const headingCounter = useRef(0)
   headingCounter.current = 0
-  const components = buildMarkdownComponents(headingCounter)
+  const prismTheme = usePreviewPrismTheme()
+  const components = buildMarkdownComponents(headingCounter, prismTheme)
 
   return (
     <div className="yaba-markdown-preview">
       <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
-        rehypePlugins={[rehypeRaw, previewRehypeSanitizePlugin]}
+        remarkPlugins={[remarkGfm, remarkMath]}
+        rehypePlugins={[rehypeRaw, rehypeKatex, previewRehypeSanitizePlugin]}
         urlTransform={(url) => previewUrlTransformForLinks(url, defaultUrlTransform)}
         components={components}
       >

@@ -9,6 +9,10 @@ export interface EditorSurface {
   setEditable(editable: boolean): void
   setPlaceholder(text: string): void
   /**
+   * Matches CodeMirror syntax highlighting keyed by [EditorView.darkTheme] with reader/shell appearance.
+   */
+  syncCodemirrorDarkTheme(isDark: boolean): void
+  /**
    * Replace the `yabaExtras` compartment — intended for YABA-specific layers (custom parses, widgets, previews).
    */
   setYabaExtras(extra: Extension): void
@@ -25,6 +29,7 @@ export function mountEditorSurface(
   const placeholderC = new Compartment()
   const editableC = new Compartment()
   const yabaExtrasC = new Compartment()
+  const codemirrorDarkC = new Compartment()
 
   const state = EditorState.create({
     doc: "",
@@ -33,6 +38,7 @@ export function mountEditorSurface(
         placeholder: placeholderC,
         editable: editableC,
         yabaExtras: yabaExtrasC,
+        codemirrorDark: codemirrorDarkC,
       }),
       ...(viewActivityRef
         ? [
@@ -64,6 +70,11 @@ export function mountEditorSurface(
     setPlaceholder(text) {
       view.dispatch({
         effects: placeholderC.reconfigure(cmPlaceholder(text)),
+      })
+    },
+    syncCodemirrorDarkTheme(isDark) {
+      view.dispatch({
+        effects: codemirrorDarkC.reconfigure(EditorView.darkTheme.of(isDark)),
       })
     },
     setYabaExtras(extra) {

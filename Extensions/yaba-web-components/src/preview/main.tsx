@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client"
 import { PreviewApp } from "./PreviewApp"
 import { parseUrlParams, applyTheme } from "@/theme"
+import "katex/dist/katex.min.css"
 import "../apps/shared/global.css"
 import "./preview.css"
 

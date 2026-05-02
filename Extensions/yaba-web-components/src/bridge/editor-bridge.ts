@@ -54,6 +54,10 @@ export interface YabaEditorBridge {
   focus: () => void
   unFocus: () => void
   exportMarkdown: () => string
+  /** Normalized `[0,1]` scroll fraction of the Markdown edit surface (Codemirror scroll parent). */
+  getSyncedScrollFraction: () => string
+  /** Apply fractional scroll `[0,1]` after preview/editor surface switches — best-effort layout match. */
+  setSyncedScrollFraction: (t: number) => void
 }
 
 /** Set when [setMarkdown] runs with options; used to resolve image paths and normalize saves. */
@@ -93,6 +97,7 @@ function ensureSystemColorSchemeListener(): void {
     if (readerPreferences.theme !== "system") return
     applyTheme(platform, appearance, cursorColor)
     applyReaderThemeCssVars(readerPreferences.theme)
+    syncEditorCodemirrorDarkTheme()
   }
 
   systemColorSchemeMedia.addEventListener("change", onChange)
@@ -177,6 +182,29 @@ function applyReaderPreferences(): void {
 
   applyReaderThemeCssVars(readerPreferences.theme)
   applyReaderTypographyCssVars(readerPreferences)
+
+  syncEditorCodemirrorDarkTheme()
+}
+
+/**
+ * Keeps programming-token `HighlightStyle` in sync with reader + shell appearance (requires [EditorView.darkTheme]).
+ */
+function resolvedEditorAppearanceIsDark(): boolean {
+  if (readerPreferences.theme === "dark") return true
+  if (readerPreferences.theme === "light" || readerPreferences.theme === "sepia") return false
+  /* system */
+  if (appearance === "dark") return true
+  if (appearance === "light") return false
+  if (typeof window !== "undefined" && typeof window.matchMedia === "function") {
+    return window.matchMedia("(prefers-color-scheme: dark)").matches
+  }
+  return false
+}
+
+function syncEditorCodemirrorDarkTheme(): void {
+  if (!editorSurface) return
+  if (document.body?.dataset.yabaPage !== "editor") return
+  editorSurface.syncCodemirrorDarkTheme(resolvedEditorAppearanceIsDark())
 }
 
 function wireViewActivity(viewActivityRef: { current: ((u: ViewUpdate) => void) | null }): void {
@@ -306,6 +334,34 @@ export function initEditorBridge(
     exportMarkdown: () => {
       const md = win.YabaEditorBridge?.getMarkdown() ?? ""
       return md.trimEnd() + "\n"
+    },
+    getSyncedScrollFraction: () => {
+      try {
+        const dom = editorSurface?.view.scrollDOM
+        if (!dom) return "0"
+        const denom = Math.max(1e-6, dom.scrollHeight - dom.clientHeight)
+        const t = Math.max(0, Math.min(1, dom.scrollTop / denom))
+        return String(t)
+      } catch {
+        return "0"
+      }
+    },
+    setSyncedScrollFraction: (t: number) => {
+      try {
+        const dom = editorSurface?.view.scrollDOM
+        if (!dom) return
+        const denom = Math.max(0, dom.scrollHeight - dom.clientHeight)
+        const tt = Number.isFinite(t) ? Math.max(0, Math.min(1, t)) : 0
+        dom.scrollTo({ top: tt * denom, behavior: "auto" })
+        requestAnimationFrame(() => {
+          const d2 = editorSurface?.view.scrollDOM
+          if (!d2) return
+          const denom2 = Math.max(0, d2.scrollHeight - d2.clientHeight)
+          d2.scrollTo({ top: tt * denom2, behavior: "auto" })
+        })
+      } catch {
+        /* ignore */
+      }
     },
   }
 

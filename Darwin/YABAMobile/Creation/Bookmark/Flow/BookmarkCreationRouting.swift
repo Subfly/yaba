@@ -47,6 +47,8 @@ struct BookmarkCreateTwoStepSheetsModifier: ViewModifier {
     @Binding
     var typeSelection: BookmarkTypeSelectionContext?
 
+    var onCreatedBookmarkNavigate: ((String) -> Void)? = nil
+
     @State
     private var kindLaunch: BookmarkKindFormLaunch?
 
@@ -82,15 +84,21 @@ struct BookmarkCreateTwoStepSheetsModifier: ViewModifier {
                 .presentationDragIndicator(.visible)
             }
             .sheet(item: $kindLaunch) { launch in
-                BookmarkKindCreationSheet(launch: launch) {
+                BookmarkKindCreationSheet(launch: launch, onDone: {
                     kindLaunch = nil
-                }
+                }, onNoteCreatedNavigate: onCreatedBookmarkNavigate)
             }
     }
 }
 
 extension View {
-    func bookmarkCreateTwoStepSheets(typeSelection: Binding<BookmarkTypeSelectionContext?>) -> some View {
-        modifier(BookmarkCreateTwoStepSheetsModifier(typeSelection: typeSelection))
+    func bookmarkCreateTwoStepSheets(
+        typeSelection: Binding<BookmarkTypeSelectionContext?>,
+        onCreatedBookmarkNavigate: ((String) -> Void)? = nil
+    ) -> some View {
+        modifier(BookmarkCreateTwoStepSheetsModifier(
+            typeSelection: typeSelection,
+            onCreatedBookmarkNavigate: onCreatedBookmarkNavigate
+        ))
     }
 }

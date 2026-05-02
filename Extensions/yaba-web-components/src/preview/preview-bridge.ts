@@ -13,6 +13,14 @@ export interface YabaPreviewBridge {
   setCursorColor: (color: string) => void
   setWebChromeInsets: (topChromeInsetPx: number) => void
   setReaderPreferences: (preferences: Partial<ReaderPreferences>) => void
+  /** Normalized `[0,1]` scroll fraction of `.yaba-preview-scroll`. */
+  getSyncedScrollFraction: () => string
+  /** Apply fractional scroll after switching from editor (layout may lag one frame). */
+  setSyncedScrollFraction: (t: number) => void
+}
+
+function previewScrollEl(): HTMLElement | null {
+  return document.querySelector(".yaba-preview-scroll")
 }
 
 let latestMarkdown = ""
@@ -148,6 +156,33 @@ export function initPreviewBridge(api: { setMarkdownState: (md: string) => void 
     setReaderPreferences: (prefs: Partial<ReaderPreferences>) => {
       readerPreferences = { ...readerPreferences, ...prefs }
       applyReaderPreferences()
+    },
+    getSyncedScrollFraction: () => {
+      try {
+        const el = previewScrollEl()
+        if (!el) return "0"
+        const denom = Math.max(1e-6, el.scrollHeight - el.clientHeight)
+        const frac = Math.max(0, Math.min(1, el.scrollTop / denom))
+        return String(frac)
+      } catch {
+        return "0"
+      }
+    },
+    setSyncedScrollFraction: (t: number) => {
+      const apply = (): void => {
+        try {
+          const el = previewScrollEl()
+          if (!el) return
+          const denom = Math.max(0, el.scrollHeight - el.clientHeight)
+          const tt = Number.isFinite(t) ? Math.max(0, Math.min(1, t)) : 0
+          el.scrollTo({ top: tt * denom, behavior: "auto" })
+        } catch {
+          /* ignore */
+        }
+      }
+      apply()
+      queueMicrotask(apply)
+      requestAnimationFrame(apply)
     },
   }
 

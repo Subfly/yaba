@@ -51,7 +51,8 @@ struct YabaNavigationView: View {
             onOpenSearch: { detailRouter.openSearch() },
             onSelectFolder: { detailRouter.openFolder(id: $0) },
             onSelectTag: { detailRouter.openTag(id: $0) },
-            onSelectBookmark: { detailRouter.openBookmark(id: $0) }
+            onSelectBookmark: { detailRouter.openBookmark(id: $0) },
+            onCreatedBookmarkNavigate: { detailRouter.openBookmark(id: $0) }
         )
     }
 

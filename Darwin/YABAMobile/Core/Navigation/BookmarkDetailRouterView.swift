@@ -53,6 +53,12 @@ struct BookmarkDetailRouterView: View {
                         onOpenFolder: onOpenFolder,
                         onOpenTag: onOpenTag
                     )
+                case .note:
+                    NotemarkDetailView(
+                        bookmarkId: bookmarkId,
+                        onOpenFolder: onOpenFolder,
+                        onOpenTag: onOpenTag
+                    )
                 default:
                     EmptyView()
                 }

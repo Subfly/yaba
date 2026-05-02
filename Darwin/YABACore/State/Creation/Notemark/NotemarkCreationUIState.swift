@@ -18,6 +18,8 @@ public struct NotemarkCreationUIState: Sendable {
     public var isPinned: Bool
     public var isSaving: Bool
     public var lastError: String?
+    /// Set after a successful **create** save so the UI can navigate to the new bookmark detail.
+    public var pendingSavedBookmarkId: String?
 
     public init(
         editingBookmarkId: String? = nil,
@@ -31,7 +33,8 @@ public struct NotemarkCreationUIState: Sendable {
         cardImageSizing: CardImageSizing = .small,
         isPinned: Bool = false,
         isSaving: Bool = false,
-        lastError: String? = nil
+        lastError: String? = nil,
+        pendingSavedBookmarkId: String? = nil
     ) {
         self.editingBookmarkId = editingBookmarkId
         self.label = label
@@ -45,5 +48,6 @@ public struct NotemarkCreationUIState: Sendable {
         self.isPinned = isPinned
         self.isSaving = isSaving
         self.lastError = lastError
+        self.pendingSavedBookmarkId = pendingSavedBookmarkId
     }
 }

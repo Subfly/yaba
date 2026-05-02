@@ -41,8 +41,8 @@ public extension BookmarkKind {
     /// Kinds that navigate to `BookmarkDetailRouterView` from folder, tag, search, and home recents.
     var opensBookmarkDetailRoute: Bool {
         switch self {
-        case .link, .image, .file: true
-        case .note, .canvas: false
+        case .link, .image, .file, .note: true
+        case .canvas: false
         }
     }
 }

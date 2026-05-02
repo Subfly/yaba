@@ -15,6 +15,7 @@ struct BookmarkKindForm: View {
 
     let mode: Mode
     let onDone: () -> Void
+    var onNoteCreatedNavigate: ((String) -> Void)? = nil
 
     var body: some View {
         switch mode {
@@ -33,7 +34,8 @@ struct BookmarkKindForm: View {
                     preselectedFolderId: folderId,
                     preselectedTagIds: tagIds,
                     editingBookmarkId: nil,
-                    onDone: onDone
+                    onDone: onDone,
+                    onCreatedBookmarkId: onNoteCreatedNavigate
                 )
             case .image:
                 ImagemarkCreationContent(

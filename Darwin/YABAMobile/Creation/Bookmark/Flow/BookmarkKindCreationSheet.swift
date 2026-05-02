@@ -10,6 +10,7 @@ import SwiftUI
 struct BookmarkKindCreationSheet: View {
     let launch: BookmarkKindFormLaunch
     let onDone: () -> Void
+    var onNoteCreatedNavigate: ((String) -> Void)? = nil
 
     var body: some View {
         NavigationStack {
@@ -19,7 +20,8 @@ struct BookmarkKindCreationSheet: View {
                     preselectedFolderId: launch.preselectedFolderId,
                     preselectedTagIds: launch.preselectedTagIds
                 ),
-                onDone: onDone
+                onDone: onDone,
+                onNoteCreatedNavigate: onNoteCreatedNavigate
             )
         }
         .presentationDetents([.large])

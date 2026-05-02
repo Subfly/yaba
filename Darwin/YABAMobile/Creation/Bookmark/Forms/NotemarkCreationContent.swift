@@ -31,6 +31,8 @@ struct NotemarkCreationContent: View {
     let preselectedTagIds: [String]
     let editingBookmarkId: String?
     let onDone: () -> Void
+    /// Invoked after a successful **new** note save, before the sheet dismisses.
+    var onCreatedBookmarkId: ((String) -> Void)? = nil
 
     private var isEditing: Bool {
         editingBookmarkId != nil
@@ -157,8 +159,13 @@ struct NotemarkCreationContent: View {
                 Button {
                     Task {
                         await machine.send(.onSave)
-                        if machine.state.lastError == nil {
-                            onDone()
+                        guard machine.state.lastError == nil else { return }
+                        let createdId = machine.state.pendingSavedBookmarkId
+                        onDone()
+                        if let createdId {
+                            DispatchQueue.main.async {
+                                onCreatedBookmarkId?(createdId)
+                            }
                         }
                     }
                 } label: {
