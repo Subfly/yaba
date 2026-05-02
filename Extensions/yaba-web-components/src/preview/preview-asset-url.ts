@@ -1,11 +1,35 @@
 /**
- * Resolve Markdown image destinations to a WKWebView scheme URL native can serve.
- * Supports bare asset IDs, yaba-asset://, and legacy ../assets/<id>.<ext> paths.
+ * Resolve Markdown / raw HTML image destinations for WKWebView preview.
+ * - `https?://`, protocol-relative `//`, `data:`, `blob:` pass through for normal loading.
+ * - `yaba-asset://` and `../assets/…` map to the native scheme handler (SwiftData-backed bytes).
  */
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 function stripQueryHash(s: string): string {
   return s.split("?")[0]?.split("#")[0] ?? s
+}
+
+function decodeURIComponentSafe(s: string): string {
+  try {
+    return decodeURIComponent(s)
+  } catch {
+    return s
+  }
+}
+
+/**
+ * Extract `<id>` from any URL/path ending with `/assets/<id>.<ext>`.
+ * Supports canonical `../assets/...` and absolute URLs rewritten by editor bridges.
+ */
+function assetIdFromAssetsPath(raw: string): string | undefined {
+  const cleaned = stripQueryHash(raw.trim())
+  const idx = cleaned.lastIndexOf("/assets/")
+  if (idx < 0) return undefined
+  const tail = cleaned.slice(idx + "/assets/".length)
+  if (!tail || tail.includes("/")) return undefined
+  const id = decodeURIComponentSafe(tail).replace(/\.[^.]+$/, "").trim()
+  if (!id || id.includes("/")) return undefined
+  return id
 }
 
 /** True if the string looks like a stored inline asset id (not a URL path). */
@@ -22,28 +46,29 @@ export function previewImageSrc(raw: string | undefined): string | undefined {
   const first = raw.trim().replace(/^<|>$/g, "").trim().split(/\s/)[0] ?? ""
   if (!first) return undefined
 
-  if (/^https?:\/\//i.test(first) || first.startsWith("data:") || first.startsWith("blob:")) {
-    return undefined
+  if (/^https?:\/\//i.test(first)) {
+    return first
   }
-
-  if (first.startsWith("yaba-asset:")) {
+  if (first.startsWith("//") && first.length > 2) {
+    return `https:${first}`
+  }
+  if (first.startsWith("data:") || first.startsWith("blob:")) {
     return first
   }
 
-  if (first.includes("../assets/")) {
-    const tail = stripQueryHash(first.replace(/^.*\.\.\/assets\//, ""))
-    const id = tail.replace(/\.[^.]+$/, "")
-    if (id && !id.includes("/")) return `yaba-asset://${id}`
-    return undefined
+  if (first.startsWith("yaba-asset://") || first.startsWith("yaba-asset:")) {
+    return first
   }
 
-  if (first.startsWith("yaba-asset://")) {
-    return first
+  const assetsPathId = assetIdFromAssetsPath(first)
+  if (assetsPathId) {
+    // Use a path-based URL form to avoid host parsing ambiguities.
+    return `yaba-asset:///${encodeURIComponent(assetsPathId)}`
   }
 
   if (looksLikeBareAssetId(first)) {
     const id = stripQueryHash(first).replace(/\.[^.]+$/, "")
-    return `yaba-asset://${id}`
+    return `yaba-asset:///${encodeURIComponent(id)}`
   }
 
   return undefined

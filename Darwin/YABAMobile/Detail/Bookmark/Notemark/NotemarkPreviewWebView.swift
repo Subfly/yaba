@@ -10,6 +10,8 @@ import WebKit
 /// Bundled Markdown preview (`preview.html`) host aligned with ``NotemarkEditorWebView``.
 struct NotemarkPreviewWebView: UIViewRepresentable {
     let markdown: String
+    /// Bodies for `yaba-asset://` (note inline images stored in SwiftData); network URLs stay on `http(s)`.
+    let inlineAssets: [YabaInlineAssetPayload]
     let readerPreferences: ReaderPreferences
     let appearance: WebAppearance
     let markdownScrollHydrate: NotemarkWebScrollHydrate
@@ -32,6 +34,7 @@ struct NotemarkPreviewWebView: UIViewRepresentable {
 
     final class Coordinator: NSObject {
         private(set) var parent: NotemarkPreviewWebView
+        fileprivate let schemeHandler: YabaInlineAssetSchemeHandler
         let runtime: WKWebViewRuntime
         private var hasLoadedShell = false
         private var isBridgeReady = false
@@ -41,7 +44,15 @@ struct NotemarkPreviewWebView: UIViewRepresentable {
 
         init(parent: NotemarkPreviewWebView) {
             self.parent = parent
-            self.runtime = WKWebViewRuntime(configuration: WebRuntimeConfiguration())
+            let handler = YabaInlineAssetSchemeHandler()
+            handler.updateAssets(parent.inlineAssets)
+            self.schemeHandler = handler
+            self.runtime = WKWebViewRuntime(
+                configuration: WebRuntimeConfiguration(
+                    websiteDataStore: .nonPersistent(),
+                    yabaAssetSchemeHandler: handler
+                )
+            )
             super.init()
             runtime.onBridgeReady = { [weak self] in
                 guard let self else { return }
@@ -71,6 +82,7 @@ struct NotemarkPreviewWebView: UIViewRepresentable {
         @MainActor
         func update(parent: NotemarkPreviewWebView) {
             self.parent = parent
+            schemeHandler.updateAssets(parent.inlineAssets)
             if !hasLoadedShell {
                 hasLoadedShell = true
                 runtime.loadBundledShell(
@@ -132,5 +144,6 @@ struct NotemarkPreviewWebView: UIViewRepresentable {
                 try? await Task.sleep(nanoseconds: 48_000_000)
             }
         }
+
     }
 }

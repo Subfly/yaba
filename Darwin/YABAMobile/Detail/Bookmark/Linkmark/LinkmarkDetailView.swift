@@ -285,24 +285,8 @@ struct LinkmarkDetailView: View {
         bm.linkDetail?.markdown ?? ""
     }
 
-    private func readerInlineAssets(for bm: YabaBookmark) -> [LinkmarkInlineAssetPayload] {
-        (bm.linkDetail?.inlineAssets ?? []).compactMap { item in
-            guard let bytes = item.bytes, !bytes.isEmpty else { return nil }
-            return LinkmarkInlineAssetPayload(
-                assetId: item.assetId,
-                pathExtension: normalizedInlineAssetPathExtension(item.pathExtension),
-                bytes: bytes
-            )
-        }
-    }
-
-    private func normalizedInlineAssetPathExtension(_ raw: String) -> String {
-        let normalized = raw
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-            .trimmingCharacters(in: CharacterSet(charactersIn: "."))
-            .lowercased()
-        if normalized == "jpg" { return "jpeg" }
-        return normalized.isEmpty ? "jpeg" : normalized
+    private func readerInlineAssets(for bm: YabaBookmark) -> [YabaInlineAssetPayload] {
+        (bm.linkDetail?.inlineAssets ?? []).compactMap { YabaInlineAssetPayload(inlineAsset: $0) }
     }
 
     @ViewBuilder

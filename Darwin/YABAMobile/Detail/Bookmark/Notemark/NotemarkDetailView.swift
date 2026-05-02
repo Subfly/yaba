@@ -279,6 +279,7 @@ struct NotemarkDetailView: View {
 
                 NotemarkPreviewWebView(
                     markdown: previewSurfaceMarkdown,
+                    inlineAssets: notemarkPreviewInlineAssets(for: bm),
                     readerPreferences: readerPreferences,
                     appearance: .auto,
                     markdownScrollHydrate: previewScrollHydrate,
@@ -405,6 +406,10 @@ struct NotemarkDetailView: View {
             return ""
         }
         return s
+    }
+
+    private func notemarkPreviewInlineAssets(for bm: YabaBookmark) -> [YabaInlineAssetPayload] {
+        (bm.noteDetail?.inlineAssets ?? []).compactMap { YabaInlineAssetPayload(inlineAsset: $0) }
     }
 
     private func readerThemeColorScheme(_ theme: ReaderTheme) -> ColorScheme {

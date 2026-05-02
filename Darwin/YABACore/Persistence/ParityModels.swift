@@ -324,6 +324,9 @@ final class NoteBookmarkModel {
     @Relationship(deleteRule: .cascade, inverse: \NoteBookmarkPayloadModel.noteBookmark)
     var payload: NoteBookmarkPayloadModel?
 
+    @Relationship(deleteRule: .cascade, inverse: \InlineAssetModel.noteBookmark)
+    var inlineAssets: [InlineAssetModel] = []
+
     var bookmark: BookmarkModel?
 
     init(
@@ -401,17 +404,20 @@ final class InlineAssetModel {
     var bytes: Data?
 
     var linkBookmark: LinkBookmarkModel?
+    var noteBookmark: NoteBookmarkModel?
 
     init(
         assetId: String = UUID().uuidString,
         pathExtension: String = "jpg",
         bytes: Data? = nil,
-        linkBookmark: LinkBookmarkModel? = nil
+        linkBookmark: LinkBookmarkModel? = nil,
+        noteBookmark: NoteBookmarkModel? = nil
     ) {
         self.assetId = assetId
         self.pathExtension = pathExtension
         self.bytes = bytes
         self.linkBookmark = linkBookmark
+        self.noteBookmark = noteBookmark
     }
 }
 

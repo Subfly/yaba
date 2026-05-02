@@ -91,7 +91,8 @@ public enum ReadableContentManager {
                 assetId: a.assetId,
                 pathExtension: a.pathExtension,
                 bytes: a.bytes,
-                linkBookmark: link
+                linkBookmark: link,
+                noteBookmark: nil
             )
             context.insert(row)
             link.inlineAssets.append(row)

@@ -40,7 +40,7 @@ export const previewSanitizeSchema: Options = {
   ...defaultSchema,
   protocols: mergeProtocols(defaultSchema.protocols ?? {}, {
     href: ["http", "https", "mailto", "tel", "yaba-asset"],
-    src: ["http", "https", "yaba-asset"],
+    src: ["http", "https", "data", "blob", "yaba-asset"],
     cite: ["http", "https"],
   }),
   tagNames: [...new Set([...(defaultSchema.tagNames ?? []), ...katexTagNames, "mark", "input"])],

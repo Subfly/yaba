@@ -7,95 +7,9 @@ import Foundation
 import SwiftUI
 import WebKit
 
-struct LinkmarkInlineAssetPayload: Sendable {
-    let assetId: String
-    let pathExtension: String
-    let bytes: Data
-}
-
-private final class LinkmarkInlineAssetSchemeHandler: NSObject, WKURLSchemeHandler {
-    private let lock = NSLock()
-    private var assetsById: [String: LinkmarkInlineAssetPayload] = [:]
-
-    func updateAssets(_ assets: [LinkmarkInlineAssetPayload]) {
-        var map: [String: LinkmarkInlineAssetPayload] = [:]
-        map.reserveCapacity(assets.count)
-        for item in assets {
-            map[item.assetId] = item
-        }
-        lock.lock()
-        assetsById = map
-        lock.unlock()
-    }
-
-    func webView(_ webView: WKWebView, start urlSchemeTask: WKURLSchemeTask) {
-        guard let requestURL = urlSchemeTask.request.url,
-              let payload = resolveAsset(for: requestURL)
-        else {
-            let error = NSError(domain: "YABA.LinkmarkAssetScheme", code: 404)
-            urlSchemeTask.didFailWithError(error)
-            return
-        }
-
-        let response = URLResponse(
-            url: requestURL,
-            mimeType: mimeType(forPathExtension: payload.pathExtension),
-            expectedContentLength: payload.bytes.count,
-            textEncodingName: nil
-        )
-        urlSchemeTask.didReceive(response)
-        urlSchemeTask.didReceive(payload.bytes)
-        urlSchemeTask.didFinish()
-    }
-
-    func webView(_ webView: WKWebView, stop urlSchemeTask: WKURLSchemeTask) {}
-
-    private func resolveAsset(for url: URL) -> LinkmarkInlineAssetPayload? {
-        let candidateId = assetIdCandidate(for: url)
-        guard let candidateId else { return nil }
-
-        lock.lock()
-        let payload = assetsById[candidateId]
-        lock.unlock()
-        return payload
-    }
-
-    private func assetIdCandidate(for url: URL) -> String? {
-        let pathSegments = url.pathComponents.filter { $0 != "/" }
-        if let last = pathSegments.last, !last.isEmpty {
-            if last == "assets", let host = url.host, !host.isEmpty {
-                return host
-            }
-            let base = (last as NSString).deletingPathExtension
-            if !base.isEmpty {
-                return base
-            }
-            return last
-        }
-        if let host = url.host, !host.isEmpty {
-            let base = (host as NSString).deletingPathExtension
-            return base.isEmpty ? host : base
-        }
-        return nil
-    }
-
-    private func mimeType(forPathExtension ext: String) -> String {
-        switch ext.lowercased() {
-        case "jpg", "jpeg": return "image/jpeg"
-        case "png": return "image/png"
-        case "gif": return "image/gif"
-        case "webp": return "image/webp"
-        case "svg": return "image/svg+xml"
-        case "bmp": return "image/bmp"
-        case "ico": return "image/x-icon"
-        default: return "application/octet-stream"
-        }
-    }
-}
-
 struct LinkmarkReadItLaterWebView: UIViewRepresentable {
     let markdown: String
-    let inlineAssets: [LinkmarkInlineAssetPayload]
+    let inlineAssets: [YabaInlineAssetPayload]
     let readerPreferences: ReaderPreferences
     let appearance: WebAppearance
     let onHostEvent: (WebHostEvent) -> Void
@@ -107,7 +21,7 @@ struct LinkmarkReadItLaterWebView: UIViewRepresentable {
 
     init(
         markdown: String,
-        inlineAssets: [LinkmarkInlineAssetPayload],
+        inlineAssets: [YabaInlineAssetPayload],
         readerPreferences: ReaderPreferences,
         appearance: WebAppearance,
         onHostEvent: @escaping (WebHostEvent) -> Void,
@@ -147,7 +61,7 @@ struct LinkmarkReadItLaterWebView: UIViewRepresentable {
 
     final class Coordinator: NSObject, UIScrollViewDelegate {
         private(set) var parent: LinkmarkReadItLaterWebView
-        fileprivate let schemeHandler = LinkmarkInlineAssetSchemeHandler()
+        fileprivate let schemeHandler: YabaInlineAssetSchemeHandler
         let runtime: WKWebViewRuntime
         private var hasLoadedShell = false
         private var isBridgeReady = false
@@ -157,10 +71,13 @@ struct LinkmarkReadItLaterWebView: UIViewRepresentable {
 
         init(parent: LinkmarkReadItLaterWebView) {
             self.parent = parent
+            let handler = YabaInlineAssetSchemeHandler()
+            handler.updateAssets(parent.inlineAssets)
+            self.schemeHandler = handler
             self.runtime = WKWebViewRuntime(
                 configuration: WebRuntimeConfiguration(
                     websiteDataStore: .nonPersistent(),
-                    yabaAssetSchemeHandler: schemeHandler
+                    yabaAssetSchemeHandler: handler
                 )
             )
             super.init()
