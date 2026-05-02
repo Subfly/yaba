@@ -26,6 +26,8 @@ import {
 } from "./shell-host-events"
 import { postToYabaNativeHost } from "./yaba-native-host"
 import type { ReaderPreferences } from "./reader-preferences"
+import type { EditorCommandPayload } from "./editor-commands"
+import { dispatchEditorNativeCommand } from "./editor-native-dispatch"
 
 export type {
   ReaderFontSize,
@@ -58,6 +60,8 @@ export interface YabaEditorBridge {
   getSyncedScrollFraction: () => string
   /** Apply fractional scroll `[0,1]` after preview/editor surface switches — best-effort layout match. */
   setSyncedScrollFraction: (t: number) => void
+  /** Android `WebViewEditorBridge.dispatch` parity — CodeMirror command wiring lands incrementally. */
+  dispatch: (payload: EditorCommandPayload) => void
 }
 
 /** Set when [setMarkdown] runs with options; used to resolve image paths and normalize saves. */
@@ -362,6 +366,9 @@ export function initEditorBridge(
       } catch {
         /* ignore */
       }
+    },
+    dispatch: (payload: EditorCommandPayload) => {
+      dispatchEditorNativeCommand(editorSurface?.view ?? null, payload)
     },
   }
 

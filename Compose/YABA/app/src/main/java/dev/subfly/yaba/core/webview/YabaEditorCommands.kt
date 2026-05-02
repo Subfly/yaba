@@ -5,7 +5,6 @@ import dev.subfly.yaba.core.model.utils.YabaColor
 object YabaEditorCommands {
     const val ToggleBold = """{"type":"toggleBold"}"""
     const val ToggleItalic = """{"type":"toggleItalic"}"""
-    const val ToggleUnderline = """{"type":"toggleUnderline"}"""
     const val ToggleStrikethrough = """{"type":"toggleStrikethrough"}"""
     const val ToggleSubscript = """{"type":"toggleSubscript"}"""
     const val ToggleSuperscript = """{"type":"toggleSuperscript"}"""
@@ -140,7 +139,6 @@ object YabaEditorCommands {
     fun hasAnyTextMark(formatting: EditorFormattingState): Boolean =
         formatting.bold ||
             formatting.italic ||
-            formatting.underline ||
             formatting.strikethrough ||
             formatting.subscript ||
             formatting.superscript

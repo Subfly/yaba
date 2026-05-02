@@ -12,6 +12,7 @@ import WebKit
 /// Callbacks are delivered on the main queue.
 public final class WKWebViewRuntime: NSObject {
     public let webView: WKWebView
+
     public private(set) var expectedBridgeFeature: String?
 
     public var onHostEvent: ((WebHostEvent) -> Void)?
@@ -44,7 +45,16 @@ public final class WKWebViewRuntime: NSObject {
         config.userContentController.add(scriptBridge, name: NativeHostRouterDarwin.nativeHostScriptMessageName)
         config.preferences.setValue(true, forKey: "allowFileAccessFromFileURLs")
 
-        let wv = WKWebView(frame: .zero, configuration: config)
+        let wv: WKWebView
+        #if os(iOS) || targetEnvironment(macCatalyst)
+        if configuration.usesInputAccessoryHostingWebView {
+            wv = YabaInputAccessoryWKWebView(frame: .zero, configuration: config)
+        } else {
+            wv = WKWebView(frame: .zero, configuration: config)
+        }
+        #else
+        wv = WKWebView(frame: .zero, configuration: config)
+        #endif
         self.webView = wv
 
         super.init()
@@ -366,3 +376,14 @@ private final class ScriptBridgeProxy: NSObject, WKScriptMessageHandler {
         }
     }
 }
+
+#if os(iOS) || targetEnvironment(macCatalyst)
+
+extension WKWebViewRuntime {
+    /// Present when created with `WebRuntimeConfiguration.usesInputAccessoryHostingWebView == true`.
+    public var inputAccessoryHostingWebView: YabaInputAccessoryWKWebView? {
+        webView as? YabaInputAccessoryWKWebView
+    }
+}
+
+#endif

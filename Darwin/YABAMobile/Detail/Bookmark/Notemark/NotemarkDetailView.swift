@@ -5,6 +5,7 @@
 
 import SwiftData
 import SwiftUI
+import UIKit
 import WebKit
 
 /// SwiftData-driven note bookmark detail + CodeMirror editor host (`editor.html`).
@@ -43,6 +44,9 @@ struct NotemarkDetailView: View {
 
     @State
     private var previewScrollHydrate = NotemarkWebScrollHydrate.inactive
+
+    @State
+    private var isSoftwareKeyboardVisible = false
 
     init(
         bookmarkId: String,
@@ -193,7 +197,7 @@ struct NotemarkDetailView: View {
             fontSize: machine.state.readerFontSize,
             lineHeight: machine.state.readerLineHeight
         )
-        ZStack {
+        ZStack(alignment: .bottom) {
             Color(uiColor: .systemBackground)
                 .ignoresSafeArea()
 
@@ -241,8 +245,37 @@ struct NotemarkDetailView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .ignoresSafeArea()
             .preferredColorScheme(readerThemeColorScheme(machine.state.readerTheme))
+
+            HStack {
+                Spacer(minLength: 0)
+                NotemarkEditorFloatingToolbar(
+                    folderAccent: folderTint,
+                    isVisible: machine.state.surfaceMode == .editor,
+                    showsDoneButton: machine.state.surfaceMode == .editor && isSoftwareKeyboardVisible,
+                    onDispatch: { payload in
+                        dispatchEditorCommand(payload)
+                    },
+                    onDismissKeyboard: {
+                        dismissNotemarkEditorKeyboard()
+                    }
+                )
+                Spacer(minLength: 0)
+            }
+            .padding(.bottom, 14)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
+            guard machine.state.surfaceMode == .editor else { return }
+            isSoftwareKeyboardVisible = true
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
+            isSoftwareKeyboardVisible = false
+        }
+        .onChange(of: machine.state.surfaceMode) { _, newMode in
+            if newMode != .editor {
+                isSoftwareKeyboardVisible = false
+            }
+        }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
@@ -344,6 +377,7 @@ struct NotemarkDetailView: View {
             let md = await readEditorMarkdown(bookmark: bm)
             previewSurfaceMarkdown = md
             previewScrollHydrate.enqueueFraction(fraction)
+            await resignNotemarkEditorFirstResponder()
         } else if machine.state.surfaceMode == .preview, nextMode == .editor {
             let fraction = await readPreviewScrollFraction()
             editorScrollHydrate.enqueueFraction(fraction)
@@ -394,6 +428,27 @@ struct NotemarkDetailView: View {
 
     private func parseNormalizedScrollFraction(_ js: String) -> Double {
         Double(js.trimmingCharacters(in: .whitespacesAndNewlines)) ?? 0
+    }
+
+    private func dispatchEditorCommand(_ payload: String) {
+        Task { @MainActor in
+            guard let rt = editorRuntime else { return }
+            _ = try? await rt.evaluateJavaScriptStringResult(WebEditorBridgeScripts.dispatchCommand(payload))
+        }
+    }
+
+    @MainActor
+    private func resignNotemarkEditorFirstResponder() async {
+        if let rt = editorRuntime {
+            _ = try? await rt.evaluateJavaScriptStringResult(WebEditorBridgeScripts.unFocus())
+        }
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
+
+    private func dismissNotemarkEditorKeyboard() {
+        Task { @MainActor in
+            await resignNotemarkEditorFirstResponder()
+        }
     }
 
     private func handlePreviewHostEvent(_ event: WebHostEvent) {

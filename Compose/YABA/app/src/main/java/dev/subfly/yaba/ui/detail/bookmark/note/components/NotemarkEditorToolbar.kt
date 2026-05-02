@@ -298,7 +298,7 @@ internal fun NotemarkEditorToolbar(
                 ),
             )
             if (headingExpanded) {
-                (1..6).forEach { level ->
+                (6 downTo 1).forEach { level ->
                     add(
                         ToolbarAction(
                             key = "heading-$level",
@@ -341,16 +341,6 @@ internal fun NotemarkEditorToolbar(
                         selected = formatting.italic,
                         segmentAlpha = expandedAreaAlpha(depth = 0),
                         onClick = { onDispatchCommand(YabaEditorCommands.ToggleItalic) },
-                    ),
-                )
-                add(
-                    ToolbarAction(
-                        key = "text-underline",
-                        icon = "text-underline",
-                        tooltipText = "Underline",
-                        selected = formatting.underline,
-                        segmentAlpha = expandedAreaAlpha(depth = 0),
-                        onClick = { onDispatchCommand(YabaEditorCommands.ToggleUnderline) },
                     ),
                 )
                 add(

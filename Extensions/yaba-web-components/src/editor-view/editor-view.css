@@ -39,7 +39,7 @@ body[data-yaba-page="editor"] .yaba-editor-container[data-yaba-editor-root] {
 	padding-left: 0;
 	padding-right: clamp(14px, 4vw, 22px);
 	padding-top: clamp(8rem, 20vw, 11rem);
-	padding-bottom: clamp(4.25rem, 18vw, 8rem);
+	padding-bottom: clamp(8rem, 20vw, 11rem);
 	-webkit-overflow-scrolling: touch;
 }
 

@@ -233,4 +233,34 @@ public enum WebEditorBridgeScripts {
         """
     }
 
+    /// Releases editor focus / IME — parity with Android `unFocusScript`.
+    public static func unFocus() -> String {
+        """
+        (function(){
+          try {
+            var b = window.YabaEditorBridge;
+            if (!b || typeof b.unFocus !== 'function') { return "no_bridge"; }
+            b.unFocus();
+            return "ok";
+          } catch(e) { return String(e); }
+        })();
+        """
+    }
+
+    /// Dispatches a rich-text command — JSON text embedded in a single-quoted `JSON.parse` (parity with Android `dispatchScript`).
+    public static func dispatchCommand(_ payloadJson: String) -> String {
+        let escaped = WebJsEscaping.escapeForJsSingleQuotedString(payloadJson)
+        return """
+        (function(){
+          try {
+            var payload = JSON.parse('\(escaped)');
+            var b = window.YabaEditorBridge;
+            if (!b || typeof b.dispatch !== 'function') { return "no_dispatch"; }
+            b.dispatch(payload);
+            return "ok";
+          } catch(e) { return String(e); }
+        })();
+        """
+    }
+
 }

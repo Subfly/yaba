@@ -11777,6 +11777,9 @@
         }
       }
     },
+    "Heading %lld" : {
+
+    },
     "Home Announcements Title" : {
       "comment" : "Title of announcements",
       "extractionState" : "manual",

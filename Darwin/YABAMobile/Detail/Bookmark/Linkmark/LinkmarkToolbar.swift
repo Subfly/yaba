@@ -33,7 +33,6 @@ struct LinkmarkReaderFloatingToolbar: View {
                     }
             }
         }
-        .shadow(radius: 6)
         .opacity(isVisible ? 1 : 0)
         .offset(y: isVisible ? 0 : 24)
         .animation(.smooth, value: isVisible)

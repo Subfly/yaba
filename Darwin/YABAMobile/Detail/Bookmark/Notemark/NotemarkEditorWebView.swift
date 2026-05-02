@@ -69,7 +69,9 @@ struct NotemarkEditorWebView: UIViewRepresentable {
 
         init(parent: NotemarkEditorWebView) {
             self.parent = parent
-            self.runtime = WKWebViewRuntime(configuration: WebRuntimeConfiguration())
+            self.runtime = WKWebViewRuntime(
+                configuration: WebRuntimeConfiguration(usesInputAccessoryHostingWebView: true)
+            )
             super.init()
             runtime.onBridgeReady = { [weak self] in
                 guard let self else { return }
