@@ -24465,6 +24465,9 @@
         }
       }
     },
+    "Line break" : {
+
+    },
     "Link" : {
       "comment" : "Header of Link in bookmark creation sheet",
       "extractionState" : "manual",

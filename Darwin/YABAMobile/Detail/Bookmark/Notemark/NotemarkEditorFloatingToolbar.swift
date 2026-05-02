@@ -19,12 +19,12 @@ struct NotemarkEditorFloatingToolbar: View {
     var body: some View {
         Group {
             if #available(iOS 26, *) {
-                GlassEffectContainer(spacing: 30) {
-                    toolbarMenusRow(padLabels: true)
+                GlassEffectContainer(spacing: 18) {
+                    toolbarMenusRow
                 }
                 .glassEffect(.regular.interactive())
             } else {
-                toolbarMenusRow(padLabels: false)
+                toolbarMenusRow
                     .padding(.horizontal, 14)
                     .padding(.vertical, 10)
                     .background {
@@ -41,16 +41,17 @@ struct NotemarkEditorFloatingToolbar: View {
     }
 
     @ViewBuilder
-    private func toolbarMenusRow(padLabels: Bool) -> some View {
-        HStack(spacing: padLabels ? 0 : 10) {
-            headingMenu(padLabels: padLabels)
-            textStyleMenu(padLabels: padLabels)
-            insertMenu(padLabels: padLabels)
-            highlightButton(padLabels: padLabels)
-            indentMenu(padLabels: padLabels)
-            historyMenu(padLabels: padLabels)
+    private var toolbarMenusRow: some View {
+        HStack(spacing: 0) {
+            headingMenu()
+            textStyleMenu()
+            insertMenu()
+            highlightButton()
+            indentMenu()
+            htmlLineBreakButton()
+            historyMenu()
             if showsDoneButton {
-                doneButton(padLabels: padLabels)
+                doneButton()
             }
         }
         .animation(.smooth, value: showsDoneButton)
@@ -59,7 +60,7 @@ struct NotemarkEditorFloatingToolbar: View {
     // MARK: Menus
 
     @ViewBuilder
-    private func headingMenu(padLabels: Bool) -> some View {
+    private func headingMenu() -> some View {
         Menu {
             ForEach(Array((1 ... 6).reversed()), id: \.self) { level in
                 Button {
@@ -72,12 +73,12 @@ struct NotemarkEditorFloatingToolbar: View {
                 }
             }
         } label: {
-            menuLabelIcon("heading", padLabels: padLabels, color: folderAccent)
+            menuLabelIcon("heading", color: folderAccent)
         }
     }
 
     @ViewBuilder
-    private func textStyleMenu(padLabels: Bool) -> some View {
+    private func textStyleMenu() -> some View {
         Menu {
             Button {
                 onDispatch(YabaEditorDispatchPayload.toggleBold)
@@ -95,12 +96,12 @@ struct NotemarkEditorFloatingToolbar: View {
                 menuRow(icon: "text-strikethrough", title: "Strikethrough")
             }
         } label: {
-            menuLabelIcon("text-font", padLabels: padLabels, color: folderAccent)
+            menuLabelIcon("text-font", color: folderAccent)
         }
     }
 
     @ViewBuilder
-    private func insertMenu(padLabels: Bool) -> some View {
+    private func insertMenu() -> some View {
         Menu {
             Button {} label: {
                 menuRow(icon: "grid-table", title: "Table")
@@ -179,19 +180,19 @@ struct NotemarkEditorFloatingToolbar: View {
                 menuRow(icon: "calculator", title: "Math")
             }
         } label: {
-            menuLabelIcon("add-01", padLabels: padLabels, color: folderAccent)
+            menuLabelIcon("add-01", color: folderAccent)
         }
     }
 
     @ViewBuilder
-    private func highlightButton(padLabels: Bool) -> some View {
+    private func highlightButton() -> some View {
         Button {} label: {
-            menuLabelIcon("highlighter", padLabels: padLabels, color: folderAccent)
+            menuLabelIcon("highlighter", color: folderAccent)
         }
     }
 
     @ViewBuilder
-    private func indentMenu(padLabels: Bool) -> some View {
+    private func indentMenu() -> some View {
         Menu {
             Button {
                 onDispatch(YabaEditorDispatchPayload.indent)
@@ -204,34 +205,48 @@ struct NotemarkEditorFloatingToolbar: View {
                 menuRow(icon: "text-indent-less", title: "Outdent")
             }
         } label: {
-            menuLabelIcon("text-indent", padLabels: padLabels, color: folderAccent)
+            menuLabelIcon("text-indent", color: folderAccent)
         }
     }
 
     @ViewBuilder
-    private func historyMenu(padLabels: Bool) -> some View {
+    private func htmlLineBreakButton() -> some View {
+        Button {
+            onDispatch(YabaEditorDispatchPayload.insertHtmlBr)
+        } label: {
+            if #available(iOS 26, *) {
+                toolbarGlyphMirroredX("undo-03", color: folderAccent).padding()
+            } else {
+                toolbarGlyphMirroredX("undo-03", color: folderAccent)
+            }
+        }
+        .accessibilityLabel(Text("Line break"))
+    }
+
+    @ViewBuilder
+    private func historyMenu() -> some View {
         Menu {
             Button {
                 onDispatch(YabaEditorDispatchPayload.undo)
             } label: {
-                menuRow(icon: "undo-03", title: "Undo")
+                menuRow(icon: "undo-02", title: "Undo")
             }
             Button {
                 onDispatch(YabaEditorDispatchPayload.redo)
             } label: {
-                menuRow(icon: "redo-03", title: "Redo")
+                menuRow(icon: "redo-02", title: "Redo")
             }
         } label: {
-            menuLabelIcon("repeat", padLabels: padLabels, color: folderAccent)
+            menuLabelIcon("repeat", color: folderAccent)
         }
     }
 
     @ViewBuilder
-    private func doneButton(padLabels: Bool) -> some View {
+    private func doneButton() -> some View {
         Button {
             onDismissKeyboard()
         } label: {
-            menuLabelIcon("tick-01", padLabels: padLabels, color: folderAccent)
+            menuLabelIcon("tick-01", color: folderAccent)
         }
         .accessibilityLabel(Text("Done"))
     }
@@ -246,12 +261,8 @@ struct NotemarkEditorFloatingToolbar: View {
     }
 
     @ViewBuilder
-    private func menuLabelIcon(
-        _ icon: String,
-        padLabels: Bool,
-        color: Color
-    ) -> some View {
-        if padLabels {
+    private func menuLabelIcon(_ icon: String, color: Color) -> some View {
+        if #available(iOS 26, *) {
             toolbarGlyph(icon, color: color).padding()
         } else {
             toolbarGlyph(icon, color: color)
@@ -262,6 +273,12 @@ struct NotemarkEditorFloatingToolbar: View {
         YabaIconView(bundleKey: icon)
             .foregroundStyle(color)
             .frame(width: 22, height: 22)
+    }
+
+    /** `undo-03` (and similar) mirrored on the X axis — e.g. line-break control. */
+    private func toolbarGlyphMirroredX(_ icon: String, color: Color) -> some View {
+        toolbarGlyph(icon, color: color)
+            .scaleEffect(x: 1, y: -1)
     }
 
     private static func headingIconKey(_ level: Int) -> String {

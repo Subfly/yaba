@@ -266,6 +266,18 @@ function toggleTaskList(view: EditorView): void {
   )
 }
 
+function insertHtmlBrAndNewline(view: EditorView): void {
+  const { state } = view
+  const main = state.selection.main
+  const from = main.from
+  const to = main.to
+  const insert = "<br>\n"
+  view.dispatch({
+    changes: { from, to, insert },
+    selection: EditorSelection.cursor(from + insert.length),
+  })
+}
+
 function insertHorizontalRule(view: EditorView): void {
   const { state } = view
   const main = state.selection.main
@@ -393,6 +405,9 @@ export function dispatchEditorNativeCommand(view: EditorView | null, payload: Ed
       break
     case "insertHr":
       insertHorizontalRule(view)
+      break
+    case "insertHtmlBr":
+      insertHtmlBrAndNewline(view)
       break
     case "toggleBulletedList":
       toggleBulletList(view)
