@@ -112,19 +112,19 @@
   text-underline-offset: 2px;
 }
 
-/* `==highlight==` (GFM-style marks via remark-mark-highlight; aligns with editor `.yaba-md-mark`). */
+/* Default `<mark>` when remark emits plain highlights (rare — most come from `preview-markdown-prepare`). */
 .yaba-markdown-preview mark {
   border-radius: 0.2em;
   padding: 0.04em 0.06em;
   margin: 0 0.02em;
-  background-color: color-mix(
-    in srgb,
-    var(--yaba-primary) 14%,
-    color-mix(in srgb, var(--yaba-reader-on-bg, var(--yaba-on-bg)) 6%, transparent)
-  );
+  background-color: rgba(255, 204, 0, 0.28);
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
   color: inherit;
+}
+
+.yaba-preview-highlight-mark {
+  cursor: pointer;
 }
 
 /* Wide GFM tables: scroll horizontally instead of stretching the page. */
@@ -152,9 +152,18 @@
   padding: 0.35em 0.5em;
 }
 
-.yaba-markdown-preview input[type="checkbox"] {
-  margin-right: 0.35em;
+/*
+ * GFM task checkboxes: width/height in rem often only grows the layout box (empty padding) on iOS WKWebView.
+ * Scale the native control so the glyph and hit target actually grow.
+ */
+.yaba-markdown-preview input[type="checkbox"],
+.yaba-markdown-preview .yaba-preview-task-checkbox {
+  cursor: pointer;
+  margin-right: 12px;
   vertical-align: middle;
+  flex-shrink: 0;
+  transform: scale(1.25);
+  transform-origin: left center;
 }
 
 .yaba-markdown-preview ::selection {

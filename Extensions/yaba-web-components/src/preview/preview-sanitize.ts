@@ -43,9 +43,37 @@ export const previewSanitizeSchema: Options = {
     src: ["http", "https", "yaba-asset"],
     cite: ["http", "https"],
   }),
-  tagNames: [...new Set([...(defaultSchema.tagNames ?? []), ...katexTagNames, "mark"])],
+  tagNames: [...new Set([...(defaultSchema.tagNames ?? []), ...katexTagNames, "mark", "input"])],
   attributes: {
     ...defaultSchema.attributes,
+    mark: [
+      ...(defaultSchema.attributes?.mark ?? []),
+      "className",
+      "style",
+      "role",
+      "tabIndex",
+      /* HTML / hast hyphenated */
+      "data-yaba-syntax-start",
+      "data-yaba-syntax-end",
+      "data-yaba-inner-start",
+      "data-yaba-inner-end",
+      "data-yaba-hex",
+      /* hast → React camelCase (property-information); keep both or sanitize strips taps */
+      "dataYabaSyntaxStart",
+      "dataYabaSyntaxEnd",
+      "dataYabaInnerStart",
+      "dataYabaInnerEnd",
+      "dataYabaHex",
+    ],
+    input: [
+      ...(defaultSchema.attributes?.input ?? []),
+      "type",
+      "checked",
+      "disabled",
+      "readOnly",
+      "className",
+      "style",
+    ],
     span: [...(defaultSchema.attributes?.span ?? []), "className", "style"],
     svg: [
       ...(defaultSchema.attributes?.svg ?? []),

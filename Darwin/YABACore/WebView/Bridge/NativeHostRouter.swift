@@ -17,7 +17,10 @@ public enum NativeHostRouterDarwin {
         onHostEvent: @escaping (WebHostEvent) -> Void,
         onMathTap: @escaping (MathTapEvent) -> Void,
         onInlineLinkTap: @escaping (InlineLinkTapEvent) -> Void,
-        onInlineMentionTap: @escaping (InlineMentionTapEvent) -> Void
+        onInlineMentionTap: @escaping (InlineMentionTapEvent) -> Void,
+        onHighlightColorMarkTap: ((HighlightColorMarkTapEvent) -> Void)? = nil,
+        onPreviewHighlightMarkTap: ((PreviewHighlightMarkTapEvent) -> Void)? = nil,
+        onPreviewTaskCheckboxTap: ((PreviewTaskCheckboxTapEvent) -> Void)? = nil
     ) -> (String) -> Void {
         { json in
             guard let root = try? JSONSerialization.jsonObject(with: Data(json.utf8)) as? [String: Any],
@@ -38,7 +41,10 @@ public enum NativeHostRouterDarwin {
                     json: json,
                     onMathTap: onMathTap,
                     onInlineLinkTap: onInlineLinkTap,
-                    onInlineMentionTap: onInlineMentionTap
+                    onInlineMentionTap: onInlineMentionTap,
+                    onHighlightColorMarkTap: onHighlightColorMarkTap,
+                    onPreviewHighlightMarkTap: onPreviewHighlightMarkTap,
+                    onPreviewTaskCheckboxTap: onPreviewTaskCheckboxTap
                 ) {
                     onHostEvent(event)
                 }

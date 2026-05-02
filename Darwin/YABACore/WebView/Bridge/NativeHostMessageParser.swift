@@ -9,11 +9,29 @@
 import Foundation
 
 public enum NativeHostMessageParserDarwin {
+    /// JSON numbers often decode as `NSNumber` / `Double`; direct `as? Int` can fail.
+    private static func jsonInt(_ root: [String: Any], key: String) -> Int {
+        let any = root[key]
+        switch any {
+        case let i as Int:
+            return i
+        case let n as NSNumber:
+            return n.intValue
+        case let s as String:
+            return Int(s) ?? -1
+        default:
+            return -1
+        }
+    }
+
     public static func parse(
         json: String,
         onMathTap: ((MathTapEvent) -> Void)? = nil,
         onInlineLinkTap: ((InlineLinkTapEvent) -> Void)? = nil,
-        onInlineMentionTap: ((InlineMentionTapEvent) -> Void)? = nil
+        onInlineMentionTap: ((InlineMentionTapEvent) -> Void)? = nil,
+        onHighlightColorMarkTap: ((HighlightColorMarkTapEvent) -> Void)? = nil,
+        onPreviewHighlightMarkTap: ((PreviewHighlightMarkTapEvent) -> Void)? = nil,
+        onPreviewTaskCheckboxTap: ((PreviewTaskCheckboxTapEvent) -> Void)? = nil
     ) -> WebHostEvent? {
         guard let data = json.data(using: .utf8),
               let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
@@ -75,6 +93,40 @@ public enum NativeHostMessageParserDarwin {
                         bookmarkLabel: bookmarkLabel
                     )
                 )
+            }
+            return nil
+        case "noteHighlightColorMarkTap":
+            let from = root["from"] as? Int ?? -1
+            let to = root["to"] as? Int ?? -1
+            let hex = (root["hex"] as? String ?? "").lowercased().replacingOccurrences(of: "#", with: "")
+            if from >= 0, to >= from, hex.count == 6 {
+                onHighlightColorMarkTap?(
+                    HighlightColorMarkTapEvent(from: from, to: to, hexDigits: hex)
+                )
+            }
+            return nil
+        case "previewHighlightMarkTap":
+            let syntaxStart = jsonInt(root, key: "syntaxStart")
+            let syntaxEnd = jsonInt(root, key: "syntaxEnd")
+            let innerStart = jsonInt(root, key: "innerStart")
+            let innerEnd = jsonInt(root, key: "innerEnd")
+            let hex = (root["hex"] as? String ?? "").lowercased().replacingOccurrences(of: "#", with: "")
+            if syntaxStart >= 0, syntaxEnd > syntaxStart, innerStart >= 0, innerEnd >= innerStart, innerEnd <= syntaxEnd {
+                onPreviewHighlightMarkTap?(
+                    PreviewHighlightMarkTapEvent(
+                        syntaxStart: syntaxStart,
+                        syntaxEnd: syntaxEnd,
+                        innerStart: innerStart,
+                        innerEnd: innerEnd,
+                        hexDigits: hex
+                    )
+                )
+            }
+            return nil
+        case "previewTaskCheckboxTap":
+            let bracketOpen = jsonInt(root, key: "bracketOpen")
+            if bracketOpen >= 0 {
+                onPreviewTaskCheckboxTap?(PreviewTaskCheckboxTapEvent(bracketOpen: bracketOpen))
             }
             return nil
         case "canvasLinkTap":

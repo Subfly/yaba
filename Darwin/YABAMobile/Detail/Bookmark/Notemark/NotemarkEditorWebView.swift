@@ -38,6 +38,7 @@ struct NotemarkEditorWebView: UIViewRepresentable {
     let onHostEvent: (WebHostEvent) -> Void
     let onPersistDocument: (WKWebViewRuntime) async -> Void
     var onRuntimeReady: ((WKWebViewRuntime) -> Void)?
+    var onHighlightColorMarkTap: ((HighlightColorMarkTapEvent) -> Void)?
     @Binding var pendingPdfExport: LinkmarkReaderPdfExport?
 
     func makeCoordinator() -> Coordinator {
@@ -93,6 +94,10 @@ struct NotemarkEditorWebView: UIViewRepresentable {
             runtime.webView.scrollView.contentInsetAdjustmentBehavior = .never
             if #available(iOS 13.0, *) {
                 runtime.webView.scrollView.automaticallyAdjustsScrollIndicatorInsets = false
+            }
+            runtime.onHighlightColorMarkTap = { [weak self] ev in
+                guard let self else { return }
+                self.parent.onHighlightColorMarkTap?(ev)
             }
         }
 

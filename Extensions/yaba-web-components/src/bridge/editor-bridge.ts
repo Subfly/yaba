@@ -62,6 +62,8 @@ export interface YabaEditorBridge {
   setSyncedScrollFraction: (t: number) => void
   /** Android `WebViewEditorBridge.dispatch` parity — CodeMirror command wiring lands incrementally. */
   dispatch: (payload: EditorCommandPayload) => void
+  /** Replace `{#hex}` token range after native color pick (six lowercase hex digits, no `#`). */
+  replaceHighlightColorMark: (from: number, to: number, hexDigits: string) => void
 }
 
 /** Set when [setMarkdown] runs with options; used to resolve image paths and normalize saves. */
@@ -369,6 +371,24 @@ export function initEditorBridge(
     },
     dispatch: (payload: EditorCommandPayload) => {
       dispatchEditorNativeCommand(editorSurface?.view ?? null, payload)
+      scheduleNoteAutosaveAfterEditorActivity()
+    },
+    replaceHighlightColorMark: (from: number, to: number, hexDigits: string) => {
+      const v = editorSurface?.view
+      if (!v) return
+      let digits = String(hexDigits ?? "")
+        .toLowerCase()
+        .replace(/^#/, "")
+      if (!/^[0-9a-f]{6}$/.test(digits)) digits = "0088ff"
+      const insert = `{#${digits}}`
+      const docLen = v.state.doc.length
+      const f = Math.max(0, Math.min(Math.floor(from), docLen))
+      const t = Math.max(f, Math.min(Math.floor(to), docLen))
+      v.dispatch({
+        changes: { from: f, to: t, insert },
+        selection: EditorSelection.cursor(f + insert.length),
+      })
+      v.focus()
       scheduleNoteAutosaveAfterEditorActivity()
     },
   }

@@ -196,15 +196,12 @@ body[data-yaba-page="editor"] .yaba-editor-container[data-yaba-editor-root] {
 }
 
 /* `==highlight==` (GFM): inner span only; delimiters stay body-colored. */
+/* `==highlight==` default wash — YABA yellow `#ffcc00` @ 0.28 alpha (toolbar inserts `{#ffcc00}==…==`). */
 .yaba-editor-container[data-yaba-editor-root] .yaba-md-mark {
 	border-radius: 0.2em;
 	padding: 0.04em 0.06em;
 	margin: 0 0.02em;
-	background-color: color-mix(
-		in srgb,
-		var(--yaba-primary) 14%,
-		color-mix(in srgb, var(--yaba-reader-on-bg, var(--yaba-on-bg)) 6%, transparent)
-	);
+	background-color: rgba(255, 204, 0, 0.28);
 	box-decoration-break: clone;
 	-webkit-box-decoration-break: clone;
 }

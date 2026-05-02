@@ -263,4 +263,21 @@ public enum WebEditorBridgeScripts {
         """
     }
 
+    /// Updates `{#hex}` secret color token after native `YabaColorPicker` — `hexDigits` is six chars, no `#`.
+    public static func replaceHighlightColorMark(from: Int, to: Int, hexDigits: String) -> String {
+        let hexLit = javaScriptStringLiteral(
+            hexDigits.lowercased().replacingOccurrences(of: "#", with: "")
+        )
+        return """
+        (function(){
+          try {
+            var b = window.YabaEditorBridge;
+            if (!b || typeof b.replaceHighlightColorMark !== 'function') { return "no_bridge"; }
+            b.replaceHighlightColorMark(\(from), \(to), \(hexLit));
+            return "ok";
+          } catch(e) { return String(e); }
+        })();
+        """
+    }
+
 }

@@ -8,6 +8,7 @@ import { markdownCodeFontFaces, embeddedCodeFontFaces } from "./editor-code-font
 import { YABA_EDITOR_BASIC_SETUP } from "./yaba-basic-setup"
 import { yabaHighlightMark } from "./yaba-highlight-mark"
 import { yabaMarkdownHighlightClasses } from "./yaba-markdown-highlight-classes"
+import { yabaHighlightColorMarkExtensions } from "./yaba-highlight-color-widget"
 import { yabaMarkdownMathExtensions } from "./yaba-markdown-math-extension"
 import {
   yabaDarkCodeHighlightStyle,
@@ -38,6 +39,7 @@ export function createYabaMarkdownExtensions(c: YabaEditorExtensionCompartments)
     }),
     EditorView.lineWrapping,
     syntaxHighlighting(yabaMarkdownHighlightClasses),
+    ...yabaHighlightColorMarkExtensions(),
     markdownCodeFontFaces(),
     ...embeddedCodeFontFaces(),
     /* Theme-keyed variants: see `EditorView.darkTheme` + `surface.syncCodemirrorDarkTheme`. */

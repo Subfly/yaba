@@ -18,7 +18,7 @@ struct NotemarkAddLinkSheet: View {
     let onSubmit: (String, String) -> Void
 
     var body: some View {
-        Form {
+        List {
             TextField("Add Link Text To Display Label", text: $linkText)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
@@ -27,6 +27,7 @@ struct NotemarkAddLinkSheet: View {
                 .autocorrectionDisabled()
                 .keyboardType(.URL)
         }
+        .listStyle(.sidebar)
         .navigationTitle("Add Link Label")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {

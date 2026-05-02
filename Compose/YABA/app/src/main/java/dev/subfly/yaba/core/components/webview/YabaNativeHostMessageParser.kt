@@ -84,6 +84,11 @@ internal object YabaNativeHostMessageParser {
                 }
                 null
             }
+            // Darwin-only: `{#hex}` color chip tap → native picker (Android hook TBD).
+            "noteHighlightColorMarkTap" -> null
+            // Darwin-only: preview `<mark>` / task checkbox taps → markdown patch (Android hook TBD).
+            "previewHighlightMarkTap" -> null
+            "previewTaskCheckboxTap" -> null
             "canvasLinkTap" -> {
                 val elementId = root.optString("elementId", "")
                 val text = root.optString("text", "")

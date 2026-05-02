@@ -51,6 +51,21 @@ struct NotemarkDetailView: View {
     @State
     private var showAddLinkSheet = false
 
+    @State
+    private var showAddTableSheet = false
+
+    @State
+    private var highlightColorMarkEdit: HighlightColorMarkTapEvent?
+
+    @State
+    private var previewHighlightMarkEdit: PreviewHighlightMarkTapEvent?
+
+    @State
+    private var highlightColorPick: YabaColor = .yellow
+
+    @State
+    private var showHighlightColorSheet = false
+
     init(
         bookmarkId: String,
         onOpenFolder: @escaping (String) -> Void = { _ in },
@@ -182,6 +197,19 @@ struct NotemarkDetailView: View {
                 }
             }
         }
+        .sheet(isPresented: $showAddTableSheet) {
+            NavigationStack {
+                NotemarkAddTableSheet { rows, cols in
+                    dispatchEditorCommand(YabaEditorDispatchPayload.insertTable(rows: rows, cols: cols, withHeaderRow: false))
+                    showAddTableSheet = false
+                }
+            }
+        }
+        .sheet(isPresented: $showHighlightColorSheet) {
+            YabaColorPicker(selection: $highlightColorPick, onDismiss: {
+                handleHighlightColorPickerDismissed()
+            })
+        }
         .alert("Delete Bookmark Title", isPresented: machine.showDeleteAlertBinding) {
             Button("Cancel", role: .cancel) {}
             Button("Delete", role: .destructive) {
@@ -228,6 +256,12 @@ struct NotemarkDetailView: View {
                         editorRuntime = runtime
                         sendSurfaceModeAnnouncement(to: runtime)
                     },
+                    onHighlightColorMarkTap: { ev in
+                        previewHighlightMarkEdit = nil
+                        highlightColorPick = YabaColor.fromPaletteHexDigits(ev.hexDigits) ?? .blue
+                        highlightColorMarkEdit = ev
+                        showHighlightColorSheet = true
+                    },
                     pendingPdfExport: machine.editorPdfExportBinding
                 )
                 .id(bm.bookmarkId)
@@ -246,6 +280,19 @@ struct NotemarkDetailView: View {
                     onRuntimeReady: { runtime in
                         previewRuntime = runtime
                         sendSurfaceModeAnnouncement(to: runtime)
+                    },
+                    onPreviewHighlightMarkTap: { ev in
+                        highlightColorMarkEdit = nil
+                        let digits = ev.hexDigits.trimmingCharacters(in: .whitespacesAndNewlines)
+                            .replacingOccurrences(of: "#", with: "").lowercased()
+                        highlightColorPick = YabaColor.fromPaletteHexDigits(digits) ?? .yellow
+                        previewHighlightMarkEdit = ev
+                        showHighlightColorSheet = true
+                    },
+                    onPreviewTaskCheckboxTap: { ev in
+                        Task { @MainActor in
+                            await applyPreviewTaskCheckboxToggle(bracketOpen: ev.bracketOpen, bookmarkId: bm.bookmarkId)
+                        }
                     }
                 )
                 .id("\(bm.bookmarkId)-preview")
@@ -268,6 +315,9 @@ struct NotemarkDetailView: View {
                     },
                     onRequestAddLinkSheet: {
                         showAddLinkSheet = true
+                    },
+                    onRequestAddTableSheet: {
+                        showAddTableSheet = true
                     },
                     onDismissKeyboard: {
                         dismissNotemarkEditorKeyboard()
@@ -448,6 +498,82 @@ struct NotemarkDetailView: View {
         Task { @MainActor in
             guard let rt = editorRuntime else { return }
             _ = try? await rt.evaluateJavaScriptStringResult(WebEditorBridgeScripts.dispatchCommand(payload))
+        }
+    }
+
+    private func handleHighlightColorPickerDismissed() {
+        showHighlightColorSheet = false
+
+        let previewEv = previewHighlightMarkEdit
+        previewHighlightMarkEdit = nil
+
+        let editorEv = highlightColorMarkEdit
+        highlightColorMarkEdit = nil
+
+        let hex =
+            highlightColorPick.canonicalHexDigits ?? YabaColor.yellow.canonicalHexDigits ?? "ffcc00"
+
+        if let previewEv {
+            Task { @MainActor in
+                await applyPreviewHighlightRecolor(ev: previewEv, newHexDigits: hex, bookmarkId: bookmarkId)
+            }
+            return
+        }
+
+        guard let editorEv else { return }
+        Task { @MainActor in
+            guard let rt = editorRuntime else { return }
+            _ = try? await rt.evaluateJavaScriptStringResult(
+                WebEditorBridgeScripts.replaceHighlightColorMark(
+                    from: editorEv.from,
+                    to: editorEv.to,
+                    hexDigits: hex
+                )
+            )
+        }
+    }
+
+    @MainActor
+    private func applyPreviewHighlightRecolor(ev: PreviewHighlightMarkTapEvent, newHexDigits: String, bookmarkId: String)
+        async {
+        var md = previewSurfaceMarkdown
+        let ns = md as NSString
+        let len = ns.length
+        guard ev.syntaxStart >= 0, ev.syntaxEnd <= len, ev.innerStart >= 0, ev.innerEnd <= len,
+              ev.innerEnd >= ev.innerStart, ev.syntaxEnd >= ev.innerEnd else { return }
+
+        let inner = ns.substring(with: NSRange(location: ev.innerStart, length: ev.innerEnd - ev.innerStart))
+        let replacement = "=={#\(newHexDigits)}" + inner + "=="
+        md = ns.replacingCharacters(
+            in: NSRange(location: ev.syntaxStart, length: ev.syntaxEnd - ev.syntaxStart),
+            with: replacement
+        )
+        await persistMarkdownShared(md, bookmarkId: bookmarkId)
+    }
+
+    @MainActor
+    private func applyPreviewTaskCheckboxToggle(bracketOpen: Int, bookmarkId: String) async {
+        var md = previewSurfaceMarkdown
+        let ns = md as NSString
+        let len = ns.length
+        guard bracketOpen >= 0, bracketOpen + 2 < len else { return }
+        let innerRange = NSRange(location: bracketOpen + 1, length: 1)
+        let ch = ns.substring(with: innerRange)
+        let newCh = ch.lowercased() == "x" ? " " : "x"
+        md = ns.replacingCharacters(in: innerRange, with: newCh)
+        await persistMarkdownShared(md, bookmarkId: bookmarkId)
+    }
+
+    @MainActor
+    private func persistMarkdownShared(_ md: String, bookmarkId: String) async {
+        previewSurfaceMarkdown = md
+        let data = Data(md.utf8)
+        await machine.send(.saveDocument(bookmarkId: bookmarkId, data: data))
+        if let rt = editorRuntime {
+            _ = try? await rt.evaluateJavaScriptStringResult(WebEditorBridgeScripts.setMarkdown(md, assetsBaseUrl: nil))
+        }
+        if let pr = previewRuntime {
+            _ = try? await pr.evaluateJavaScriptStringResult(WebPreviewBridgeScripts.setMarkdown(md))
         }
     }
 

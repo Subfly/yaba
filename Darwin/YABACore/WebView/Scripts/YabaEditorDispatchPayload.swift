@@ -45,6 +45,25 @@ public enum YabaEditorDispatchPayload {
         }
     }
 
+    /// Inserts a GFM pipe table at the selection — parity with Android `YabaEditorCommands.insertTablePayload`.
+    public static func insertTable(rows: Int, cols: Int, withHeaderRow: Bool = false) -> String {
+        struct InsertTablePayload: Encodable {
+            let type: String
+            let rows: Int
+            let cols: Int
+            let withHeaderRow: Bool
+        }
+        let r = min(max(rows, 1), 20)
+        let c = min(max(cols, 1), 20)
+        do {
+            return try WebJson.encodeToString(
+                InsertTablePayload(type: "insertTable", rows: r, cols: c, withHeaderRow: withHeaderRow)
+            )
+        } catch {
+            return #"{"type":"insertTable","rows":3,"cols":3,"withHeaderRow":false}"#
+        }
+    }
+
     public static let insertInlineMathEmpty = #"{"type":"insertInlineMath","latex":""}"#
     public static let insertBlockMathEmpty = #"{"type":"insertBlockMath","latex":""}"#
 }

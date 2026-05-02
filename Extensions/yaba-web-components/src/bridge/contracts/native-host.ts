@@ -91,6 +91,29 @@ export type YabaNativeHostPayload =
       text: string
       url: string
     }
+  /** Editor `{#rrggbb}` color chip tapped — Darwin opens `YabaColorPicker` and calls `replaceHighlightColorMark`. */
+  | {
+      type: "noteHighlightColorMarkTap"
+      from: number
+      to: number
+      /** Six lowercase hex digits, no `#`. */
+      hex: string
+    }
+  /** Preview `<mark>` tap — native replaces highlight syntax slice after picker (UTF-16 offsets like JS). */
+  | {
+      type: "previewHighlightMarkTap"
+      syntaxStart: number
+      syntaxEnd: number
+      innerStart: number
+      innerEnd: number
+      /** Current palette hex, or empty when plain `==…==`. */
+      hex: string
+    }
+  /** Preview task checkbox tap — toggles `[ ]` / `[x]` at `bracketOpen` (`[` index). */
+  | {
+      type: "previewTaskCheckboxTap"
+      bracketOpen: number
+    }
   | {
       type: "inlineMentionTap"
       pos: number

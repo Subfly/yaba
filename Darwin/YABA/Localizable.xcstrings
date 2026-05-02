@@ -254,6 +254,9 @@
         }
       }
     },
+    "Add Table Label" : {
+
+    },
     "Announcement CloudKit Deletion Title" : {
       "comment" : "One time title for announcement that indicates Cloud Kit Database Deletion",
       "extractionState" : "manual",
@@ -45127,6 +45130,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "正在与 “%@” 同步"
+          }
+        }
+      }
+    },
+    "Table Columns Label %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Column count: %lld"
+          }
+        }
+      }
+    },
+    "Table Rows Label %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Row count: %lld"
           }
         }
       }

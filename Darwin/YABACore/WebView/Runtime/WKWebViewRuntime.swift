@@ -20,6 +20,9 @@ public final class WKWebViewRuntime: NSObject {
     public var onMathTap: ((MathTapEvent) -> Void)?
     public var onInlineLinkTap: ((InlineLinkTapEvent) -> Void)?
     public var onInlineMentionTap: ((InlineMentionTapEvent) -> Void)?
+    public var onHighlightColorMarkTap: ((HighlightColorMarkTapEvent) -> Void)?
+    public var onPreviewHighlightMarkTap: ((PreviewHighlightMarkTapEvent) -> Void)?
+    public var onPreviewTaskCheckboxTap: ((PreviewTaskCheckboxTapEvent) -> Void)?
 
     public var onLoadProgress: ((Double) -> Void)?
 
@@ -163,6 +166,15 @@ public final class WKWebViewRuntime: NSObject {
             },
             onInlineMentionTap: { [weak self] ev in
                 self?.onInlineMentionTap?(ev)
+            },
+            onHighlightColorMarkTap: { [weak self] ev in
+                self?.onHighlightColorMarkTap?(ev)
+            },
+            onPreviewHighlightMarkTap: { [weak self] ev in
+                self?.onPreviewHighlightMarkTap?(ev)
+            },
+            onPreviewTaskCheckboxTap: { [weak self] ev in
+                self?.onPreviewTaskCheckboxTap?(ev)
             }
         )
         handler(json)

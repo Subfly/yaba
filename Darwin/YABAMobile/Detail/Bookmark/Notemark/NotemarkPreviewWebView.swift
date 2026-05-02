@@ -15,6 +15,8 @@ struct NotemarkPreviewWebView: UIViewRepresentable {
     let markdownScrollHydrate: NotemarkWebScrollHydrate
     let onHostEvent: (WebHostEvent) -> Void
     var onRuntimeReady: ((WKWebViewRuntime) -> Void)?
+    var onPreviewHighlightMarkTap: ((PreviewHighlightMarkTapEvent) -> Void)?
+    var onPreviewTaskCheckboxTap: ((PreviewTaskCheckboxTapEvent) -> Void)?
 
     func makeCoordinator() -> Coordinator {
         Coordinator(parent: self)
@@ -55,6 +57,14 @@ struct NotemarkPreviewWebView: UIViewRepresentable {
             runtime.webView.scrollView.contentInsetAdjustmentBehavior = .never
             if #available(iOS 13.0, *) {
                 runtime.webView.scrollView.automaticallyAdjustsScrollIndicatorInsets = false
+            }
+            runtime.onPreviewHighlightMarkTap = { [weak self] ev in
+                guard let self else { return }
+                self.parent.onPreviewHighlightMarkTap?(ev)
+            }
+            runtime.onPreviewTaskCheckboxTap = { [weak self] ev in
+                guard let self else { return }
+                self.parent.onPreviewTaskCheckboxTap?(ev)
             }
         }
 

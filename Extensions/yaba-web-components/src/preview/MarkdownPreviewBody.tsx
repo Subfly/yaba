@@ -1,8 +1,7 @@
-import { useEffect, useRef, useState } from "react"
-import type { CSSProperties, ReactNode } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
+import type { CSSProperties, KeyboardEvent, MouseEvent, ReactNode } from "react"
 import ReactMarkdown, { defaultUrlTransform } from "react-markdown"
 import remarkGfm from "remark-gfm"
-import { remarkMark } from "remark-mark-highlight"
 import remarkMath from "remark-math"
 import type { SyntaxHighlighterProps } from "react-syntax-highlighter"
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
@@ -12,7 +11,12 @@ import rehypeRaw from "rehype-raw"
 import type { Components } from "react-markdown"
 import { postToYabaNativeHost } from "@/bridge/yaba-native-host"
 import { previewImageSrc, previewUrlTransformForLinks } from "./preview-asset-url"
+import {
+  prepareMarkdownForPreview,
+  type PreviewTaskToggleRegion,
+} from "./preview-markdown-prepare"
 import { previewRehypeSanitizePlugin } from "./preview-sanitize"
+import { stripSecretHighlightColorMarks } from "./strip-secret-color-marks"
 
 function normalizeClassName(className: unknown): string {
   if (className == null) return ""
@@ -69,9 +73,57 @@ function linkLabel(children: ReactNode): string {
   return ""
 }
 
+function readDataNum(props: Record<string, unknown>, key: string): number | undefined {
+  const v = props[key]
+  if (typeof v === "number" && Number.isFinite(v)) return v
+  if (typeof v === "string") {
+    const n = Number(v)
+    return Number.isFinite(n) ? n : undefined
+  }
+  return undefined
+}
+
+/** rehype/hast + React may expose `data-*` as hyphenated or camelCase on components. */
+function readDataNumFirst(props: Record<string, unknown>, keys: readonly string[]): number | undefined {
+  for (const key of keys) {
+    const n = readDataNum(props, key)
+    if (n !== undefined) return n
+  }
+  return undefined
+}
+
+function postPreviewHighlightTap(props: Record<string, unknown>): void {
+  const syntaxStart = readDataNumFirst(props, ["data-yaba-syntax-start", "dataYabaSyntaxStart"])
+  const syntaxEnd = readDataNumFirst(props, ["data-yaba-syntax-end", "dataYabaSyntaxEnd"])
+  const innerStart = readDataNumFirst(props, ["data-yaba-inner-start", "dataYabaInnerStart"])
+  const innerEnd = readDataNumFirst(props, ["data-yaba-inner-end", "dataYabaInnerEnd"])
+  const hexRaw = props["data-yaba-hex"] ?? props["dataYabaHex"]
+  const hex =
+    typeof hexRaw === "string" ? hexRaw.trim().toLowerCase().replace(/^#/, "") : ""
+  if (
+    syntaxStart === undefined ||
+    syntaxEnd === undefined ||
+    innerStart === undefined ||
+    innerEnd === undefined ||
+    syntaxEnd < syntaxStart ||
+    innerEnd < innerStart
+  ) {
+    return
+  }
+  postToYabaNativeHost({
+    type: "previewHighlightMarkTap",
+    syntaxStart,
+    syntaxEnd,
+    innerStart,
+    innerEnd,
+    hex: hex.length === 6 ? hex : "",
+  })
+}
+
 function buildMarkdownComponents(
   headingCounter: { current: number },
   prismTheme: PrismHighlightStyle,
+  taskRegions: PreviewTaskToggleRegion[],
 ): Components {
   headingCounter.current = 0
   const nextHeadingId = (): string => {
@@ -86,6 +138,9 @@ function buildMarkdownComponents(
     borderRadius: 8,
     fontSize: "0.92em",
   }
+
+  const taskCheckboxIndex = { current: 0 }
+  taskCheckboxIndex.current = 0
 
   return {
     img: ({ src, alt, ...rest }) => {
@@ -144,6 +199,56 @@ function buildMarkdownComponents(
         </SyntaxHighlighter>
       )
     },
+    input: ({ type, disabled: _disabled, ...rest }) => {
+      if (type === "checkbox") {
+        const idx = taskCheckboxIndex.current++
+        const region = taskRegions[idx]
+        return (
+          <input
+            {...rest}
+            type="checkbox"
+            disabled={false}
+            readOnly
+            className={`yaba-preview-task-checkbox ${normalizeClassName(rest.className)}`.trim()}
+            onClick={(e: MouseEvent<HTMLInputElement>) => {
+              e.preventDefault()
+              if (!region) return
+              postToYabaNativeHost({
+                type: "previewTaskCheckboxTap",
+                bracketOpen: region.bracketOpen,
+              })
+            }}
+          />
+        )
+      }
+      return <input type={type} {...rest} />
+    },
+    mark: ({ children, ...props }) => {
+      const rec = props as Record<string, unknown>
+      const hasMeta =
+        readDataNumFirst(rec, ["data-yaba-syntax-start", "dataYabaSyntaxStart"]) !== undefined
+      if (hasMeta) {
+        const fire = (): void => postPreviewHighlightTap(rec)
+        return (
+          <mark
+            {...props}
+            onClick={(e: MouseEvent<HTMLElement>) => {
+              e.preventDefault()
+              fire()
+            }}
+            onKeyDown={(e: KeyboardEvent<HTMLElement>) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault()
+                fire()
+              }
+            }}
+          >
+            {children}
+          </mark>
+        )
+      }
+      return <mark {...props}>{children}</mark>
+    },
     h1: ({ children, ...p }) => (
       <h1 id={nextHeadingId()} {...p}>
         {children}
@@ -186,17 +291,24 @@ export function MarkdownPreviewBody({ markdown }: { markdown: string }) {
   const headingCounter = useRef(0)
   headingCounter.current = 0
   const prismTheme = usePreviewPrismTheme()
-  const components = buildMarkdownComponents(headingCounter, prismTheme)
+
+  const prepared = useMemo(() => prepareMarkdownForPreview(markdown ?? ""), [markdown])
+  const components = useMemo(
+    () => buildMarkdownComponents(headingCounter, prismTheme, prepared.taskRegions),
+    [prismTheme, prepared.taskRegions],
+  )
+
+  const source = stripSecretHighlightColorMarks(prepared.markdown)
 
   return (
     <div className="yaba-markdown-preview">
       <ReactMarkdown
-        remarkPlugins={[remarkGfm, remarkMark, remarkMath]}
+        remarkPlugins={[remarkGfm, remarkMath]}
         rehypePlugins={[rehypeRaw, rehypeKatex, previewRehypeSanitizePlugin]}
         urlTransform={(url) => previewUrlTransformForLinks(url, defaultUrlTransform)}
         components={components}
       >
-        {markdown ?? ""}
+        {source}
       </ReactMarkdown>
     </div>
   )

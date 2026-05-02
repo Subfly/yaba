@@ -15,6 +15,7 @@ struct NotemarkEditorFloatingToolbar: View {
     let showsDoneButton: Bool
     let onDispatch: (String) -> Void
     let onRequestAddLinkSheet: () -> Void
+    let onRequestAddTableSheet: () -> Void
     let onDismissKeyboard: () -> Void
 
     var body: some View {
@@ -104,7 +105,9 @@ struct NotemarkEditorFloatingToolbar: View {
     @ViewBuilder
     private func insertMenu() -> some View {
         Menu {
-            Button {} label: {
+            Button {
+                onRequestAddTableSheet()
+            } label: {
                 menuRow(icon: "grid-table", title: "Table")
             }
             Button {

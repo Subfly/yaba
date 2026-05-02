@@ -6,6 +6,7 @@ import { indentLess, indentMore, redo, undo } from "@codemirror/commands"
 import { EditorSelection, type EditorState } from "@codemirror/state"
 import type { EditorView } from "@codemirror/view"
 import type { EditorCommandPayload } from "./editor-commands"
+import { YABA_DEFAULT_HIGHLIGHT_HEX_DIGITS } from "@/theme/yaba-accent-palette"
 
 function escapeMarkdownLinkText(value: string): string {
   return value
@@ -34,6 +35,19 @@ function buildMarkdownLink(text: string, url: string): string {
     return `[${escapedText}](<${escapedUrl}>)`
   }
   return `[${escapedText}](${escapedUrl})`
+}
+
+/** GFM pipe table: header row + delimiter + body rows (`rows` = total cell lines including header). */
+function buildGfmTableMarkdown(rows: number, cols: number, _withHeaderRow: boolean): string {
+  const r = Math.max(1, Math.min(20, Math.floor(rows)))
+  const c = Math.max(1, Math.min(20, Math.floor(cols)))
+  const dataRow = (): string => "| " + Array.from({ length: c }, () => " ").join(" | ") + " |"
+  const sepRow = "| " + Array.from({ length: c }, () => "---").join(" | ") + " |"
+  const lines: string[] = [dataRow(), sepRow]
+  for (let i = 1; i < r; i++) {
+    lines.push(dataRow())
+  }
+  return "\n" + lines.join("\n") + "\n"
 }
 
 function toggleAroundSymmetric(view: EditorView, mark: string): void {
@@ -75,6 +89,120 @@ function toggleAroundSymmetric(view: EditorView, mark: string): void {
   view.dispatch({
     changes: { from, to, insert: `${open}${inner}${close}` },
     selection: EditorSelection.range(from + open.length, to + open.length),
+  })
+}
+
+const HIGHLIGHT_EQ = "=="
+
+/** `{#rrggbb}` embedded in `==…==` when inserting highlights from the toolbar (canonical `=={#hex}…==`). */
+function defaultHighlightColorToken(): string {
+  return `{#${YABA_DEFAULT_HIGHLIGHT_HEX_DIGITS}}`
+}
+
+/** `{#rrggbb}` immediately before this opening `==` (legacy `{#hex}==…==`). */
+function trailingHighlightColorTokenStart(doc: EditorView["state"]["doc"], openEqStart: number): number | null {
+  const scanStart = Math.max(0, openEqStart - 28)
+  const prefix = doc.sliceString(scanStart, openEqStart)
+  const m = /\{\s*#[0-9a-fA-F]{6}\s*\}$/.exec(prefix)
+  if (!m) return null
+  return scanStart + m.index
+}
+
+type HighlightUnwrap =
+  | { mode: "inside"; openEqStart: number; tokenStart: number; innerFrom: number }
+  | { mode: "legacy"; openEqStart: number; tokenStart: number; innerFrom: number }
+  | { mode: "plain"; openEqStart: number; innerFrom: number }
+
+function resolveHighlightUnwrap(
+  doc: EditorView["state"]["doc"],
+  innerFrom: number,
+  innerTo: number,
+): HighlightUnwrap | null {
+  if (innerTo + 2 > doc.length || doc.sliceString(innerTo, innerTo + 2) !== "==") return null
+
+  const scanStart = Math.max(0, innerFrom - 28)
+  const beforeInner = doc.sliceString(scanStart, innerFrom)
+  const insideTok = /\{\s*#[0-9a-fA-F]{6}\s*\}$/.exec(beforeInner)
+  if (insideTok) {
+    const tokenStart = scanStart + insideTok.index
+    if (tokenStart >= 2 && doc.sliceString(tokenStart - 2, tokenStart) === "==") {
+      return {
+        mode: "inside",
+        openEqStart: tokenStart - 2,
+        tokenStart,
+        innerFrom,
+      }
+    }
+  }
+
+  if (innerFrom >= 2 && doc.sliceString(innerFrom - 2, innerFrom) === "==") {
+    const openEqStart = innerFrom - 2
+    const tokenStart = trailingHighlightColorTokenStart(doc, openEqStart)
+    if (tokenStart != null) {
+      return { mode: "legacy", openEqStart, tokenStart, innerFrom }
+    }
+    return { mode: "plain", openEqStart, innerFrom }
+  }
+
+  return null
+}
+
+function toggleHighlight(view: EditorView): void {
+  const open = HIGHLIGHT_EQ
+  const close = HIGHLIGHT_EQ
+  const token = defaultHighlightColorToken()
+  const { state } = view
+  const main = state.selection.main
+  const from = main.from
+  const to = main.to
+  const doc = state.doc
+
+  const unwrap = resolveHighlightUnwrap(doc, from, to)
+  if (unwrap) {
+    const innerLen = to - from
+    if (unwrap.mode === "inside") {
+      view.dispatch({
+        changes: [
+          { from: to, to: to + 2, insert: "" },
+          { from: unwrap.openEqStart, to: unwrap.openEqStart + 2, insert: "" },
+          { from: unwrap.tokenStart, to: unwrap.innerFrom, insert: "" },
+        ],
+        selection: EditorSelection.range(unwrap.openEqStart, unwrap.openEqStart + innerLen),
+      })
+    } else if (unwrap.mode === "legacy") {
+      view.dispatch({
+        changes: [
+          { from: to, to: to + 2, insert: "" },
+          { from: unwrap.openEqStart, to: unwrap.innerFrom, insert: "" },
+          { from: unwrap.tokenStart, to: unwrap.openEqStart, insert: "" },
+        ],
+        selection: EditorSelection.range(unwrap.tokenStart, unwrap.tokenStart + innerLen),
+      })
+    } else {
+      view.dispatch({
+        changes: [
+          { from: to, to: to + 2, insert: "" },
+          { from: unwrap.openEqStart, to: unwrap.innerFrom, insert: "" },
+        ],
+        selection: EditorSelection.range(unwrap.openEqStart, unwrap.openEqStart + innerLen),
+      })
+    }
+    return
+  }
+
+  if (from === to) {
+    const insert = `${open}${token}${close}`
+    view.dispatch({
+      changes: { from, insert },
+      selection: EditorSelection.cursor(from + open.length + token.length),
+    })
+    return
+  }
+
+  const inner = doc.sliceString(from, to)
+  view.dispatch({
+    changes: { from, to, insert: `${open}${token}${inner}${close}` },
+    selection: EditorSelection.range(from + open.length + token.length, from + open.length + token.length + inner.length),
   })
 }
 
@@ -421,7 +549,7 @@ export function dispatchEditorNativeCommand(view: EditorView | null, payload: Ed
       toggleItalicAsterisk(view)
       break
     case "toggleHighlight":
-      toggleAroundSymmetric(view, "==")
+      toggleHighlight(view)
       break
     case "toggleStrikethrough":
       toggleAroundSymmetric(view, "~~")
@@ -444,6 +572,21 @@ export function dispatchEditorNativeCommand(view: EditorView | null, payload: Ed
       const linkText = text.trim()
       const linkUrl = url.trim()
       const inserted = buildMarkdownLink(linkText, linkUrl)
+      const { state } = view
+      const main = state.selection.main
+      const from = main.from
+      const to = main.to
+      view.dispatch({
+        changes: { from, to, insert: inserted },
+        selection: EditorSelection.cursor(from + inserted.length),
+      })
+      break
+    }
+    case "insertTable": {
+      const rowN = typeof payload.rows === "number" ? payload.rows : 3
+      const colN = typeof payload.cols === "number" ? payload.cols : 3
+      const withHeaderRow = payload.withHeaderRow === true
+      const inserted = buildGfmTableMarkdown(rowN, colN, withHeaderRow)
       const { state } = view
       const main = state.selection.main
       const from = main.from
