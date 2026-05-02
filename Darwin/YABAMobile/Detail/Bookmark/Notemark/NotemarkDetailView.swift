@@ -59,6 +59,9 @@ struct NotemarkDetailView: View {
     private var showAddTableSheet = false
 
     @State
+    private var showAddMentionSheet = false
+
+    @State
     private var notemarkGalleryPhotoItem: PhotosPickerItem?
 
     @State
@@ -223,6 +226,14 @@ struct NotemarkDetailView: View {
                 }
             }
         }
+        .sheet(isPresented: $showAddMentionSheet) {
+            NavigationStack {
+                NotemarkAddMentionSheet(excludeBookmarkId: bookmarkId) { text, url in
+                    dispatchEditorCommand(YabaEditorDispatchPayload.insertLink(text: text, url: url))
+                    showAddMentionSheet = false
+                }
+            }
+        }
         .fullScreenCover(isPresented: $showNotemarkCameraCapture) {
             CameraCapturePicker(
                 onDismiss: { showNotemarkCameraCapture = false },
@@ -355,6 +366,9 @@ struct NotemarkDetailView: View {
                     },
                     onRequestAddTableSheet: {
                         showAddTableSheet = true
+                    },
+                    onRequestAddMentionSheet: {
+                        showAddMentionSheet = true
                     },
                     onDismissKeyboard: {
                         dismissNotemarkEditorKeyboard()

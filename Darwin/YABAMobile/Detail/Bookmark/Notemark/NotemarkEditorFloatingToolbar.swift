@@ -16,6 +16,7 @@ struct NotemarkEditorFloatingToolbar: View {
     let onDispatch: (String) -> Void
     let onRequestAddLinkSheet: (NotemarkAddLinkSheetMode) -> Void
     let onRequestAddTableSheet: () -> Void
+    let onRequestAddMentionSheet: () -> Void
     let onDismissKeyboard: () -> Void
     let onRequestPickImageFromCamera: () -> Void
     var galleryPhotoItem: Binding<PhotosPickerItem?>
@@ -125,7 +126,9 @@ struct NotemarkEditorFloatingToolbar: View {
             } label: {
                 menuRow(icon: "link-04", title: "Notemark Option Add Link Label")
             }
-            Button {} label: {
+            Button {
+                onRequestAddMentionSheet()
+            } label: {
                 menuRow(icon: "at", title: "Notemark Option Add Mention Label")
             }
             Menu {

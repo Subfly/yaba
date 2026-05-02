@@ -30,11 +30,11 @@ public extension BookmarkKind {
 
     func getIconName() -> String {
         switch self {
-        case .link: return "safari"
-        case .note: return "bookmark-02"
+        case .link: return "link-02"
+        case .note: return "note-edit"
         case .image: return "image-03"
-        case .file: return "headphones"
-        case .canvas: return "video-01"
+        case .file: return "doc-02"
+        case .canvas: return "canvas"
         }
     }
 
