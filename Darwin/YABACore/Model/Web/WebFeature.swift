@@ -33,7 +33,8 @@ public enum WebFeature: Sendable {
     case canvas(
         initialSceneJson: String,
         appearance: WebAppearance,
-        sceneLoadGeneration: Int
+        sceneLoadGeneration: Int,
+        folderCursorCss: String?
     )
 
     /// `bridgeReady` `feature` string from the web layer (`native-host.ts`).

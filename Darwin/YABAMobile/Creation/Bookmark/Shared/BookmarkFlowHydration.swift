@@ -9,6 +9,15 @@ import Foundation
 import SwiftData
 
 enum BookmarkFlowHydration {
+    /// Loads a bookmark from the shared persistence store (`CoreStore`).
+    ///
+    /// Use when a view cannot hold ``ModelContext`` (e.g. detail surfaces that disallow `@Environment(\.modelContext)`).
+    @MainActor
+    static func fetchBookmark(bookmarkId: String) -> BookmarkModel? {
+        guard let ctx = try? CoreStore.makeWriteContext() else { return nil }
+        return fetchBookmark(bookmarkId: bookmarkId, modelContext: ctx)
+    }
+
     @MainActor
     static func fetchBookmark(bookmarkId: String, modelContext: ModelContext) -> BookmarkModel? {
         let bid = bookmarkId

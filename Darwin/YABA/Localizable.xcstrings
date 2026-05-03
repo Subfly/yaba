@@ -4885,6 +4885,7 @@
       }
     },
     "Canvmark Detail Canvas Placeholder Title" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

@@ -67,7 +67,8 @@ struct BookmarkDetailRouterView: View {
                     CanvmarkDetailView(
                         bookmarkId: bookmarkId,
                         onOpenFolder: onOpenFolder,
-                        onOpenTag: onOpenTag
+                        onOpenTag: onOpenTag,
+                        onOpenBookmark: onOpenBookmark
                     )
                 }
             } else {

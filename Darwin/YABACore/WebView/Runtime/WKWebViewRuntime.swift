@@ -285,11 +285,12 @@ public final class WKWebViewRuntime: NSObject {
                 appearance: appearance,
                 bundle: bundle
             )
-        case let .canvas(_, appearance, _):
+        case let .canvas(_, appearance, _, folderCursorCss):
             return BundleReader.webShellURLWithQuery(
                 named: "canvas.html",
                 platform: .darwin,
                 appearance: appearance,
+                cursor: folderCursorCss,
                 bundle: bundle
             )
         }

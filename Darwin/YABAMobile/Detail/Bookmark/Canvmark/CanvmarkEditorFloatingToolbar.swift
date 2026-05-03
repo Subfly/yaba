@@ -21,11 +21,11 @@ struct CanvmarkEditorFloatingToolbar: View {
     @State
     private var showGalleryPhotoPicker = false
 
-    enum CanvmarkToolbarTool: Sendable {
+    enum CanvmarkToolbarTool: Sendable, Equatable {
         case selectionMode
         case handMode
         case paintBrush
-        case deleteSelection
+        case eraser
         case lineTool
         case arrowTool
         case addText
@@ -107,7 +107,7 @@ struct CanvmarkEditorFloatingToolbar: View {
     @ViewBuilder
     private func deleteToolButton() -> some View {
         Button {
-            onTool(.deleteSelection)
+            onTool(.eraser)
         } label: {
             menuLabelIcon("eraser", color: folderAccent)
         }
@@ -236,5 +236,23 @@ struct CanvmarkEditorFloatingToolbar: View {
         YabaIconView(bundleKey: icon)
             .foregroundStyle(color)
             .frame(width: 22, height: 22)
+    }
+}
+
+extension CanvmarkEditorFloatingToolbar.CanvmarkToolbarTool {
+    var canvasBridgeActiveToolToken: String? {
+        switch self {
+        case .selectionMode: return "selection"
+        case .handMode: return "hand"
+        case .paintBrush: return "draw"
+        case .eraser: return "eraser"
+        case .lineTool: return "line"
+        case .arrowTool: return "arrow"
+        case .addText: return "text"
+        case .addFrame: return "frame"
+        case .shapeCircle: return "ellipse"
+        case .shapeDiamond: return "diamond"
+        case .shapeSquare: return "rectangle"
+        }
     }
 }
