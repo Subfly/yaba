@@ -228,12 +228,12 @@ struct NotemarkEditorFloatingToolbar: View {
                 onDispatch(YabaEditorDispatchPayload.indent)
             } label: {
                 menuRow(icon: "text-indent-more", title: "Notemark Option Add Indent Label")
-            }
+            }.menuActionDismissBehavior(.disabled)
             Button {
                 onDispatch(YabaEditorDispatchPayload.outdent)
             } label: {
                 menuRow(icon: "text-indent-less", title: "Notemark Option Add Outdent Label")
-            }
+            }.menuActionDismissBehavior(.disabled)
         } label: {
             menuLabelIcon("text-indent", color: folderAccent)
         }
@@ -259,12 +259,12 @@ struct NotemarkEditorFloatingToolbar: View {
                 onDispatch(YabaEditorDispatchPayload.undo)
             } label: {
                 menuRow(icon: "undo-02", title: "Notemark Option Do Undo Label")
-            }
+            }.menuActionDismissBehavior(.disabled)
             Button {
                 onDispatch(YabaEditorDispatchPayload.redo)
             } label: {
                 menuRow(icon: "redo-02", title: "Notemark Option Do Redo Label")
-            }
+            }.menuActionDismissBehavior(.disabled)
         } label: {
             menuLabelIcon("repeat", color: folderAccent)
         }

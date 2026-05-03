@@ -103,7 +103,7 @@ struct SortingPicker: View {
                 } icon: {
                     YabaIconView(bundleKey: type.getUIIconName())
                 }
-            }
+            }.menuActionDismissBehavior(.disabled)
         }
     }
 }
