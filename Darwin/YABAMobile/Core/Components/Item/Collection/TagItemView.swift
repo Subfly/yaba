@@ -76,6 +76,8 @@ struct TagItemView: View {
         } message: {
             Text("Delete Content Message \(tag.label)")
         }
+        .drawingGroup()
+        .id(tag.tagId)
     }
 }
 
@@ -106,6 +108,7 @@ private struct TagRowInteractionModifier: ViewModifier {
                             YabaIconView(bundleKey: "bookmark-add-02")
                         }
                     }
+                    .tint(YabaColor.blue.getUIColor())
                     Button {
                         onEdit()
                     } label: {
@@ -115,8 +118,9 @@ private struct TagRowInteractionModifier: ViewModifier {
                             YabaIconView(bundleKey: "edit-02")
                         }
                     }
+                    .tint(YabaColor.orange.getUIColor())
                     Divider()
-                    Button(role: .destructive) {
+                    Button {
                         onDelete()
                     } label: {
                         Label {
@@ -125,6 +129,7 @@ private struct TagRowInteractionModifier: ViewModifier {
                             YabaIconView(bundleKey: "delete-02")
                         }
                     }
+                    .tint(YabaColor.red.getUIColor())
                 }
                 .swipeActions(edge: .leading, allowsFullSwipe: false) {
                     Button {
@@ -141,11 +146,12 @@ private struct TagRowInteractionModifier: ViewModifier {
                         swipeLabel(iconKey: "edit-02", titleKey: "Edit")
                     }
                     .tint(YabaColor.orange.getUIColor())
-                    Button(role: .destructive) {
+                    Button {
                         onDelete()
                     } label: {
                         swipeLabel(iconKey: "delete-02", titleKey: "Delete")
                     }
+                    .tint(YabaColor.red.getUIColor())
                 }
         }
         #endif

@@ -92,6 +92,8 @@ struct FolderItemView: View {
         } message: {
             Text("Delete Content Message \(folder.label)")
         }
+        .drawingGroup()
+        .id(folder.folderId)
     }
 }
 
@@ -123,6 +125,7 @@ private struct FolderRowInteractionModifier: ViewModifier {
                             YabaIconView(bundleKey: "bookmark-add-02")
                         }
                     }
+                    .tint(YabaColor.blue.getUIColor())
                     Button {
                         onMove()
                     } label: {
@@ -132,6 +135,7 @@ private struct FolderRowInteractionModifier: ViewModifier {
                             YabaIconView(bundleKey: "arrow-move-up-right")
                         }
                     }
+                    .tint(YabaColor.teal.getUIColor())
                     Button {
                         onEdit()
                     } label: {
@@ -141,8 +145,9 @@ private struct FolderRowInteractionModifier: ViewModifier {
                             YabaIconView(bundleKey: "edit-02")
                         }
                     }
+                    .tint(YabaColor.orange.getUIColor())
                     Divider()
-                    Button(role: .destructive) {
+                    Button {
                         onDelete()
                     } label: {
                         Label {
@@ -151,6 +156,7 @@ private struct FolderRowInteractionModifier: ViewModifier {
                             YabaIconView(bundleKey: "delete-02")
                         }
                     }
+                    .tint(YabaColor.red.getUIColor())
                 }
                 .swipeActions(edge: .leading, allowsFullSwipe: false) {
                     Button {
@@ -173,11 +179,12 @@ private struct FolderRowInteractionModifier: ViewModifier {
                         swipeLabel(iconKey: "edit-02", titleKey: "Edit")
                     }
                     .tint(YabaColor.orange.getUIColor())
-                    Button(role: .destructive) {
+                    Button {
                         onDelete()
                     } label: {
                         swipeLabel(iconKey: "delete-02", titleKey: "Delete")
                     }
+                    .tint(YabaColor.red.getUIColor())
                 }
         }
         #endif

@@ -64,7 +64,10 @@ public final class CoreOperationQueue: @unchecked Sendable {
             do {
                 let context = try CoreStore.makeWriteContext()
                 try operation(context)
-                try CoreStore.save(context)
+                // Always save in main queue so animations work
+                DispatchQueue.main.async {
+                    try? CoreStore.save(context)
+                }
                 completion?(nil)
             } catch {
                 completion?(error)

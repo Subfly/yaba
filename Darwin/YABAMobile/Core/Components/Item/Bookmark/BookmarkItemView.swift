@@ -43,6 +43,8 @@ struct BookmarkItemView: View {
                     itemState: $itemState
                 )
             )
+            .drawingGroup()
+            .id(bookmark.bookmarkId)
     }
 
     private var effectiveContentAppearance: ContentAppearance {

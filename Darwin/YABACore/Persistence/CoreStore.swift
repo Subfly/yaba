@@ -9,6 +9,7 @@
 
 import Foundation
 import SwiftData
+import SwiftUI
 
 /// Shared access to the on-disk compose-parity store.
 public enum CoreStore {
@@ -54,7 +55,9 @@ public enum CoreStore {
     /// Persists pending changes; call after mutations when using explicit-save mode.
     public static func save(_ context: ModelContext) throws {
         if context.hasChanges {
-            try context.save()
+            try withAnimation {
+                try context.save()
+            }
         }
     }
 }
