@@ -14,7 +14,6 @@ object YabaEditorCommands {
     const val ToggleCodeBlock = """{"type":"toggleCodeBlock"}"""
     const val ToggleQuote = """{"type":"toggleQuote"}"""
     const val InsertHr = """{"type":"insertHr"}"""
-    const val InsertHtmlBr = """{"type":"insertHtmlBr"}"""
     const val ToggleBulletedList = """{"type":"toggleBulletedList"}"""
     const val ToggleNumberedList = """{"type":"toggleNumberedList"}"""
     const val ToggleTaskList = """{"type":"toggleTaskList"}"""

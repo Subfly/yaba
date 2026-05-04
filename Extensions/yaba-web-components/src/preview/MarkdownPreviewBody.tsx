@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react"
 import type { CSSProperties, KeyboardEvent, MouseEvent, ReactNode } from "react"
 import ReactMarkdown, { defaultUrlTransform } from "react-markdown"
+import remarkBreaks from "remark-breaks"
 import remarkGfm from "remark-gfm"
 import remarkMath from "remark-math"
 import type { SyntaxHighlighterProps } from "react-syntax-highlighter"
@@ -303,7 +304,7 @@ export function MarkdownPreviewBody({ markdown }: { markdown: string }) {
   return (
     <div className="yaba-markdown-preview">
       <ReactMarkdown
-        remarkPlugins={[remarkGfm, remarkMath]}
+        remarkPlugins={[remarkGfm, remarkMath, remarkBreaks]}
         rehypePlugins={[rehypeRaw, rehypeKatex, previewRehypeSanitizePlugin]}
         urlTransform={(url) => previewUrlTransformForLinks(url, defaultUrlTransform)}
         components={components}

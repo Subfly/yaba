@@ -17,8 +17,6 @@ public enum YabaEditorDispatchPayload {
     public static let toggleCodeBlock = #"{"type":"toggleCodeBlock"}"#
     public static let toggleQuote = #"{"type":"toggleQuote"}"#
     public static let insertHr = #"{"type":"insertHr"}"#
-    /// Inserts raw `<br>` plus newline at the caret (GFM / HTML-in-Markdown).
-    public static let insertHtmlBr = #"{"type":"insertHtmlBr"}"#
     public static let toggleBulletedList = #"{"type":"toggleBulletedList"}"#
     public static let toggleNumberedList = #"{"type":"toggleNumberedList"}"#
     public static let toggleTaskList = #"{"type":"toggleTaskList"}"#

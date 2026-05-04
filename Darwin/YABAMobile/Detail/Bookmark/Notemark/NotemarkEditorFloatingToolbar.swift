@@ -61,7 +61,6 @@ struct NotemarkEditorFloatingToolbar: View {
             insertMenu()
             highlightButton()
             indentMenu()
-            htmlLineBreakButton()
             historyMenu()
             if showsDoneButton {
                 doneButton()
@@ -240,19 +239,6 @@ struct NotemarkEditorFloatingToolbar: View {
     }
 
     @ViewBuilder
-    private func htmlLineBreakButton() -> some View {
-        Button {
-            onDispatch(YabaEditorDispatchPayload.insertHtmlBr)
-        } label: {
-            if #available(iOS 26, *) {
-                toolbarGlyphMirroredX("undo-03", color: folderAccent).padding()
-            } else {
-                toolbarGlyphMirroredX("undo-03", color: folderAccent)
-            }
-        }
-    }
-
-    @ViewBuilder
     private func historyMenu() -> some View {
         Menu {
             Button {
@@ -301,12 +287,6 @@ struct NotemarkEditorFloatingToolbar: View {
         YabaIconView(bundleKey: icon)
             .foregroundStyle(color)
             .frame(width: 22, height: 22)
-    }
-
-    /** `undo-03` (and similar) mirrored on the X axis — e.g. line-break control. */
-    private func toolbarGlyphMirroredX(_ icon: String, color: Color) -> some View {
-        toolbarGlyph(icon, color: color)
-            .scaleEffect(x: 1, y: -1)
     }
 
     private static func headingIconKey(_ level: Int) -> String {
