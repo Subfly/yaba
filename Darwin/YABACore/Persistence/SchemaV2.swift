@@ -24,8 +24,6 @@ enum SchemaV2: VersionedSchema {
             DocBookmarkPayloadModel.self,
             NoteBookmarkModel.self,
             NoteBookmarkPayloadModel.self,
-            CanvasBookmarkModel.self,
-            CanvasBookmarkPayloadModel.self,
             InlineAssetModel.self,
         ]
     }

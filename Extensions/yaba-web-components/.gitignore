@@ -6,9 +6,6 @@ dist/
 WebComponents/
 .vite/
 
-# Legacy Excalidraw font copy (removed; do not reintroduce — use public/fonts/)
-public/excalidraw-assets/
-
 # TypeScript incremental cache (changes every `tsc -b` / IDE build)
 *.tsbuildinfo
 

@@ -1,6 +1,6 @@
 # YABA Web Components
 
-WebView-hosted bundles for YABA: **CodeMirror 6** Markdown note editor (GFM), **markdown preview** (`react-markdown` + GFM + sanitized HTML for Darwin link reading), **Excalidraw** canvas, plus a standalone **`dist/html-to-markdown.bundle.min.js`** (linkedom + Mozilla Readability, then unified/rehype/remark + GFM) for Darwin JavaScriptCore. Built with Vite 7, React 19 (editor/canvas/preview), and TypeScript.
+WebView-hosted bundles for YABA: **CodeMirror 6** Markdown note editor (GFM), **markdown preview** (`react-markdown` + GFM + sanitized HTML for Darwin link reading), plus a standalone **`dist/html-to-markdown.bundle.min.js`** (linkedom + Mozilla Readability, then unified/rehype/remark + GFM) for Darwin JavaScriptCore. Built with Vite 7, React 19 (editor + preview), and TypeScript.
 
 ## Build
 
@@ -9,7 +9,7 @@ npm install
 npm run build
 ```
 
-Output: `dist/editor.html`, `dist/preview.html`, `dist/canvas.html`, `dist/html-to-markdown.bundle.min.js`, plus JS/CSS assets. Run `npm run dev` for local development.
+Output: `dist/editor.html`, `dist/preview.html`, `dist/html-to-markdown.bundle.min.js`, plus JS/CSS assets. Run `npm run dev` for local development.
 
 ## Entrypoints
 
@@ -18,7 +18,6 @@ Output: `dist/editor.html`, `dist/preview.html`, `dist/canvas.html`, `dist/html-
 | `editor.html` | CodeMirror Markdown note editor (GFM) |
 | `preview.html` | Saved link **Markdown** reader: `react-markdown` + `remark-gfm` + sanitized raw HTML; `YabaPreviewBridge`; `bridgeReady`: `preview` |
 | `html-to-markdown.bundle.min.js` | No HTML shell: `globalThis.HTMLToMarkdown(html, baseURL?)` → JSON `{ markdown, assets }` for Darwin JSC |
-| `canvas.html` | Excalidraw canvas |
 
 ## URL parameters
 
@@ -61,7 +60,7 @@ Returns a JSON string: `{ "markdown": string, "assets": [{ "assetId": string, "u
 
 ## Web → native (`window.YabaNativeHost.postMessage`)
 
-Structured JSON envelopes are defined in `src/bridge/contracts/native-host.ts`, including `bridgeReady` (`feature`: `editor` \| `preview` \| `canvas`), `shellLoad`, `toc`, `readerMetrics`, and canvas-specific payloads.
+Structured JSON envelopes are defined in `src/bridge/contracts/native-host.ts`, including `bridgeReady` (`feature`: `editor` \| `preview`), `shellLoad`, `toc`, `readerMetrics`, and related payloads.
 
 **Images in WebView readers:** depending on the host, `http`/`https` and `data:` image URLs may be blocked; inline assets can use `../assets/…` with `assetsBaseUrl` like the editor, or `file:` paths from the host.
 
@@ -73,4 +72,4 @@ Structured JSON envelopes are defined in `src/bridge/contracts/native-host.ts`, 
 
 ## Follow-ups
 
-- Native app URL constants and script strings that still reference `viewer.html` / `converter.html` / `pdf-viewer.html` may need updates to match current shells (`editor.html`, `preview.html`, `canvas.html`) and bridges.
+- Native app URL constants and script strings that still reference older shells (`viewer.html` / `converter.html` / `pdf-viewer.html`) may need updates to match current bundles (`editor.html`, `preview.html`) and bridges.
