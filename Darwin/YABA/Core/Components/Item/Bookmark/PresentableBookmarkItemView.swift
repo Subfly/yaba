@@ -6,9 +6,7 @@
 //
 
 import SwiftUI
-#if canImport(UIKit) && !KEYBOARD_EXTENSION
 import UIKit
-#endif
 
 /// Shared list-style bookmark row label (image + title + optional description).
 struct PresentableBookmarkListRowContent: View {
@@ -35,7 +33,7 @@ struct PresentableBookmarkListRowContent: View {
                 }
             }
 
-            if showsChevronOnPhone {
+            if showsDisclosureChevron && UIDevice.current.userInterfaceIdiom == .phone {
                 Spacer(minLength: 0)
                 YabaIconView(bundleKey: "arrow-right-01")
                     .scaledToFit()
@@ -46,16 +44,6 @@ struct PresentableBookmarkListRowContent: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .contentShape(Rectangle())
     }
-
-    private var showsChevronOnPhone: Bool {
-        #if KEYBOARD_EXTENSION
-        return false
-        #elseif canImport(UIKit)
-        return showsDisclosureChevron && UIDevice.current.userInterfaceIdiom == .phone
-        #else
-        return false
-        #endif
-    }
 }
 
 private struct PresentableBookmarkThumbnail: View {
@@ -63,7 +51,6 @@ private struct PresentableBookmarkThumbnail: View {
 
     var body: some View {
         Group {
-            #if canImport(UIKit) && !KEYBOARD_EXTENSION
             if let imageData = bookmark.imageDataHolder, let ui = UIImage(data: imageData) {
                 Image(uiImage: ui)
                     .resizable()
@@ -73,9 +60,6 @@ private struct PresentableBookmarkThumbnail: View {
             } else {
                 placeholderList
             }
-            #else
-            placeholderList
-            #endif
         }
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
