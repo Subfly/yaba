@@ -2,8 +2,8 @@
 //  WebFeature.swift
 //  YABACore
 //
-//  Bundled web shells for Darwin: CodeMirror editor (`editor.html`), Markdown preview (`preview.html`),
-//  and Excalidraw canvas (`canvas.html`). Aligns with `YabaNativeHostFeature` in yaba-web-components.
+//  Bundled web shells for Darwin: CodeMirror editor (`editor.html`) and Markdown preview (`preview.html`).
+//  Aligns with `YabaNativeHostFeature` in yaba-web-components.
 //
 
 import Foundation
@@ -30,13 +30,6 @@ public enum WebFeature: Sendable {
         appearance: WebAppearance
     )
 
-    case canvas(
-        initialSceneJson: String,
-        appearance: WebAppearance,
-        sceneLoadGeneration: Int,
-        folderCursorCss: String?
-    )
-
     /// `bridgeReady` `feature` string from the web layer (`native-host.ts`).
     public var expectedBridgeFeature: String {
         switch self {
@@ -44,8 +37,6 @@ public enum WebFeature: Sendable {
             return "editor"
         case .readItLater:
             return "preview"
-        case .canvas:
-            return "canvas"
         }
     }
 }

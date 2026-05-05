@@ -200,7 +200,7 @@ public final class WKWebViewRuntime: NSObject {
         startBridgeReadinessProbingIfNeeded()
     }
 
-    /// When `postMessage` does not reach the handler, poll the loaded bridge (editor or canvas) like Android.
+    /// When `postMessage` does not reach the handler, poll the loaded bridge (editor or preview) like Android.
     fileprivate func startBridgeReadinessProbingIfNeeded() {
         guard !emittedCombinedBridgeReadyForCycle else { return }
         let probeJS = bridgeReadyProbeJavaScript()
@@ -219,8 +219,6 @@ public final class WKWebViewRuntime: NSObject {
 
     private func bridgeReadyProbeJavaScript() -> String {
         switch expectedBridgeFeature {
-        case "canvas":
-            return WebBridgeScripts.canvasBridgeReady
         case "preview":
             return WebBridgeScripts.previewBridgeReady
         default:
@@ -283,14 +281,6 @@ public final class WKWebViewRuntime: NSObject {
                 named: "preview.html",
                 platform: .darwin,
                 appearance: appearance,
-                bundle: bundle
-            )
-        case let .canvas(_, appearance, _, folderCursorCss):
-            return BundleReader.webShellURLWithQuery(
-                named: "canvas.html",
-                platform: .darwin,
-                appearance: appearance,
-                cursor: folderCursorCss,
                 bundle: bundle
             )
         }

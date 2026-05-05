@@ -51,14 +51,6 @@ struct BookmarkKindForm: View {
                     editingBookmarkId: nil,
                     onDone: onDone
                 )
-            case .canvas:
-                CanvmarkCreationContent(
-                    preselectedFolderId: folderId,
-                    preselectedTagIds: tagIds,
-                    editingBookmarkId: nil,
-                    onDone: onDone,
-                    onCreatedBookmarkId: onNoteCreatedNavigate
-                )
             }
         case let .edit(bookmark):
             switch bookmark.kind {
@@ -86,13 +78,6 @@ struct BookmarkKindForm: View {
                 )
             case .file:
                 DocmarkCreationContent(
-                    preselectedFolderId: nil,
-                    preselectedTagIds: [],
-                    editingBookmarkId: bookmark.bookmarkId,
-                    onDone: onDone
-                )
-            case .canvas:
-                CanvmarkCreationContent(
                     preselectedFolderId: nil,
                     preselectedTagIds: [],
                     editingBookmarkId: bookmark.bookmarkId,

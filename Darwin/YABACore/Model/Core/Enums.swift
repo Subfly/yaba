@@ -8,13 +8,12 @@
 import Foundation
 import SwiftUI
 
-/// Matches [BookmarkKind] in Compose (`code` 0…4).
+/// Bookmark kinds supported on Darwin (Compose may still serialize additional legacy codes elsewhere).
 public enum BookmarkKind: Int, Codable, CaseIterable, Sendable {
     case link = 0
     case note = 1
     case image = 2
     case file = 3
-    case canvas = 4
 }
 
 public extension BookmarkKind {
@@ -24,7 +23,6 @@ public extension BookmarkKind {
         case .note: return LocalizedStringKey("Bookmark Type None")
         case .image: return LocalizedStringKey("Bookmark Type Image")
         case .file: return LocalizedStringKey("Bookmark Type Audio")
-        case .canvas: return LocalizedStringKey("Bookmark Type Video")
         }
     }
 
@@ -34,7 +32,6 @@ public extension BookmarkKind {
         case .note: return "note-edit"
         case .image: return "image-03"
         case .file: return "doc-02"
-        case .canvas: return "canvas"
         }
     }
 }

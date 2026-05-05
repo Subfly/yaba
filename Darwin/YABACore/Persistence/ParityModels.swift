@@ -128,9 +128,6 @@ final class BookmarkModel {
     @Relationship(deleteRule: .cascade, inverse: \DocBookmarkModel.bookmark)
     var docDetail: DocBookmarkModel?
 
-    @Relationship(deleteRule: .cascade, inverse: \CanvasBookmarkModel.bookmark)
-    var canvasDetail: CanvasBookmarkModel?
-
     init(
         bookmarkId: String = UUID().uuidString,
         kindRaw: Int = BookmarkKind.link.rawValue,
@@ -358,44 +355,6 @@ final class NoteBookmarkPayloadModel {
     }
 }
 
-// MARK: - Canvas subtype
-
-@Model
-final class CanvasBookmarkModel {
-    @Relationship(deleteRule: .cascade, inverse: \CanvasBookmarkPayloadModel.canvasBookmark)
-    var payload: CanvasBookmarkPayloadModel?
-
-    @Relationship(deleteRule: .cascade, inverse: \InlineAssetModel.canvasBookmark)
-    var inlineAssets: [InlineAssetModel] = []
-
-    var bookmark: BookmarkModel?
-
-    init(payload: CanvasBookmarkPayloadModel? = nil, bookmark: BookmarkModel? = nil) {
-        self.payload = payload
-        self.bookmark = bookmark
-    }
-}
-
-@Model
-final class CanvasBookmarkPayloadModel {
-    var canvasBookmarkPayloadId: String = UUID().uuidString
-
-    @Attribute(.externalStorage)
-    var sceneData: Data?
-
-    var canvasBookmark: CanvasBookmarkModel?
-
-    init(
-        canvasBookmarkPayloadId: String = UUID().uuidString,
-        sceneData: Data? = nil,
-        canvasBookmark: CanvasBookmarkModel? = nil
-    ) {
-        self.canvasBookmarkPayloadId = canvasBookmarkPayloadId
-        self.sceneData = sceneData
-        self.canvasBookmark = canvasBookmark
-    }
-}
-
 // MARK: - Inline assets (e.g. readable images; JSON references `../assets/<assetId>.<ext>`)
 
 @Model
@@ -408,22 +367,19 @@ final class InlineAssetModel {
 
     var linkBookmark: LinkBookmarkModel?
     var noteBookmark: NoteBookmarkModel?
-    var canvasBookmark: CanvasBookmarkModel?
 
     init(
         assetId: String = UUID().uuidString,
         pathExtension: String = "jpg",
         bytes: Data? = nil,
         linkBookmark: LinkBookmarkModel? = nil,
-        noteBookmark: NoteBookmarkModel? = nil,
-        canvasBookmark: CanvasBookmarkModel? = nil
+        noteBookmark: NoteBookmarkModel? = nil
     ) {
         self.assetId = assetId
         self.pathExtension = pathExtension
         self.bytes = bytes
         self.linkBookmark = linkBookmark
         self.noteBookmark = noteBookmark
-        self.canvasBookmark = canvasBookmark
     }
 }
 

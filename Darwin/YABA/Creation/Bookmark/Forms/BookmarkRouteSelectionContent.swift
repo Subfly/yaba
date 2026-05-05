@@ -23,7 +23,6 @@ struct BookmarkRouteSelectionContent: View {
         RowSpec(id: .image, title: "Bookmark Route Selection New Image", iconKey: "image-03", color: .green),
         RowSpec(id: .file, title: "Bookmark Route Selection New Document", iconKey: "doc-02", color: .red),
         RowSpec(id: .note, title: "Bookmark Route Selection New Note", iconKey: "note-edit", color: .yellow),
-        RowSpec(id: .canvas, title: "Bookmark Route Selection New Canvas", iconKey: "canvas", color: .orange)
     ]
 
     var body: some View {

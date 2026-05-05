@@ -2,7 +2,7 @@
 //  WebPlatform.swift
 //  YABACore
 //
-//  Query parameter for bundled `editor.html` / `canvas.html` theme bootstrap (see yaba-web-components `parseUrlParams`).
+//  Query parameter for bundled `editor.html` / `preview.html` theme bootstrap (see yaba-web-components `parseUrlParams`).
 //
 
 import Foundation

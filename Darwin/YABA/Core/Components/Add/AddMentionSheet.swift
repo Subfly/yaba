@@ -6,7 +6,7 @@
 import SwiftData
 import SwiftUI
 
-/// Builds `yaba-mention://` links for editors (Markdown, canvas, etc.).
+/// Builds `yaba-mention://` links for editors.
 struct AddMentionSheet: View {
     @Environment(\.dismiss)
     private var dismiss

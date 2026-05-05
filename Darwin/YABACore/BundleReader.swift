@@ -7,7 +7,7 @@
 //
 //  Web components layout matches `Extensions/yaba-web-components` Vite output: `editor.html` (CodeMirror
 //  Markdown / `YabaEditorBridge`), `preview.html` (Markdown preview / `YabaPreviewBridge`),
-//  `canvas.html`, `read-it-later.html`, plus `html-to-markdown.bundle.min.js` for JavaScriptCore (no WKWebView shell).
+//  `read-it-later.html`, plus `html-to-markdown.bundle.min.js` for JavaScriptCore (no WKWebView shell).
 //
 
 import Foundation
@@ -77,7 +77,6 @@ public enum BundleReader {
             "read-it-later.html",
             "preview.html",
             "editor.html",
-            "canvas.html",
         ]
         for name in entryNames {
             if let url = webComponentURL(named: name, in: bundle) {
@@ -124,14 +123,10 @@ public enum BundleReader {
         webComponentURL(named: "html-to-markdown.bundle.min.js", in: bundle)
     }
 
-    // MARK: - WKWebView shells (editor + canvas)
+    // MARK: - WKWebView shells (editor)
 
     public static func getEditorURL(in bundle: Bundle = .main) -> URL? {
         webComponentURL(named: "editor.html", in: bundle)
-    }
-
-    public static func getCanvasURL(in bundle: Bundle = .main) -> URL? {
-        webComponentURL(named: "canvas.html", in: bundle)
     }
 
     /// File URL with `platform`, `appearance`, and optional `cursor` query for theme bootstrap in the web bundle.

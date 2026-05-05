@@ -3,7 +3,7 @@
 //  YABACore
 //
 //  Parity with Compose `YabaNativeHostMessageParser.kt` — must stay aligned with
-//  `Extensions/yaba-web-components/src/bridge/yaba-native-host.ts`.
+//  `Extensions/yaba-web-components/src/bridge/contracts/native-host.ts`.
 //
 
 import Foundation
@@ -45,14 +45,8 @@ public enum NativeHostMessageParserDarwin {
             return parseShellLoad(root)
         case "noteAutosaveIdle":
             return .noteEditorIdleForAutosave
-        case "canvasAutosaveIdle":
-            return .canvasIdleForAutosave
         case "readerMetrics":
             return parseReaderMetrics(root)
-        case "canvasMetrics":
-            return parseCanvasMetrics(root)
-        case "canvasStyleState":
-            return parseCanvasStyleState(root)
         case "mathTap":
             let kind = root["kind"] as? String ?? ""
             let pos = root["pos"] as? Int ?? -1
@@ -129,30 +123,6 @@ public enum NativeHostMessageParserDarwin {
                 onPreviewTaskCheckboxTap?(PreviewTaskCheckboxTapEvent(bracketOpen: bracketOpen))
             }
             return nil
-        case "canvasLinkTap":
-            let elementId = root["elementId"] as? String ?? ""
-            let text = root["text"] as? String ?? ""
-            let url = root["url"] as? String ?? ""
-            if !elementId.isEmpty, !url.isEmpty {
-                return .canvasLinkTap(elementId: elementId, text: text, url: url)
-            }
-            return nil
-        case "canvasMentionTap":
-            let elementId = root["elementId"] as? String ?? ""
-            let text = root["text"] as? String ?? ""
-            let bookmarkId = root["bookmarkId"] as? String ?? ""
-            let bookmarkKindCode = root["bookmarkKindCode"] as? Int ?? 0
-            let bookmarkLabel = root["bookmarkLabel"] as? String ?? ""
-            if !elementId.isEmpty, !bookmarkId.isEmpty {
-                return .canvasMentionTap(
-                    elementId: elementId,
-                    text: text,
-                    bookmarkId: bookmarkId,
-                    bookmarkKindCode: bookmarkKindCode,
-                    bookmarkLabel: bookmarkLabel
-                )
-            }
-            return nil
         default:
             return nil
         }
@@ -210,62 +180,5 @@ public enum NativeHostMessageParserDarwin {
             canDeleteColumn: json["canDeleteColumn"] as? Bool ?? false,
             textHighlight: json["textHighlight"] as? Bool ?? false
         )
-    }
-
-    private static func parseCanvasMetrics(_ root: [String: Any]) -> WebHostEvent {
-        .canvasMetrics(
-            CanvasHostMetrics(
-                activeTool: root["activeTool"] as? String ?? "selection",
-                hasSelection: root["hasSelection"] as? Bool ?? false,
-                canUndo: root["canUndo"] as? Bool ?? false,
-                canRedo: root["canRedo"] as? Bool ?? false,
-                gridModeEnabled: root["gridModeEnabled"] as? Bool ?? true,
-                objectsSnapModeEnabled: root["objectsSnapModeEnabled"] as? Bool ?? true
-            )
-        )
-    }
-
-    private static func parseCanvasStyleState(_ root: [String: Any]) -> WebHostEvent {
-        .canvasStyleState(
-            CanvasHostStyleState(
-                hasSelection: root["hasSelection"] as? Bool ?? false,
-                selectionCount: root["selectionCount"] as? Int ?? 0,
-                selectionElementTypes: parseStringArray(root, key: "selectionElementTypes"),
-                primaryElementType: root["primaryElementType"] as? String ?? "",
-                elementTypeMixed: root["elementTypeMixed"] as? Bool ?? false,
-                availableOptionGroups: parseStringArray(root, key: "availableOptionGroups"),
-                strokeYabaCode: root["strokeYabaCode"] as? Int ?? 0,
-                backgroundYabaCode: root["backgroundYabaCode"] as? Int ?? 0,
-                strokeWidthKey: root["strokeWidthKey"] as? String ?? "thin",
-                strokeStyle: root["strokeStyle"] as? String ?? "solid",
-                roughnessKey: root["roughnessKey"] as? String ?? "architect",
-                edgeKey: root["edgeKey"] as? String ?? "sharp",
-                fontSizeKey: root["fontSizeKey"] as? String ?? "M",
-                opacityStep: min(10, max(0, root["opacityStep"] as? Int ?? 10)),
-                mixedStroke: root["mixedStroke"] as? Bool ?? false,
-                mixedBackground: root["mixedBackground"] as? Bool ?? false,
-                mixedStrokeWidth: root["mixedStrokeWidth"] as? Bool ?? false,
-                mixedStrokeStyle: root["mixedStrokeStyle"] as? Bool ?? false,
-                mixedRoughness: root["mixedRoughness"] as? Bool ?? false,
-                mixedEdge: root["mixedEdge"] as? Bool ?? false,
-                mixedFontSize: root["mixedFontSize"] as? Bool ?? false,
-                mixedOpacity: root["mixedOpacity"] as? Bool ?? false,
-                arrowTypeKey: root["arrowTypeKey"] as? String ?? "sharp",
-                mixedArrowType: root["mixedArrowType"] as? Bool ?? false,
-                startArrowheadKey: root["startArrowheadKey"] as? String ?? "none",
-                endArrowheadKey: root["endArrowheadKey"] as? String ?? "none",
-                mixedStartArrowhead: root["mixedStartArrowhead"] as? Bool ?? false,
-                mixedEndArrowhead: root["mixedEndArrowhead"] as? Bool ?? false,
-                availableStartArrowheads: parseStringArray(root, key: "availableStartArrowheads"),
-                availableEndArrowheads: parseStringArray(root, key: "availableEndArrowheads"),
-                fillStyleKey: root["fillStyleKey"] as? String ?? "solid",
-                mixedFillStyle: root["mixedFillStyle"] as? Bool ?? false
-            )
-        )
-    }
-
-    private static func parseStringArray(_ root: [String: Any], key: String) -> [String] {
-        guard let arr = root[key] as? [Any] else { return [] }
-        return arr.compactMap { $0 as? String }.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
     }
 }

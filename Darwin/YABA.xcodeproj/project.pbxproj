@@ -164,7 +164,6 @@
 				Core/Util/PreviewContentAppearance.swift,
 				"Core/Util/UINavigationController+Extension.swift",
 				Credits.rtf,
-				Detail/Bookmark/Canvmark/CanvmarkEditorWebView.swift,
 				Detail/Bookmark/Linkmark/LinkmarkReadItLaterWebView.swift,
 				LaunchScreen.storyboard,
 				Localizable.xcstrings,
@@ -189,7 +188,6 @@
 				Core/Navigation/NavigationDestination.swift,
 				Core/Util/InverseLabelStyle.swift,
 				Core/Util/PreviewContentAppearance.swift,
-				Detail/Bookmark/Canvmark/CanvmarkEditorWebView.swift,
 				Detail/Bookmark/Linkmark/LinkmarkReadItLaterWebView.swift,
 				LaunchScreen.storyboard,
 				Localizable.xcstrings,
@@ -208,7 +206,6 @@
 			membershipExceptions = (
 				App/AppDelegate.swift,
 				Assets.xcassets,
-				Detail/Bookmark/Canvmark/CanvmarkEditorWebView.swift,
 				Detail/Bookmark/Linkmark/LinkmarkReadItLaterWebView.swift,
 				LaunchScreen.storyboard,
 				Localizable.xcstrings,
@@ -286,7 +283,6 @@
 				Creation/Bookmark/Flow/BookmarkKindCreationSheet.swift = (ios, );
 				Creation/Bookmark/Forms/BookmarkKindForm.swift = (ios, );
 				Creation/Bookmark/Forms/BookmarkRouteSelectionContent.swift = (ios, );
-				Creation/Bookmark/Forms/CanvmarkCreationContent.swift = (ios, );
 				Creation/Bookmark/Forms/DocmarkCreationContent.swift = (ios, );
 				Creation/Bookmark/Forms/ImagemarkCreationContent.swift = (ios, );
 				Creation/Bookmark/Forms/LinkmarkCreationContent.swift = (ios, );
@@ -298,9 +294,6 @@
 				Creation/Bookmark/Shared/BookmarkFormFolderTagRows.swift = (ios, );
 				Creation/Folder/FolderCreationContent.swift = (ios, );
 				Creation/Tag/TagCreationContent.swift = (ios, );
-				Detail/Bookmark/Canvmark/CanvmarkDetailInfoSheet.swift = (ios, );
-				Detail/Bookmark/Canvmark/CanvmarkDetailView.swift = (ios, );
-				Detail/Bookmark/Canvmark/CanvmarkEditorFloatingToolbar.swift = (ios, );
 				Detail/Bookmark/Docmark/DocmarkDetailInfoSheet.swift = (ios, );
 				Detail/Bookmark/Docmark/DocmarkDetailView.swift = (ios, );
 				Detail/Bookmark/Imagemark/ImagemarkDetailInfoSheet.swift = (ios, );
@@ -330,7 +323,6 @@
 				Core/Util/InverseLabelStyle.swift,
 				Core/Util/PreviewContentAppearance.swift,
 				Credits.rtf,
-				Detail/Bookmark/Canvmark/CanvmarkEditorWebView.swift,
 				Detail/Bookmark/Linkmark/LinkmarkReadItLaterWebView.swift,
 				Localizable.xcstrings,
 			);
@@ -351,7 +343,6 @@
 				Core/Util/CreationType.swift,
 				Core/Util/PreviewContentAppearance.swift,
 				Credits.rtf,
-				Detail/Bookmark/Canvmark/CanvmarkEditorWebView.swift,
 				Detail/Bookmark/Linkmark/LinkmarkReadItLaterWebView.swift,
 				Localizable.xcstrings,
 			);

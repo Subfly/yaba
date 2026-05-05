@@ -1,5 +1,5 @@
 /**
- * YABA accent palette — parity with `canvas-bridge.ts` `YABA_PALETTE` / Compose `YabaColor.code` / Darwin `YabaColor`.
+ * YABA accent palette — parity with editor highlighting / Compose `YabaColor.code` / Darwin `YabaColor`.
  * Single source for canonical hex digits (no `#`) stored in Markdown `{#rrggbb}` marks.
  */
 /** Alpha for editor/preview highlight wash (matches `.yaba-md-mark` / colored `{#hex}` tint). */

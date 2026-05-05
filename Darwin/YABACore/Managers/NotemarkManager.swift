@@ -140,8 +140,7 @@ public enum NotemarkManager {
             pathExtension: normalizedExt,
             bytes: bytes,
             linkBookmark: nil,
-            noteBookmark: note,
-            canvasBookmark: nil
+            noteBookmark: note
         )
         context.insert(row)
         note.inlineAssets.append(row)

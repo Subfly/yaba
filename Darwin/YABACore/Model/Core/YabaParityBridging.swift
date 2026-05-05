@@ -54,7 +54,6 @@ extension BookmarkModel {
         case .note: return .none
         case .image: return .image
         case .file: return .audio
-        case .canvas: return .video
         }
     }
 

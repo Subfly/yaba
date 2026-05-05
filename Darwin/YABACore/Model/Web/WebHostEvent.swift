@@ -12,15 +12,4 @@ public enum WebHostEvent: Sendable {
     case initialContentLoad(WebShellLoadResult)
     case readerMetrics(ReaderMetricsEvent)
     case noteEditorIdleForAutosave
-    case canvasIdleForAutosave
-    case canvasMetrics(CanvasHostMetrics)
-    case canvasStyleState(CanvasHostStyleState)
-    case canvasLinkTap(elementId: String, text: String, url: String)
-    case canvasMentionTap(
-        elementId: String,
-        text: String,
-        bookmarkId: String,
-        bookmarkKindCode: Int,
-        bookmarkLabel: String
-    )
 }

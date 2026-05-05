@@ -17,7 +17,7 @@ enum BookmarkFlowHydration {
         guard let ctx = try? CoreStore.makeWriteContext() else { return nil }
         return fetchBookmark(bookmarkId: bookmarkId, modelContext: ctx)
     }
-
+    
     @MainActor
     static func fetchBookmark(bookmarkId: String, modelContext: ModelContext) -> BookmarkModel? {
         let bid = bookmarkId
@@ -27,7 +27,7 @@ enum BookmarkFlowHydration {
         descriptor.fetchLimit = 1
         return try? modelContext.fetch(descriptor).first
     }
-
+    
     @MainActor
     static func linkmarkUIState(from bookmark: BookmarkModel) -> LinkmarkCreationUIState {
         var state = LinkmarkCreationUIState()
@@ -37,7 +37,7 @@ enum BookmarkFlowHydration {
         state.selectedFolderId = bookmark.folder?.folderId
         state.selectedTagIds = bookmark.tags.map(\.tagId)
         state.isPinned = bookmark.isPinned
-
+        
         if let link = bookmark.linkDetail {
             state.url = link.url
             state.metadataTitle = link.metadataTitle
@@ -47,13 +47,13 @@ enum BookmarkFlowHydration {
             state.videoUrl = link.videoUrl
             state.audioUrl = link.audioUrl
         }
-
+        
         state.previewImageData = bookmark.imagePayload?.bytes
         state.previewIconData = bookmark.iconPayload?.bytes
         state.uncategorizedFolderCreationRequired = false
         return state
     }
-
+    
     @MainActor
     static func notemarkUIState(from bookmark: BookmarkModel) -> NotemarkCreationUIState {
         var state = NotemarkCreationUIState()
@@ -63,7 +63,7 @@ enum BookmarkFlowHydration {
         state.selectedFolderId = bookmark.folder?.folderId
         state.selectedTagIds = bookmark.tags.map(\.tagId)
         state.isPinned = bookmark.isPinned
-
+        
         if let body = bookmark.noteDetail?.payload?.documentBody,
            let json = String(data: body, encoding: .utf8)
         {
@@ -72,7 +72,7 @@ enum BookmarkFlowHydration {
         state.uncategorizedFolderCreationRequired = false
         return state
     }
-
+    
     @MainActor
     static func imagemarkUIState(from bookmark: BookmarkModel) -> ImagemarkCreationUIState {
         var state = ImagemarkCreationUIState()
@@ -87,7 +87,7 @@ enum BookmarkFlowHydration {
         state.uncategorizedFolderCreationRequired = false
         return state
     }
-
+    
     @MainActor
     static func docmarkUIState(from bookmark: BookmarkModel) -> DocmarkCreationUIState {
         var state = DocmarkCreationUIState()
@@ -108,20 +108,6 @@ enum BookmarkFlowHydration {
             state.metadataDate = doc.metadataDate
         }
         state.previewImageData = bookmark.imagePayload?.bytes
-        state.uncategorizedFolderCreationRequired = false
-        return state
-    }
-
-    @MainActor
-    static func canvmarkUIState(from bookmark: BookmarkModel) -> CanvmarkCreationUIState {
-        var state = CanvmarkCreationUIState()
-        state.editingBookmarkId = bookmark.bookmarkId
-        state.label = bookmark.label
-        state.bookmarkDescription = bookmark.bookmarkDescription ?? ""
-        state.selectedFolderId = bookmark.folder?.folderId
-        state.selectedTagIds = bookmark.tags.map(\.tagId)
-        state.isPinned = bookmark.isPinned
-        state.sceneData = bookmark.canvasDetail?.payload?.sceneData
         state.uncategorizedFolderCreationRequired = false
         return state
     }

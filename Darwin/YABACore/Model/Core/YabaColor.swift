@@ -64,7 +64,7 @@ public extension YabaColor {
         }
     }
 
-    /// Canonical 6-digit RGB (no `#`) — parity with web `yaba-accent-palette.ts` / canvas codes `1...13`.
+    /// Canonical 6-digit RGB (no `#`) — parity with web `yaba-accent-palette.ts`.
     public var canonicalHexDigits: String? {
         switch self {
         case .none: return nil
