@@ -56,7 +56,9 @@ public enum CoreStore {
     public static func save(_ context: ModelContext) throws {
         if context.hasChanges {
             try withAnimation {
-                try context.save()
+                try DispatchQueue.main.sync {
+                    try context.save()
+                }
             }
         }
     }
