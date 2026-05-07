@@ -2,7 +2,7 @@
 //  MediamarkDetailView.swift
 //  YABA
 //
-//  Image bookmark detail: zoomable image, linkmark-style toolbar, imagemark overflow actions.
+//  Media bookmark detail: routes image / video / audio subviews; shared chrome and overflow actions.
 //
 
 import SwiftData
@@ -184,30 +184,14 @@ struct MediamarkDetailView: View {
     @ViewBuilder
     private func mainContent(for bm: YabaBookmark) -> some View {
         let folderTint = folderColor(for: bm)
-        ZStack {
-            Color(uiColor: .systemBackground)
-                .ignoresSafeArea()
-            if let uiImage = displayUIImage(for: bm) {
-                ZoomablePannableView {
-                    Image(uiImage: uiImage)
-                        .resizable()
-                        .scaledToFit()
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .ignoresSafeArea()
-            } else {
-                ContentUnavailableView {
-                    Label {
-                        Text("Bookmark Detail Image Error Title")
-                    } icon: {
-                        YabaIconView(bundleKey: "image-not-found-01")
-                            .scaledToFit()
-                            .frame(width: 52, height: 52)
-                            .foregroundStyle(folderTint)
-                    }
-                } description: {
-                    Text("Reader Not Available Description")
-                }
+        Group {
+            switch bm.mediaDetail?.mediaMarkType ?? .image {
+            case .image:
+                ImagemarkDetailView(bookmark: bm, folderTint: folderTint)
+            case .video:
+                VideomarkDetailView(bookmark: bm, folderTint: folderTint)
+            case .audio:
+                EmptyView()
             }
         }
         .navigationBarTitleDisplayMode(.inline)
@@ -240,12 +224,6 @@ struct MediamarkDetailView: View {
         bm.folder?.color.getUIColor() ?? .accentColor
     }
 
-    private func displayUIImage(for bm: YabaBookmark) -> UIImage? {
-        let data = bm.mediaDetail?.originalData ?? bm.imagePayload?.bytes
-        guard let data, !data.isEmpty else { return nil }
-        return UIImage(data: data)
-    }
-
     @ViewBuilder
     private func overflowMenu(for bm: YabaBookmark) -> some View {
         Menu {
@@ -271,7 +249,7 @@ struct MediamarkDetailView: View {
             }
             .tint(YabaColor.yellow.getUIColor())
             Button {
-                Task { await machine.send(.onExportImage) }
+                Task { await machine.send(.onExportMedia) }
             } label: {
                 overflowMenuItemLabel(LocalizedStringKey("Bookmark Detail Save Copy Label"), icon: "download-01")
             }
@@ -286,7 +264,7 @@ struct MediamarkDetailView: View {
             }
             Button {
                 Task {
-                    await machine.send(.onShareImage)
+                    await machine.send(.onShareMedia)
                     if let url = machine.state.pendingShareFileURL {
                         shareURL = url
                         showShareSheet = true

@@ -8,7 +8,6 @@ import Foundation
 public struct MediamarkDetailUIState: Sendable {
     public var bookmarkId: String?
     public var reminderDate: Date?
-    /// Populated by `onShareImage`; consume with `onConsumePendingShare` after presenting share UI.
     public var pendingShareFileURL: URL?
 
     public init(

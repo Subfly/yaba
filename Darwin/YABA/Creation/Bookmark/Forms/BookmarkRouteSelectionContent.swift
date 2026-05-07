@@ -9,7 +9,7 @@ import SwiftUI
 
 struct BookmarkRouteSelectionContent: View {
     let onCancel: () -> Void
-    let onSelectKind: (BookmarkKind) -> Void
+    let onSelectKind: (BookmarkKind, MediaMarkType?) -> Void
 
     var body: some View {
         NavigationStack {
@@ -42,7 +42,7 @@ struct BookmarkRouteSelectionContent: View {
             iconKey: "link-02",
             color: .blue,
             showsChevron: true,
-            action: { onSelectKind(.link) }
+            action: { onSelectKind(.link, nil) }
         )
     }
 
@@ -52,7 +52,7 @@ struct BookmarkRouteSelectionContent: View {
             iconKey: "note-edit",
             color: .yellow,
             showsChevron: true,
-            action: { onSelectKind(.note) }
+            action: { onSelectKind(.note, nil) }
         )
     }
 
@@ -63,7 +63,7 @@ struct BookmarkRouteSelectionContent: View {
                 iconKey: "image-03",
                 color: .green,
                 showsChevron: true,
-                action: { onSelectKind(.media) }
+                action: { onSelectKind(.media, .image) }
             )
             routeButton(
                 title: "Bookmark Route Selection New Audio",
@@ -77,9 +77,8 @@ struct BookmarkRouteSelectionContent: View {
                 title: "Bookmark Route Selection New Video",
                 iconKey: "video-01",
                 color: .indigo,
-                showsChevron: false,
-                action: {},
-                isEnabled: false
+                showsChevron: true,
+                action: { onSelectKind(.media, .video) }
             )
         } label: {
             disclosureLabel(
@@ -97,7 +96,7 @@ struct BookmarkRouteSelectionContent: View {
                 iconKey: "pdf-02",
                 color: .red,
                 showsChevron: true,
-                action: { onSelectKind(.file) }
+                action: { onSelectKind(.file, nil) }
             )
             routeButton(
                 title: "Bookmark Route Selection New EPUB",

@@ -24,10 +24,10 @@ public final class MediamarkDetailStateMachine: YabaBaseObservableState<Mediamar
             }
         case let .onDeleteBookmark(bookmarkId):
             AllBookmarksManager.queueDeleteBookmarks(bookmarkIds: [bookmarkId])
-        case .onShareImage:
-            await handleShareImage()
-        case .onExportImage:
-            await handleExportImage()
+        case .onShareMedia:
+            await handleShareMedia()
+        case .onExportMedia:
+            await handleExportMedia()
         case .onConsumePendingShare:
             if let url = state.pendingShareFileURL {
                 try? FileManager.default.removeItem(at: url)
@@ -61,7 +61,7 @@ public final class MediamarkDetailStateMachine: YabaBaseObservableState<Mediamar
         }
     }
 
-    private func handleShareImage() async {
+    private func handleShareMedia() async {
         guard let bid = state.bookmarkId else { return }
         if let old = state.pendingShareFileURL {
             try? FileManager.default.removeItem(at: old)
@@ -76,10 +76,12 @@ public final class MediamarkDetailStateMachine: YabaBaseObservableState<Mediamar
                 )
                 return
             }
-            let base = MarkdownExportSupport.sanitizeBaseFolderName(payload.label, emptyFallback: "image")
+            let fallback = payload.mediaMarkType == .video ? "video" : "image"
+            let base = MarkdownExportSupport.sanitizeBaseFolderName(payload.label, emptyFallback: fallback)
+            let ext = payload.fileExtension
             let url = FileManager.default.temporaryDirectory
-                .appendingPathComponent("YABA-\(base)-\(UUID().uuidString.prefix(8)).jpg")
-            try payload.imageData.write(to: url, options: .atomic)
+                .appendingPathComponent("YABA-\(base)-\(UUID().uuidString.prefix(8)).\(ext)")
+            try payload.mediaData.write(to: url, options: .atomic)
             apply { $0.pendingShareFileURL = url }
         } catch {
             CoreToastManager.shared.show(
@@ -90,7 +92,7 @@ public final class MediamarkDetailStateMachine: YabaBaseObservableState<Mediamar
         }
     }
 
-    private func handleExportImage() async {
+    private func handleExportMedia() async {
         guard let bid = state.bookmarkId else { return }
         do {
             guard let payload = try await MediamarkManager.fetchExportPayload(bookmarkId: bid) else {
@@ -107,12 +109,24 @@ public final class MediamarkDetailStateMachine: YabaBaseObservableState<Mediamar
                 return
             }
             let fileURL = FileManager.default.temporaryDirectory
-                .appendingPathComponent("YABA-export-photos-\(UUID().uuidString).jpg", isDirectory: false)
-            try payload.imageData.write(to: fileURL, options: .atomic)
+                .appendingPathComponent(
+                    "YABA-export-photos-\(UUID().uuidString).\(payload.fileExtension)",
+                    isDirectory: false
+                )
+            try payload.mediaData.write(to: fileURL, options: .atomic)
             defer { try? FileManager.default.removeItem(at: fileURL) }
             var creationRequestFailed = false
             try await PHPhotoLibrary.shared().performChanges {
-                if PHAssetChangeRequest.creationRequestForAssetFromImage(atFileURL: fileURL) == nil {
+                switch payload.mediaMarkType {
+                case .image:
+                    if PHAssetChangeRequest.creationRequestForAssetFromImage(atFileURL: fileURL) == nil {
+                        creationRequestFailed = true
+                    }
+                case .video:
+                    if PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: fileURL) == nil {
+                        creationRequestFailed = true
+                    }
+                case .audio:
                     creationRequestFailed = true
                 }
             }

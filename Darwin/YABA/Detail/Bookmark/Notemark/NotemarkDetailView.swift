@@ -246,7 +246,7 @@ struct NotemarkDetailView: View {
                     machine.handlePickedInlineImage(
                         data: data,
                         bookmarkId: bm.bookmarkId,
-                        storedPathExtension: "jpg",
+                        storedPathExtension: "png",
                         onAssetPersisted: { dispatchEditorCommand($0) }
                     )
                 }

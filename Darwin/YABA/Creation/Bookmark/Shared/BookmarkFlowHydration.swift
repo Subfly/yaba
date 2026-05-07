@@ -82,7 +82,21 @@ enum BookmarkFlowHydration {
         state.selectedFolderId = bookmark.folder?.folderId
         state.selectedTagIds = bookmark.tags.map(\.tagId)
         state.isPinned = bookmark.isPinned
-        state.imageData = bookmark.mediaDetail?.originalData ?? bookmark.imagePayload?.bytes
+        state.mediaMarkType = bookmark.mediaDetail?.mediaMarkType ?? .image
+        switch state.mediaMarkType {
+        case .image:
+            state.imageData = bookmark.mediaDetail?.originalData ?? bookmark.imagePayload?.bytes
+            state.videoData = nil
+            state.mediaFileExtension = "png"
+        case .video:
+            state.videoData = bookmark.mediaDetail?.originalData
+            state.imageData = bookmark.imagePayload?.bytes
+            state.mediaFileExtension = "mp4"
+        case .audio:
+            state.imageData = bookmark.imagePayload?.bytes
+            state.videoData = nil
+            state.mediaFileExtension = "mp3"
+        }
         state.uncategorizedFolderCreationRequired = false
         return state
     }

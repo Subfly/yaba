@@ -12,8 +12,10 @@ public struct MediamarkCreationUIState: Sendable {
     public var selectedFolderId: String?
     public var uncategorizedFolderCreationRequired: Bool
     public var selectedTagIds: [String]
+    public var mediaMarkType: MediaMarkType
     public var imageData: Data?
-    public var imageFileExtension: String
+    public var videoData: Data?
+    public var mediaFileExtension: String
     public var bookmarkAppearance: BookmarkAppearance
     public var cardImageSizing: CardImageSizing
     public var isPinned: Bool
@@ -27,8 +29,10 @@ public struct MediamarkCreationUIState: Sendable {
         selectedFolderId: String? = nil,
         uncategorizedFolderCreationRequired: Bool = false,
         selectedTagIds: [String] = [],
+        mediaMarkType: MediaMarkType = .image,
         imageData: Data? = nil,
-        imageFileExtension: String = "jpg",
+        videoData: Data? = nil,
+        mediaFileExtension: String = "png",
         bookmarkAppearance: BookmarkAppearance = .list,
         cardImageSizing: CardImageSizing = .small,
         isPinned: Bool = false,
@@ -41,8 +45,10 @@ public struct MediamarkCreationUIState: Sendable {
         self.selectedFolderId = selectedFolderId
         self.uncategorizedFolderCreationRequired = uncategorizedFolderCreationRequired
         self.selectedTagIds = selectedTagIds
+        self.mediaMarkType = mediaMarkType
         self.imageData = imageData
-        self.imageFileExtension = imageFileExtension
+        self.videoData = videoData
+        self.mediaFileExtension = mediaFileExtension
         self.bookmarkAppearance = bookmarkAppearance
         self.cardImageSizing = cardImageSizing
         self.isPinned = isPinned

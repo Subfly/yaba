@@ -10,13 +10,15 @@ public enum MediamarkCreationEvent: Sendable {
         mediaBookmarkId: String?,
         initialFolderId: String?,
         initialTagIds: [String]?,
-        uncategorizedFolderCreationRequired: Bool
+        uncategorizedFolderCreationRequired: Bool,
+        initialMediaMarkType: MediaMarkType
     )
     case onCyclePreviewAppearance
     case onPickFromGallery
     case onImageFromShare(Data, fileExtension: String)
+    case onVideoPicked(videoData: Data, thumbnailData: Data?, fileExtension: String)
     case onCaptureFromCamera
-    case onClearImage
+    case onClearMedia
     case onChangeLabel(String)
     case onChangeDescription(String)
     case onSelectFolderId(String?)

@@ -41,9 +41,11 @@
 		<string>_yaba-sync._tcp.</string>
 	</array>
 	<key>NSCameraUsageDescription</key>
-	<string>YABA needs camera access to capture photos.</string>
+	<string>YABA needs camera access to capture photos and record video.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>YABA needs microphone access when recording video with sound.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>YABA saves images to your photo library when you choose Save Copy.</string>
+	<string>YABA saves images and videos to your photo library when you choose Save Copy.</string>
 	<key>NSSupportsAutomaticTermination</key>
 	<true/>
 	<key>UIBackgroundModes</key>

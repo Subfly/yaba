@@ -8,14 +8,18 @@
 import Foundation
 import SwiftData
 
-/// Image bytes + label for sharing or exporting a mediamark bookmark (image subtype).
+/// Media bytes + label for sharing or exporting a mediamark bookmark (image or video subtype).
 public struct MediamarkExportPayload: Sendable {
-    public let imageData: Data
+    public let mediaData: Data
     public let label: String
+    public let fileExtension: String
+    public let mediaMarkType: MediaMarkType
 
-    public init(imageData: Data, label: String) {
-        self.imageData = imageData
+    public init(mediaData: Data, label: String, fileExtension: String, mediaMarkType: MediaMarkType) {
+        self.mediaData = mediaData
         self.label = label
+        self.fileExtension = fileExtension
+        self.mediaMarkType = mediaMarkType
     }
 }
 
@@ -66,7 +70,7 @@ public enum MediamarkManager {
         bookmark.editedAt = .now
     }
 
-    /// Loads image bytes and label for share / save-to-photos flows (image subtype).
+    /// Loads media bytes and label for share / save-to-photos flows.
     public static func fetchExportPayload(bookmarkId: String) async throws -> MediamarkExportPayload? {
         try await withCheckedThrowingContinuation { cont in
             var result: MediamarkExportPayload?
@@ -75,12 +79,35 @@ public enum MediamarkManager {
                     result = nil
                     return
                 }
-                let data = bookmark.mediaDetail?.originalData ?? bookmark.imagePayload?.bytes
+                let type = bookmark.mediaDetail?.mediaMarkType ?? .image
+                let data: Data?
+                switch type {
+                case .image:
+                    data = bookmark.mediaDetail?.originalData ?? bookmark.imagePayload?.bytes
+                case .video:
+                    data = bookmark.mediaDetail?.originalData
+                case .audio:
+                    data = bookmark.mediaDetail?.originalData
+                }
                 guard let data, !data.isEmpty else {
                     result = nil
                     return
                 }
-                result = MediamarkExportPayload(imageData: data, label: bookmark.label)
+                let ext: String
+                switch type {
+                case .image:
+                    ext = "png"
+                case .video:
+                    ext = "mp4"
+                case .audio:
+                    ext = "mp3"
+                }
+                result = MediamarkExportPayload(
+                    mediaData: data,
+                    label: bookmark.label,
+                    fileExtension: ext,
+                    mediaMarkType: type
+                )
             } completion: { error in
                 if let error {
                     cont.resume(throwing: error)

@@ -17,12 +17,19 @@ public final class MediamarkCreationStateMachine: YabaBaseObservableState<Mediam
             mediaBookmarkId: id,
             initialFolderId: folderId,
             initialTagIds: tagIds,
-            uncategorizedFolderCreationRequired: uncategorizedFolderCreationRequired
+            uncategorizedFolderCreationRequired: uncategorizedFolderCreationRequired,
+            initialMediaMarkType: initialMediaMarkType
         ):
             apply {
                 $0.editingBookmarkId = id
                 $0.selectedFolderId = folderId
                 $0.selectedTagIds = tagIds ?? []
+                $0.mediaMarkType = initialMediaMarkType
+                if initialMediaMarkType == .image {
+                    $0.mediaFileExtension = "png"
+                } else if initialMediaMarkType == .video {
+                    $0.mediaFileExtension = "mp4"
+                }
                 if id == nil {
                     $0.uncategorizedFolderCreationRequired = uncategorizedFolderCreationRequired
                 } else {
@@ -41,11 +48,23 @@ public final class MediamarkCreationStateMachine: YabaBaseObservableState<Mediam
             break
         case let .onImageFromShare(data, ext):
             apply {
+                $0.mediaMarkType = .image
                 $0.imageData = data
-                $0.imageFileExtension = ext
+                $0.videoData = nil
+                $0.mediaFileExtension = ext
             }
-        case .onClearImage:
-            apply { $0.imageData = nil }
+        case let .onVideoPicked(videoData, thumbnailData, ext):
+            apply {
+                $0.mediaMarkType = .video
+                $0.videoData = videoData
+                $0.imageData = thumbnailData
+                $0.mediaFileExtension = ext.isEmpty ? "mp4" : ext
+            }
+        case .onClearMedia:
+            apply {
+                $0.imageData = nil
+                $0.videoData = nil
+            }
         case let .onChangeLabel(s):
             apply { $0.label = s }
         case let .onChangeDescription(s):
@@ -74,7 +93,7 @@ public final class MediamarkCreationStateMachine: YabaBaseObservableState<Mediam
             MediamarkManager.queueCreateOrUpdateMediaDetails(
                 bookmarkId: bookmarkId,
                 originalData: nil,
-                mediaMarkType: .image
+                mediaMarkType: state.mediaMarkType
             )
         }
     }
@@ -104,6 +123,15 @@ public final class MediamarkCreationStateMachine: YabaBaseObservableState<Mediam
             apply { $0.lastError = "Label required" }
             return
         }
+
+        let markType = state.mediaMarkType
+        if markType == .video, state.editingBookmarkId == nil {
+            guard let vData = state.videoData, !vData.isEmpty else {
+                apply { $0.lastError = "Video required" }
+                return
+            }
+        }
+
         apply { $0.lastError = nil; $0.isSaving = true }
         let bid = state.editingBookmarkId ?? UUID().uuidString
         if state.editingBookmarkId != nil {
@@ -127,25 +155,52 @@ public final class MediamarkCreationStateMachine: YabaBaseObservableState<Mediam
                 tagIds: state.selectedTagIds
             )
         }
-        if let data = state.imageData {
-            // [AllBookmarksManager.queueSetBookmarkPreviewAssets] recompresses for the card payload.
-            AllBookmarksManager.queueSetBookmarkPreviewAssets(
-                bookmarkId: bid,
-                imageBytes: data,
-                iconBytes: nil
-            )
-            MediamarkManager.queueCreateOrUpdateMediaDetails(
-                bookmarkId: bid,
-                originalData: data,
-                mediaMarkType: .image
-            )
-        } else {
-            MediamarkManager.queueCreateOrUpdateMediaDetails(
-                bookmarkId: bid,
-                originalData: nil,
-                mediaMarkType: .image
-            )
+
+        switch markType {
+        case .image:
+            if let data = state.imageData {
+                AllBookmarksManager.queueSetBookmarkPreviewAssets(
+                    bookmarkId: bid,
+                    imageBytes: data,
+                    iconBytes: nil
+                )
+                MediamarkManager.queueCreateOrUpdateMediaDetails(
+                    bookmarkId: bid,
+                    originalData: data,
+                    mediaMarkType: .image
+                )
+            } else {
+                MediamarkManager.queueCreateOrUpdateMediaDetails(
+                    bookmarkId: bid,
+                    originalData: nil,
+                    mediaMarkType: .image
+                )
+            }
+        case .video:
+            if let thumb = state.imageData {
+                AllBookmarksManager.queueSetBookmarkPreviewAssets(
+                    bookmarkId: bid,
+                    imageBytes: thumb,
+                    iconBytes: nil
+                )
+            }
+            if let v = state.videoData {
+                MediamarkManager.queueCreateOrUpdateMediaDetails(
+                    bookmarkId: bid,
+                    originalData: v,
+                    mediaMarkType: .video
+                )
+            } else if state.editingBookmarkId != nil {
+                MediamarkManager.queueCreateOrUpdateMediaDetails(
+                    bookmarkId: bid,
+                    originalData: nil,
+                    mediaMarkType: .video
+                )
+            }
+        case .audio:
+            break
         }
+
         apply { $0.isSaving = false }
     }
 }

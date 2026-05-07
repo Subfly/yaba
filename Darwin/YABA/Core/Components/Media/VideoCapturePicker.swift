@@ -1,17 +1,18 @@
 //
-//  CameraCapturePicker.swift
+//  VideoCapturePicker.swift
 //  YABA
 //
-//  Reusable UIKit camera capture bridge for SwiftUI (UIImagePickerController).
+//  UIKit bridge for recording video via UIImagePickerController.
 //
 
 import SwiftUI
 import UIKit
+import UniformTypeIdentifiers
 
-/// Presents the system camera capture UI and returns PNG data when the user confirms a photo.
-struct CameraCapturePicker: UIViewControllerRepresentable {
+/// Presents the system camera UI in video mode and returns the captured movie file URL.
+struct VideoCapturePicker: UIViewControllerRepresentable {
     var onDismiss: () -> Void
-    var onCapture: (Data) -> Void
+    var onCapture: (URL) -> Void
 
     func makeCoordinator() -> Coordinator {
         Coordinator(parent: self)
@@ -20,7 +21,9 @@ struct CameraCapturePicker: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> UIImagePickerController {
         let picker = UIImagePickerController()
         picker.sourceType = .camera
-        picker.cameraCaptureMode = .photo
+        picker.mediaTypes = [UTType.movie.identifier]
+        picker.cameraCaptureMode = .video
+        picker.videoQuality = .typeHigh
         picker.delegate = context.coordinator
         picker.modalPresentationStyle = .fullScreen
         return picker
@@ -29,9 +32,9 @@ struct CameraCapturePicker: UIViewControllerRepresentable {
     func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
 
     final class Coordinator: NSObject, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
-        let parent: CameraCapturePicker
+        let parent: VideoCapturePicker
 
-        init(parent: CameraCapturePicker) {
+        init(parent: VideoCapturePicker) {
             self.parent = parent
         }
 
@@ -40,12 +43,9 @@ struct CameraCapturePicker: UIViewControllerRepresentable {
             didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]
         ) {
             defer { parent.onDismiss() }
-            guard let image = info[.originalImage] as? UIImage,
-                  let data = image.pngData()
-            else {
-                return
+            if let url = info[.mediaURL] as? URL {
+                parent.onCapture(url)
             }
-            parent.onCapture(data)
         }
 
         func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {

@@ -18,7 +18,8 @@ struct BookmarkKindCreationSheet: View {
                 mode: .create(
                     launch.kind,
                     preselectedFolderId: launch.preselectedFolderId,
-                    preselectedTagIds: launch.preselectedTagIds
+                    preselectedTagIds: launch.preselectedTagIds,
+                    mediaMarkType: launch.mediaMarkType
                 ),
                 onDone: onDone,
                 onNoteCreatedNavigate: onNoteCreatedNavigate

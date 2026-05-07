@@ -29,17 +29,20 @@ struct BookmarkKindFormLaunch: Identifiable, Equatable {
     let kind: BookmarkKind
     let preselectedFolderId: String?
     let preselectedTagIds: [String]
+    let mediaMarkType: MediaMarkType?
 
     init(
         id: UUID = UUID(),
         kind: BookmarkKind,
         preselectedFolderId: String?,
-        preselectedTagIds: [String]
+        preselectedTagIds: [String],
+        mediaMarkType: MediaMarkType? = nil
     ) {
         self.id = id
         self.kind = kind
         self.preselectedFolderId = preselectedFolderId
         self.preselectedTagIds = preselectedTagIds
+        self.mediaMarkType = mediaMarkType
     }
 }
 
@@ -71,11 +74,12 @@ struct BookmarkCreateTwoStepSheetsModifier: ViewModifier {
                         pendingKindAfterTypeDismiss = nil
                         typeSelection = nil
                     },
-                    onSelectKind: { kind in
+                    onSelectKind: { kind, mediaSubtype in
                         pendingKindAfterTypeDismiss = BookmarkKindFormLaunch(
                             kind: kind,
                             preselectedFolderId: ctx.preselectedFolderId,
-                            preselectedTagIds: ctx.preselectedTagIds
+                            preselectedTagIds: ctx.preselectedTagIds,
+                            mediaMarkType: mediaSubtype
                         )
                         typeSelection = nil
                     }

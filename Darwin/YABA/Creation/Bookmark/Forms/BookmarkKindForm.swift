@@ -9,7 +9,7 @@ import SwiftUI
 
 struct BookmarkKindForm: View {
     enum Mode {
-        case create(BookmarkKind, preselectedFolderId: String?, preselectedTagIds: [String])
+        case create(BookmarkKind, preselectedFolderId: String?, preselectedTagIds: [String], mediaMarkType: MediaMarkType?)
         case edit(BookmarkModel)
     }
 
@@ -19,7 +19,7 @@ struct BookmarkKindForm: View {
 
     var body: some View {
         switch mode {
-        case let .create(kind, folderId, tagIds):
+        case let .create(kind, folderId, tagIds, mediaMarkType):
             switch kind {
             case .link:
                 LinkmarkCreationContent(
@@ -39,6 +39,7 @@ struct BookmarkKindForm: View {
                 )
             case .media:
                 MediamarkCreationContent(
+                    mediaMarkType: mediaMarkType ?? .image,
                     preselectedFolderId: folderId,
                     preselectedTagIds: tagIds,
                     editingBookmarkId: nil,
@@ -71,6 +72,7 @@ struct BookmarkKindForm: View {
                 )
             case .media:
                 MediamarkCreationContent(
+                    mediaMarkType: bookmark.mediaDetail?.mediaMarkType ?? .image,
                     preselectedFolderId: nil,
                     preselectedTagIds: [],
                     editingBookmarkId: bookmark.bookmarkId,
