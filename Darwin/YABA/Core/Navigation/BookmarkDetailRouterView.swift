@@ -2,7 +2,7 @@
 //  BookmarkDetailRouterView.swift
 //  YABA
 //
-//  Routes bookmark detail destinations by `BookmarkKind` (link vs image, etc.).
+//  Routes bookmark detail destinations by `BookmarkKind` (link, media, file, note, etc.).
 //
 
 import SwiftData
@@ -44,8 +44,8 @@ struct BookmarkDetailRouterView: View {
                         onOpenFolder: onOpenFolder,
                         onOpenTag: onOpenTag
                     )
-                case .image:
-                    ImagemarkDetailView(
+                case .media:
+                    MediamarkDetailView(
                         bookmarkId: bookmarkId,
                         onOpenFolder: onOpenFolder,
                         onOpenTag: onOpenTag

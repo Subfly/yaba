@@ -1,13 +1,13 @@
 //
-//  ImagemarkCreationEvent.swift
+//  MediamarkCreationEvent.swift
 //  YABACore
 //
 
 import Foundation
 
-public enum ImagemarkCreationEvent: Sendable {
+public enum MediamarkCreationEvent: Sendable {
     case onInit(
-        imagemarkId: String?,
+        mediaBookmarkId: String?,
         initialFolderId: String?,
         initialTagIds: [String]?,
         uncategorizedFolderCreationRequired: Bool

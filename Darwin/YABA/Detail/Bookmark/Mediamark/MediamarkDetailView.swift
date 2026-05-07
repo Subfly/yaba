@@ -1,5 +1,5 @@
 //
-//  ImagemarkDetailView.swift
+//  MediamarkDetailView.swift
 //  YABA
 //
 //  Image bookmark detail: zoomable image, linkmark-style toolbar, imagemark overflow actions.
@@ -9,7 +9,7 @@ import SwiftData
 import SwiftUI
 import UIKit
 
-struct ImagemarkDetailView: View {
+struct MediamarkDetailView: View {
     let bookmarkId: String
     let onOpenFolder: (String) -> Void
     let onOpenTag: (String) -> Void
@@ -21,7 +21,7 @@ struct ImagemarkDetailView: View {
     private var bookmarks: [YabaBookmark]
 
     @State
-    private var machine = ImagemarkDetailStateMachine()
+    private var machine = MediamarkDetailStateMachine()
 
     @State
     private var showDetailSheet = false
@@ -65,7 +65,7 @@ struct ImagemarkDetailView: View {
     var body: some View {
         Group {
             if let bm = bookmark {
-                if bm.kind == .image {
+                if bm.kind == .media {
                     mainContent(for: bm)
                 } else {
                     EmptyView()
@@ -80,7 +80,7 @@ struct ImagemarkDetailView: View {
         }
         .sheet(isPresented: $showDetailSheet) {
             if let bm = bookmark {
-                ImagemarkDetailInfoSheet(
+                MediamarkDetailInfoSheet(
                     bookmark: bm,
                     folderAccent: folderColor(for: bm),
                     reminderDate: machine.state.reminderDate,
@@ -241,7 +241,7 @@ struct ImagemarkDetailView: View {
     }
 
     private func displayUIImage(for bm: YabaBookmark) -> UIImage? {
-        let data = bm.imageDetail?.originalImageData ?? bm.imagePayload?.bytes
+        let data = bm.mediaDetail?.originalData ?? bm.imagePayload?.bytes
         guard let data, !data.isEmpty else { return nil }
         return UIImage(data: data)
     }

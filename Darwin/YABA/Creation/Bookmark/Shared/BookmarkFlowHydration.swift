@@ -74,16 +74,15 @@ enum BookmarkFlowHydration {
     }
     
     @MainActor
-    static func imagemarkUIState(from bookmark: BookmarkModel) -> ImagemarkCreationUIState {
-        var state = ImagemarkCreationUIState()
+    static func mediamarkUIState(from bookmark: BookmarkModel) -> MediamarkCreationUIState {
+        var state = MediamarkCreationUIState()
         state.editingBookmarkId = bookmark.bookmarkId
         state.label = bookmark.label
         state.bookmarkDescription = bookmark.bookmarkDescription ?? ""
-        state.summary = bookmark.imageDetail?.summary ?? ""
         state.selectedFolderId = bookmark.folder?.folderId
         state.selectedTagIds = bookmark.tags.map(\.tagId)
         state.isPinned = bookmark.isPinned
-        state.imageData = bookmark.imageDetail?.originalImageData ?? bookmark.imagePayload?.bytes
+        state.imageData = bookmark.mediaDetail?.originalData ?? bookmark.imagePayload?.bytes
         state.uncategorizedFolderCreationRequired = false
         return state
     }

@@ -19,7 +19,7 @@ enum SchemaV2: VersionedSchema {
             BookmarkImagePayloadModel.self,
             BookmarkIconPayloadModel.self,
             LinkBookmarkModel.self,
-            ImageBookmarkModel.self,
+            MediaBookmarkModel.self,
             DocBookmarkModel.self,
             DocBookmarkPayloadModel.self,
             NoteBookmarkModel.self,

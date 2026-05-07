@@ -37,8 +37,8 @@ struct BookmarkKindForm: View {
                     onDone: onDone,
                     onCreatedBookmarkId: onNoteCreatedNavigate
                 )
-            case .image:
-                ImagemarkCreationContent(
+            case .media:
+                MediamarkCreationContent(
                     preselectedFolderId: folderId,
                     preselectedTagIds: tagIds,
                     editingBookmarkId: nil,
@@ -69,8 +69,8 @@ struct BookmarkKindForm: View {
                     editingBookmarkId: bookmark.bookmarkId,
                     onDone: onDone
                 )
-            case .image:
-                ImagemarkCreationContent(
+            case .media:
+                MediamarkCreationContent(
                     preselectedFolderId: nil,
                     preselectedTagIds: [],
                     editingBookmarkId: bookmark.bookmarkId,

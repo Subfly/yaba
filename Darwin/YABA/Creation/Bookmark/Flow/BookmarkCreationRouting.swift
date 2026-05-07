@@ -80,7 +80,7 @@ struct BookmarkCreateTwoStepSheetsModifier: ViewModifier {
                         typeSelection = nil
                     }
                 )
-                .presentationDetents([.fraction(0.4)])
+                .presentationDetents([.fraction(0.4), .fraction(0.8)])
                 .presentationDragIndicator(.visible)
             }
             .sheet(item: $kindLaunch) { launch in

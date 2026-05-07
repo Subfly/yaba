@@ -1,5 +1,5 @@
 //
-//  ImagemarkDetailStateMachine.swift
+//  MediamarkDetailStateMachine.swift
 //  YABACore
 //
 
@@ -8,12 +8,12 @@ import Photos
 import SwiftUI
 
 @MainActor
-public final class ImagemarkDetailStateMachine: YabaBaseObservableState<ImagemarkDetailUIState>, YabaScreenStateMachine {
-    public override init(initialState: ImagemarkDetailUIState = ImagemarkDetailUIState()) {
+public final class MediamarkDetailStateMachine: YabaBaseObservableState<MediamarkDetailUIState>, YabaScreenStateMachine {
+    public override init(initialState: MediamarkDetailUIState = MediamarkDetailUIState()) {
         super.init(initialState: initialState)
     }
 
-    public func send(_ event: ImagemarkDetailEvent) async {
+    public func send(_ event: MediamarkDetailEvent) async {
         switch event {
         case let .onInit(bookmarkId):
             AllBookmarksManager.queueRecordBookmarkView(bookmarkId: bookmarkId)
@@ -44,7 +44,7 @@ public final class ImagemarkDetailStateMachine: YabaBaseObservableState<Imagemar
             do {
                 try await ReminderManager.scheduleReminderResolvingLabel(
                     bookmarkId: bid,
-                    bookmarkKindCode: BookmarkKind.image.rawValue,
+                    bookmarkKindCode: BookmarkKind.media.rawValue,
                     titleKey: titleKey,
                     messageKey: messageKey,
                     fireAt: fireAt
@@ -58,8 +58,6 @@ public final class ImagemarkDetailStateMachine: YabaBaseObservableState<Imagemar
             guard let bid = state.bookmarkId else { return }
             ReminderManager.cancelReminder(bookmarkId: bid)
             apply { $0.reminderDate = nil }
-        case let .updateSummary(bookmarkId, summary):
-            ImagemarkManager.queueCreateOrUpdateImageDetails(bookmarkId: bookmarkId, summary: summary)
         }
     }
 
@@ -70,7 +68,7 @@ public final class ImagemarkDetailStateMachine: YabaBaseObservableState<Imagemar
         }
         apply { $0.pendingShareFileURL = nil }
         do {
-            guard let payload = try await ImagemarkManager.fetchExportPayload(bookmarkId: bid) else {
+            guard let payload = try await MediamarkManager.fetchExportPayload(bookmarkId: bid) else {
                 CoreToastManager.shared.show(
                     message: "Bookmark Detail Image Error Title",
                     iconType: .error,
@@ -95,7 +93,7 @@ public final class ImagemarkDetailStateMachine: YabaBaseObservableState<Imagemar
     private func handleExportImage() async {
         guard let bid = state.bookmarkId else { return }
         do {
-            guard let payload = try await ImagemarkManager.fetchExportPayload(bookmarkId: bid) else {
+            guard let payload = try await MediamarkManager.fetchExportPayload(bookmarkId: bid) else {
                 CoreToastManager.shared.show(
                     message: "Bookmark Detail Image Error Title",
                     iconType: .error,

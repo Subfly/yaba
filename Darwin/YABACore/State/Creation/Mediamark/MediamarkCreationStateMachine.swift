@@ -1,19 +1,24 @@
 //
-//  ImagemarkCreationStateMachine.swift
+//  MediamarkCreationStateMachine.swift
 //  YABACore
 //
 
 import Foundation
 
 @MainActor
-public final class ImagemarkCreationStateMachine: YabaBaseObservableState<ImagemarkCreationUIState>, YabaScreenStateMachine {
-    public override init(initialState: ImagemarkCreationUIState = ImagemarkCreationUIState()) {
+public final class MediamarkCreationStateMachine: YabaBaseObservableState<MediamarkCreationUIState>, YabaScreenStateMachine {
+    public override init(initialState: MediamarkCreationUIState = MediamarkCreationUIState()) {
         super.init(initialState: initialState)
     }
 
-    public func send(_ event: ImagemarkCreationEvent) async {
+    public func send(_ event: MediamarkCreationEvent) async {
         switch event {
-        case let .onInit(id, folderId, tagIds, uncategorizedFolderCreationRequired):
+        case let .onInit(
+            mediaBookmarkId: id,
+            initialFolderId: folderId,
+            initialTagIds: tagIds,
+            uncategorizedFolderCreationRequired: uncategorizedFolderCreationRequired
+        ):
             apply {
                 $0.editingBookmarkId = id
                 $0.selectedFolderId = folderId
@@ -60,13 +65,17 @@ public final class ImagemarkCreationStateMachine: YabaBaseObservableState<Imagem
             AllBookmarksManager.queueCreateBookmark(
                 bookmarkId: bookmarkId,
                 folderId: folderId,
-                kind: .image,
+                kind: .media,
                 label: label,
                 bookmarkDescription: bookmarkDescription,
                 isPinned: isPinned,
                 tagIds: tagIds
             )
-            ImagemarkManager.queueCreateOrUpdateImageDetails(bookmarkId: bookmarkId, summary: nil, originalImageData: nil)
+            MediamarkManager.queueCreateOrUpdateMediaDetails(
+                bookmarkId: bookmarkId,
+                originalData: nil,
+                mediaMarkType: .image
+            )
         }
     }
 
@@ -101,7 +110,7 @@ public final class ImagemarkCreationStateMachine: YabaBaseObservableState<Imagem
             AllBookmarksManager.queueUpdateBookmarkMetadata(
                 bookmarkId: bid,
                 folderId: folderId,
-                kind: .image,
+                kind: .media,
                 label: label,
                 bookmarkDescription: state.bookmarkDescription.nilIfEmpty,
                 isPinned: state.isPinned,
@@ -111,7 +120,7 @@ public final class ImagemarkCreationStateMachine: YabaBaseObservableState<Imagem
             AllBookmarksManager.queueCreateBookmark(
                 bookmarkId: bid,
                 folderId: folderId,
-                kind: .image,
+                kind: .media,
                 label: label,
                 bookmarkDescription: state.bookmarkDescription.nilIfEmpty,
                 isPinned: state.isPinned,
@@ -125,16 +134,16 @@ public final class ImagemarkCreationStateMachine: YabaBaseObservableState<Imagem
                 imageBytes: data,
                 iconBytes: nil
             )
-            ImagemarkManager.queueCreateOrUpdateImageDetails(
+            MediamarkManager.queueCreateOrUpdateMediaDetails(
                 bookmarkId: bid,
-                summary: nil,
-                originalImageData: data
+                originalData: data,
+                mediaMarkType: .image
             )
         } else {
-            ImagemarkManager.queueCreateOrUpdateImageDetails(
+            MediamarkManager.queueCreateOrUpdateMediaDetails(
                 bookmarkId: bid,
-                summary: nil,
-                originalImageData: nil
+                originalData: nil,
+                mediaMarkType: .image
             )
         }
         apply { $0.isSaving = false }

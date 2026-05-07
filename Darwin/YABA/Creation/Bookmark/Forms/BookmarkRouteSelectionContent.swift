@@ -11,26 +11,13 @@ struct BookmarkRouteSelectionContent: View {
     let onCancel: () -> Void
     let onSelectKind: (BookmarkKind) -> Void
 
-    private struct RowSpec: Identifiable {
-        let id: BookmarkKind
-        let title: LocalizedStringKey
-        let iconKey: String
-        let color: YabaColor
-    }
-
-    private static let rows: [RowSpec] = [
-        RowSpec(id: .link, title: "Bookmark Route Selection New Link", iconKey: "link-02", color: .blue),
-        RowSpec(id: .image, title: "Bookmark Route Selection New Image", iconKey: "image-03", color: .green),
-        RowSpec(id: .file, title: "Bookmark Route Selection New Document", iconKey: "doc-02", color: .red),
-        RowSpec(id: .note, title: "Bookmark Route Selection New Note", iconKey: "note-edit", color: .yellow),
-    ]
-
     var body: some View {
         NavigationStack {
             List {
-                ForEach(Self.rows, id: \.id) { row in
-                    generateRouteButton(row: row)
-                }
+                linkRow
+                noteRow
+                mediaDisclosureSection
+                documentDisclosureSection
             }
             .listStyle(.sidebar)
             #if !os(visionOS)
@@ -49,25 +36,135 @@ struct BookmarkRouteSelectionContent: View {
         }
     }
 
-    @ViewBuilder
-    private func generateRouteButton(row: RowSpec) -> some View {
-        Button {
-            onSelectKind(row.id)
+    private var linkRow: some View {
+        routeButton(
+            title: "Bookmark Route Selection New Link",
+            iconKey: "link-02",
+            color: .blue,
+            showsChevron: true,
+            action: { onSelectKind(.link) }
+        )
+    }
+
+    private var noteRow: some View {
+        routeButton(
+            title: "Bookmark Route Selection New Note",
+            iconKey: "note-edit",
+            color: .yellow,
+            showsChevron: true,
+            action: { onSelectKind(.note) }
+        )
+    }
+
+    private var mediaDisclosureSection: some View {
+        DisclosureGroup {
+            routeButton(
+                title: "Bookmark Route Selection New Image",
+                iconKey: "image-03",
+                color: .green,
+                showsChevron: true,
+                action: { onSelectKind(.media) }
+            )
+            routeButton(
+                title: "Bookmark Route Selection New Audio",
+                iconKey: "audio-wave-01",
+                color: .cyan,
+                showsChevron: false,
+                action: {},
+                isEnabled: false
+            )
+            routeButton(
+                title: "Bookmark Route Selection New Video",
+                iconKey: "video-01",
+                color: .indigo,
+                showsChevron: false,
+                action: {},
+                isEnabled: false
+            )
         } label: {
+            disclosureLabel(
+                title: "Bookmark Route Selection Media",
+                iconKey: "play-circle",
+                color: .red
+            )
+        }
+    }
+
+    private var documentDisclosureSection: some View {
+        DisclosureGroup {
+            routeButton(
+                title: "Bookmark Route Selection New PDF",
+                iconKey: "pdf-02",
+                color: .red,
+                showsChevron: true,
+                action: { onSelectKind(.file) }
+            )
+            routeButton(
+                title: "Bookmark Route Selection New EPUB",
+                iconKey: "book-bookmark-02",
+                color: .mint,
+                showsChevron: false,
+                action: {},
+                isEnabled: false
+            )
+            routeButton(
+                title: "Bookmark Route Selection New CSV",
+                iconKey: "csv-02",
+                color: .green,
+                showsChevron: false,
+                action: {},
+                isEnabled: false
+            )
+        } label: {
+            disclosureLabel(
+                title: "Bookmark Route Selection Document",
+                iconKey: "doc-02",
+                color: .orange
+            )
+        }
+    }
+
+    @ViewBuilder
+    private func disclosureLabel(title: LocalizedStringKey, iconKey: String, color: YabaColor) -> some View {
+        HStack {
+            YabaIconView(bundleKey: iconKey)
+                .scaledToFit()
+                .frame(width: 24, height: 24)
+                .foregroundStyle(color.getUIColor())
+                .padding(.trailing, 12)
+            Text(title)
+            Spacer()
+        }
+    }
+
+    @ViewBuilder
+    private func routeButton(
+        title: LocalizedStringKey,
+        iconKey: String,
+        color: YabaColor,
+        showsChevron: Bool,
+        action: @escaping () -> Void,
+        isEnabled: Bool = true
+    ) -> some View {
+        Button(action: action) {
             HStack {
-                YabaIconView(bundleKey: row.iconKey)
+                YabaIconView(bundleKey: iconKey)
                     .scaledToFit()
                     .frame(width: 24, height: 24)
-                    .foregroundStyle(row.color.getUIColor())
+                    .foregroundStyle(color.getUIColor())
                     .padding(.trailing, 12)
-                Text(row.title)
+                Text(title)
                 Spacer()
-                YabaIconView(bundleKey: "arrow-right-01")
-                    .scaledToFit()
-                    .frame(width: 22, height: 22)
-                    .foregroundStyle(.secondary)
-            }
+                if showsChevron {
+                    YabaIconView(bundleKey: "arrow-right-01")
+                        .scaledToFit()
+                        .frame(width: 22, height: 22)
+                        .foregroundStyle(.secondary)
+                }
+            }.contentShape(.rect)
         }
         .buttonStyle(.plain)
+        .disabled(!isEnabled)
+        .opacity(isEnabled ? 1 : 0.55)
     }
 }

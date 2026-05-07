@@ -2904,12 +2904,63 @@
         }
       }
     },
+    "Bookmark Route Selection Document" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Document"
+          }
+        }
+      }
+    },
+    "Bookmark Route Selection Media" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Media"
+          }
+        }
+      }
+    },
+    "Bookmark Route Selection New Audio" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New Audio"
+          }
+        }
+      }
+    },
+    "Bookmark Route Selection New CSV" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New CSV"
+          }
+        }
+      }
+    },
     "Bookmark Route Selection New Document" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "New Document"
+          }
+        }
+      }
+    },
+    "Bookmark Route Selection New EPUB" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New EPUB"
           }
         }
       }
@@ -2940,6 +2991,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "New Note"
+          }
+        }
+      }
+    },
+    "Bookmark Route Selection New PDF" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New PDF"
+          }
+        }
+      }
+    },
+    "Bookmark Route Selection New Video" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New Video"
           }
         }
       }
@@ -3712,6 +3783,16 @@
         }
       }
     },
+    "Bookmark Type Document" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Document"
+          }
+        }
+      }
+    },
     "Bookmark Type Image" : {
       "comment" : "Image Bookmark type",
       "extractionState" : "manual",
@@ -4092,6 +4173,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "普通网页或文章。"
+          }
+        }
+      }
+    },
+    "Bookmark Type Media" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Media"
           }
         }
       }

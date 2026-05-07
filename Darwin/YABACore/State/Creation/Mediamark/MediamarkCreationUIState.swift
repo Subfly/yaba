@@ -1,15 +1,14 @@
 //
-//  ImagemarkCreationUIState.swift
+//  MediamarkCreationUIState.swift
 //  YABACore
 //
 
 import Foundation
 
-public struct ImagemarkCreationUIState: Sendable {
+public struct MediamarkCreationUIState: Sendable {
     public var editingBookmarkId: String?
     public var label: String
     public var bookmarkDescription: String
-    public var summary: String
     public var selectedFolderId: String?
     public var uncategorizedFolderCreationRequired: Bool
     public var selectedTagIds: [String]
@@ -25,7 +24,6 @@ public struct ImagemarkCreationUIState: Sendable {
         editingBookmarkId: String? = nil,
         label: String = "",
         bookmarkDescription: String = "",
-        summary: String = "",
         selectedFolderId: String? = nil,
         uncategorizedFolderCreationRequired: Bool = false,
         selectedTagIds: [String] = [],
@@ -40,7 +38,6 @@ public struct ImagemarkCreationUIState: Sendable {
         self.editingBookmarkId = editingBookmarkId
         self.label = label
         self.bookmarkDescription = bookmarkDescription
-        self.summary = summary
         self.selectedFolderId = selectedFolderId
         self.uncategorizedFolderCreationRequired = uncategorizedFolderCreationRequired
         self.selectedTagIds = selectedTagIds

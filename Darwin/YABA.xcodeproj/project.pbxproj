@@ -284,7 +284,6 @@
 				Creation/Bookmark/Forms/BookmarkKindForm.swift = (ios, );
 				Creation/Bookmark/Forms/BookmarkRouteSelectionContent.swift = (ios, );
 				Creation/Bookmark/Forms/DocmarkCreationContent.swift = (ios, );
-				Creation/Bookmark/Forms/ImagemarkCreationContent.swift = (ios, );
 				Creation/Bookmark/Forms/LinkmarkCreationContent.swift = (ios, );
 				Creation/Bookmark/Forms/NotemarkCreationContent.swift = (ios, );
 				Creation/Bookmark/Shared/BookmarkCreationFolderVisuals.swift = (ios, );
@@ -296,8 +295,6 @@
 				Creation/Tag/TagCreationContent.swift = (ios, );
 				Detail/Bookmark/Docmark/DocmarkDetailInfoSheet.swift = (ios, );
 				Detail/Bookmark/Docmark/DocmarkDetailView.swift = (ios, );
-				Detail/Bookmark/Imagemark/ImagemarkDetailInfoSheet.swift = (ios, );
-				Detail/Bookmark/Imagemark/ImagemarkDetailView.swift = (ios, );
 				Detail/Bookmark/Linkmark/LinkmarkDetailInfoSheet.swift = (ios, );
 				Detail/Bookmark/Linkmark/LinkmarkDetailView.swift = (ios, );
 				Detail/Bookmark/Linkmark/LinkmarkToolbar.swift = (ios, );

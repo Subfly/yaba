@@ -1,5 +1,5 @@
 //
-//  ImagemarkCreationContent.swift
+//  MediamarkCreationContent.swift
 //  YABA
 //
 //  Created by Ali Taha on 16.04.2026.
@@ -10,7 +10,7 @@ import SwiftData
 import SwiftUI
 import UIKit
 
-struct ImagemarkCreationContent: View {
+struct MediamarkCreationContent: View {
     @Environment(\.dismiss)
     private var dismiss
 
@@ -18,7 +18,7 @@ struct ImagemarkCreationContent: View {
     private var modelContext
 
     @State
-    private var machine = ImagemarkCreationStateMachine()
+    private var machine = MediamarkCreationStateMachine()
 
     @State
     private var showFolderSheet = false
@@ -485,7 +485,7 @@ struct ImagemarkCreationContent: View {
         if let bid = editingBookmarkId,
            let bookmark = BookmarkFlowHydration.fetchBookmark(bookmarkId: bid, modelContext: modelContext)
         {
-            machine.replaceState(BookmarkFlowHydration.imagemarkUIState(from: bookmark))
+            machine.replaceState(BookmarkFlowHydration.mediamarkUIState(from: bookmark))
             return
         }
         let resolved = BookmarkCreationFolderResolution.resolveForNewBookmark(
@@ -494,7 +494,7 @@ struct ImagemarkCreationContent: View {
         )
         await machine.send(
             .onInit(
-                imagemarkId: nil,
+                mediaBookmarkId: nil,
                 initialFolderId: resolved.selectedFolderId,
                 initialTagIds: preselectedTagIds,
                 uncategorizedFolderCreationRequired: resolved.uncategorizedFolderCreationRequired

@@ -1,11 +1,11 @@
 //
-//  ImagemarkDetailUIState.swift
+//  MediamarkDetailUIState.swift
 //  YABACore
 //
 
 import Foundation
 
-public struct ImagemarkDetailUIState: Sendable {
+public struct MediamarkDetailUIState: Sendable {
     public var bookmarkId: String?
     public var reminderDate: Date?
     /// Populated by `onShareImage`; consume with `onConsumePendingShare` after presenting share UI.

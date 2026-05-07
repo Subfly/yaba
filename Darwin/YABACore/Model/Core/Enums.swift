@@ -12,7 +12,7 @@ import SwiftUI
 public enum BookmarkKind: Int, Codable, CaseIterable, Sendable {
     case link = 0
     case note = 1
-    case image = 2
+    case media = 2
     case file = 3
 }
 
@@ -21,8 +21,8 @@ public extension BookmarkKind {
         switch self {
         case .link: return LocalizedStringKey("Bookmark Type Link")
         case .note: return LocalizedStringKey("Bookmark Type None")
-        case .image: return LocalizedStringKey("Bookmark Type Image")
-        case .file: return LocalizedStringKey("Bookmark Type Audio")
+        case .media: return LocalizedStringKey("Bookmark Type Media")
+        case .file: return LocalizedStringKey("Bookmark Type Document")
         }
     }
 
@@ -30,15 +30,23 @@ public extension BookmarkKind {
         switch self {
         case .link: return "link-02"
         case .note: return "note-edit"
-        case .image: return "image-03"
+        case .media: return "image-03"
         case .file: return "doc-02"
         }
     }
 }
 
-/// Darwin docmarks are PDF-only. Raw `"EPUB"` from parity/Compose maps to ``DocmarkType/pdf`` via `rawValue` fallback.
+/// Subtype for ``BookmarkKind.media`` bookmarks (stored on ``MediaBookmarkModel``).
+public enum MediaMarkType: Int, Codable, CaseIterable, Sendable {
+    case image = 0
+    case video = 1
+    case audio = 2
+}
+
 public enum DocmarkType: String, Codable, CaseIterable, Sendable {
     case pdf = "PDF"
+    case epub = "EPUB"
+    case csv = "CSV"
 }
 
 /// Legacy app-side compatibility enum kept in YABACore after YABA model cleanup.

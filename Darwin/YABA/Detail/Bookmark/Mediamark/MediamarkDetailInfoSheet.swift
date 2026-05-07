@@ -1,5 +1,5 @@
 //
-//  ImagemarkDetailInfoSheet.swift
+//  MediamarkDetailInfoSheet.swift
 //  YABA
 //
 //  Single info section (no segmented tabs): mirrors Compose imagemark detail layout.
@@ -8,7 +8,7 @@
 import SwiftData
 import SwiftUI
 
-struct ImagemarkDetailInfoSheet: View {
+struct MediamarkDetailInfoSheet: View {
     @Environment(\.dismiss)
     private var dismiss
 

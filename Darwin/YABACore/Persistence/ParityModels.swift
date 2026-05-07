@@ -122,8 +122,8 @@ final class BookmarkModel {
     @Relationship(deleteRule: .cascade, inverse: \NoteBookmarkModel.bookmark)
     var noteDetail: NoteBookmarkModel?
 
-    @Relationship(deleteRule: .cascade, inverse: \ImageBookmarkModel.bookmark)
-    var imageDetail: ImageBookmarkModel?
+    @Relationship(deleteRule: .cascade, inverse: \MediaBookmarkModel.bookmark)
+    var mediaDetail: MediaBookmarkModel?
 
     @Relationship(deleteRule: .cascade, inverse: \DocBookmarkModel.bookmark)
     var docDetail: DocBookmarkModel?
@@ -239,20 +239,24 @@ final class LinkBookmarkModel {
     }
 }
 
-// MARK: - Image subtype
+// MARK: - Media subtype (image / video / audio)
 
 @Model
-final class ImageBookmarkModel {
-    var summary: String?
+final class MediaBookmarkModel {
+    var mediaMarkTypeRaw: Int = MediaMarkType.image.rawValue
 
     @Attribute(.externalStorage)
-    var originalImageData: Data?
+    var originalData: Data?
 
     var bookmark: BookmarkModel?
 
-    init(summary: String? = nil, originalImageData: Data? = nil, bookmark: BookmarkModel? = nil) {
-        self.summary = summary
-        self.originalImageData = originalImageData
+    init(
+        mediaMarkTypeRaw: Int = MediaMarkType.image.rawValue,
+        originalData: Data? = nil,
+        bookmark: BookmarkModel? = nil
+    ) {
+        self.mediaMarkTypeRaw = mediaMarkTypeRaw
+        self.originalData = originalData
         self.bookmark = bookmark
     }
 }

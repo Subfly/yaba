@@ -52,7 +52,7 @@ extension BookmarkModel {
         switch kind {
         case .link: return .webLink
         case .note: return .none
-        case .image: return .image
+        case .media: return .image
         case .file: return .audio
         }
     }
@@ -136,5 +136,13 @@ extension TagModel {
 extension DocBookmarkModel {
     var docmarkType: DocmarkType {
         DocmarkType(rawValue: docmarkTypeRaw) ?? .pdf
+    }
+}
+
+// MARK: - Media bookmark subtype
+
+extension MediaBookmarkModel {
+    var mediaMarkType: MediaMarkType {
+        MediaMarkType(rawValue: mediaMarkTypeRaw) ?? .image
     }
 }
