@@ -35344,6 +35344,12 @@
         }
       }
     },
+    "Record" : {
+
+    },
+    "Record Audio" : {
+
+    },
     "Refresh" : {
       "comment" : "Label to show for refresh related functions",
       "extractionState" : "manual",
@@ -36303,6 +36309,9 @@
           }
         }
       }
+    },
+    "Select" : {
+
     },
     "Select Bookmark Label" : {
       "comment" : "Navigation title for bookmark selection sheet",

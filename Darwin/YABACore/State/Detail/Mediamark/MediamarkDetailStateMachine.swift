@@ -76,7 +76,15 @@ public final class MediamarkDetailStateMachine: YabaBaseObservableState<Mediamar
                 )
                 return
             }
-            let fallback = payload.mediaMarkType == .video ? "video" : "image"
+            let fallback: String
+            switch payload.mediaMarkType {
+            case .image:
+                fallback = "image"
+            case .video:
+                fallback = "video"
+            case .audio:
+                fallback = "audio"
+            }
             let base = MarkdownExportSupport.sanitizeBaseFolderName(payload.label, emptyFallback: fallback)
             let ext = payload.fileExtension
             let url = FileManager.default.temporaryDirectory

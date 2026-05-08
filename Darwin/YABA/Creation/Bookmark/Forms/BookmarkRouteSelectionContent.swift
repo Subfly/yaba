@@ -69,9 +69,8 @@ struct BookmarkRouteSelectionContent: View {
                 title: "Bookmark Route Selection New Audio",
                 iconKey: "audio-wave-01",
                 color: .cyan,
-                showsChevron: false,
-                action: {},
-                isEnabled: false
+                showsChevron: true,
+                action: { onSelectKind(.media, .audio) }
             )
             routeButton(
                 title: "Bookmark Route Selection New Video",

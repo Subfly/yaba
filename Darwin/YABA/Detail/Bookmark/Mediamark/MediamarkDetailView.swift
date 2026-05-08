@@ -191,7 +191,7 @@ struct MediamarkDetailView: View {
             case .video:
                 VideomarkDetailView(bookmark: bm, folderTint: folderTint)
             case .audio:
-                EmptyView()
+                AudiomarkDetailView(bookmark: bm, folderTint: folderTint)
             }
         }
         .navigationBarTitleDisplayMode(.inline)
@@ -249,7 +249,17 @@ struct MediamarkDetailView: View {
             }
             .tint(YabaColor.yellow.getUIColor())
             Button {
-                Task { await machine.send(.onExportMedia) }
+                Task {
+                    if bm.mediaDetail?.mediaMarkType == .audio {
+                        await machine.send(.onShareMedia)
+                        if let url = machine.state.pendingShareFileURL {
+                            shareURL = url
+                            showShareSheet = true
+                        }
+                    } else {
+                        await machine.send(.onExportMedia)
+                    }
+                }
             } label: {
                 overflowMenuItemLabel(LocalizedStringKey("Bookmark Detail Save Copy Label"), icon: "download-01")
             }

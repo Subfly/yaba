@@ -15,6 +15,7 @@ public struct MediamarkCreationUIState: Sendable {
     public var mediaMarkType: MediaMarkType
     public var imageData: Data?
     public var videoData: Data?
+    public var audioData: Data?
     public var mediaFileExtension: String
     public var bookmarkAppearance: BookmarkAppearance
     public var cardImageSizing: CardImageSizing
@@ -32,6 +33,7 @@ public struct MediamarkCreationUIState: Sendable {
         mediaMarkType: MediaMarkType = .image,
         imageData: Data? = nil,
         videoData: Data? = nil,
+        audioData: Data? = nil,
         mediaFileExtension: String = "png",
         bookmarkAppearance: BookmarkAppearance = .list,
         cardImageSizing: CardImageSizing = .small,
@@ -48,6 +50,7 @@ public struct MediamarkCreationUIState: Sendable {
         self.mediaMarkType = mediaMarkType
         self.imageData = imageData
         self.videoData = videoData
+        self.audioData = audioData
         self.mediaFileExtension = mediaFileExtension
         self.bookmarkAppearance = bookmarkAppearance
         self.cardImageSizing = cardImageSizing

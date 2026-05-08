@@ -93,9 +93,10 @@ enum BookmarkFlowHydration {
             state.imageData = bookmark.imagePayload?.bytes
             state.mediaFileExtension = "mp4"
         case .audio:
+            state.audioData = bookmark.mediaDetail?.originalData
             state.imageData = bookmark.imagePayload?.bytes
             state.videoData = nil
-            state.mediaFileExtension = "mp3"
+            state.mediaFileExtension = "wav"
         }
         state.uncategorizedFolderCreationRequired = false
         return state

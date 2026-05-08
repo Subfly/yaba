@@ -24,6 +24,33 @@ public struct MediamarkExportPayload: Sendable {
 }
 
 public enum MediamarkManager {
+    public static func inferAudioFileExtension(from data: Data) -> String {
+        guard !data.isEmpty else { return "wav" }
+        if hasPrefix(data, ascii: "fLaC") {
+            return "flac"
+        }
+        if data.count >= 12,
+           hasPrefix(data, ascii: "RIFF"),
+           hasBytes(data, offset: 8, ascii: "WAVE")
+        {
+            return "wav"
+        }
+        if hasPrefix(data, ascii: "ID3") {
+            return "mp3"
+        }
+        if data.count >= 2 {
+            let b0 = data[data.startIndex]
+            let b1 = data[data.startIndex.advanced(by: 1)]
+            if b0 == 0xFF, (b1 & 0xE0) == 0xE0 {
+                return "mp3"
+            }
+        }
+        if data.count >= 12, hasBytes(data, offset: 4, ascii: "ftyp") {
+            return "m4a"
+        }
+        return "wav"
+    }
+
     public static func queueCreateOrUpdateMediaDetails(
         bookmarkId: String,
         originalData: Data? = nil,
@@ -100,7 +127,7 @@ public enum MediamarkManager {
                 case .video:
                     ext = "mp4"
                 case .audio:
-                    ext = "mp3"
+                    ext = inferAudioFileExtension(from: data)
                 }
                 result = MediamarkExportPayload(
                     mediaData: data,
@@ -116,5 +143,19 @@ public enum MediamarkManager {
                 }
             }
         }
+    }
+
+    private static func hasPrefix(_ data: Data, ascii: String) -> Bool {
+        guard let bytes = ascii.data(using: .ascii) else { return false }
+        guard data.count >= bytes.count else { return false }
+        return data.prefix(bytes.count) == bytes
+    }
+
+    private static func hasBytes(_ data: Data, offset: Int, ascii: String) -> Bool {
+        guard let bytes = ascii.data(using: .ascii) else { return false }
+        guard data.count >= offset + bytes.count else { return false }
+        let start = data.startIndex.advanced(by: offset)
+        let end = start.advanced(by: bytes.count)
+        return data[start..<end] == bytes[bytes.startIndex..<bytes.endIndex]
     }
 }

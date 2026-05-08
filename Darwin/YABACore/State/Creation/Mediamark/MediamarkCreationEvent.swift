@@ -17,6 +17,7 @@ public enum MediamarkCreationEvent: Sendable {
     case onPickFromGallery
     case onImageFromShare(Data, fileExtension: String)
     case onVideoPicked(videoData: Data, thumbnailData: Data?, fileExtension: String)
+    case onAudioPicked(audioData: Data, fileExtension: String)
     case onCaptureFromCamera
     case onClearMedia
     case onChangeLabel(String)

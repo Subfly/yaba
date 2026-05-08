@@ -31,7 +31,12 @@ struct MediamarkCreationContent: View {
                 onDone: onDone
             )
         case .audio:
-            EmptyView()
+            AudiomarkCreationContent(
+                preselectedFolderId: preselectedFolderId,
+                preselectedTagIds: preselectedTagIds,
+                editingBookmarkId: editingBookmarkId,
+                onDone: onDone
+            )
         }
     }
 }

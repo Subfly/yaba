@@ -43,7 +43,7 @@
 	<key>NSCameraUsageDescription</key>
 	<string>YABA needs camera access to capture photos and record video.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>YABA needs microphone access when recording video with sound.</string>
+	<string>YABA needs microphone access to record video and audio bookmarks.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>YABA saves images and videos to your photo library when you choose Save Copy.</string>
 	<key>NSSupportsAutomaticTermination</key>

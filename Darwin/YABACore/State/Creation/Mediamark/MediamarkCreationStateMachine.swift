@@ -29,6 +29,8 @@ public final class MediamarkCreationStateMachine: YabaBaseObservableState<Mediam
                     $0.mediaFileExtension = "png"
                 } else if initialMediaMarkType == .video {
                     $0.mediaFileExtension = "mp4"
+                } else if initialMediaMarkType == .audio {
+                    $0.mediaFileExtension = "wav"
                 }
                 if id == nil {
                     $0.uncategorizedFolderCreationRequired = uncategorizedFolderCreationRequired
@@ -51,6 +53,7 @@ public final class MediamarkCreationStateMachine: YabaBaseObservableState<Mediam
                 $0.mediaMarkType = .image
                 $0.imageData = data
                 $0.videoData = nil
+                $0.audioData = nil
                 $0.mediaFileExtension = ext
             }
         case let .onVideoPicked(videoData, thumbnailData, ext):
@@ -58,12 +61,23 @@ public final class MediamarkCreationStateMachine: YabaBaseObservableState<Mediam
                 $0.mediaMarkType = .video
                 $0.videoData = videoData
                 $0.imageData = thumbnailData
+                $0.audioData = nil
                 $0.mediaFileExtension = ext.isEmpty ? "mp4" : ext
+            }
+        case let .onAudioPicked(audioData, ext):
+            apply {
+                $0.mediaMarkType = .audio
+                $0.audioData = audioData
+                $0.videoData = nil
+                // Keep preview image as-is for audio (none by default).
+                $0.imageData = nil
+                $0.mediaFileExtension = ext.isEmpty ? "wav" : ext
             }
         case .onClearMedia:
             apply {
                 $0.imageData = nil
                 $0.videoData = nil
+                $0.audioData = nil
             }
         case let .onChangeLabel(s):
             apply { $0.label = s }
@@ -128,6 +142,12 @@ public final class MediamarkCreationStateMachine: YabaBaseObservableState<Mediam
         if markType == .video, state.editingBookmarkId == nil {
             guard let vData = state.videoData, !vData.isEmpty else {
                 apply { $0.lastError = "Video required" }
+                return
+            }
+        }
+        if markType == .audio, state.editingBookmarkId == nil {
+            guard let aData = state.audioData, !aData.isEmpty else {
+                apply { $0.lastError = "Audio required" }
                 return
             }
         }
@@ -198,7 +218,19 @@ public final class MediamarkCreationStateMachine: YabaBaseObservableState<Mediam
                 )
             }
         case .audio:
-            break
+            if let a = state.audioData {
+                MediamarkManager.queueCreateOrUpdateMediaDetails(
+                    bookmarkId: bid,
+                    originalData: a,
+                    mediaMarkType: .audio
+                )
+            } else if state.editingBookmarkId != nil {
+                MediamarkManager.queueCreateOrUpdateMediaDetails(
+                    bookmarkId: bid,
+                    originalData: nil,
+                    mediaMarkType: .audio
+                )
+            }
         }
 
         apply { $0.isSaving = false }
