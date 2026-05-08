@@ -1096,7 +1096,7 @@
       }
     },
     "Bookmark Asset Image Copy To Clipboard Success Message" : {
-      "comment" : "Message to show in toast when user copied something",
+      "comment" : "Message to show in toast when user copied asset id",
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
@@ -1387,6 +1387,16 @@
         }
       }
     },
+    "Bookmark Creation Pick CSV Document Action" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select CSV"
+          }
+        }
+      }
+    },
     "Bookmark Creation Pick PDF Document Action" : {
       "localizations" : {
         "en" : {
@@ -1403,6 +1413,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Pin Bookmark"
+          }
+        }
+      }
+    },
+    "Bookmark CSV Row Copy To Clipboard Success Message" : {
+      "comment" : "Message to show in toast when user copied CSV row id",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Value copied to clipboard"
           }
         }
       }
@@ -7666,6 +7688,9 @@
       },
       "shouldTranslate" : false
     },
+    "Csv Docmark Compact Table Column Title" : {
+
+    },
     "CSV Notes Bookmark ID" : {
       "comment" : "Note for Bookmark ID in mapper info section of CSV",
       "extractionState" : "manual",
@@ -10357,6 +10382,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "显示 ${selectedCollection}"
+          }
+        }
+      }
+    },
+    "Docmark Csv Too Large Label" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CSV Too Large"
           }
         }
       }
@@ -34467,6 +34502,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "在 YABA 中打开以获得更多选项"
+          }
+        }
+      }
+    },
+    "Page Label %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Page %lld"
           }
         }
       }
