@@ -14,15 +14,70 @@ struct BookmarkRouteSelectionContent: View {
     var body: some View {
         NavigationStack {
             List {
-                linkRow
-                noteRow
-                mediaDisclosureSection
-                documentDisclosureSection
+                Section {
+                    linkRow
+                    noteRow
+                }
+                Section {
+                    routeButton(
+                        title: "Bookmark Route Selection New Image",
+                        iconKey: "image-03",
+                        color: .green,
+                        showsChevron: true,
+                        action: { onSelectKind(.media, .image, nil) }
+                    )
+                    routeButton(
+                        title: "Bookmark Route Selection New Audio",
+                        iconKey: "audio-wave-01",
+                        color: .cyan,
+                        showsChevron: true,
+                        action: { onSelectKind(.media, .audio, nil) }
+                    )
+                    routeButton(
+                        title: "Bookmark Route Selection New Video",
+                        iconKey: "video-01",
+                        color: .indigo,
+                        showsChevron: true,
+                        action: { onSelectKind(.media, .video, nil) }
+                    )
+                } header: {
+                    sectionHeaderLabel(
+                        title: "Bookmark Route Selection Media",
+                        iconKey: "play-circle"
+                    )
+                }
+                Section {
+                    routeButton(
+                        title: "Bookmark Route Selection New PDF",
+                        iconKey: "pdf-02",
+                        color: .red,
+                        showsChevron: true,
+                        action: { onSelectKind(.file, nil, .pdf) }
+                    )
+                    routeButton(
+                        title: "Bookmark Route Selection New EPUB",
+                        iconKey: "book-bookmark-02",
+                        color: .orange,
+                        showsChevron: false,
+                        action: {},
+                        isEnabled: false
+                    )
+                    routeButton(
+                        title: "Bookmark Route Selection New CSV",
+                        iconKey: "csv-02",
+                        color: .green,
+                        showsChevron: true,
+                        action: { onSelectKind(.file, nil, .csv) }
+                    )
+                } header: {
+                    sectionHeaderLabel(
+                        title: "Bookmark Route Selection Document",
+                        iconKey: "doc-02"
+                    )
+                }
             }
             .listStyle(.sidebar)
-            #if !os(visionOS)
             .scrollDismissesKeyboard(.immediately)
-            #endif
             .scrollContentBackground(.hidden)
             .navigationTitle("New Bookmark")
             .navigationBarTitleDisplayMode(.inline)
@@ -56,81 +111,14 @@ struct BookmarkRouteSelectionContent: View {
         )
     }
 
-    private var mediaDisclosureSection: some View {
-        DisclosureGroup {
-            routeButton(
-                title: "Bookmark Route Selection New Image",
-                iconKey: "image-03",
-                color: .green,
-                showsChevron: true,
-                action: { onSelectKind(.media, .image, nil) }
-            )
-            routeButton(
-                title: "Bookmark Route Selection New Audio",
-                iconKey: "audio-wave-01",
-                color: .cyan,
-                showsChevron: true,
-                action: { onSelectKind(.media, .audio, nil) }
-            )
-            routeButton(
-                title: "Bookmark Route Selection New Video",
-                iconKey: "video-01",
-                color: .indigo,
-                showsChevron: true,
-                action: { onSelectKind(.media, .video, nil) }
-            )
-        } label: {
-            disclosureLabel(
-                title: "Bookmark Route Selection Media",
-                iconKey: "play-circle",
-                color: .red
-            )
-        }
-    }
-
-    private var documentDisclosureSection: some View {
-        DisclosureGroup {
-            routeButton(
-                title: "Bookmark Route Selection New PDF",
-                iconKey: "pdf-02",
-                color: .red,
-                showsChevron: true,
-                action: { onSelectKind(.file, nil, .pdf) }
-            )
-            routeButton(
-                title: "Bookmark Route Selection New EPUB",
-                iconKey: "book-bookmark-02",
-                color: .mint,
-                showsChevron: false,
-                action: {},
-                isEnabled: false
-            )
-            routeButton(
-                title: "Bookmark Route Selection New CSV",
-                iconKey: "csv-02",
-                color: .green,
-                showsChevron: true,
-                action: { onSelectKind(.file, nil, .csv) }
-            )
-        } label: {
-            disclosureLabel(
-                title: "Bookmark Route Selection Document",
-                iconKey: "doc-02",
-                color: .orange
-            )
-        }
-    }
-
     @ViewBuilder
-    private func disclosureLabel(title: LocalizedStringKey, iconKey: String, color: YabaColor) -> some View {
-        HStack {
+    private func sectionHeaderLabel(title: LocalizedStringKey, iconKey: String) -> some View {
+        Label {
+            Text(title)
+        } icon: {
             YabaIconView(bundleKey: iconKey)
                 .scaledToFit()
                 .frame(width: 24, height: 24)
-                .foregroundStyle(color.getUIColor())
-                .padding(.trailing, 12)
-            Text(title)
-            Spacer()
         }
     }
 
