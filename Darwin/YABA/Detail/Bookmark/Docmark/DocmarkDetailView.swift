@@ -239,7 +239,7 @@ struct DocmarkDetailView: View {
     }
 
     private func resolvedDocmarkType(for bm: YabaBookmark) -> DocmarkType {
-        DocmarkType(rawValue: bm.docDetail?.docmarkTypeRaw ?? "") ?? .pdf
+        bm.docDetail?.docmarkType ?? .pdf
     }
 
     @ViewBuilder

@@ -132,7 +132,7 @@ public enum DocmarkManager {
                     result = nil
                     return
                 }
-                let type = DocmarkType(rawValue: bookmark.docDetail?.docmarkTypeRaw ?? "") ?? .pdf
+                let type = bookmark.docDetail?.docmarkType ?? .pdf
                 let ext: String
                 switch type {
                 case .pdf:

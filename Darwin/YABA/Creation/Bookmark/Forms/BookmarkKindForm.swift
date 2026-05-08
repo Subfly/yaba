@@ -90,7 +90,7 @@ struct BookmarkKindForm: View {
                     preselectedFolderId: nil,
                     preselectedTagIds: [],
                     editingBookmarkId: bookmark.bookmarkId,
-                    creationDocmarkKind: bookmark.docDetail.flatMap { DocmarkType(rawValue: $0.docmarkTypeRaw) } ?? .pdf,
+                    creationDocmarkKind: bookmark.docDetail?.docmarkType ?? .pdf,
                     onDone: onDone
                 )
             }

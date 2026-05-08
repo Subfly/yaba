@@ -43,10 +43,11 @@ public enum MediaMarkType: Int, Codable, CaseIterable, Sendable {
     case audio = 2
 }
 
-public enum DocmarkType: String, Codable, CaseIterable, Sendable {
-    case pdf = "PDF"
-    case epub = "EPUB"
-    case csv = "CSV"
+/// Subtype for ``BookmarkKind.file`` doc bookmarks (stored on ``DocBookmarkModel``).
+public enum DocmarkType: Int, Codable, CaseIterable, Sendable {
+    case pdf = 0
+    case epub = 1
+    case csv = 2
 }
 
 /// Legacy app-side compatibility enum kept in YABACore after YABA model cleanup.

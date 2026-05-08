@@ -266,7 +266,7 @@ final class MediaBookmarkModel {
 @Model
 final class DocBookmarkModel {
     var summary: String?
-    var docmarkTypeRaw: String = DocmarkType.pdf.rawValue
+    var docmarkTypeRaw: Int = DocmarkType.pdf.rawValue
     var metadataTitle: String?
     var metadataDescription: String?
     var metadataAuthor: String?
@@ -279,7 +279,7 @@ final class DocBookmarkModel {
 
     init(
         summary: String? = nil,
-        docmarkTypeRaw: String = DocmarkType.pdf.rawValue,
+        docmarkTypeRaw: Int = DocmarkType.pdf.rawValue,
         metadataTitle: String? = nil,
         metadataDescription: String? = nil,
         metadataAuthor: String? = nil,
