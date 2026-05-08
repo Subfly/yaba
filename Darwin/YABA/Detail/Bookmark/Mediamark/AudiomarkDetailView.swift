@@ -64,18 +64,20 @@ struct AudiomarkDetailView: View {
                 controlButton(icon: "go-backward-5sec") {
                     seek(by: -5)
                 }
-                controlButton(icon: isPlaying ? "pause" : "play") {
+                controlButton(icon: isPlaying ? "pause" : "play", isBig: true) {
                     togglePlayPause()
                 }
                 controlButton(icon: "go-forward-5sec") {
                     seek(by: 5)
                 }
             }
-            .animation(nil, value: isPlaying)
             .padding(.bottom, 24)
         }
         .task(id: bookmark.bookmarkId) {
             await setupAudio()
+        }
+        .onChange(of: bookmark.mediaDetail?.originalData?.count) { _, _ in
+            Task { await setupAudio() }
         }
         .onDisappear {
             timer?.invalidate()
@@ -86,20 +88,24 @@ struct AudiomarkDetailView: View {
                 try? FileManager.default.removeItem(at: tempAudioURL)
                 self.tempAudioURL = nil
             }
+            try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
         }
     }
 
     @ViewBuilder
-    private func controlButton(icon: String, action: @escaping () -> Void) -> some View {
+    private func controlButton(
+        icon: String,
+        isBig: Bool = false,
+        action: @escaping () -> Void
+    ) -> some View {
         Button(action: action) {
             YabaIconView(bundleKey: icon)
                 .frame(width: 26, height: 26)
                 .foregroundStyle(.primary)
-                .frame(width: 54, height: 54)
-                .background {
-                    Circle()
-                        .fill(.ultraThinMaterial)
-                }
+                .frame(
+                    width: isBig ? 72 : 54,
+                    height: isBig ? 72 : 54
+                )
                 .ifAvailableiOS26Glass()
         }
         .buttonStyle(.plain)
@@ -115,6 +121,11 @@ struct AudiomarkDetailView: View {
             self.tempAudioURL = nil
         }
         guard let data = bookmark.mediaDetail?.originalData, !data.isEmpty else { return }
+        do {
+            let session = AVAudioSession.sharedInstance()
+            try session.setCategory(.playback, mode: .default, options: [.allowAirPlay])
+            try session.setActive(true)
+        } catch {}
         let ext = MediamarkManager.inferAudioFileExtension(from: data)
         let url = FileManager.default.temporaryDirectory
             .appendingPathComponent("yaba-audio-detail-\(bookmark.bookmarkId)-\(UUID().uuidString).\(ext)")
@@ -177,7 +188,10 @@ private extension View {
         if #available(iOS 26, *) {
             self.glassEffect(.regular.interactive())
         } else {
-            self
+            self.background {
+                Circle()
+                    .fill(.ultraThinMaterial)
+            }
         }
     }
 }

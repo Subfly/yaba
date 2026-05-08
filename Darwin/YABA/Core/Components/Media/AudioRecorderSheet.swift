@@ -161,7 +161,7 @@ struct AudioRecorderSheet: View {
     }
 
     private func beginRecording() {
-        AVAudioSession.sharedInstance().requestRecordPermission { granted in
+        let permissionHandler: (Bool) -> Void = { granted in
             guard granted else { return }
             Task { @MainActor in
                 do {
@@ -200,6 +200,8 @@ struct AudioRecorderSheet: View {
                 } catch {}
             }
         }
+
+        AVAudioApplication.requestRecordPermission(completionHandler: permissionHandler)
     }
 
     private func stopRecording() {
