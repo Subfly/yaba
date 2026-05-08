@@ -8,14 +8,16 @@
 import Foundation
 import SwiftData
 
-/// PDF bytes + label for share / save-copy flows.
+/// Document bytes + label for share / save-copy flows (`pdf`, `csv`, …).
 public struct DocmarkExportPayload: Sendable {
-    public let pdfData: Data
+    public let documentBytes: Data
     public let label: String
+    public let pathExtension: String
 
-    public init(pdfData: Data, label: String) {
-        self.pdfData = pdfData
+    public init(documentBytes: Data, label: String, pathExtension: String) {
+        self.documentBytes = documentBytes
         self.label = label
+        self.pathExtension = pathExtension
     }
 }
 
@@ -130,7 +132,17 @@ public enum DocmarkManager {
                     result = nil
                     return
                 }
-                result = DocmarkExportPayload(pdfData: data, label: bookmark.label)
+                let type = DocmarkType(rawValue: bookmark.docDetail?.docmarkTypeRaw ?? "") ?? .pdf
+                let ext: String
+                switch type {
+                case .pdf:
+                    ext = "pdf"
+                case .csv:
+                    ext = "csv"
+                case .epub:
+                    ext = "epub"
+                }
+                result = DocmarkExportPayload(documentBytes: data, label: bookmark.label, pathExtension: ext)
             } completion: { error in
                 if let error {
                     cont.resume(throwing: error)

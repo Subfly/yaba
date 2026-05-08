@@ -9,7 +9,7 @@ import SwiftUI
 
 struct BookmarkRouteSelectionContent: View {
     let onCancel: () -> Void
-    let onSelectKind: (BookmarkKind, MediaMarkType?) -> Void
+    let onSelectKind: (BookmarkKind, MediaMarkType?, DocmarkType?) -> Void
 
     var body: some View {
         NavigationStack {
@@ -42,7 +42,7 @@ struct BookmarkRouteSelectionContent: View {
             iconKey: "link-02",
             color: .blue,
             showsChevron: true,
-            action: { onSelectKind(.link, nil) }
+            action: { onSelectKind(.link, nil, nil) }
         )
     }
 
@@ -52,7 +52,7 @@ struct BookmarkRouteSelectionContent: View {
             iconKey: "note-edit",
             color: .yellow,
             showsChevron: true,
-            action: { onSelectKind(.note, nil) }
+            action: { onSelectKind(.note, nil, nil) }
         )
     }
 
@@ -63,21 +63,21 @@ struct BookmarkRouteSelectionContent: View {
                 iconKey: "image-03",
                 color: .green,
                 showsChevron: true,
-                action: { onSelectKind(.media, .image) }
+                action: { onSelectKind(.media, .image, nil) }
             )
             routeButton(
                 title: "Bookmark Route Selection New Audio",
                 iconKey: "audio-wave-01",
                 color: .cyan,
                 showsChevron: true,
-                action: { onSelectKind(.media, .audio) }
+                action: { onSelectKind(.media, .audio, nil) }
             )
             routeButton(
                 title: "Bookmark Route Selection New Video",
                 iconKey: "video-01",
                 color: .indigo,
                 showsChevron: true,
-                action: { onSelectKind(.media, .video) }
+                action: { onSelectKind(.media, .video, nil) }
             )
         } label: {
             disclosureLabel(
@@ -95,7 +95,7 @@ struct BookmarkRouteSelectionContent: View {
                 iconKey: "pdf-02",
                 color: .red,
                 showsChevron: true,
-                action: { onSelectKind(.file, nil) }
+                action: { onSelectKind(.file, nil, .pdf) }
             )
             routeButton(
                 title: "Bookmark Route Selection New EPUB",
@@ -109,9 +109,8 @@ struct BookmarkRouteSelectionContent: View {
                 title: "Bookmark Route Selection New CSV",
                 iconKey: "csv-02",
                 color: .green,
-                showsChevron: false,
-                action: {},
-                isEnabled: false
+                showsChevron: true,
+                action: { onSelectKind(.file, nil, .csv) }
             )
         } label: {
             disclosureLabel(

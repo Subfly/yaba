@@ -14,6 +14,7 @@ public struct DocmarkCreationUIState: Sendable {
     public var uncategorizedFolderCreationRequired: Bool
     public var selectedTagIds: [String]
     public var docmarkType: DocmarkType?
+    public var creationDocmarkKind: DocmarkType
     public var pickedDocumentData: Data?
     public var sourceFileName: String?
     public var previewImageData: Data?
@@ -37,6 +38,7 @@ public struct DocmarkCreationUIState: Sendable {
         uncategorizedFolderCreationRequired: Bool = false,
         selectedTagIds: [String] = [],
         docmarkType: DocmarkType? = nil,
+        creationDocmarkKind: DocmarkType = .pdf,
         pickedDocumentData: Data? = nil,
         sourceFileName: String? = nil,
         previewImageData: Data? = nil,
@@ -59,6 +61,7 @@ public struct DocmarkCreationUIState: Sendable {
         self.uncategorizedFolderCreationRequired = uncategorizedFolderCreationRequired
         self.selectedTagIds = selectedTagIds
         self.docmarkType = docmarkType
+        self.creationDocmarkKind = creationDocmarkKind
         self.pickedDocumentData = pickedDocumentData
         self.sourceFileName = sourceFileName
         self.previewImageData = previewImageData

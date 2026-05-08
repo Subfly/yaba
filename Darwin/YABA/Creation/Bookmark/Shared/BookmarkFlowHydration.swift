@@ -115,6 +115,7 @@ enum BookmarkFlowHydration {
         if let raw = bookmark.docDetail?.docmarkTypeRaw {
             state.docmarkType = DocmarkType(rawValue: raw)
         }
+        state.creationDocmarkKind = state.docmarkType ?? .pdf
         if let doc = bookmark.docDetail {
             state.metadataTitle = doc.metadataTitle
             state.metadataDescription = doc.metadataDescription

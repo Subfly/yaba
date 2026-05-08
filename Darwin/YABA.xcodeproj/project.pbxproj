@@ -27,6 +27,7 @@
 		96EA39BD2E58EB8F00B8411D /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96EA39BC2E58EB8F00B8411D /* WidgetKit.framework */; };
 		96EA39BF2E58EB8F00B8411D /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96EA39BE2E58EB8F00B8411D /* SwiftUI.framework */; };
 		96EA39CD2E58EB9000B8411D /* YABAWidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 96EA39BB2E58EB8E00B8411D /* YABAWidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		96EB26D22FAE65A0001B7DB4 /* SwiftCSV in Frameworks */ = {isa = PBXBuildFile; productRef = 96EB26D12FAE65A0001B7DB4 /* SwiftCSV */; };
 		96EB67222DD945A6009EB9EC /* YABAShareMac.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 96EB67132DD94580009EB9EC /* YABAShareMac.appex */; platformFilters = (macos, ); settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
@@ -426,6 +427,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				96DCA2472F9D6FD6005760E3 /* SwiftSoup in Frameworks */,
+				96EB26D22FAE65A0001B7DB4 /* SwiftCSV in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -560,6 +562,7 @@
 			name = YABA;
 			packageProductDependencies = (
 				96DCA2462F9D6FD6005760E3 /* SwiftSoup */,
+				96EB26D12FAE65A0001B7DB4 /* SwiftCSV */,
 			);
 			productName = YABA;
 			productReference = 96A8DFC22DB2F5A500A47601 /* YABA.app */;
@@ -707,6 +710,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				96DCA2452F9D6FD6005760E3 /* XCRemoteSwiftPackageReference "SwiftSoup" */,
+				96EB26D02FAE65A0001B7DB4 /* XCRemoteSwiftPackageReference "SwiftCSV" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 96A8DFC32DB2F5A500A47601 /* Products */;
@@ -1518,6 +1522,14 @@
 				minimumVersion = 2.13.4;
 			};
 		};
+		96EB26D02FAE65A0001B7DB4 /* XCRemoteSwiftPackageReference "SwiftCSV" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/swiftcsv/SwiftCSV";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.10.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1525,6 +1537,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 96DCA2452F9D6FD6005760E3 /* XCRemoteSwiftPackageReference "SwiftSoup" */;
 			productName = SwiftSoup;
+		};
+		96EB26D12FAE65A0001B7DB4 /* SwiftCSV */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 96EB26D02FAE65A0001B7DB4 /* XCRemoteSwiftPackageReference "SwiftCSV" */;
+			productName = SwiftCSV;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

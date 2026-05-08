@@ -19,7 +19,8 @@ struct BookmarkKindCreationSheet: View {
                     launch.kind,
                     preselectedFolderId: launch.preselectedFolderId,
                     preselectedTagIds: launch.preselectedTagIds,
-                    mediaMarkType: launch.mediaMarkType
+                    mediaMarkType: launch.mediaMarkType,
+                    docmarkType: launch.docmarkType
                 ),
                 onDone: onDone,
                 onNoteCreatedNavigate: onNoteCreatedNavigate

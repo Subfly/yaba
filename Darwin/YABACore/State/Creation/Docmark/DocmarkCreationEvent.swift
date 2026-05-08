@@ -10,11 +10,12 @@ public enum DocmarkCreationEvent: Sendable {
         docmarkId: String?,
         initialFolderId: String?,
         initialTagIds: [String]?,
-        uncategorizedFolderCreationRequired: Bool
+        uncategorizedFolderCreationRequired: Bool,
+        creationDocmarkKind: DocmarkType
     )
     case onPickDocument
     case onClearDocument
-    case onDocumentFromShare(Data, sourceFileName: String?)
+    case onDocumentFromShare(Data, sourceFileName: String?, docmarkType: DocmarkType)
     case onCyclePreviewAppearance
     case onDocumentMetadataExtracted(
         metadataTitle: String?,

@@ -17,13 +17,15 @@ public final class DocmarkCreationStateMachine: YabaBaseObservableState<DocmarkC
 
     public func send(_ event: DocmarkCreationEvent) async {
         switch event {
-        case let .onInit(id, folderId, tagIds, uncategorizedFolderCreationRequired):
+        case let .onInit(id, folderId, tagIds, uncategorizedFolderCreationRequired, creationDocmarkKind):
             apply {
                 $0.editingBookmarkId = id
                 $0.selectedFolderId = folderId
                 $0.selectedTagIds = tagIds ?? []
                 if id == nil {
                     $0.uncategorizedFolderCreationRequired = uncategorizedFolderCreationRequired
+                    $0.creationDocmarkKind = creationDocmarkKind
+                    $0.docmarkType = creationDocmarkKind
                 } else {
                     $0.uncategorizedFolderCreationRequired = false
                 }
@@ -35,7 +37,6 @@ public final class DocmarkCreationStateMachine: YabaBaseObservableState<DocmarkC
             apply {
                 $0.pickedDocumentData = nil
                 $0.sourceFileName = nil
-                $0.docmarkType = nil
                 $0.metadataTitle = nil
                 $0.metadataDescription = nil
                 $0.metadataAuthor = nil
@@ -44,22 +45,29 @@ public final class DocmarkCreationStateMachine: YabaBaseObservableState<DocmarkC
                 $0.isLoading = false
                 $0.lastError = nil
             }
-        case let .onDocumentFromShare(data, name):
+        case let .onDocumentFromShare(data, name, docType):
             documentExtractionGeneration += 1
             let generation = documentExtractionGeneration
             apply {
                 $0.pickedDocumentData = data
                 $0.sourceFileName = name
-                $0.docmarkType = .pdf
+                $0.docmarkType = docType
                 $0.metadataTitle = nil
                 $0.metadataDescription = nil
                 $0.metadataAuthor = nil
                 $0.metadataDate = nil
                 $0.previewImageData = nil
-                $0.isLoading = true
+                $0.isLoading = docType == .pdf
                 $0.lastError = nil
             }
-            Task { await self.extractDocumentMetadata(data: data, generation: generation) }
+            switch docType {
+            case .pdf:
+                Task { await self.extractDocumentMetadata(data: data, generation: generation) }
+            case .csv:
+                Task { await self.send(.onDocumentExtractionFinished) }
+            case .epub:
+                Task { await self.send(.onDocumentExtractionFinished) }
+            }
         case .onCyclePreviewAppearance:
             apply {
                 switch $0.bookmarkAppearance {
@@ -128,7 +136,7 @@ public final class DocmarkCreationStateMachine: YabaBaseObservableState<DocmarkC
             return
         }
         if state.editingBookmarkId == nil {
-            guard state.pickedDocumentData != nil, state.docmarkType != nil else {
+            guard state.pickedDocumentData != nil else {
                 apply { $0.lastError = "No document selected" }
                 return
             }
@@ -176,15 +184,27 @@ public final class DocmarkCreationStateMachine: YabaBaseObservableState<DocmarkC
                 iconBytes: nil
             )
         }
-        DocmarkManager.queueCreateOrUpdateDocDetails(
-            bookmarkId: bid,
-            summary: summary,
-            docmarkType: state.editingBookmarkId != nil ? nil : state.docmarkType,
-            metadataTitle: state.metadataTitle,
-            metadataDescription: state.metadataDescription,
-            metadataAuthor: state.metadataAuthor,
-            metadataDate: state.metadataDate
-        )
+        if state.docmarkType == .csv {
+            DocmarkManager.queueCreateOrUpdateDocDetails(
+                bookmarkId: bid,
+                summary: summary,
+                docmarkType: state.editingBookmarkId != nil ? nil : state.docmarkType,
+                metadataTitle: nil,
+                metadataDescription: nil,
+                metadataAuthor: nil,
+                metadataDate: nil
+            )
+        } else {
+            DocmarkManager.queueCreateOrUpdateDocDetails(
+                bookmarkId: bid,
+                summary: summary,
+                docmarkType: state.editingBookmarkId != nil ? nil : state.docmarkType,
+                metadataTitle: state.metadataTitle,
+                metadataDescription: state.metadataDescription,
+                metadataAuthor: state.metadataAuthor,
+                metadataDate: state.metadataDate
+            )
+        }
         if state.editingBookmarkId == nil, let docBytes = state.pickedDocumentData {
             DocmarkManager.queueUpsertDocBookmarkPayloadBytes(bookmarkId: bid, documentBytes: docBytes)
         }
