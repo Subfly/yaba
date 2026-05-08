@@ -7689,7 +7689,14 @@
       "shouldTranslate" : false
     },
     "Csv Docmark Compact Table Column Title" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compact CSV View"
+          }
+        }
+      }
     },
     "CSV Notes Bookmark ID" : {
       "comment" : "Note for Bookmark ID in mapper info section of CSV",
@@ -10386,12 +10393,32 @@
         }
       }
     },
+    "Docmark Csv Too Large Description" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This CSV is too large for YABA to render. You can always export this CSV using the options menu above."
+          }
+        }
+      }
+    },
     "Docmark Csv Too Large Label" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "CSV Too Large"
+          }
+        }
+      }
+    },
+    "Docmark Csv Too Many Rows Description %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "YABA can render CSV’s that have only %lld amount of rows or less. Seems like this is a really really huge CSV, isn’t it? You can always export this CSV using the options menu above"
           }
         }
       }
