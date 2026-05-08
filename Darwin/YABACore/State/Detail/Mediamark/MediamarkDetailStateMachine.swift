@@ -85,7 +85,7 @@ public final class MediamarkDetailStateMachine: YabaBaseObservableState<Mediamar
             case .audio:
                 fallback = "audio"
             }
-            let base = MarkdownExportSupport.sanitizeBaseFolderName(payload.label, emptyFallback: fallback)
+            let base = ExportSupport.sanitizeBaseFolderName(payload.label, emptyFallback: fallback)
             let ext = payload.fileExtension
             let url = FileManager.default.temporaryDirectory
                 .appendingPathComponent("YABA-\(base)-\(UUID().uuidString.prefix(8)).\(ext)")

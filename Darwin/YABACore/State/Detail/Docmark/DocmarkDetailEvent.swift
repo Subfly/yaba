@@ -9,7 +9,6 @@ public enum DocmarkDetailEvent: Sendable {
     case onInit(bookmarkId: String)
     case onDeleteBookmark(bookmarkId: String)
     case onShareDocument
-    /// Reserved for Compose parity; Save Copy uses ``DocmarkDetailStateMachine/preparePdfSaveCopy(bookmarkLabel:)``.
     case onExportDocument
     case onConsumePendingShare
     case onRequestNotificationPermission

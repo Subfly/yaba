@@ -1,8 +1,8 @@
 //
-//  MarkdownExportSupport.swift
+//  ExportSupport.swift
 //  YABACore
 //
-//  Shared markdown export to a user-picked directory: `note.md` + `assets/` (Compose / Android parity).
+//  Saving exports to user-picked locations: Markdown bundles (`note.md` + `assets/`) and single documents (PDF, CSV, …).
 //
 
 import Foundation
@@ -10,8 +10,6 @@ import SwiftUI
 #if canImport(UIKit)
 import UIKit
 import UniformTypeIdentifiers
-#elseif canImport(AppKit)
-import AppKit
 #endif
 
 // MARK: - Models
@@ -53,7 +51,7 @@ public struct MarkdownExportInlineSource: Sendable, Equatable {
 
 // MARK: - Writing + helpers
 
-public enum MarkdownExportSupport {
+public enum ExportSupport {
     /// Writes `<parent>/<baseFolderName>/note.md` and `<parent>/<baseFolderName>/assets/*`.
     public static func writeBundle(_ request: MarkdownExportRequest, into selectedDirectory: URL) -> Bool {
         let scoped = selectedDirectory.startAccessingSecurityScopedResource()
@@ -80,14 +78,24 @@ public enum MarkdownExportSupport {
         }
     }
 
-    /// Writes `<parent>/<safeBaseName>.pdf` using the same security-scoped access pattern as `writeBundle`.
-    public static func writePdf(data: Data, into parentDirectory: URL, fileBaseName: String) -> Bool {
+    /// Writes `<parent>/<safeBaseName>.<pathExtension>` (e.g. `pdf`, `csv`) using security-scoped access.
+    public static func writeExportedDocument(
+        data: Data,
+        into parentDirectory: URL,
+        fileBaseName: String,
+        pathExtension ext: String
+    ) -> Bool {
         let scoped = parentDirectory.startAccessingSecurityScopedResource()
         defer {
             if scoped { parentDirectory.stopAccessingSecurityScopedResource() }
         }
         let safeName = sanitizeBaseFolderName(fileBaseName, emptyFallback: "reader")
-        let fileURL = parentDirectory.appendingPathComponent("\(safeName).pdf", isDirectory: false)
+        let sanitizedExt = ext.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines).lowercased()
+        let normalizedExt = sanitizedExt.hasPrefix(".")
+            ? String(sanitizedExt.dropFirst())
+            : sanitizedExt
+        let finalExt = normalizedExt.isEmpty ? "pdf" : normalizedExt
+        let fileURL = parentDirectory.appendingPathComponent("\(safeName).\(finalExt)", isDirectory: false)
         do {
             try data.write(to: fileURL, options: .atomic)
             return true
@@ -120,8 +128,7 @@ public enum MarkdownExportSupport {
 
 // MARK: - Directory picker (export destination)
 
-#if canImport(UIKit)
-public struct MarkdownExportDirectoryPicker: UIViewControllerRepresentable {
+public struct ExportDirectoryPicker: UIViewControllerRepresentable {
     public let onPicked: (URL?) -> Void
 
     public init(onPicked: @escaping (URL?) -> Void) {
@@ -166,50 +173,3 @@ public struct MarkdownExportDirectoryPicker: UIViewControllerRepresentable {
         }
     }
 }
-#elseif canImport(AppKit)
-public struct MarkdownExportDirectoryPicker: NSViewControllerRepresentable {
-    public let onPicked: (URL?) -> Void
-
-    public init(onPicked: @escaping (URL?) -> Void) {
-        self.onPicked = onPicked
-    }
-
-    public func makeCoordinator() -> Coordinator {
-        Coordinator(onPicked: onPicked)
-    }
-
-    public func makeNSViewController(context: Context) -> NSViewController {
-        let controller = NSViewController()
-        context.coordinator.presentOpenPanelIfNeeded()
-        return controller
-    }
-
-    public func updateNSViewController(_ nsViewController: NSViewController, context: Context) {}
-
-    public final class Coordinator: NSObject {
-        private let onPicked: (URL?) -> Void
-        private var didPresent = false
-
-        public init(onPicked: @escaping (URL?) -> Void) {
-            self.onPicked = onPicked
-        }
-
-        fileprivate func presentOpenPanelIfNeeded() {
-            guard !didPresent else { return }
-            didPresent = true
-            DispatchQueue.main.async { [onPicked] in
-                let panel = NSOpenPanel()
-                panel.canChooseFiles = false
-                panel.canChooseDirectories = true
-                panel.allowsMultipleSelection = false
-                panel.canCreateDirectories = true
-                if panel.runModal() == .OK, let url = panel.url {
-                    onPicked(url)
-                } else {
-                    onPicked(nil)
-                }
-            }
-        }
-    }
-}
-#endif

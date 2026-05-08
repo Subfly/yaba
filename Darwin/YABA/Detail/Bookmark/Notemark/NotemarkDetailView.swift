@@ -162,14 +162,14 @@ struct NotemarkDetailView: View {
             }
         }
         .sheet(isPresented: machine.showMarkdownExportDirectoryPickerBinding) {
-            MarkdownExportDirectoryPicker { url in
+            ExportDirectoryPicker { url in
                 Task { @MainActor in
                     machine.finalizeMarkdownExport(selectedDirectory: url)
                 }
             }
         }
         .sheet(isPresented: machine.showPdfExportDirectoryPickerBinding) {
-            MarkdownExportDirectoryPicker { url in
+            ExportDirectoryPicker { url in
                 Task { @MainActor in
                     machine.finalizePdfExportDirectorySelection(url)
                 }

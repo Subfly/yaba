@@ -2,41 +2,11 @@
 //  DocmarkDetailView.swift
 //  YABA
 //
-//  PDF document bookmark detail: PDFKit viewer + linkmark-style toolbar.
+//  Document bookmark detail (PDFKit + CSV spreadsheet preview) plus shared chrome / overflow actions.
 //
 
-import PDFKit
 import SwiftData
 import SwiftUI
-import UIKit
-
-private struct DocmarkPDFKitView: UIViewRepresentable {
-    let pdfData: Data
-
-    func makeCoordinator() -> Coordinator {
-        Coordinator()
-    }
-
-    func makeUIView(context: Context) -> PDFView {
-        let pdfView = PDFView()
-        pdfView.autoScales = true
-        pdfView.displayMode = .singlePageContinuous
-        pdfView.displayDirection = .vertical
-        pdfView.backgroundColor = UIColor.systemBackground
-        return pdfView
-    }
-
-    func updateUIView(_ pdfView: PDFView, context: Context) {
-        guard context.coordinator.lastData != pdfData else { return }
-        context.coordinator.lastData = pdfData
-        pdfView.document = PDFDocument(data: pdfData)
-        pdfView.autoScales = true
-    }
-
-    final class Coordinator {
-        var lastData: Data?
-    }
-}
 
 struct DocmarkDetailView: View {
     let bookmarkId: String
@@ -160,10 +130,10 @@ struct DocmarkDetailView: View {
                 ActivityItemsShareSheet(items: [url])
             }
         }
-        .sheet(isPresented: machine.showPdfSaveCopyPickerBinding) {
-            MarkdownExportDirectoryPicker { url in
+        .sheet(isPresented: machine.showDocumentSaveCopyPickerBinding) {
+            ExportDirectoryPicker { url in
                 Task { @MainActor in
-                    machine.finalizePdfSaveCopyDirectory(url)
+                    machine.finalizeDocumentSaveCopyDirectory(url)
                 }
             }
         }
@@ -223,23 +193,19 @@ struct DocmarkDetailView: View {
         ZStack {
             Color(uiColor: .systemBackground)
                 .ignoresSafeArea()
-            if let data = pdfData(for: bm), !data.isEmpty {
-                DocmarkPDFKitView(pdfData: data)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .ignoresSafeArea()
-            } else {
-                ContentUnavailableView {
-                    Label {
-                        Text("Reader Not Available Title")
-                    } icon: {
-                        YabaIconView(bundleKey: "pdf-02")
-                            .scaledToFit()
-                            .frame(width: 52, height: 52)
-                            .foregroundStyle(folderTint)
-                    }
-                } description: {
-                    Text("Reader Not Available Description")
-                }
+
+            switch resolvedDocmarkType(for: bm) {
+            case .csv:
+                CSVDocmarkDetailView(
+                    bookmarkId: bm.bookmarkId,
+                    csvBytes: bm.docDetail?.payload?.bytes ?? Data(),
+                    folderTint: folderTint
+                )
+            case .pdf, .epub:
+                PDFDocmarkDetailView(
+                    pdfData: bm.docDetail?.payload?.bytes ?? Data(),
+                    folderTint: folderTint
+                )
             }
         }
         .navigationBarTitleDisplayMode(.inline)
@@ -272,8 +238,8 @@ struct DocmarkDetailView: View {
         bm.folder?.color.getUIColor() ?? .accentColor
     }
 
-    private func pdfData(for bm: YabaBookmark) -> Data? {
-        bm.docDetail?.payload?.bytes
+    private func resolvedDocmarkType(for bm: YabaBookmark) -> DocmarkType {
+        DocmarkType(rawValue: bm.docDetail?.docmarkTypeRaw ?? "") ?? .pdf
     }
 
     @ViewBuilder
@@ -301,7 +267,7 @@ struct DocmarkDetailView: View {
             }
             .tint(YabaColor.yellow.getUIColor())
             Button {
-                machine.preparePdfSaveCopy(bookmarkLabel: bm.label)
+                machine.prepareDocumentSaveCopy(bookmarkLabel: bm.label)
             } label: {
                 overflowMenuItemLabel(LocalizedStringKey("Bookmark Detail Save Copy Label"), icon: "download-01")
             }

@@ -77,10 +77,10 @@ public final class DocmarkDetailStateMachine: YabaBaseObservableState<DocmarkDet
                 )
                 return
             }
-            let base = MarkdownExportSupport.sanitizeBaseFolderName(payload.label, emptyFallback: "document")
+            let base = ExportSupport.sanitizeBaseFolderName(payload.label, emptyFallback: "document")
             let url = FileManager.default.temporaryDirectory
-                .appendingPathComponent("YABA-\(base)-\(UUID().uuidString.prefix(8)).pdf", isDirectory: false)
-            try payload.pdfData.write(to: url, options: .atomic)
+                .appendingPathComponent("YABA-\(base)-\(UUID().uuidString.prefix(8)).\(payload.pathExtension)", isDirectory: false)
+            try payload.documentBytes.write(to: url, options: .atomic)
             apply { $0.pendingShareFileURL = url }
         } catch {
             CoreToastManager.shared.show(
@@ -93,20 +93,20 @@ public final class DocmarkDetailStateMachine: YabaBaseObservableState<DocmarkDet
 
     // MARK: - Save copy (directory picker)
 
-    public func preparePdfSaveCopy(bookmarkLabel: String) {
-        let base = MarkdownExportSupport.sanitizeBaseFolderName(bookmarkLabel, emptyFallback: "document")
+    public func prepareDocumentSaveCopy(bookmarkLabel: String) {
+        let base = ExportSupport.sanitizeBaseFolderName(bookmarkLabel, emptyFallback: "document")
         apply {
-            $0.pdfSaveCopyFileBaseName = base
-            $0.showPdfSaveCopyPicker = true
+            $0.documentSaveCopyFileBaseName = base
+            $0.showDocumentSaveCopyPicker = true
         }
     }
 
-    public func finalizePdfSaveCopyDirectory(_ parentDirectory: URL?) {
-        let baseName = state.pdfSaveCopyFileBaseName
+    public func finalizeDocumentSaveCopyDirectory(_ parentDirectory: URL?) {
+        let baseName = state.documentSaveCopyFileBaseName
         let bookmarkId = state.bookmarkId
         apply {
-            $0.showPdfSaveCopyPicker = false
-            $0.pdfSaveCopyFileBaseName = ""
+            $0.showDocumentSaveCopyPicker = false
+            $0.documentSaveCopyFileBaseName = ""
         }
         guard let parentDirectory, !baseName.isEmpty, let bookmarkId else { return }
         Task {
@@ -122,7 +122,12 @@ public final class DocmarkDetailStateMachine: YabaBaseObservableState<DocmarkDet
                     return
                 }
                 let ok = await Task.detached {
-                    MarkdownExportSupport.writePdf(data: payload.pdfData, into: parentDirectory, fileBaseName: baseName)
+                    ExportSupport.writeExportedDocument(
+                        data: payload.documentBytes,
+                        into: parentDirectory,
+                        fileBaseName: baseName,
+                        pathExtension: payload.pathExtension
+                    )
                 }.value
                 await MainActor.run {
                     if ok {
@@ -151,10 +156,10 @@ public final class DocmarkDetailStateMachine: YabaBaseObservableState<DocmarkDet
         }
     }
 
-    public var showPdfSaveCopyPickerBinding: Binding<Bool> {
+    public var showDocumentSaveCopyPickerBinding: Binding<Bool> {
         Binding(
-            get: { self.state.showPdfSaveCopyPicker },
-            set: { newValue in self.apply { $0.showPdfSaveCopyPicker = newValue } }
+            get: { self.state.showDocumentSaveCopyPicker },
+            set: { newValue in self.apply { $0.showDocumentSaveCopyPicker = newValue } }
         )
     }
 }

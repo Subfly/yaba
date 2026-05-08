@@ -196,8 +196,8 @@ public final class LinkmarkDetailStateMachine: YabaBaseObservableState<LinkmarkD
         }
         let request = MarkdownExportRequest(
             markdown: trimmed + "\n",
-            baseFolderName: MarkdownExportSupport.sanitizeBaseFolderName(bookmarkLabel),
-            assets: MarkdownExportSupport.exportAssets(from: inlineSources)
+            baseFolderName: ExportSupport.sanitizeBaseFolderName(bookmarkLabel),
+            assets: ExportSupport.exportAssets(from: inlineSources)
         )
         apply {
             $0.markdownExportRequest = request
@@ -209,7 +209,7 @@ public final class LinkmarkDetailStateMachine: YabaBaseObservableState<LinkmarkD
         let request = state.markdownExportRequest
         apply { $0.markdownExportRequest = nil }
         guard let selectedDirectory, let request else { return }
-        let didWrite = MarkdownExportSupport.writeBundle(request, into: selectedDirectory)
+        let didWrite = ExportSupport.writeBundle(request, into: selectedDirectory)
         if !didWrite {
             CoreToastManager.shared.show(
                 message: LocalizedStringKey("Bookmark Detail Markdown Export Failed Message"),
@@ -222,7 +222,7 @@ public final class LinkmarkDetailStateMachine: YabaBaseObservableState<LinkmarkD
     // MARK: - Reader PDF export (directory picker + WKWebView.createPDF)
 
     public func preparePdfExport(bookmarkLabel: String) {
-        let base = MarkdownExportSupport.sanitizeBaseFolderName(bookmarkLabel, emptyFallback: "reader")
+        let base = ExportSupport.sanitizeBaseFolderName(bookmarkLabel, emptyFallback: "reader")
         apply {
             $0.pdfExportFileBaseName = base
             $0.showPdfExportDirectoryPicker = true

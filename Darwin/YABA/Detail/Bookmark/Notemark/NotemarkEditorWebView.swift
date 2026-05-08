@@ -196,7 +196,12 @@ struct NotemarkEditorWebView: UIViewRepresentable {
                 DispatchQueue.main.async {
                     switch result {
                     case let .success(data):
-                        let ok = MarkdownExportSupport.writePdf(data: data, into: parentDirectory, fileBaseName: fileBaseName)
+                        let ok = ExportSupport.writeExportedDocument(
+                            data: data,
+                            into: parentDirectory,
+                            fileBaseName: fileBaseName,
+                            pathExtension: "pdf"
+                        )
                         if !ok {
                             CoreToastManager.shared.show(
                                 message: LocalizedStringKey("Bookmark Detail Markdown Export Failed Message"),
