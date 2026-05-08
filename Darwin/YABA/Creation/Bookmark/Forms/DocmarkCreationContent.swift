@@ -115,7 +115,7 @@ struct DocmarkCreationContent: View {
                     showFileImporter = true
                 } label: {
                     Label {
-                        Text("Bookmark Creation Pick Document Action")
+                        Text("Bookmark Creation Pick PDF Document Action")
                     } icon: {
                         YabaIconView(bundleKey: "add-circle")
                             .frame(width: 24, height: 24)

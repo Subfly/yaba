@@ -1387,12 +1387,12 @@
         }
       }
     },
-    "Bookmark Creation Pick Document Action" : {
+    "Bookmark Creation Pick PDF Document Action" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pick Document (PDF)"
+            "value" : "Select PDF"
           }
         }
       }
