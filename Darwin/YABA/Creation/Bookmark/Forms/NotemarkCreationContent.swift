@@ -12,6 +12,9 @@ struct NotemarkCreationContent: View {
     @Environment(\.dismiss)
     private var dismiss
 
+    @Environment(\.bookmarkCreationOnCloseRequest)
+    private var bookmarkCreationOnCloseRequest
+
     @Environment(\.modelContext)
     private var modelContext
 
@@ -30,12 +33,45 @@ struct NotemarkCreationContent: View {
     let preselectedFolderId: String?
     let preselectedTagIds: [String]
     let editingBookmarkId: String?
+    let initialMarkdown: String?
     let onDone: () -> Void
     /// Invoked after a successful **new** note save, before the sheet dismisses.
     var onCreatedBookmarkId: ((String) -> Void)? = nil
 
+    @State
+    private var didApplyInitialMarkdown = false
+
+    init(
+        preselectedFolderId: String?,
+        preselectedTagIds: [String],
+        editingBookmarkId: String?,
+        initialMarkdown: String? = nil,
+        onDone: @escaping () -> Void,
+        onCreatedBookmarkId: ((String) -> Void)? = nil
+    ) {
+        self.preselectedFolderId = preselectedFolderId
+        self.preselectedTagIds = preselectedTagIds
+        self.editingBookmarkId = editingBookmarkId
+        self.initialMarkdown = initialMarkdown
+        self.onDone = onDone
+        self.onCreatedBookmarkId = onCreatedBookmarkId
+        _machine = State(initialValue: NotemarkCreationStateMachine())
+        _showFolderSheet = State(initialValue: false)
+        _showTagSheet = State(initialValue: false)
+        _previewContentAppearance = State(initialValue: .list)
+        _didApplyInitialMarkdown = State(initialValue: false)
+    }
+
     private var isEditing: Bool {
         editingBookmarkId != nil
+    }
+
+    private func dismissOrCancelBookmarkCreation() {
+        if let bookmarkCreationOnCloseRequest {
+            bookmarkCreationOnCloseRequest()
+        } else {
+            dismiss()
+        }
     }
 
     var body: some View {
@@ -150,7 +186,7 @@ struct NotemarkCreationContent: View {
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 Button(role: .cancel) {
-                    dismiss()
+                    dismissOrCancelBookmarkCreation()
                 } label: {
                     Text("Cancel")
                 }
@@ -430,5 +466,10 @@ struct NotemarkCreationContent: View {
                 uncategorizedFolderCreationRequired: resolved.uncategorizedFolderCreationRequired
             )
         )
+
+        guard editingBookmarkId == nil, !didApplyInitialMarkdown else { return }
+        guard let initialMarkdown, !initialMarkdown.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        didApplyInitialMarkdown = true
+        await machine.send(.onChangeDocumentJson(initialMarkdown))
     }
 }

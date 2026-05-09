@@ -30,6 +30,7 @@ struct BookmarkFlowSheet: View {
                         preselectedTagIds: context.preselectedTagIds,
                         initialUrl: link,
                         editingBookmarkId: nil,
+                        locksImportedPrimaryPayload: false,
                         onDone: { dismiss() }
                     )
                 }

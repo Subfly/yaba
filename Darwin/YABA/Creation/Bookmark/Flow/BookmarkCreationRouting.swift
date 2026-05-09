@@ -31,6 +31,8 @@ struct BookmarkKindFormLaunch: Identifiable, Equatable {
     let preselectedTagIds: [String]
     let mediaMarkType: MediaMarkType?
     let docmarkType: DocmarkType?
+    let initialSharePayload: BookmarkShareIncomingPayload?
+    let locksImportedPrimaryPayload: Bool
 
     init(
         id: UUID = UUID(),
@@ -38,7 +40,9 @@ struct BookmarkKindFormLaunch: Identifiable, Equatable {
         preselectedFolderId: String?,
         preselectedTagIds: [String],
         mediaMarkType: MediaMarkType? = nil,
-        docmarkType: DocmarkType? = nil
+        docmarkType: DocmarkType? = nil,
+        initialSharePayload: BookmarkShareIncomingPayload? = nil,
+        locksImportedPrimaryPayload: Bool = false
     ) {
         self.id = id
         self.kind = kind
@@ -46,6 +50,8 @@ struct BookmarkKindFormLaunch: Identifiable, Equatable {
         self.preselectedTagIds = preselectedTagIds
         self.mediaMarkType = mediaMarkType
         self.docmarkType = docmarkType
+        self.initialSharePayload = initialSharePayload
+        self.locksImportedPrimaryPayload = locksImportedPrimaryPayload
     }
 }
 

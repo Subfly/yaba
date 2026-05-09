@@ -13,6 +13,9 @@ struct LinkmarkCreationContent: View {
     @Environment(\.dismiss)
     private var dismiss
 
+    @Environment(\.bookmarkCreationOnCloseRequest)
+    private var bookmarkCreationOnCloseRequest
+
     @Environment(\.modelContext)
     private var modelContext
 
@@ -32,10 +35,43 @@ struct LinkmarkCreationContent: View {
     let preselectedTagIds: [String]
     let initialUrl: String?
     let editingBookmarkId: String?
+    let locksImportedPrimaryPayload: Bool
     let onDone: () -> Void
+
+    init(
+        preselectedFolderId: String?,
+        preselectedTagIds: [String],
+        initialUrl: String?,
+        editingBookmarkId: String?,
+        locksImportedPrimaryPayload: Bool = false,
+        onDone: @escaping () -> Void
+    ) {
+        self.preselectedFolderId = preselectedFolderId
+        self.preselectedTagIds = preselectedTagIds
+        self.initialUrl = initialUrl
+        self.editingBookmarkId = editingBookmarkId
+        self.locksImportedPrimaryPayload = locksImportedPrimaryPayload
+        self.onDone = onDone
+        _machine = State(initialValue: LinkmarkCreationStateMachine())
+        _showFolderSheet = State(initialValue: false)
+        _showTagSheet = State(initialValue: false)
+        _previewContentAppearance = State(initialValue: .list)
+    }
 
     private var isEditing: Bool {
         editingBookmarkId != nil
+    }
+
+    private var restrictsPrimaryPayloadUI: Bool {
+        isEditing || locksImportedPrimaryPayload
+    }
+
+    private func dismissOrCancelBookmarkCreation() {
+        if let bookmarkCreationOnCloseRequest {
+            bookmarkCreationOnCloseRequest()
+        } else {
+            dismiss()
+        }
     }
 
     var body: some View {
@@ -102,12 +138,12 @@ struct LinkmarkCreationContent: View {
                 .keyboardType(.URL)
                 .autocorrectionDisabled()
                 .textInputAutocapitalization(.never)
-                .disabled(isEditing)
+                .disabled(restrictsPrimaryPayloadUI)
                 .safeAreaInset(edge: .leading) {
                     fieldIcon("link-02", mainTint: mainTint)
                 }
 
-                if !isEditing {
+                if !restrictsPrimaryPayloadUI {
                     if let cleaned = machine.state.cleanedUrl, !cleaned.isEmpty {
                         HStack {
                             fieldIcon("clean", mainTint: mainTint)
@@ -130,7 +166,7 @@ struct LinkmarkCreationContent: View {
                         .frame(width: 22, height: 22)
                 }
             } footer: {
-                if !isEditing {
+                if !restrictsPrimaryPayloadUI {
                     Text("Bookmark Creation Link Info Message")
                 }
             }
@@ -174,7 +210,7 @@ struct LinkmarkCreationContent: View {
                             .frame(width: 22, height: 22)
                     }
                     Spacer(minLength: 0)
-                    if !isEditing && hasApplicableMetadata {
+                    if !restrictsPrimaryPayloadUI && hasApplicableMetadata {
                         Button {
                             Task { await machine.send(.onApplyFromMetadata) }
                         } label: {
@@ -225,7 +261,7 @@ struct LinkmarkCreationContent: View {
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 Button(role: .cancel) {
-                    dismiss()
+                    dismissOrCancelBookmarkCreation()
                 } label: {
                     Text("Cancel")
                 }

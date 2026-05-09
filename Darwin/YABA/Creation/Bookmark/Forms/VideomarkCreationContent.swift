@@ -35,6 +35,9 @@ struct VideomarkCreationContent: View {
     @Environment(\.dismiss)
     private var dismiss
 
+    @Environment(\.bookmarkCreationOnCloseRequest)
+    private var bookmarkCreationOnCloseRequest
+
     @Environment(\.modelContext)
     private var modelContext
 
@@ -59,10 +62,50 @@ struct VideomarkCreationContent: View {
     let preselectedFolderId: String?
     let preselectedTagIds: [String]
     let editingBookmarkId: String?
+    let initialSharePayload: BookmarkShareIncomingPayload?
+    let locksImportedPrimaryPayload: Bool
     let onDone: () -> Void
+
+    @State
+    private var didApplyInitialSharePayload = false
+
+    init(
+        preselectedFolderId: String?,
+        preselectedTagIds: [String],
+        editingBookmarkId: String?,
+        initialSharePayload: BookmarkShareIncomingPayload? = nil,
+        locksImportedPrimaryPayload: Bool = false,
+        onDone: @escaping () -> Void
+    ) {
+        self.preselectedFolderId = preselectedFolderId
+        self.preselectedTagIds = preselectedTagIds
+        self.editingBookmarkId = editingBookmarkId
+        self.initialSharePayload = initialSharePayload
+        self.locksImportedPrimaryPayload = locksImportedPrimaryPayload
+        self.onDone = onDone
+        _machine = State(initialValue: MediamarkCreationStateMachine())
+        _showFolderSheet = State(initialValue: false)
+        _showTagSheet = State(initialValue: false)
+        _videoItem = State(initialValue: nil)
+        _showCameraCapture = State(initialValue: false)
+        _previewContentAppearance = State(initialValue: .list)
+        _didApplyInitialSharePayload = State(initialValue: false)
+    }
 
     private var isEditing: Bool {
         editingBookmarkId != nil
+    }
+
+    private var restrictsPrimaryPayloadUI: Bool {
+        isEditing || locksImportedPrimaryPayload
+    }
+
+    private func dismissOrCancelBookmarkCreation() {
+        if let bookmarkCreationOnCloseRequest {
+            bookmarkCreationOnCloseRequest()
+        } else {
+            dismiss()
+        }
     }
 
     var body: some View {
@@ -144,12 +187,12 @@ struct VideomarkCreationContent: View {
                         }
                         .bookmarkCreationActionButtonLabelStyle(
                             mainTint: mainTint,
-                            isDisabled: isEditing
+                            isDisabled: restrictsPrimaryPayloadUI
                         )
                     }
                     .buttonStyle(.plain)
                     .frame(maxWidth: .infinity)
-                    .disabled(isEditing)
+                    .disabled(restrictsPrimaryPayloadUI)
                     .onChange(of: videoItem) { _, new in
                         Task {
                             guard let new else { return }
@@ -180,12 +223,12 @@ struct VideomarkCreationContent: View {
                         }
                         .bookmarkCreationActionButtonLabelStyle(
                             mainTint: mainTint,
-                            isDisabled: isEditing
+                            isDisabled: restrictsPrimaryPayloadUI
                         )
                     }
                     .buttonStyle(.plain)
                     .frame(maxWidth: .infinity)
-                    .disabled(isEditing)
+                    .disabled(restrictsPrimaryPayloadUI)
                 }
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
@@ -253,7 +296,7 @@ struct VideomarkCreationContent: View {
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 Button(role: .cancel) {
-                    dismiss()
+                    dismissOrCancelBookmarkCreation()
                 } label: {
                     Text("Cancel")
                 }
@@ -572,6 +615,11 @@ struct VideomarkCreationContent: View {
                 initialMediaMarkType: .video
             )
         )
+
+        guard editingBookmarkId == nil, !didApplyInitialSharePayload else { return }
+        guard case let .video(videoData, thumbnailData, fileExtension) = initialSharePayload else { return }
+        didApplyInitialSharePayload = true
+        await machine.send(.onVideoPicked(videoData: videoData, thumbnailData: thumbnailData, fileExtension: fileExtension))
     }
 }
 

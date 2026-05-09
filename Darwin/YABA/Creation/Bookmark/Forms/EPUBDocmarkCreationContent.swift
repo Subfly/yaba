@@ -13,6 +13,9 @@ struct EPUBDocmarkCreationContent: View {
     @Environment(\.dismiss)
     private var dismiss
 
+    @Environment(\.bookmarkCreationOnCloseRequest)
+    private var bookmarkCreationOnCloseRequest
+
     let machine: DocmarkCreationStateMachine
     let mainTint: Color
     let folderForPresentation: FolderModel?
@@ -21,6 +24,7 @@ struct EPUBDocmarkCreationContent: View {
     @Binding
     var showTagSheet: Bool
     let editingBookmarkId: String?
+    let locksImportedPrimaryPayload: Bool
     let onDone: () -> Void
 
     @State
@@ -31,6 +35,18 @@ struct EPUBDocmarkCreationContent: View {
 
     private var isEditing: Bool {
         editingBookmarkId != nil
+    }
+
+    private var restrictsPrimaryPayloadUI: Bool {
+        isEditing || locksImportedPrimaryPayload
+    }
+
+    private func dismissOrCancelBookmarkCreation() {
+        if let bookmarkCreationOnCloseRequest {
+            bookmarkCreationOnCloseRequest()
+        } else {
+            dismiss()
+        }
     }
 
     var body: some View {
@@ -84,12 +100,12 @@ struct EPUBDocmarkCreationContent: View {
                     }
                     .bookmarkCreationActionButtonLabelStyle(
                         mainTint: mainTint,
-                        isDisabled: isEditing
+                        isDisabled: restrictsPrimaryPayloadUI
                     )
                 }
                 .buttonStyle(.plain)
                 .frame(maxWidth: .infinity)
-                .disabled(isEditing)
+                .disabled(restrictsPrimaryPayloadUI)
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
                 .listRowInsets(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0))
@@ -130,7 +146,7 @@ struct EPUBDocmarkCreationContent: View {
                             .frame(width: 22, height: 22)
                     }
                     Spacer(minLength: 0)
-                    if !isEditing && hasApplicableMetadata {
+                    if !restrictsPrimaryPayloadUI && hasApplicableMetadata {
                         Button {
                             Task { await machine.send(.onApplyFromMetadata) }
                         } label: {
@@ -184,7 +200,7 @@ struct EPUBDocmarkCreationContent: View {
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 Button(role: .cancel) {
-                    dismiss()
+                    dismissOrCancelBookmarkCreation()
                 } label: {
                     Text("Cancel")
                 }

@@ -12,7 +12,27 @@ struct MediamarkCreationContent: View {
     let preselectedFolderId: String?
     let preselectedTagIds: [String]
     let editingBookmarkId: String?
+    let initialSharePayload: BookmarkShareIncomingPayload?
+    let locksImportedPrimaryPayload: Bool
     let onDone: () -> Void
+
+    init(
+        mediaMarkType: MediaMarkType,
+        preselectedFolderId: String?,
+        preselectedTagIds: [String],
+        editingBookmarkId: String?,
+        initialSharePayload: BookmarkShareIncomingPayload? = nil,
+        locksImportedPrimaryPayload: Bool = false,
+        onDone: @escaping () -> Void
+    ) {
+        self.mediaMarkType = mediaMarkType
+        self.preselectedFolderId = preselectedFolderId
+        self.preselectedTagIds = preselectedTagIds
+        self.editingBookmarkId = editingBookmarkId
+        self.initialSharePayload = initialSharePayload
+        self.locksImportedPrimaryPayload = locksImportedPrimaryPayload
+        self.onDone = onDone
+    }
 
     var body: some View {
         switch mediaMarkType {
@@ -21,6 +41,8 @@ struct MediamarkCreationContent: View {
                 preselectedFolderId: preselectedFolderId,
                 preselectedTagIds: preselectedTagIds,
                 editingBookmarkId: editingBookmarkId,
+                initialSharePayload: initialSharePayload,
+                locksImportedPrimaryPayload: locksImportedPrimaryPayload,
                 onDone: onDone
             )
         case .video:
@@ -28,6 +50,8 @@ struct MediamarkCreationContent: View {
                 preselectedFolderId: preselectedFolderId,
                 preselectedTagIds: preselectedTagIds,
                 editingBookmarkId: editingBookmarkId,
+                initialSharePayload: initialSharePayload,
+                locksImportedPrimaryPayload: locksImportedPrimaryPayload,
                 onDone: onDone
             )
         case .audio:
@@ -35,6 +59,8 @@ struct MediamarkCreationContent: View {
                 preselectedFolderId: preselectedFolderId,
                 preselectedTagIds: preselectedTagIds,
                 editingBookmarkId: editingBookmarkId,
+                initialSharePayload: initialSharePayload,
+                locksImportedPrimaryPayload: locksImportedPrimaryPayload,
                 onDone: onDone
             )
         }

@@ -13,6 +13,9 @@ struct CSVDocmarkCreationContent: View {
     @Environment(\.dismiss)
     private var dismiss
 
+    @Environment(\.bookmarkCreationOnCloseRequest)
+    private var bookmarkCreationOnCloseRequest
+
     let machine: DocmarkCreationStateMachine
     let mainTint: Color
     let folderForPresentation: FolderModel?
@@ -21,6 +24,7 @@ struct CSVDocmarkCreationContent: View {
     @Binding
     var showTagSheet: Bool
     let editingBookmarkId: String?
+    let locksImportedPrimaryPayload: Bool
     let onDone: () -> Void
 
     @State
@@ -31,6 +35,18 @@ struct CSVDocmarkCreationContent: View {
 
     private var isEditing: Bool {
         editingBookmarkId != nil
+    }
+
+    private var restrictsPrimaryPayloadUI: Bool {
+        isEditing || locksImportedPrimaryPayload
+    }
+
+    private func dismissOrCancelBookmarkCreation() {
+        if let bookmarkCreationOnCloseRequest {
+            bookmarkCreationOnCloseRequest()
+        } else {
+            dismiss()
+        }
     }
 
     var body: some View {
@@ -84,12 +100,12 @@ struct CSVDocmarkCreationContent: View {
                     }
                     .bookmarkCreationActionButtonLabelStyle(
                         mainTint: mainTint,
-                        isDisabled: isEditing
+                        isDisabled: restrictsPrimaryPayloadUI
                     )
                 }
                 .buttonStyle(.plain)
                 .frame(maxWidth: .infinity)
-                .disabled(isEditing)
+                .disabled(restrictsPrimaryPayloadUI)
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
                 .listRowInsets(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0))
@@ -158,7 +174,7 @@ struct CSVDocmarkCreationContent: View {
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 Button(role: .cancel) {
-                    dismiss()
+                    dismissOrCancelBookmarkCreation()
                 } label: {
                     Text("Cancel")
                 }

@@ -13,6 +13,9 @@ struct AudiomarkCreationContent: View {
     @Environment(\.dismiss)
     private var dismiss
 
+    @Environment(\.bookmarkCreationOnCloseRequest)
+    private var bookmarkCreationOnCloseRequest
+
     @Environment(\.modelContext)
     private var modelContext
 
@@ -37,10 +40,50 @@ struct AudiomarkCreationContent: View {
     let preselectedFolderId: String?
     let preselectedTagIds: [String]
     let editingBookmarkId: String?
+    let initialSharePayload: BookmarkShareIncomingPayload?
+    let locksImportedPrimaryPayload: Bool
     let onDone: () -> Void
+
+    @State
+    private var didApplyInitialSharePayload = false
+
+    init(
+        preselectedFolderId: String?,
+        preselectedTagIds: [String],
+        editingBookmarkId: String?,
+        initialSharePayload: BookmarkShareIncomingPayload? = nil,
+        locksImportedPrimaryPayload: Bool = false,
+        onDone: @escaping () -> Void
+    ) {
+        self.preselectedFolderId = preselectedFolderId
+        self.preselectedTagIds = preselectedTagIds
+        self.editingBookmarkId = editingBookmarkId
+        self.initialSharePayload = initialSharePayload
+        self.locksImportedPrimaryPayload = locksImportedPrimaryPayload
+        self.onDone = onDone
+        _machine = State(initialValue: MediamarkCreationStateMachine())
+        _showFolderSheet = State(initialValue: false)
+        _showTagSheet = State(initialValue: false)
+        _showFileImporter = State(initialValue: false)
+        _showRecorderSheet = State(initialValue: false)
+        _previewContentAppearance = State(initialValue: .list)
+        _didApplyInitialSharePayload = State(initialValue: false)
+    }
 
     private var isEditing: Bool {
         editingBookmarkId != nil
+    }
+
+    private var restrictsPrimaryPayloadUI: Bool {
+        isEditing || locksImportedPrimaryPayload
+    }
+
+    private func dismissOrCancelBookmarkCreation() {
+        if let bookmarkCreationOnCloseRequest {
+            bookmarkCreationOnCloseRequest()
+        } else {
+            dismiss()
+        }
     }
 
     private static var allowedAudioUTTypes: [UTType] {
@@ -132,11 +175,11 @@ struct AudiomarkCreationContent: View {
                             YabaIconView(bundleKey: "add-circle")
                                 .frame(width: 24, height: 24)
                         }
-                        .bookmarkCreationActionButtonLabelStyle(mainTint: mainTint, isDisabled: isEditing)
+                        .bookmarkCreationActionButtonLabelStyle(mainTint: mainTint, isDisabled: restrictsPrimaryPayloadUI)
                     }
                     .buttonStyle(.plain)
                     .frame(maxWidth: .infinity)
-                    .disabled(isEditing)
+                    .disabled(restrictsPrimaryPayloadUI)
 
                     Button {
                         showRecorderSheet = true
@@ -147,11 +190,11 @@ struct AudiomarkCreationContent: View {
                             YabaIconView(bundleKey: "mic-01")
                                 .frame(width: 24, height: 24)
                         }
-                        .bookmarkCreationActionButtonLabelStyle(mainTint: mainTint, isDisabled: isEditing)
+                        .bookmarkCreationActionButtonLabelStyle(mainTint: mainTint, isDisabled: restrictsPrimaryPayloadUI)
                     }
                     .buttonStyle(.plain)
                     .frame(maxWidth: .infinity)
-                    .disabled(isEditing)
+                    .disabled(restrictsPrimaryPayloadUI)
                 }
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
@@ -219,7 +262,7 @@ struct AudiomarkCreationContent: View {
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 Button(role: .cancel) {
-                    dismiss()
+                    dismissOrCancelBookmarkCreation()
                 } label: {
                     Text("Cancel")
                 }
@@ -481,6 +524,11 @@ struct AudiomarkCreationContent: View {
                 initialMediaMarkType: .audio
             )
         )
+
+        guard editingBookmarkId == nil, !didApplyInitialSharePayload else { return }
+        guard case let .audio(audioData, fileExtension) = initialSharePayload else { return }
+        didApplyInitialSharePayload = true
+        await machine.send(.onAudioPicked(audioData: audioData, fileExtension: fileExtension))
     }
 }
 

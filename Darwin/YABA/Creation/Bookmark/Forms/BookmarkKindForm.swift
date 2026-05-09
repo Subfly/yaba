@@ -14,7 +14,9 @@ struct BookmarkKindForm: View {
             preselectedFolderId: String?,
             preselectedTagIds: [String],
             mediaMarkType: MediaMarkType?,
-            docmarkType: DocmarkType?
+            docmarkType: DocmarkType?,
+            initialSharePayload: BookmarkShareIncomingPayload?,
+            locksImportedPrimaryPayload: Bool
         )
         case edit(BookmarkModel)
     }
@@ -25,14 +27,15 @@ struct BookmarkKindForm: View {
 
     var body: some View {
         switch mode {
-        case let .create(kind, folderId, tagIds, mediaMarkType, docmarkType):
+        case let .create(kind, folderId, tagIds, mediaMarkType, docmarkType, initialSharePayload, locksImportedPrimaryPayload):
             switch kind {
             case .link:
                 LinkmarkCreationContent(
                     preselectedFolderId: folderId,
                     preselectedTagIds: tagIds,
-                    initialUrl: nil,
+                    initialUrl: initialLink(from: initialSharePayload),
                     editingBookmarkId: nil,
+                    locksImportedPrimaryPayload: locksImportedPrimaryPayload,
                     onDone: onDone
                 )
             case .note:
@@ -40,6 +43,7 @@ struct BookmarkKindForm: View {
                     preselectedFolderId: folderId,
                     preselectedTagIds: tagIds,
                     editingBookmarkId: nil,
+                    initialMarkdown: initialNoteMarkdown(from: initialSharePayload),
                     onDone: onDone,
                     onCreatedBookmarkId: onNoteCreatedNavigate
                 )
@@ -49,6 +53,8 @@ struct BookmarkKindForm: View {
                     preselectedFolderId: folderId,
                     preselectedTagIds: tagIds,
                     editingBookmarkId: nil,
+                    initialSharePayload: initialSharePayload,
+                    locksImportedPrimaryPayload: locksImportedPrimaryPayload,
                     onDone: onDone
                 )
             case .file:
@@ -57,6 +63,8 @@ struct BookmarkKindForm: View {
                     preselectedTagIds: tagIds,
                     editingBookmarkId: nil,
                     creationDocmarkKind: docmarkType ?? .pdf,
+                    initialSharePayload: initialSharePayload,
+                    locksImportedPrimaryPayload: locksImportedPrimaryPayload,
                     onDone: onDone
                 )
             }
@@ -68,6 +76,7 @@ struct BookmarkKindForm: View {
                     preselectedTagIds: [],
                     initialUrl: nil,
                     editingBookmarkId: bookmark.bookmarkId,
+                    locksImportedPrimaryPayload: false,
                     onDone: onDone
                 )
             case .note:
@@ -95,5 +104,17 @@ struct BookmarkKindForm: View {
                 )
             }
         }
+    }
+}
+
+private extension BookmarkKindForm {
+    func initialLink(from payload: BookmarkShareIncomingPayload?) -> String? {
+        guard case let .link(url) = payload else { return nil }
+        return url
+    }
+
+    func initialNoteMarkdown(from payload: BookmarkShareIncomingPayload?) -> String? {
+        guard case let .noteMarkdown(markdown) = payload else { return nil }
+        return markdown
     }
 }

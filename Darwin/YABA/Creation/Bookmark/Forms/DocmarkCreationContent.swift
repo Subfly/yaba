@@ -23,20 +23,33 @@ struct DocmarkCreationContent: View {
     let preselectedTagIds: [String]
     let editingBookmarkId: String?
     let creationDocmarkKind: DocmarkType
+    let initialSharePayload: BookmarkShareIncomingPayload?
+    let locksImportedPrimaryPayload: Bool
     let onDone: () -> Void
+
+    @State
+    private var didApplyInitialSharePayload = false
 
     init(
         preselectedFolderId: String?,
         preselectedTagIds: [String],
         editingBookmarkId: String?,
         creationDocmarkKind: DocmarkType = .pdf,
+        initialSharePayload: BookmarkShareIncomingPayload? = nil,
+        locksImportedPrimaryPayload: Bool = false,
         onDone: @escaping () -> Void
     ) {
         self.preselectedFolderId = preselectedFolderId
         self.preselectedTagIds = preselectedTagIds
         self.editingBookmarkId = editingBookmarkId
         self.creationDocmarkKind = creationDocmarkKind
+        self.initialSharePayload = initialSharePayload
+        self.locksImportedPrimaryPayload = locksImportedPrimaryPayload
         self.onDone = onDone
+        _machine = State(initialValue: DocmarkCreationStateMachine())
+        _showFolderSheet = State(initialValue: false)
+        _showTagSheet = State(initialValue: false)
+        _didApplyInitialSharePayload = State(initialValue: false)
     }
 
     private var routedDocmarkKind: DocmarkType {
@@ -64,6 +77,7 @@ struct DocmarkCreationContent: View {
                             showFolderSheet: $showFolderSheet,
                             showTagSheet: $showTagSheet,
                             editingBookmarkId: editingBookmarkId,
+                            locksImportedPrimaryPayload: locksImportedPrimaryPayload,
                             onDone: onDone
                         )
                     case .pdf:
@@ -74,6 +88,7 @@ struct DocmarkCreationContent: View {
                             showFolderSheet: $showFolderSheet,
                             showTagSheet: $showTagSheet,
                             editingBookmarkId: editingBookmarkId,
+                            locksImportedPrimaryPayload: locksImportedPrimaryPayload,
                             onDone: onDone
                         )
                     case .epub:
@@ -84,6 +99,7 @@ struct DocmarkCreationContent: View {
                             showFolderSheet: $showFolderSheet,
                             showTagSheet: $showTagSheet,
                             editingBookmarkId: editingBookmarkId,
+                            locksImportedPrimaryPayload: locksImportedPrimaryPayload,
                             onDone: onDone
                         )
                     }
@@ -131,5 +147,10 @@ struct DocmarkCreationContent: View {
                 creationDocmarkKind: creationDocmarkKind
             )
         )
+
+        guard editingBookmarkId == nil, !didApplyInitialSharePayload else { return }
+        guard case let .document(data, fileName, docmarkType) = initialSharePayload else { return }
+        didApplyInitialSharePayload = true
+        await machine.send(.onDocumentFromShare(data, sourceFileName: fileName, docmarkType: docmarkType))
     }
 }

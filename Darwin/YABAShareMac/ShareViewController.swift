@@ -2,105 +2,56 @@
 //  ShareViewController.swift
 //  YABAShareMac
 //
-//  Temporary stub while share UI is archived.
-//
 
 import AppKit
+import SwiftUI
 
 @objc(ShareViewController)
-class ShareViewController: NSViewController {
+final class ShareViewController: NSViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.wantsLayer = true
         view.layer?.backgroundColor = NSColor.windowBackgroundColor.cgColor
+        Task { await handleIncomingShare() }
+    }
+
+    private func handleIncomingShare() async {
+        guard let extensionItems = extensionContext?.inputItems as? [NSExtensionItem] else {
+            close()
+            return
+        }
+
+        guard let payload = await BookmarkSharePayloadExtractor.firstPayload(from: extensionItems) else {
+            close()
+            return
+        }
+
+        await MainActor.run {
+            let launch = BookmarkShareLaunchBuilder.formLaunch(for: payload)
+            presentCreationView(launch: launch)
+        }
+    }
+
+    @MainActor
+    private func presentCreationView(launch: BookmarkKindFormLaunch) {
+        let host = NSHostingController(
+            rootView: BookmarkKindCreationSheet(launch: launch, onDone: close, onCloseRequest: close)
+                .modelContext(try! ParityModelContainer.makeContext())
+        )
+        addChild(host)
+        view.addSubview(host.view)
+        host.view.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            host.view.topAnchor.constraint(equalTo: view.topAnchor),
+            host.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            host.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            host.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+        ])
+        host.didMove(toParent: self)
+    }
+
+    @MainActor
+    private func close() {
+        extensionContext?.completeRequest(returningItems: nil)
     }
 }
-
-
-// --- ARCHIVED (original file, line-commented; not compiled) ---
-// //
-// //  ShareViewController.swift
-// //  YABAShareMac
-// //
-// //  Created by Ali Taha on 18.05.2025.
-// //
-// 
-// import AppKit
-// import SwiftUI
-// import OSLog
-// import SwiftData
-// 
-// @objc(ShareViewController)
-// class ShareViewController: NSViewController {
-//     private var logger: Logger = .init()
-//     
-//     override func viewDidLoad() {
-//         super.viewDidLoad()
-//         self.extractContentAndPresent()
-//     }
-//     
-//     private func extractContentAndPresent() {
-//         guard
-//             let extensionItem = extensionContext?.inputItems.first as? NSExtensionItem,
-//             let attachments = extensionItem.attachments else {
-//             logger.error("[YABA_SHARE_MAC] No attachments found")
-//             close()
-//             return
-//         }
-//         
-//         for itemProvider in attachments {
-//             // Try loading as URL first
-//             if itemProvider.canLoadObject(ofClass: NSURL.self) {
-//                 itemProvider.loadObject(ofClass: NSURL.self) { item, error in
-//                     if let url = item as? NSURL {
-//                         DispatchQueue.main.async {
-//                             self.presentSwiftUIView(link: url.absoluteString ?? "")
-//                         }
-//                     } else {
-//                         self.logger.error("[YABA_SHARE_MAC] Failed to cast loaded NSURL")
-//                         self.close()
-//                     }
-//                 }
-//                 return
-//             }
-//             
-//             // Fallback: Try loading as plain text
-//             if itemProvider.canLoadObject(ofClass: NSString.self) {
-//                 itemProvider.loadObject(ofClass: NSString.self) { item, error in
-//                     if let link = item as? NSString {
-//                         DispatchQueue.main.async {
-//                             self.presentSwiftUIView(link: link as String)
-//                         }
-//                     } else {
-//                         self.logger.error("[YABA_SHARE_MAC] Failed to load plain-text URL")
-//                         self.close()
-//                     }
-//                 }
-//                 return
-//             }
-//         }
-//         
-//         // If no provider matched
-//         logger.error("[YABA_SHARE_MAC] No usable item provider found")
-//         close()
-//         
-//     }
-//     
-//     private func presentSwiftUIView(link: String) {
-//         let contentView = SimpleBookmarkCreationMacOSView(
-//             link: link,
-//             needsTopPadding: true,
-//             onClickClose: close
-//         ).modelContext(YabaModelContainer.getContext())
-//         
-//         let hostingController = NSHostingController(rootView: contentView)
-//         addChild(hostingController)
-//         
-//         self.view = hostingController.view
-//         self.view.frame = NSRect(x: 0, y: 0, width: 337.5, height: 225)
-//     }
-//     
-//     private func close() {
-//         self.extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
-//     }
-// }
