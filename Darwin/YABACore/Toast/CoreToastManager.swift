@@ -54,7 +54,9 @@ public final class CoreToastManager {
         )
 
         if visibleToasts.count < Self.maxVisibleToastCount {
-            visibleToasts.append(toast)
+            withAnimation(.spring(response: 0.38, dampingFraction: 0.88)) {
+                visibleToasts.append(toast)
+            }
             if let onAcceptPressed {
                 onAcceptCallbacks[id] = onAcceptPressed
             }
@@ -77,8 +79,10 @@ public final class CoreToastManager {
         if !target.isVisible { return }
 
         cancelAutoHide(id: id)
-        target.isVisible = false
-        visibleToasts[visibleIndex] = target
+        withAnimation(.easeIn(duration: Constants.toastAnimationDurationSeconds)) {
+            target.isVisible = false
+            visibleToasts[visibleIndex] = target
+        }
 
         Task { @MainActor in
             try? await Task.sleep(nanoseconds: Constants.toastAnimationDuration)
@@ -93,11 +97,15 @@ public final class CoreToastManager {
 
         guard !visibleToasts.isEmpty else { return }
 
-        visibleToasts = visibleToasts.map { $0.withVisible(false) }
+        withAnimation(.easeIn(duration: Constants.toastAnimationDurationSeconds)) {
+            visibleToasts = visibleToasts.map { $0.withVisible(false) }
+        }
 
         Task { @MainActor in
             try? await Task.sleep(nanoseconds: Constants.toastAnimationDuration)
-            self.visibleToasts = []
+            withAnimation(.easeOut(duration: Constants.toastAnimationDurationSeconds)) {
+                self.visibleToasts = []
+            }
         }
     }
 
@@ -110,19 +118,22 @@ public final class CoreToastManager {
     // MARK: - Private
 
     private func removeVisibleToastAndPromoteNext(id: ToastId) {
-        visibleToasts.removeAll { $0.id == id }
         cancelAutoHide(id: id)
         onAcceptCallbacks[id] = nil
 
-        while visibleToasts.count < Self.maxVisibleToastCount, !queuedToasts.isEmpty {
-            var pending = queuedToasts.removeFirst()
-            pending.toast.isVisible = true
-            let promoted = pending.toast
-            visibleToasts.append(promoted)
-            if let onAccept = pending.onAcceptPressed {
-                onAcceptCallbacks[promoted.id] = onAccept
+        withAnimation(.easeOut(duration: Constants.toastAnimationDurationSeconds)) {
+            visibleToasts.removeAll { $0.id == id }
+
+            while visibleToasts.count < Self.maxVisibleToastCount, !queuedToasts.isEmpty {
+                var pending = queuedToasts.removeFirst()
+                pending.toast.isVisible = true
+                let promoted = pending.toast
+                visibleToasts.append(promoted)
+                if let onAccept = pending.onAcceptPressed {
+                    onAcceptCallbacks[promoted.id] = onAccept
+                }
+                startAutoHideJob(id: promoted.id, duration: promoted.duration)
             }
-            startAutoHideJob(id: promoted.id, duration: promoted.duration)
         }
     }
 

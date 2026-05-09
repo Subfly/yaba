@@ -148,6 +148,12 @@ enum Constants {
     static let imageCompressionPercentKey = SettingsKeys.imageCompressionPercent
 
     static let toastAnimationDuration: UInt64 = 150_000_000
+
+    /// `toastAnimationDuration` in seconds (SwiftUI / UIKit timing).
+    static var toastAnimationDurationSeconds: Double {
+        Double(toastAnimationDuration) / 1_000_000_000.0
+    }
+
     static let port: Int = 7484
 
     /// Canonical uncategorized folder id (Compose `CoreConstants.Folder.Uncategorized.ID`).
