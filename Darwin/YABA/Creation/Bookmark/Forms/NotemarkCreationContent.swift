@@ -273,6 +273,7 @@ struct NotemarkCreationContent: View {
                         Text(machine.state.label)
                             .font(.headline)
                             .lineLimit(1)
+                            .animation(.smooth, value: machine.state.label)
                     }
                     if machine.state.bookmarkDescription.isEmpty {
                         Text("Bookmark Description Placeholder")
@@ -282,6 +283,7 @@ struct NotemarkCreationContent: View {
                         Text(machine.state.bookmarkDescription)
                             .foregroundStyle(.secondary)
                             .lineLimit(2)
+                            .animation(.smooth, value: machine.state.bookmarkDescription)
                     }
                 }
             }
@@ -297,6 +299,7 @@ struct NotemarkCreationContent: View {
                         Text(machine.state.label)
                             .font(.headline)
                             .lineLimit(2)
+                            .animation(.smooth, value: machine.state.label)
                     }
                     Spacer(minLength: 0)
                 }
@@ -308,6 +311,7 @@ struct NotemarkCreationContent: View {
                     Text(machine.state.bookmarkDescription)
                         .foregroundStyle(.secondary)
                         .lineLimit(4)
+                        .animation(.smooth, value: machine.state.bookmarkDescription)
                 }
             }
         case .cardBigImage:
@@ -319,6 +323,7 @@ struct NotemarkCreationContent: View {
                 } else {
                     Text(machine.state.label)
                         .font(.headline)
+                        .animation(.smooth, value: machine.state.label)
                 }
                 if machine.state.bookmarkDescription.isEmpty {
                     Text("Bookmark Description Placeholder")
@@ -328,6 +333,7 @@ struct NotemarkCreationContent: View {
                     Text(machine.state.bookmarkDescription)
                         .foregroundStyle(.secondary)
                         .lineLimit(3)
+                        .animation(.smooth, value: machine.state.bookmarkDescription)
                 }
             }
         case .grid:
@@ -347,6 +353,7 @@ struct NotemarkCreationContent: View {
                                     .font(.headline)
                                     .lineLimit(2)
                                     .multilineTextAlignment(.leading)
+                                    .animation(.smooth, value: machine.state.label)
                             }
                             Spacer(minLength: 0)
                         }
@@ -360,6 +367,7 @@ struct NotemarkCreationContent: View {
                                 .foregroundStyle(.secondary)
                                 .lineLimit(2)
                                 .multilineTextAlignment(.leading)
+                                .animation(.smooth, value: machine.state.bookmarkDescription)
                         }
                     }
                     .padding()

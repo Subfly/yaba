@@ -331,7 +331,13 @@ struct ImagemarkCreationContent: View {
         switch previewContentAppearance {
         case .list:
             HStack(alignment: .center, spacing: 12) {
-                previewImage(imageData: imageData, fallbackIcon: fallbackIcon, width: 56, height: 56, mainTint: mainTint)
+                previewImage(
+                    imageData: imageData,
+                    fallbackIcon: fallbackIcon,
+                    width: 56,
+                    height: 56,
+                    mainTint: mainTint
+                ).animation(.smooth, value: imageData)
                 VStack(alignment: .leading, spacing: 4) {
                     if machine.state.label.isEmpty {
                         Text("Bookmark Title Placeholder")
@@ -341,6 +347,7 @@ struct ImagemarkCreationContent: View {
                         Text(machine.state.label)
                             .font(.headline)
                             .lineLimit(1)
+                            .animation(.smooth, value: machine.state.label)
                     }
                     if machine.state.bookmarkDescription.isEmpty {
                         Text("Bookmark Description Placeholder")
@@ -350,13 +357,20 @@ struct ImagemarkCreationContent: View {
                         Text(machine.state.bookmarkDescription)
                             .foregroundStyle(.secondary)
                             .lineLimit(2)
+                            .animation(.smooth, value: machine.state.bookmarkDescription)
                     }
                 }
             }
         case .cardSmallImage:
             VStack(alignment: .leading, spacing: 8) {
                 HStack(alignment: .center, spacing: 10) {
-                    previewImage(imageData: imageData, fallbackIcon: fallbackIcon, width: 56, height: 56, mainTint: mainTint)
+                    previewImage(
+                        imageData: imageData,
+                        fallbackIcon: fallbackIcon,
+                        width: 56,
+                        height: 56,
+                        mainTint: mainTint
+                    ).animation(.smooth, value: imageData)
                     if machine.state.label.isEmpty {
                         Text("Bookmark Title Placeholder")
                             .font(.headline)
@@ -365,6 +379,7 @@ struct ImagemarkCreationContent: View {
                         Text(machine.state.label)
                             .font(.headline)
                             .lineLimit(2)
+                            .animation(.smooth, value: machine.state.label)
                     }
                     Spacer(minLength: 0)
                 }
@@ -376,17 +391,25 @@ struct ImagemarkCreationContent: View {
                     Text(machine.state.bookmarkDescription)
                         .foregroundStyle(.secondary)
                         .lineLimit(4)
+                        .animation(.smooth, value: machine.state.bookmarkDescription)
                 }
             }
         case .cardBigImage:
             VStack(alignment: .leading, spacing: 10) {
-                previewImage(imageData: imageData, fallbackIcon: fallbackIcon, width: nil, height: 180, mainTint: mainTint)
+                previewImage(
+                    imageData: imageData,
+                    fallbackIcon: fallbackIcon,
+                    width: nil,
+                    height: 180,
+                    mainTint: mainTint
+                ).animation(.smooth, value: imageData)
                 if machine.state.label.isEmpty {
                     Text("Bookmark Title Placeholder")
                         .font(.headline)
                 } else {
                     Text(machine.state.label)
                         .font(.headline)
+                        .animation(.smooth, value: machine.state.label)
                 }
                 if machine.state.bookmarkDescription.isEmpty {
                     Text("Bookmark Description Placeholder")
@@ -396,13 +419,20 @@ struct ImagemarkCreationContent: View {
                     Text(machine.state.bookmarkDescription)
                         .foregroundStyle(.secondary)
                         .lineLimit(3)
+                        .animation(.smooth, value: machine.state.bookmarkDescription)
                 }
             }
         case .grid:
             HStack {
                 Spacer(minLength: 0)
                 VStack(spacing: 0) {
-                    previewImage(imageData: imageData, fallbackIcon: fallbackIcon, width: 200, height: 200, mainTint: mainTint)
+                    previewImage(
+                        imageData: imageData,
+                        fallbackIcon: fallbackIcon,
+                        width: 200,
+                        height: 200,
+                        mainTint: mainTint
+                    ).animation(.smooth, value: imageData)
                     VStack(alignment: .leading, spacing: 4) {
                         HStack {
                             if machine.state.label.isEmpty {
@@ -415,6 +445,7 @@ struct ImagemarkCreationContent: View {
                                     .font(.headline)
                                     .lineLimit(2)
                                     .multilineTextAlignment(.leading)
+                                    .animation(.smooth, value: machine.state.label)
                             }
                             Spacer(minLength: 0)
                         }
@@ -428,6 +459,7 @@ struct ImagemarkCreationContent: View {
                                 .foregroundStyle(.secondary)
                                 .lineLimit(2)
                                 .multilineTextAlignment(.leading)
+                                .animation(.smooth, value: machine.state.bookmarkDescription)
                         }
                     }
                     .padding()

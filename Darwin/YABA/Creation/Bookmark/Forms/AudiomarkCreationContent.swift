@@ -341,6 +341,7 @@ struct AudiomarkCreationContent: View {
                         Text(machine.state.label)
                             .font(.headline)
                             .lineLimit(2)
+                            .animation(.smooth, value: machine.state.label)
                     }
                     Spacer(minLength: 0)
                 }
@@ -355,6 +356,7 @@ struct AudiomarkCreationContent: View {
                 } else {
                     Text(machine.state.label)
                         .font(.headline)
+                        .animation(.smooth, value: machine.state.label)
                 }
                 descriptionPreview(lineLimit: 3)
             }
@@ -375,6 +377,7 @@ struct AudiomarkCreationContent: View {
                                     .font(.headline)
                                     .lineLimit(2)
                                     .multilineTextAlignment(.leading)
+                                    .animation(.smooth, value: machine.state.label)
                             }
                             Spacer(minLength: 0)
                         }
@@ -402,6 +405,7 @@ struct AudiomarkCreationContent: View {
                 Text(machine.state.label)
                     .font(.headline)
                     .lineLimit(headlineLimit)
+                    .animation(.smooth, value: machine.state.label)
             }
             descriptionPreview(lineLimit: maxDescriptionLines)
         }
@@ -417,6 +421,7 @@ struct AudiomarkCreationContent: View {
                 Text(machine.state.bookmarkDescription)
                     .foregroundStyle(.secondary)
                     .lineLimit(lineLimit)
+                    .animation(.smooth, value: machine.state.bookmarkDescription)
             }
         }
     }
