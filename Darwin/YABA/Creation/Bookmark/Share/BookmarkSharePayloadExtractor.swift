@@ -224,7 +224,7 @@ enum BookmarkSharePayloadExtractor {
     private static func loadURLObject(from provider: NSItemProvider) async -> URL? {
         await withCheckedContinuation { continuation in
             _ = provider.loadObject(ofClass: URL.self) { item, _ in
-                continuation.resume(returning: item as? URL)
+                continuation.resume(returning: item)
             }
         }
     }
@@ -232,7 +232,7 @@ enum BookmarkSharePayloadExtractor {
     private static func loadItem(from provider: NSItemProvider, typeIdentifier: String) async -> NSSecureCoding? {
         await withCheckedContinuation { continuation in
             provider.loadItem(forTypeIdentifier: typeIdentifier, options: nil) { item, _ in
-                continuation.resume(returning: item as? NSSecureCoding)
+                continuation.resume(returning: item)
             }
         }
     }

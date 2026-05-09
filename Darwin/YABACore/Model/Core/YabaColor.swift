@@ -65,7 +65,7 @@ public extension YabaColor {
     }
 
     /// Canonical 6-digit RGB (no `#`) — parity with web `yaba-accent-palette.ts`.
-    public var canonicalHexDigits: String? {
+    var canonicalHexDigits: String? {
         switch self {
         case .none: return nil
         case .blue: return "0088ff"
@@ -85,7 +85,7 @@ public extension YabaColor {
     }
 
     /// Maps `{#hex}` digits to a picker case when they match the YABA palette.
-    public static func fromPaletteHexDigits(_ raw: String) -> YabaColor? {
+    static func fromPaletteHexDigits(_ raw: String) -> YabaColor? {
         let s = raw.trimmingCharacters(in: .whitespacesAndNewlines).lowercased().replacingOccurrences(of: "#", with: "")
         guard s.count == 6 else { return nil }
         switch s {

@@ -1747,28 +1747,6 @@
         }
       }
     },
-    "Bookmark Detail Export Format PDF Title" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "PDF"
-          }
-        }
-      }
-    },
-    "Bookmark Detail Export Menu Title" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Export"
-          }
-        }
-      }
-    },
     "Bookmark Detail Image Error Title" : {
       "comment" : "Title to show when bookmark image can not be accessed in detail",
       "localizations" : {
@@ -2974,17 +2952,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "New CSV"
-          }
-        }
-      }
-    },
-    "Bookmark Route Selection New Document" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "New Document"
           }
         }
       }
@@ -5668,17 +5635,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "帮助更灵活地分类和查找书签的收藏类型。"
-          }
-        }
-      }
-    },
-    "Color" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Color"
           }
         }
       }
@@ -28116,17 +28072,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "无"
-          }
-        }
-      }
-    },
-    "Note" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Note"
           }
         }
       }

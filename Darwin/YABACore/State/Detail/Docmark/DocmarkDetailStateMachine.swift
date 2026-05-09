@@ -118,7 +118,7 @@ public final class DocmarkDetailStateMachine: YabaBaseObservableState<DocmarkDet
         Task {
             do {
                 guard let payload = try await DocmarkManager.fetchExportPayload(bookmarkId: bookmarkId) else {
-                    await MainActor.run {
+                    _ = await MainActor.run {
                         CoreToastManager.shared.show(
                             message: LocalizedStringKey("Bookmark Detail Markdown Export Failed Message"),
                             iconType: .error,
@@ -135,7 +135,7 @@ public final class DocmarkDetailStateMachine: YabaBaseObservableState<DocmarkDet
                         pathExtension: payload.pathExtension
                     )
                 }.value
-                await MainActor.run {
+                _ = await MainActor.run {
                     if ok {
                         CoreToastManager.shared.show(
                             message: LocalizedStringKey("Export Successful Message"),
@@ -151,7 +151,7 @@ public final class DocmarkDetailStateMachine: YabaBaseObservableState<DocmarkDet
                     }
                 }
             } catch {
-                await MainActor.run {
+                _ = await MainActor.run {
                     CoreToastManager.shared.show(
                         message: LocalizedStringKey("Bookmark Detail Markdown Export Failed Message"),
                         iconType: .error,
