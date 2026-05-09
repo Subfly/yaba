@@ -1407,6 +1407,16 @@
         }
       }
     },
+    "Bookmark Creation Pick EPUB Document Action" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select EPUB"
+          }
+        }
+      }
+    },
     "Bookmark Creation Toggle Pinned Title" : {
       "localizations" : {
         "en" : {

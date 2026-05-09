@@ -57,7 +57,7 @@ public final class DocmarkCreationStateMachine: YabaBaseObservableState<DocmarkC
                 $0.metadataAuthor = nil
                 $0.metadataDate = nil
                 $0.previewImageData = nil
-                $0.isLoading = docType == .pdf
+                $0.isLoading = docType == .pdf || docType == .epub
                 $0.lastError = nil
             }
             switch docType {
@@ -66,7 +66,7 @@ public final class DocmarkCreationStateMachine: YabaBaseObservableState<DocmarkC
             case .csv:
                 Task { await self.send(.onDocumentExtractionFinished) }
             case .epub:
-                Task { await self.send(.onDocumentExtractionFinished) }
+                Task { await self.extractEpubDocumentMetadata(data: data, generation: generation) }
             }
         case .onCyclePreviewAppearance:
             apply {
@@ -246,6 +246,31 @@ public final class DocmarkCreationStateMachine: YabaBaseObservableState<DocmarkC
                 .onSetGeneratedPreview(
                     imageData: extracted.preview,
                     fileExtension: extracted.previewExt
+                )
+            )
+        }
+        await send(.onDocumentExtractionFinished)
+    }
+
+    private func extractEpubDocumentMetadata(data: Data, generation: Int) async {
+        let extracted: EpubMetadataResult? = await Task.detached(priority: .userInitiated) {
+            await EPUBMetadataExtractor.extract(from: data)
+        }.value
+
+        guard generation == documentExtractionGeneration else { return }
+        if let extracted {
+            await send(
+                .onDocumentMetadataExtracted(
+                    metadataTitle: extracted.title,
+                    metadataDescription: extracted.subject,
+                    metadataAuthor: extracted.author,
+                    metadataDate: extracted.creationDate
+                )
+            )
+            await send(
+                .onSetGeneratedPreview(
+                    imageData: extracted.coverImageData,
+                    fileExtension: "png"
                 )
             )
         }

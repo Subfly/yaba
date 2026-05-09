@@ -28,6 +28,9 @@
 		96EA39BF2E58EB8F00B8411D /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96EA39BE2E58EB8F00B8411D /* SwiftUI.framework */; };
 		96EA39CD2E58EB9000B8411D /* YABAWidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 96EA39BB2E58EB8E00B8411D /* YABAWidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		96EB26D22FAE65A0001B7DB4 /* SwiftCSV in Frameworks */ = {isa = PBXBuildFile; productRef = 96EB26D12FAE65A0001B7DB4 /* SwiftCSV */; };
+		96EB27022FAF381A001B7DB4 /* ReadiumNavigator in Frameworks */ = {isa = PBXBuildFile; productRef = 96EB27012FAF381A001B7DB4 /* ReadiumNavigator */; };
+		96EB27042FAF381A001B7DB4 /* ReadiumShared in Frameworks */ = {isa = PBXBuildFile; productRef = 96EB27032FAF381A001B7DB4 /* ReadiumShared */; };
+		96EB27062FAF381A001B7DB4 /* ReadiumStreamer in Frameworks */ = {isa = PBXBuildFile; productRef = 96EB27052FAF381A001B7DB4 /* ReadiumStreamer */; };
 		96EB67222DD945A6009EB9EC /* YABAShareMac.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 96EB67132DD94580009EB9EC /* YABAShareMac.appex */; platformFilters = (macos, ); settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
@@ -143,7 +146,9 @@
 		967242D52F9EC3C20087D617 /* Exceptions for "YABACore" folder in "YABAWidgetsExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Metadata/EPUBMetadataExtractor.swift,
 				Navigation/DeepLinkManager.swift,
+				State/Creation/Docmark/DocmarkCreationStateMachine.swift,
 			);
 			target = 96EA39BA2E58EB8E00B8411D /* YABAWidgetsExtension */;
 		};
@@ -222,6 +227,14 @@
 				Core/AppIntents.swift,
 			);
 			target = 96A8DFC12DB2F5A500A47601 /* YABA */;
+		};
+		96EB27162FAF3FFE001B7DB4 /* Exceptions for "YABACore" folder in "YABAKeyboard" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Metadata/EPUBMetadataExtractor.swift,
+				State/Creation/Docmark/DocmarkCreationStateMachine.swift,
+			);
+			target = 96EA396B2E56380700B8411D /* YABAKeyboard */;
 		};
 		96EB670A2DD91588009EB9EC /* Exceptions for "YABA" folder in "YABA" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
@@ -381,6 +394,7 @@
 				967242D22F9EC3C20087D617 /* Exceptions for "YABACore" folder in "YABAShare" target */,
 				967242D32F9EC3C20087D617 /* Exceptions for "YABACore" folder in "YABAShareMac" target */,
 				967242D42F9EC3C20087D617 /* Exceptions for "YABACore" folder in "YABAStatusMenuItem" target */,
+				96EB27162FAF3FFE001B7DB4 /* Exceptions for "YABACore" folder in "YABAKeyboard" target */,
 				967242D52F9EC3C20087D617 /* Exceptions for "YABACore" folder in "YABAWidgetsExtension" target */,
 			);
 			path = YABACore;
@@ -428,6 +442,9 @@
 			files = (
 				96DCA2472F9D6FD6005760E3 /* SwiftSoup in Frameworks */,
 				96EB26D22FAE65A0001B7DB4 /* SwiftCSV in Frameworks */,
+				96EB27022FAF381A001B7DB4 /* ReadiumNavigator in Frameworks */,
+				96EB27042FAF381A001B7DB4 /* ReadiumShared in Frameworks */,
+				96EB27062FAF381A001B7DB4 /* ReadiumStreamer in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -563,6 +580,9 @@
 			packageProductDependencies = (
 				96DCA2462F9D6FD6005760E3 /* SwiftSoup */,
 				96EB26D12FAE65A0001B7DB4 /* SwiftCSV */,
+				96EB27012FAF381A001B7DB4 /* ReadiumNavigator */,
+				96EB27032FAF381A001B7DB4 /* ReadiumShared */,
+				96EB27052FAF381A001B7DB4 /* ReadiumStreamer */,
 			);
 			productName = YABA;
 			productReference = 96A8DFC22DB2F5A500A47601 /* YABA.app */;
@@ -711,6 +731,7 @@
 			packageReferences = (
 				96DCA2452F9D6FD6005760E3 /* XCRemoteSwiftPackageReference "SwiftSoup" */,
 				96EB26D02FAE65A0001B7DB4 /* XCRemoteSwiftPackageReference "SwiftCSV" */,
+				96EB27002FAF381A001B7DB4 /* XCRemoteSwiftPackageReference "swift-toolkit" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 96A8DFC32DB2F5A500A47601 /* Products */;
@@ -1186,6 +1207,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.5;
+				OTHER_SWIFT_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = dev.subfly.YABA.YABAShare;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -1194,6 +1216,7 @@
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 				SUPPORTS_MACCATALYST = YES;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "SHARE_EXTENSION DEBUG $(inherited)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,6";
@@ -1221,6 +1244,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.5;
+				OTHER_SWIFT_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = dev.subfly.YABA.YABAShare;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -1229,6 +1253,7 @@
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 				SUPPORTS_MACCATALYST = YES;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = SHARE_EXTENSION;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,6";
@@ -1530,6 +1555,14 @@
 				minimumVersion = 0.10.0;
 			};
 		};
+		96EB27002FAF381A001B7DB4 /* XCRemoteSwiftPackageReference "swift-toolkit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/readium/swift-toolkit";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.8.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1542,6 +1575,21 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 96EB26D02FAE65A0001B7DB4 /* XCRemoteSwiftPackageReference "SwiftCSV" */;
 			productName = SwiftCSV;
+		};
+		96EB27012FAF381A001B7DB4 /* ReadiumNavigator */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 96EB27002FAF381A001B7DB4 /* XCRemoteSwiftPackageReference "swift-toolkit" */;
+			productName = ReadiumNavigator;
+		};
+		96EB27032FAF381A001B7DB4 /* ReadiumShared */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 96EB27002FAF381A001B7DB4 /* XCRemoteSwiftPackageReference "swift-toolkit" */;
+			productName = ReadiumShared;
+		};
+		96EB27052FAF381A001B7DB4 /* ReadiumStreamer */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 96EB27002FAF381A001B7DB4 /* XCRemoteSwiftPackageReference "swift-toolkit" */;
+			productName = ReadiumStreamer;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

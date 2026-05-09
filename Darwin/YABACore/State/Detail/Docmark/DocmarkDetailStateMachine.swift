@@ -59,6 +59,13 @@ public final class DocmarkDetailStateMachine: YabaBaseObservableState<DocmarkDet
             apply { $0.reminderDate = nil }
         case let .updateDocMetadata(bookmarkId, summary, type):
             DocmarkManager.queueCreateOrUpdateDocDetails(bookmarkId: bookmarkId, summary: summary, docmarkType: type)
+
+        case let .onSetEpubReaderTheme(theme):
+            apply { $0.epubReaderTheme = theme }
+        case let .onSetEpubReaderFontSize(size):
+            apply { $0.epubReaderFontSize = size }
+        case let .onSetEpubReaderLineHeight(lineHeight):
+            apply { $0.epubReaderLineHeight = lineHeight }
         }
     }
 

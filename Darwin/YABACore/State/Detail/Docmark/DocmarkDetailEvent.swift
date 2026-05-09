@@ -16,4 +16,8 @@ public enum DocmarkDetailEvent: Sendable {
     case onCancelReminder
 
     case updateDocMetadata(bookmarkId: String, summary: String?, type: DocmarkType?)
+
+    case onSetEpubReaderTheme(ReaderTheme)
+    case onSetEpubReaderFontSize(ReaderFontSize)
+    case onSetEpubReaderLineHeight(ReaderLineHeight)
 }

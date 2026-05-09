@@ -23,21 +23,18 @@ struct BookmarkRouteSelectionContent: View {
                         title: "Bookmark Route Selection New Image",
                         iconKey: "image-03",
                         color: .green,
-                        showsChevron: true,
                         action: { onSelectKind(.media, .image, nil) }
                     )
                     routeButton(
                         title: "Bookmark Route Selection New Audio",
                         iconKey: "audio-wave-01",
                         color: .cyan,
-                        showsChevron: true,
                         action: { onSelectKind(.media, .audio, nil) }
                     )
                     routeButton(
                         title: "Bookmark Route Selection New Video",
                         iconKey: "video-01",
                         color: .indigo,
-                        showsChevron: true,
                         action: { onSelectKind(.media, .video, nil) }
                     )
                 } header: {
@@ -51,22 +48,18 @@ struct BookmarkRouteSelectionContent: View {
                         title: "Bookmark Route Selection New PDF",
                         iconKey: "pdf-02",
                         color: .red,
-                        showsChevron: true,
                         action: { onSelectKind(.file, nil, .pdf) }
                     )
                     routeButton(
                         title: "Bookmark Route Selection New EPUB",
                         iconKey: "book-bookmark-02",
                         color: .orange,
-                        showsChevron: false,
-                        action: {},
-                        isEnabled: false
+                        action: { onSelectKind(.file, nil, .epub) }
                     )
                     routeButton(
                         title: "Bookmark Route Selection New CSV",
                         iconKey: "csv-02",
                         color: .green,
-                        showsChevron: true,
                         action: { onSelectKind(.file, nil, .csv) }
                     )
                 } header: {
@@ -96,7 +89,6 @@ struct BookmarkRouteSelectionContent: View {
             title: "Bookmark Route Selection New Link",
             iconKey: "link-02",
             color: .blue,
-            showsChevron: true,
             action: { onSelectKind(.link, nil, nil) }
         )
     }
@@ -106,7 +98,6 @@ struct BookmarkRouteSelectionContent: View {
             title: "Bookmark Route Selection New Note",
             iconKey: "note-edit",
             color: .yellow,
-            showsChevron: true,
             action: { onSelectKind(.note, nil, nil) }
         )
     }
@@ -127,7 +118,6 @@ struct BookmarkRouteSelectionContent: View {
         title: LocalizedStringKey,
         iconKey: String,
         color: YabaColor,
-        showsChevron: Bool,
         action: @escaping () -> Void,
         isEnabled: Bool = true
     ) -> some View {
@@ -140,12 +130,10 @@ struct BookmarkRouteSelectionContent: View {
                     .padding(.trailing, 12)
                 Text(title)
                 Spacer()
-                if showsChevron {
-                    YabaIconView(bundleKey: "arrow-right-01")
-                        .scaledToFit()
-                        .frame(width: 22, height: 22)
-                        .foregroundStyle(.secondary)
-                }
+                YabaIconView(bundleKey: "arrow-right-01")
+                    .scaledToFit()
+                    .frame(width: 22, height: 22)
+                    .foregroundStyle(.secondary)
             }.contentShape(.rect)
         }
         .buttonStyle(.plain)

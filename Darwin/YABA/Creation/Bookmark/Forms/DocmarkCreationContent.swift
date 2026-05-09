@@ -66,8 +66,18 @@ struct DocmarkCreationContent: View {
                             editingBookmarkId: editingBookmarkId,
                             onDone: onDone
                         )
-                    case .pdf, .epub:
+                    case .pdf:
                         PDFDocmarkCreationContent(
+                            machine: machine,
+                            mainTint: mainTint,
+                            folderForPresentation: folderForPresentation,
+                            showFolderSheet: $showFolderSheet,
+                            showTagSheet: $showTagSheet,
+                            editingBookmarkId: editingBookmarkId,
+                            onDone: onDone
+                        )
+                    case .epub:
+                        EPUBDocmarkCreationContent(
                             machine: machine,
                             mainTint: mainTint,
                             folderForPresentation: folderForPresentation,

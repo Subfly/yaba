@@ -2,7 +2,7 @@
 //  DocmarkDetailView.swift
 //  YABA
 //
-//  Document bookmark detail (PDFKit + CSV spreadsheet preview) plus shared chrome / overflow actions.
+//  Document bookmark detail (PDFKit + CSV spreadsheet + Readium EPUB) plus shared chrome / overflow actions.
 //
 
 import SwiftData
@@ -201,10 +201,16 @@ struct DocmarkDetailView: View {
                     csvBytes: bm.docDetail?.payload?.bytes ?? Data(),
                     folderTint: folderTint
                 )
-            case .pdf, .epub:
+            case .pdf:
                 PDFDocmarkDetailView(
                     pdfData: bm.docDetail?.payload?.bytes ?? Data(),
                     folderTint: folderTint
+                )
+            case .epub:
+                EPUBDocmarkDetailView(
+                    epubData: bm.docDetail?.payload?.bytes ?? Data(),
+                    folderTint: folderTint,
+                    machine: machine
                 )
             }
         }
