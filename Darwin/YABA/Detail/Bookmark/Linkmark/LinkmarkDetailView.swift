@@ -4,7 +4,6 @@
 
 import SwiftData
 import SwiftUI
-import UIKit
 
 /// SwiftData-driven link bookmark detail + Milkdown readable host.
 struct LinkmarkDetailView: View {

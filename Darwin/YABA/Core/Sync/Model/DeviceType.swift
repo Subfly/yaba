@@ -7,9 +7,6 @@
 
 import Foundation
 import SwiftUI
-#if canImport(UIKit)
-import UIKit
-#endif
 
 /// Device type for platform identification and UI symbols
 enum DeviceType: String, Codable, CaseIterable {
@@ -20,7 +17,7 @@ enum DeviceType: String, Codable, CaseIterable {
     
     /// Automatically detect current device type
     static var current: DeviceType {
-        #if os(macOS)
+        #if targetEnvironment(macCatalyst)
         return .computer
         #elseif os(iOS)
         if UIDevice.current.userInterfaceIdiom == .pad {

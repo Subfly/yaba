@@ -7,7 +7,6 @@
 
 import SwiftData
 import SwiftUI
-import UIKit
 
 struct LinkmarkCreationContent: View {
     @Environment(\.dismiss)

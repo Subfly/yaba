@@ -8,7 +8,6 @@
 import PhotosUI
 import SwiftData
 import SwiftUI
-import UIKit
 
 struct ImagemarkCreationContent: View {
     @Environment(\.dismiss)

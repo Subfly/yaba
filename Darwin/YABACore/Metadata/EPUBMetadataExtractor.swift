@@ -10,7 +10,6 @@ import Foundation
 #if canImport(ReadiumShared) && canImport(ReadiumStreamer) && canImport(UIKit) && !SHARE_EXTENSION
 import ReadiumShared
 import ReadiumStreamer
-import UIKit
 
 /// Opens packaged EPUB bytes with Readium and extracts Dublin-Core-ish fields plus cover bitmap data.
 public enum EPUBMetadataExtractor {

@@ -4,7 +4,6 @@
 
 import SwiftData
 import SwiftUI
-import UIKit
 
 struct LinkmarkDetailInfoSheet: View {
     @Environment(\.dismiss)

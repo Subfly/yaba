@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import UIKit
 
 /// Presents the system camera capture UI and returns PNG data when the user confirms a photo.
 struct CameraCapturePicker: UIViewControllerRepresentable {

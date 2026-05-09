@@ -4,7 +4,6 @@
 //
 
 import SwiftUI
-import UIKit
 
 struct NotemarkDetailInfoSheet: View {
     @Environment(\.dismiss)

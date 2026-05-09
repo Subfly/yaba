@@ -10,7 +10,6 @@ import PhotosUI
 import SwiftData
 import SwiftUI
 import UniformTypeIdentifiers
-import UIKit
 
 private struct PickedMovie: Transferable {
     let data: Data

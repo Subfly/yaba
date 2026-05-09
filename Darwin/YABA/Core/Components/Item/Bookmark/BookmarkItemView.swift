@@ -7,7 +7,6 @@
 
 import SwiftData
 import SwiftUI
-import UIKit
 
 private func bookmarkItemShareURL(_ bookmark: BookmarkModel) -> URL? {
     if let urlString = bookmark.linkDetail?.url,

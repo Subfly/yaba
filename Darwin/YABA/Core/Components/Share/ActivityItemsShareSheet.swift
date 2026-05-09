@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import UIKit
 
 struct ActivityItemsShareSheet: UIViewControllerRepresentable {
     let items: [Any]

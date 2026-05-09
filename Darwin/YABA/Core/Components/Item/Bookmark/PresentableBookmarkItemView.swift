@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import UIKit
 
 /// Shared list-style bookmark row label (image + title + optional description).
 struct PresentableBookmarkListRowContent: View {

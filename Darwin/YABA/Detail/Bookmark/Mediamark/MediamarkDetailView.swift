@@ -7,7 +7,6 @@
 
 import SwiftData
 import SwiftUI
-import UIKit
 
 struct MediamarkDetailView: View {
     let bookmarkId: String

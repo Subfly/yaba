@@ -7,10 +7,7 @@
 
 import Foundation
 import SwiftUI
-#if canImport(UIKit)
-import UIKit
 import UniformTypeIdentifiers
-#endif
 
 // MARK: - Models
 

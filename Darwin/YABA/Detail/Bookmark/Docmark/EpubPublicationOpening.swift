@@ -8,7 +8,6 @@
 import Foundation
 import ReadiumShared
 import ReadiumStreamer
-import UIKit
 
 /// Opens packaged EPUB bytes using the same asset pipeline as ``EPUBMetadataExtractor``.
 @MainActor

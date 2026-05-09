@@ -4,7 +4,6 @@
 //
 
 import SwiftUI
-import UIKit
 import WebKit
 
 /// Bundled Markdown preview (`preview.html`) host aligned with ``NotemarkEditorWebView``.

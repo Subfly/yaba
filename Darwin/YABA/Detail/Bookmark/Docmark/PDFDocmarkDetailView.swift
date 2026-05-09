@@ -7,7 +7,6 @@
 
 import PDFKit
 import SwiftUI
-import UIKit
 
 struct DocmarkPDFKitView: UIViewRepresentable {
     let pdfData: Data

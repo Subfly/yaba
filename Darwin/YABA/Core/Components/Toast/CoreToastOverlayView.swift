@@ -7,7 +7,6 @@
 
 import Observation
 import SwiftUI
-import UIKit
 
 struct CoreToastOverlayView: View {
     /// Vertical travel when hiding (matches slide-from-bottom language).

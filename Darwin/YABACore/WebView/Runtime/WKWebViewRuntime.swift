@@ -68,8 +68,10 @@ public final class WKWebViewRuntime: NSObject {
 
         webView.navigationDelegate = navProxy
         webView.uiDelegate = uiProxy
+        #if os(iOS)
         webView.isOpaque = false
         webView.backgroundColor = .clear
+        #endif
 
         #if DEBUG
         if #available(iOS 16.4, macOS 13.3, macCatalyst 16.4, *) {

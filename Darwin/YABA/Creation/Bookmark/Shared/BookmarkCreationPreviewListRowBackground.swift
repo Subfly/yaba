@@ -4,7 +4,6 @@
 //
 
 import SwiftUI
-import UIKit
 
 extension View {
     /// Grid previews draw their own material; this fades out the grouped list row fill so it does not stack behind the card.

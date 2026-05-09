@@ -8,7 +8,6 @@
 import ReadiumNavigator
 import ReadiumShared
 import SwiftUI
-import UIKit
 
 // MARK: - Toolbar navigation bridge
 

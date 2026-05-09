@@ -4,7 +4,6 @@
 //
 
 import SwiftUI
-import UIKit
 
 struct ImagemarkDetailView: View {
     let bookmark: YabaBookmark

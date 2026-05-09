@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import UIKit
 import UniformTypeIdentifiers
 
 /// Presents the system camera UI in video mode and returns the captured movie file URL.

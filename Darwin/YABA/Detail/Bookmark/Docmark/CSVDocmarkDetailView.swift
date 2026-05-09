@@ -5,7 +5,6 @@
 //
 
 import SwiftUI
-import UIKit
 
 private struct IndexedCSVRow: Identifiable {
     let id: Int

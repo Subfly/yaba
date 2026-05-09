@@ -8,12 +8,6 @@
 import Foundation
 import PDFKit
 
-#if canImport(UIKit)
-import UIKit
-#elseif canImport(AppKit)
-import AppKit
-#endif
-
 public enum PDFMetadataExtractor {
     public static func extract(fromFile url: URL, renderScale: CGFloat = 1.2) -> PdfMetadataResult? {
         guard let document = PDFDocument(url: url) else { return nil }
@@ -81,20 +75,7 @@ public enum PDFMetadataExtractor {
         let h = max(1, bounds.height * renderScale)
         let size = CGSize(width: w, height: h)
 
-        #if canImport(UIKit)
         let image = page.thumbnail(of: size, for: .mediaBox)
         return image.pngData()
-        #elseif canImport(AppKit)
-        let image = page.thumbnail(of: size, for: .mediaBox)
-        guard let tiff = image.tiffRepresentation,
-              let rep = NSBitmapImageRep(data: tiff),
-              let data = rep.representation(using: .png, properties: [:])
-        else {
-            return nil
-        }
-        return data
-        #else
-        return nil
-        #endif
     }
 }

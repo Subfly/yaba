@@ -4,7 +4,6 @@
 //
 
 import SwiftUI
-import UIKit
 import WebKit
 
 /// Pins `WKWebView` to all edges so SwiftUI layout proposals fill the screen (WKWebView has no intrinsic size).

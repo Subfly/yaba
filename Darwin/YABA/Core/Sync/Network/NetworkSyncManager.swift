@@ -9,7 +9,6 @@ import Combine
 import Foundation
 import SwiftData
 import SwiftUI
-import UIKit
 
 // MARK: - Full implementation (disabled; preserved for re-enable)
 #if false
