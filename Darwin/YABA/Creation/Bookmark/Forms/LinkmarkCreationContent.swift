@@ -215,7 +215,7 @@ struct LinkmarkCreationContent: View {
                             .frame(width: 22, height: 22)
                     }
                     Spacer(minLength: 0)
-                    if !restrictsPrimaryPayloadUI && hasApplicableMetadata {
+                    if !isEditing && hasApplicableMetadata {
                         Button {
                             Task { await machine.send(.onApplyFromMetadata) }
                         } label: {
