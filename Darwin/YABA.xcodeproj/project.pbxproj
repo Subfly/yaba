@@ -31,6 +31,7 @@
 		96EB27022FAF381A001B7DB4 /* ReadiumNavigator in Frameworks */ = {isa = PBXBuildFile; productRef = 96EB27012FAF381A001B7DB4 /* ReadiumNavigator */; };
 		96EB27042FAF381A001B7DB4 /* ReadiumShared in Frameworks */ = {isa = PBXBuildFile; productRef = 96EB27032FAF381A001B7DB4 /* ReadiumShared */; };
 		96EB27062FAF381A001B7DB4 /* ReadiumStreamer in Frameworks */ = {isa = PBXBuildFile; productRef = 96EB27052FAF381A001B7DB4 /* ReadiumStreamer */; };
+		96EB2ED22FAFE402001B7DB4 /* WebComponents in Resources */ = {isa = PBXBuildFile; fileRef = 96DC37F12F9554D2005760E3 /* WebComponents */; };
 		96EB67222DD945A6009EB9EC /* YABAShareMac.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 96EB67132DD94580009EB9EC /* YABAShareMac.appex */; platformFilters = (macos, ); settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
@@ -859,6 +860,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				96EB2ED22FAFE402001B7DB4 /* WebComponents in Resources */,
 				96D262F42E6CA6C4007F4285 /* YABA_Icon.icon in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

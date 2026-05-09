@@ -58,6 +58,11 @@ struct LinkmarkCreationContent: View {
         _previewContentAppearance = State(initialValue: .list)
     }
 
+    /// Drives `bootstrap` when edit target or prefilled URL from share/host changes; `editingBookmarkId` alone misses late `initialUrl` updates.
+    private var linkmarkBootstrapIdentity: String {
+        "\(editingBookmarkId ?? "")\u{1e}\(initialUrl ?? "")"
+    }
+
     private var isEditing: Bool {
         editingBookmarkId != nil
     }
@@ -105,7 +110,7 @@ struct LinkmarkCreationContent: View {
                 }
             }
         )
-        .task(id: editingBookmarkId) {
+        .task(id: linkmarkBootstrapIdentity) {
             await bootstrap()
             syncPreviewAppearanceFromMachine()
         }

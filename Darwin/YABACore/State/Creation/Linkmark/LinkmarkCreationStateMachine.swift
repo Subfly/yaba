@@ -29,6 +29,7 @@ public final class LinkmarkCreationStateMachine: YabaBaseObservableState<Linkmar
                     $0.uncategorizedFolderCreationRequired = false
                 }
             }
+            scheduleDebouncedLinkFetchIfURLWarrantsFetch()
         case .onCyclePreviewAppearance:
             apply {
                 switch $0.bookmarkAppearance {
@@ -38,7 +39,10 @@ public final class LinkmarkCreationStateMachine: YabaBaseObservableState<Linkmar
                 }
             }
         case let .onChangeUrl(u):
+            let previousTrimmed = state.url.trimmingCharacters(in: .whitespacesAndNewlines)
+            let nextTrimmed = u.trimmingCharacters(in: .whitespacesAndNewlines)
             apply { $0.url = u }
+            guard previousTrimmed != nextTrimmed else { return }
             scheduleDebouncedLinkFetch()
         case let .onChangeLabel(l):
             apply { $0.label = l }
@@ -107,6 +111,12 @@ public final class LinkmarkCreationStateMachine: YabaBaseObservableState<Linkmar
             )
             apply { $0.isSaving = false }
         }
+    }
+
+    private func scheduleDebouncedLinkFetchIfURLWarrantsFetch() {
+        let trimmed = state.url.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty, trimmed.contains(".") else { return }
+        scheduleDebouncedLinkFetch()
     }
 
     private func scheduleDebouncedLinkFetch() {
