@@ -12,7 +12,7 @@ public struct NotemarkCreationUIState: Sendable {
     public var selectedFolderId: String?
     public var uncategorizedFolderCreationRequired: Bool
     public var selectedTagIds: [String]
-    public var documentJson: String
+    public var document: String
     public var bookmarkAppearance: BookmarkAppearance
     public var cardImageSizing: CardImageSizing
     public var isPinned: Bool
@@ -28,7 +28,7 @@ public struct NotemarkCreationUIState: Sendable {
         selectedFolderId: String? = nil,
         uncategorizedFolderCreationRequired: Bool = false,
         selectedTagIds: [String] = [],
-        documentJson: String = "",
+        document: String = "",
         bookmarkAppearance: BookmarkAppearance = .list,
         cardImageSizing: CardImageSizing = .small,
         isPinned: Bool = false,
@@ -42,7 +42,7 @@ public struct NotemarkCreationUIState: Sendable {
         self.selectedFolderId = selectedFolderId
         self.uncategorizedFolderCreationRequired = uncategorizedFolderCreationRequired
         self.selectedTagIds = selectedTagIds
-        self.documentJson = documentJson
+        self.document = document
         self.bookmarkAppearance = bookmarkAppearance
         self.cardImageSizing = cardImageSizing
         self.isPinned = isPinned

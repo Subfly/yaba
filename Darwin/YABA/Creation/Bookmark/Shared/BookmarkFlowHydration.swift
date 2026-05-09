@@ -65,9 +65,9 @@ enum BookmarkFlowHydration {
         state.isPinned = bookmark.isPinned
         
         if let body = bookmark.noteDetail?.payload?.documentBody,
-           let json = String(data: body, encoding: .utf8)
+           let document = String(data: body, encoding: .utf8)
         {
-            state.documentJson = json
+            state.document = document
         }
         state.uncategorizedFolderCreationRequired = false
         return state

@@ -470,6 +470,6 @@ struct NotemarkCreationContent: View {
         guard editingBookmarkId == nil, !didApplyInitialMarkdown else { return }
         guard let initialMarkdown, !initialMarkdown.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
         didApplyInitialMarkdown = true
-        await machine.send(.onChangeDocumentJson(initialMarkdown))
+        await machine.send(.onChangeDocument(initialMarkdown))
     }
 }

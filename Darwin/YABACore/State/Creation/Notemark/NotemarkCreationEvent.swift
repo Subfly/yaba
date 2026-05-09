@@ -15,7 +15,7 @@ public enum NotemarkCreationEvent: Sendable {
     case onCyclePreviewAppearance
     case onChangeLabel(String)
     case onChangeDescription(String)
-    case onChangeDocumentJson(String)
+    case onChangeDocument(String)
     case onSelectFolderId(String?)
     case onSelectTagIds([String])
     case onSave

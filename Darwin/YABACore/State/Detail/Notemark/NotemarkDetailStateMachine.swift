@@ -26,11 +26,11 @@ public final class NotemarkDetailStateMachine: YabaBaseObservableState<NotemarkD
                 $0.bookmarkId = bookmarkId
                 $0.reminderDate = reminderDate
             }
-        case let .onSave(documentJson, _):
+        case let .onSave(document, _):
             guard let bid = state.bookmarkId else { return }
-            let data = Data(documentJson.utf8)
+            let data = Data(document.utf8)
             NotemarkManager.queueSaveNoteDocumentData(bookmarkId: bid, documentBody: data)
-            ReadableContentManager.queueSyncNotemarkReadableMirror(bookmarkId: bid, html: documentJson)
+            ReadableContentManager.queueSyncNotemarkReadableMirror(bookmarkId: bid, html: document)
             NotemarkManager.queueCreateOrUpdateNoteDetails(bookmarkId: bid)
         case let .onDeleteBookmark(bookmarkId):
             AllBookmarksManager.queueDeleteBookmarks(bookmarkIds: [bookmarkId])
@@ -42,8 +42,8 @@ public final class NotemarkDetailStateMachine: YabaBaseObservableState<NotemarkD
             }
         case .onPickImageFromGallery, .onCaptureImageFromCamera:
             break
-        case let .onWebInitialContentLoad(resultJson):
-            apply { $0.webInitialContentLoadResultJson = resultJson }
+        case let .onWebInitialContentLoad(result):
+            apply { $0.webInitialContentLoadResult = result }
         case .onConsumedInlineImageInsert:
             apply { $0.inlineImageDocumentSrc = nil }
         case let .onScheduleReminder(titleKey, messageKey, fireAt):
@@ -69,10 +69,10 @@ public final class NotemarkDetailStateMachine: YabaBaseObservableState<NotemarkD
             apply { $0.lastExportMarkdown = md }
         case let .saveDocument(bookmarkId, data):
             NotemarkManager.queueSaveNoteDocumentData(bookmarkId: bookmarkId, documentBody: data)
-        case let .ensureReadableMirror(bookmarkId, json):
+        case let .ensureReadableMirror(bookmarkId, document):
             ReadableContentManager.queueSyncNotemarkReadableMirror(
                 bookmarkId: bookmarkId,
-                html: json
+                html: document
             )
         case let .onDeleteNoteInlineAsset(bookmarkId, assetId):
             NotemarkManager.queueDeleteNoteInlineAsset(bookmarkId: bookmarkId, assetId: assetId)
@@ -81,7 +81,7 @@ public final class NotemarkDetailStateMachine: YabaBaseObservableState<NotemarkD
 
     // MARK: - Note inline images (camera / gallery)
 
-    /// Persists bytes on the note bookmark, then yields editor bridge JSON to insert `![](yaba-asset://…)`.
+    /// Persists bytes on the note bookmark, then yields an editor-bridge insert payload for `![](yaba-asset://…)`.
     /// Pass `storedPathExtension` when the source already implies a type (e.g. camera JPEG); otherwise it is inferred from `data` (gallery).
     public func handlePickedInlineImage(
         data: Data,
@@ -116,9 +116,10 @@ public final class NotemarkDetailStateMachine: YabaBaseObservableState<NotemarkD
         guard let md = try? await runtime.evaluateJavaScriptStringResult(WebEditorBridgeScripts.getMarkdown()) else {
             return
         }
-        let srcsJson = (try? await runtime.evaluateJavaScriptStringResult(WebEditorBridgeScripts.getUsedInlineAssetSrcs())) ?? "[]"
-        let srcs = Self.parseInlineAssetSrcJson(srcsJson)
-        await send(.onSave(documentJson: md, usedInlineAssetSrcs: srcs))
+        let usedSrcsEncoded =
+            (try? await runtime.evaluateJavaScriptStringResult(WebEditorBridgeScripts.getUsedInlineAssetSrcs())) ?? "[]"
+        let srcs = Self.parseInlineAssetSrcArray(from: usedSrcsEncoded)
+        await send(.onSave(document: md, usedInlineAssetSrcs: srcs))
     }
 
     public func startMarkdownExportFromEditor(runtime: WKWebViewRuntime?, bookmarkLabel: String) {
@@ -138,8 +139,8 @@ public final class NotemarkDetailStateMachine: YabaBaseObservableState<NotemarkD
         }
     }
 
-    private static func parseInlineAssetSrcJson(_ json: String) -> [String] {
-        guard let data = json.data(using: .utf8),
+    private static func parseInlineAssetSrcArray(from encoded: String) -> [String] {
+        guard let data = encoded.data(using: .utf8),
               let arr = try? JSONSerialization.jsonObject(with: data) as? [String]
         else {
             return []

@@ -37,8 +37,8 @@ public final class NotemarkCreationStateMachine: YabaBaseObservableState<Notemar
             apply { $0.label = s }
         case let .onChangeDescription(s):
             apply { $0.bookmarkDescription = s }
-        case let .onChangeDocumentJson(s):
-            apply { $0.documentJson = s }
+        case let .onChangeDocument(s):
+            apply { $0.document = s }
         case let .onSelectFolderId(id):
             apply {
                 $0.selectedFolderId = id
@@ -115,9 +115,9 @@ public final class NotemarkCreationStateMachine: YabaBaseObservableState<Notemar
                 tagIds: state.selectedTagIds
             )
         }
-        let data = Data(state.documentJson.utf8)
+        let data = Data(state.document.utf8)
         NotemarkManager.queueSaveNoteDocumentData(bookmarkId: bid, documentBody: data)
-        ReadableContentManager.queueSyncNotemarkReadableMirror(bookmarkId: bid, html: state.documentJson)
+        ReadableContentManager.queueSyncNotemarkReadableMirror(bookmarkId: bid, html: state.document)
         NotemarkManager.queueCreateOrUpdateNoteDetails(bookmarkId: bid)
         apply {
             $0.isSaving = false

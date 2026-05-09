@@ -480,10 +480,10 @@ struct NotemarkDetailView: View {
 
     private func handleEditorHostEvent(_ event: WebHostEvent) {
         switch event {
-        case let .initialContentLoad(result):
-            let resultJson = (result == .loaded) ? #"{"result":"loaded"}"# : #"{"result":"error"}"#
+        case let .initialContentLoad(loadResult):
+            let loadDetail = (loadResult == .loaded) ? #"{"result":"loaded"}"# : #"{"result":"error"}"#
             Task {
-                await machine.send(.onWebInitialContentLoad(resultJson: resultJson))
+                await machine.send(.onWebInitialContentLoad(result: loadDetail))
             }
         default:
             break

@@ -10,7 +10,7 @@ import Foundation
 import SwiftData
 
 public enum ReadableContentManager {
-    /// Persists the notemark editor JSON; body is stored only on the note payload (no separate readable version).
+    /// Persists the notemark editor document; body is stored only on the note payload (no separate readable version).
     public static func queueSyncNotemarkReadableMirror(bookmarkId: String, html: String) {
         CoreOperationQueue.shared.queue(name: "SyncNotemarkReadable:\(bookmarkId)") { context in
             guard let bookmark = try YabaCorePersistenceHelpers.bookmark(bookmarkId: bookmarkId, context: context) else {

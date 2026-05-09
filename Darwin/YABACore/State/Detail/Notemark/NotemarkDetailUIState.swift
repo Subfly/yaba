@@ -10,7 +10,7 @@ public struct NotemarkDetailUIState: Sendable {
     public var inlineImageDocumentSrc: String?
     public var lastExportMarkdown: String?
     public var reminderDate: Date?
-    public var webInitialContentLoadResultJson: String?
+    public var webInitialContentLoadResult: String?
 
     /// Editor chrome (`editor.html`) typography / theme (parity with link reader prefs).
     public var readerTheme: ReaderTheme
@@ -34,7 +34,7 @@ public struct NotemarkDetailUIState: Sendable {
         inlineImageDocumentSrc: String? = nil,
         lastExportMarkdown: String? = nil,
         reminderDate: Date? = nil,
-        webInitialContentLoadResultJson: String? = nil,
+        webInitialContentLoadResult: String? = nil,
         readerTheme: ReaderTheme = .system,
         readerFontSize: ReaderFontSize = .medium,
         readerLineHeight: ReaderLineHeight = .normal,
@@ -51,7 +51,7 @@ public struct NotemarkDetailUIState: Sendable {
         self.inlineImageDocumentSrc = inlineImageDocumentSrc
         self.lastExportMarkdown = lastExportMarkdown
         self.reminderDate = reminderDate
-        self.webInitialContentLoadResultJson = webInitialContentLoadResultJson
+        self.webInitialContentLoadResult = webInitialContentLoadResult
         self.readerTheme = readerTheme
         self.readerFontSize = readerFontSize
         self.readerLineHeight = readerLineHeight

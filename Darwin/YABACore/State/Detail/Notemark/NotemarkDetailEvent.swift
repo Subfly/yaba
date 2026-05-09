@@ -7,7 +7,7 @@ import Foundation
 
 public enum NotemarkDetailEvent: Sendable {
     case onInit(bookmarkId: String)
-    case onSave(documentJson: String, usedInlineAssetSrcs: [String])
+    case onSave(document: String, usedInlineAssetSrcs: [String])
     case onDeleteBookmark(bookmarkId: String)
     case onRequestNotificationPermission
     case onScheduleReminder(titleKey: String, messageKey: String, fireAt: Date)
@@ -15,10 +15,10 @@ public enum NotemarkDetailEvent: Sendable {
     case onPickImageFromGallery
     case onCaptureImageFromCamera
     case onConsumedInlineImageInsert
-    case onWebInitialContentLoad(resultJson: String?)
+    case onWebInitialContentLoad(result: String?)
     case onExportMarkdownReady(String)
 
     case saveDocument(bookmarkId: String, data: Data)
-    case ensureReadableMirror(bookmarkId: String, json: String)
+    case ensureReadableMirror(bookmarkId: String, document: String)
     case onDeleteNoteInlineAsset(bookmarkId: String, assetId: String)
 }
