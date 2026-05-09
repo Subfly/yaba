@@ -102,7 +102,6 @@ final class BookmarkModel {
     var bookmarkDescription: String?
     var createdAt: Date = Date.now
     var editedAt: Date = Date.now
-    var viewCount: Int = 0
     var isPinned: Bool = false
 
     var folder: FolderModel?
@@ -135,7 +134,6 @@ final class BookmarkModel {
         bookmarkDescription: String? = nil,
         createdAt: Date = .now,
         editedAt: Date = .now,
-        viewCount: Int = 0,
         isPinned: Bool = false,
         folder: FolderModel? = nil,
         tags: [TagModel] = []
@@ -146,7 +144,6 @@ final class BookmarkModel {
         self.bookmarkDescription = bookmarkDescription
         self.createdAt = createdAt
         self.editedAt = editedAt
-        self.viewCount = viewCount
         self.isPinned = isPinned
         self.folder = folder
         self.tags = tags

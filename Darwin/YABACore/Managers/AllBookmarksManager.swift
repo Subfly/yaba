@@ -99,14 +99,6 @@ public enum AllBookmarksManager {
         }
     }
 
-    public static func queueRecordBookmarkView(bookmarkId: String) {
-        CoreOperationQueue.shared.queue(name: "RecordBookmarkView:\(bookmarkId)") { context in
-            guard let bookmark = try YabaCorePersistenceHelpers.bookmark(bookmarkId: bookmarkId, context: context) else { return }
-            bookmark.viewCount += 1
-            bookmark.editedAt = .now
-        }
-    }
-
     // MARK: - Pin
 
     public static func queueToggleBookmarkPinned(bookmarkId: String) {
@@ -186,7 +178,6 @@ public enum AllBookmarksManager {
             bookmarkDescription: bookmarkDescription,
             createdAt: now,
             editedAt: now,
-            viewCount: 0,
             isPinned: isPinned,
             folder: folder,
             tags: []

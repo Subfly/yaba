@@ -16,7 +16,6 @@ public final class MediamarkDetailStateMachine: YabaBaseObservableState<Mediamar
     public func send(_ event: MediamarkDetailEvent) async {
         switch event {
         case let .onInit(bookmarkId):
-            AllBookmarksManager.queueRecordBookmarkView(bookmarkId: bookmarkId)
             let reminderDate = await ReminderManager.getPendingReminderDate(bookmarkId: bookmarkId)
             apply {
                 $0.bookmarkId = bookmarkId

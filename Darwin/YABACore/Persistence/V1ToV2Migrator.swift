@@ -106,7 +106,6 @@ enum V1ToV2Migrator {
                 bookmarkDescription: legacy.bookmarkDescription.isEmpty ? nil : legacy.bookmarkDescription,
                 createdAt: legacy.createdAt,
                 editedAt: legacy.editedAt,
-                viewCount: 0,
                 isPinned: false,
                 folder: folder,
                 tags: tagModels
