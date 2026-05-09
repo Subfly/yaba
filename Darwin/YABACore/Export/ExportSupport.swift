@@ -66,7 +66,8 @@ public enum ExportSupport {
             try fileManager.createDirectory(at: exportRoot, withIntermediateDirectories: true)
             try fileManager.createDirectory(at: assetsDir, withIntermediateDirectories: true)
             let markdownFile = exportRoot.appendingPathComponent("note.md", isDirectory: false)
-            guard let markdownData = request.markdown.data(using: .utf8) else { return false }
+            let markdownForDisk = Self.sanitizeYabaAssetURLsInMarkdownForExport(request.markdown, assets: request.assets)
+            guard let markdownData = markdownForDisk.data(using: .utf8) else { return false }
             try markdownData.write(to: markdownFile, options: .atomic)
             for asset in request.assets {
                 let file = assetsDir.appendingPathComponent(asset.fileName, isDirectory: false)
@@ -123,6 +124,71 @@ public enum ExportSupport {
             let cleanedExt = ext.isEmpty ? "bin" : ext
             return MarkdownExportAsset(fileName: "\(item.assetId).\(cleanedExt)", bytes: item.bytes)
         }
+    }
+
+    /// Rewrites `yaba-asset://…` placeholders to `./assets/<fileName>` (matching files written under `assets/`).
+    /// Used only for on-disk export; the stored markdown body is unchanged.
+    private static func sanitizeYabaAssetURLsInMarkdownForExport(_ markdown: String, assets: [MarkdownExportAsset]) -> String {
+        guard !markdown.isEmpty else { return markdown }
+        var idToRelative: [String: String] = [:]
+        idToRelative.reserveCapacity(assets.count)
+        for asset in assets {
+            let base = (asset.fileName as NSString).deletingPathExtension
+            guard !base.isEmpty else { continue }
+            idToRelative[base.lowercased()] = "./assets/\(asset.fileName)"
+        }
+        guard let regex = try? NSRegularExpression(
+            pattern: #"yaba-asset://[^\s<>\]\)"']+"#,
+            options: .caseInsensitive
+        ) else {
+            return markdown
+        }
+        let ns = markdown as NSString
+        let fullRange = NSRange(location: 0, length: ns.length)
+        let matches = regex.matches(in: markdown, options: [], range: fullRange)
+        guard !matches.isEmpty else { return markdown }
+        let result = NSMutableString(string: markdown)
+        for match in matches.reversed() {
+            let raw = ns.substring(with: match.range(at: 0))
+            guard let id = assetIdToken(fromYabaAssetURLString: raw) else { continue }
+            let replacement = idToRelative[id.lowercased()] ?? "./assets/\(id)"
+            result.replaceCharacters(in: match.range(at: 0), with: replacement)
+        }
+        return result as String
+    }
+
+    /// Aligns with ``YabaInlineAssetSchemeHandler`` / stored inline asset URL shapes (`yaba-asset://<id>`, `…/assets/<id>.<ext>`, …).
+    private static func assetIdToken(fromYabaAssetURLString raw: String) -> String? {
+        let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return nil }
+        let noQuery = trimmed.split(separator: "?", maxSplits: 1).first.map(String.init) ?? trimmed
+        let noHash = noQuery.split(separator: "#", maxSplits: 1).first.map(String.init) ?? noQuery
+
+        let pathPart: String
+        if let range = noHash.range(of: "/assets/", options: .backwards) {
+            pathPart = String(noHash[range.upperBound...])
+        } else if let range = noHash.range(of: "://") {
+            pathPart = String(noHash[range.upperBound...])
+        } else if let range = noHash.range(of: ":", options: .backwards) {
+            pathPart = String(noHash[noHash.index(after: range.lowerBound)...])
+        } else {
+            return nil
+        }
+        return normalizedInlineAssetIdToken(pathPart)
+    }
+
+    private static func normalizedInlineAssetIdToken(_ raw: String) -> String? {
+        var token = (raw.removingPercentEncoding ?? raw).trimmingCharacters(in: .whitespacesAndNewlines)
+        token = token.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+        if token.hasPrefix("assets/") {
+            token = String(token.dropFirst("assets/".count))
+        }
+        if let slash = token.lastIndex(of: "/") {
+            token = String(token[token.index(after: slash)...])
+        }
+        guard !token.isEmpty else { return nil }
+        let base = (token as NSString).deletingPathExtension
+        return base.isEmpty ? token : base
     }
 }
 
