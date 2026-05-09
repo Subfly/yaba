@@ -67,8 +67,6 @@ public final class NotemarkDetailStateMachine: YabaBaseObservableState<NotemarkD
             apply { $0.reminderDate = nil }
         case let .onExportMarkdownReady(md):
             apply { $0.lastExportMarkdown = md }
-        case let .onExportPdfReady(b64):
-            apply { $0.lastExportPdfBase64 = b64 }
         case let .saveDocument(bookmarkId, data):
             NotemarkManager.queueSaveNoteDocumentData(bookmarkId: bookmarkId, documentBody: data)
         case let .ensureReadableMirror(bookmarkId, json):
@@ -140,34 +138,6 @@ public final class NotemarkDetailStateMachine: YabaBaseObservableState<NotemarkD
         }
     }
 
-    public func preparePdfExportIfEditorHasBody(
-        runtime: WKWebViewRuntime?,
-        persistedMarkdown: String,
-        bookmarkLabel: String
-    ) {
-        Task {
-            let trimmed: String
-            if let runtime,
-               let md = try? await runtime.evaluateJavaScriptStringResult(WebEditorBridgeScripts.getMarkdown())
-            {
-                trimmed = md.trimmingCharacters(in: .whitespacesAndNewlines)
-            } else {
-                trimmed = persistedMarkdown.trimmingCharacters(in: .whitespacesAndNewlines)
-            }
-            await MainActor.run {
-                guard !trimmed.isEmpty else {
-                    CoreToastManager.shared.show(
-                        message: LocalizedStringKey("Bookmark Detail Markdown Export Failed Message"),
-                        iconType: .error,
-                        duration: .short
-                    )
-                    return
-                }
-                self.preparePdfExport(bookmarkLabel: bookmarkLabel)
-            }
-        }
-    }
-
     private static func parseInlineAssetSrcJson(_ json: String) -> [String] {
         guard let data = json.data(using: .utf8),
               let arr = try? JSONSerialization.jsonObject(with: data) as? [String]
@@ -221,20 +191,6 @@ public final class NotemarkDetailStateMachine: YabaBaseObservableState<NotemarkD
         )
     }
 
-    public var showPdfExportDirectoryPickerBinding: Binding<Bool> {
-        Binding(
-            get: { self.state.showPdfExportDirectoryPicker },
-            set: { newValue in self.apply { $0.showPdfExportDirectoryPicker = newValue } }
-        )
-    }
-
-    public var editorPdfExportBinding: Binding<LinkmarkReaderPdfExport?> {
-        Binding(
-            get: { self.state.editorPdfExport },
-            set: { newValue in self.apply { $0.editorPdfExport = newValue } }
-        )
-    }
-
     // MARK: - Markdown export
 
     public func startMarkdownExport(
@@ -276,29 +232,6 @@ public final class NotemarkDetailStateMachine: YabaBaseObservableState<NotemarkD
         }
     }
 
-    // MARK: - Editor PDF export (directory picker + WKWebView.createPDF)
-
-    public func preparePdfExport(bookmarkLabel: String) {
-        let base = ExportSupport.sanitizeBaseFolderName(bookmarkLabel, emptyFallback: "note")
-        apply {
-            $0.pdfExportFileBaseName = base
-            $0.showPdfExportDirectoryPicker = true
-        }
-    }
-
-    public func finalizePdfExportDirectorySelection(_ parentDirectory: URL?) {
-        let baseName = state.pdfExportFileBaseName
-        apply {
-            $0.showPdfExportDirectoryPicker = false
-            $0.pdfExportFileBaseName = ""
-            if let parentDirectory, !baseName.isEmpty {
-                $0.editorPdfExport = LinkmarkReaderPdfExport(parentDirectory: parentDirectory, fileBaseName: baseName)
-            } else {
-                $0.editorPdfExport = nil
-            }
-        }
-    }
-    
     /// Sniff JPEG / PNG / WebP from magic bytes; default `jpg`.
     private func inferredInlineImagePathExtension(for data: Data) -> String {
         guard !data.isEmpty else { return "jpg" }

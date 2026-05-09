@@ -17,7 +17,6 @@ struct LinkmarkReadItLaterWebView: UIViewRepresentable {
     let onScrollShowChrome: (() -> Void)?
     let onScrollHideChrome: (() -> Void)?
     let onRuntimeReady: ((WKWebViewRuntime) -> Void)?
-    @Binding var readerPdfExport: LinkmarkReaderPdfExport?
 
     init(
         markdown: String,
@@ -28,7 +27,6 @@ struct LinkmarkReadItLaterWebView: UIViewRepresentable {
         onInlineLinkTap: @escaping (InlineLinkTapEvent) -> Void,
         onScrollShowChrome: (() -> Void)?,
         onScrollHideChrome: (() -> Void)?,
-        readerPdfExport: Binding<LinkmarkReaderPdfExport?>,
         onRuntimeReady: ((WKWebViewRuntime) -> Void)? = nil
     ) {
         self.markdown = markdown
@@ -39,7 +37,6 @@ struct LinkmarkReadItLaterWebView: UIViewRepresentable {
         self.onInlineLinkTap = onInlineLinkTap
         self.onScrollShowChrome = onScrollShowChrome
         self.onScrollHideChrome = onScrollHideChrome
-        self._readerPdfExport = readerPdfExport
         self.onRuntimeReady = onRuntimeReady
     }
 
@@ -53,10 +50,6 @@ struct LinkmarkReadItLaterWebView: UIViewRepresentable {
 
     func updateUIView(_ uiView: WKWebView, context: Context) {
         context.coordinator.update(parent: self)
-        if let export = readerPdfExport {
-            readerPdfExport = nil
-            context.coordinator.exportPdfToDisk(parentDirectory: export.parentDirectory, fileBaseName: export.fileBaseName)
-        }
     }
 
     final class Coordinator: NSObject, UIScrollViewDelegate {
@@ -99,43 +92,6 @@ struct LinkmarkReadItLaterWebView: UIViewRepresentable {
             runtime.webView.scrollView.contentInsetAdjustmentBehavior = .never
             if #available(iOS 13.0, *) {
                 runtime.webView.scrollView.automaticallyAdjustsScrollIndicatorInsets = false
-            }
-        }
-
-        func exportPdfToDisk(parentDirectory: URL, fileBaseName: String) {
-            let webView = runtime.webView
-            let config = WKPDFConfiguration()
-            let contentSize = webView.scrollView.contentSize
-            var width = max(contentSize.width, webView.bounds.width)
-            var height = max(contentSize.height, webView.bounds.height)
-            if width < 1 { width = 612 }
-            if height < 1 { height = 792 }
-            config.rect = CGRect(x: 0, y: 0, width: width, height: height)
-            webView.createPDF(configuration: config) { result in
-                DispatchQueue.main.async {
-                    switch result {
-                    case let .success(data):
-                        let ok = ExportSupport.writeExportedDocument(
-                            data: data,
-                            into: parentDirectory,
-                            fileBaseName: fileBaseName,
-                            pathExtension: "pdf"
-                        )
-                        if !ok {
-                            CoreToastManager.shared.show(
-                                message: LocalizedStringKey("Bookmark Detail Markdown Export Failed Message"),
-                                iconType: .error,
-                                duration: .short
-                            )
-                        }
-                    case .failure:
-                        CoreToastManager.shared.show(
-                            message: LocalizedStringKey("Bookmark Detail Markdown Export Failed Message"),
-                            iconType: .error,
-                            duration: .short
-                        )
-                    }
-                }
             }
         }
 

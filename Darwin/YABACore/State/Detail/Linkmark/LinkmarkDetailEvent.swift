@@ -25,7 +25,6 @@ public enum LinkmarkDetailEvent: Sendable {
     case onScheduleReminder(fireAt: Date, titleKey: String, messageKey: String)
     case onCancelReminder
     case onExportMarkdownReady(String)
-    case onExportPdfReady(base64: String)
 
     case updateLinkMetadata(
         bookmarkId: String,

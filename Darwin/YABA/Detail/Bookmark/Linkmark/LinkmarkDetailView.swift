@@ -128,13 +128,6 @@ struct LinkmarkDetailView: View {
                 }
             }
         }
-        .sheet(isPresented: machine.showPdfExportDirectoryPickerBinding) {
-            ExportDirectoryPicker { url in
-                Task { @MainActor in
-                    machine.finalizePdfExportDirectorySelection(url)
-                }
-            }
-        }
         .sheet(isPresented: machine.showReminderSheetBinding) {
             NavigationStack {
                 DatePicker(
@@ -216,10 +209,6 @@ struct LinkmarkDetailView: View {
                     onScrollHideChrome: {
                         machine.apply { $0.readerChromeVisible = false }
                     },
-                    readerPdfExport: Binding(
-                        get: { machine.state.readerPdfExport },
-                        set: { newValue in machine.apply { $0.readerPdfExport = newValue } }
-                    ),
                     onRuntimeReady: { _ in }
                 )
                 .ignoresSafeArea()
@@ -355,43 +344,21 @@ struct LinkmarkDetailView: View {
                 )
             }
             .tint(YabaColor.yellow.getUIColor())
-            Menu {
-                Button {
-                    Task { @MainActor in
-                        machine.startMarkdownExport(
-                            markdown: readableBodyString(for: bm),
-                            bookmarkLabel: bm.label,
-                            inlineSources: markdownExportInlineSources(for: bm)
-                        )
-                    }
-                } label: {
-                    overflowMenuItemLabel(
-                        "Bookmark Detail Export Format Markdown Title",
-                        icon: "document-attachment"
+            Button {
+                Task { @MainActor in
+                    machine.startMarkdownExport(
+                        markdown: readableBodyString(for: bm),
+                        bookmarkLabel: bm.label,
+                        inlineSources: markdownExportInlineSources(for: bm)
                     )
                 }
-                .tint(YabaColor.gray.getUIColor())
-                Button {
-                    guard linkHasReadableContent(bm) else {
-                        CoreToastManager.shared.show(
-                            message: LocalizedStringKey("Bookmark Detail Markdown Export Failed Message"),
-                            iconType: .error,
-                            duration: .short
-                        )
-                        return
-                    }
-                    machine.preparePdfExport(bookmarkLabel: bm.label)
-                } label: {
-                    overflowMenuItemLabel(
-                        "Bookmark Detail Export Format PDF Title",
-                        icon: "pdf-02"
-                    )
-                }
-                .tint(YabaColor.red.getUIColor())
             } label: {
-                overflowMenuItemLabel("Bookmark Detail Export Menu Title", icon: "download-01")
+                overflowMenuItemLabel(
+                    "Bookmark Detail Export Format Markdown Title",
+                    icon: "document-attachment"
+                )
             }
-            .tint(YabaColor.blue.getUIColor())
+            .tint(YabaColor.gray.getUIColor())
             if machine.state.reminderDate == nil {
                 Button {
                     machine.apply { $0.showReminderSheet = true }

@@ -168,13 +168,6 @@ struct NotemarkDetailView: View {
                 }
             }
         }
-        .sheet(isPresented: machine.showPdfExportDirectoryPickerBinding) {
-            ExportDirectoryPicker { url in
-                Task { @MainActor in
-                    machine.finalizePdfExportDirectorySelection(url)
-                }
-            }
-        }
         .sheet(isPresented: machine.showReminderSheetBinding) {
             NavigationStack {
                 DatePicker(
@@ -310,8 +303,7 @@ struct NotemarkDetailView: View {
                         highlightColorPick = YabaColor.fromPaletteHexDigits(ev.hexDigits) ?? .blue
                         highlightColorMarkEdit = ev
                         showHighlightColorSheet = true
-                    },
-                    pendingPdfExport: machine.editorPdfExportBinding
+                    }
                 )
                 .id(bm.bookmarkId)
                 .opacity(machine.state.surfaceMode == .editor ? 1 : 0)
@@ -729,33 +721,15 @@ struct NotemarkDetailView: View {
                 )
             }
             .tint(YabaColor.yellow.getUIColor())
-            Menu {
-                Button {
-                    machine.startMarkdownExportFromEditor(runtime: editorRuntime, bookmarkLabel: bm.label)
-                } label: {
-                    overflowMenuItemLabel(
-                        "Bookmark Detail Export Format Markdown Title",
-                        icon: "document-attachment"
-                    )
-                }
-                .tint(YabaColor.gray.getUIColor())
-                Button {
-                    machine.preparePdfExportIfEditorHasBody(
-                        runtime: editorRuntime,
-                        persistedMarkdown: noteMarkdown(for: bm),
-                        bookmarkLabel: bm.label
-                    )
-                } label: {
-                    overflowMenuItemLabel(
-                        "Bookmark Detail Export Format PDF Title",
-                        icon: "pdf-02"
-                    )
-                }
-                .tint(YabaColor.red.getUIColor())
+            Button {
+                machine.startMarkdownExportFromEditor(runtime: editorRuntime, bookmarkLabel: bm.label)
             } label: {
-                overflowMenuItemLabel("Bookmark Detail Export Menu Title", icon: "download-01")
+                overflowMenuItemLabel(
+                    "Bookmark Detail Export Format Markdown Title",
+                    icon: "document-attachment"
+                )
             }
-            .tint(YabaColor.blue.getUIColor())
+            .tint(YabaColor.gray.getUIColor())
             if machine.state.reminderDate == nil {
                 Button {
                     machine.apply { $0.showReminderSheet = true }

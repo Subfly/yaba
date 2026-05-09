@@ -5,17 +5,6 @@
 
 import Foundation
 
-/// Folder picked by the user + sanitized file base name; consumed by `LinkmarkReadItLaterWebView` to snapshot the reader and write `<parent>/<base>.pdf`.
-public struct LinkmarkReaderPdfExport: Equatable, Sendable {
-    public var parentDirectory: URL
-    public var fileBaseName: String
-
-    public init(parentDirectory: URL, fileBaseName: String) {
-        self.parentDirectory = parentDirectory
-        self.fileBaseName = fileBaseName
-    }
-}
-
 public struct LinkmarkDetailUIState: Sendable {
     public var bookmarkId: String?
     /// Resolved link URL (set via [LinkmarkDetailEvent.onLinkSourceUrl]).
@@ -24,7 +13,6 @@ public struct LinkmarkDetailUIState: Sendable {
     public var readerFontSize: ReaderFontSize
     public var readerLineHeight: ReaderLineHeight
     public var lastExportMarkdown: String?
-    public var lastExportPdfBase64: String?
     public var reminderDate: Date?
     public var hasNotificationPermission: Bool
     public var readerWebInitialLoadResultJson: String?
@@ -39,9 +27,6 @@ public struct LinkmarkDetailUIState: Sendable {
 
     public var markdownExportRequest: MarkdownExportRequest?
     public var showMarkdownExportDirectoryPicker: Bool
-    public var showPdfExportDirectoryPicker: Bool
-    public var pdfExportFileBaseName: String
-    public var readerPdfExport: LinkmarkReaderPdfExport?
     public var readerChromeVisible: Bool
 
     public init(
@@ -51,7 +36,6 @@ public struct LinkmarkDetailUIState: Sendable {
         readerFontSize: ReaderFontSize = .medium,
         readerLineHeight: ReaderLineHeight = .normal,
         lastExportMarkdown: String? = nil,
-        lastExportPdfBase64: String? = nil,
         reminderDate: Date? = nil,
         hasNotificationPermission: Bool = false,
         readerWebInitialLoadResultJson: String? = nil,
@@ -64,9 +48,6 @@ public struct LinkmarkDetailUIState: Sendable {
         showActivitySheet: Bool = false,
         markdownExportRequest: MarkdownExportRequest? = nil,
         showMarkdownExportDirectoryPicker: Bool = false,
-        showPdfExportDirectoryPicker: Bool = false,
-        pdfExportFileBaseName: String = "",
-        readerPdfExport: LinkmarkReaderPdfExport? = nil,
         readerChromeVisible: Bool = true
     ) {
         self.bookmarkId = bookmarkId
@@ -75,7 +56,6 @@ public struct LinkmarkDetailUIState: Sendable {
         self.readerFontSize = readerFontSize
         self.readerLineHeight = readerLineHeight
         self.lastExportMarkdown = lastExportMarkdown
-        self.lastExportPdfBase64 = lastExportPdfBase64
         self.reminderDate = reminderDate
         self.hasNotificationPermission = hasNotificationPermission
         self.readerWebInitialLoadResultJson = readerWebInitialLoadResultJson
@@ -88,9 +68,6 @@ public struct LinkmarkDetailUIState: Sendable {
         self.showActivitySheet = showActivitySheet
         self.markdownExportRequest = markdownExportRequest
         self.showMarkdownExportDirectoryPicker = showMarkdownExportDirectoryPicker
-        self.showPdfExportDirectoryPicker = showPdfExportDirectoryPicker
-        self.pdfExportFileBaseName = pdfExportFileBaseName
-        self.readerPdfExport = readerPdfExport
         self.readerChromeVisible = readerChromeVisible
     }
 }

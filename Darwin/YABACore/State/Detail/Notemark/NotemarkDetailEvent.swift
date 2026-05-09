@@ -17,7 +17,6 @@ public enum NotemarkDetailEvent: Sendable {
     case onConsumedInlineImageInsert
     case onWebInitialContentLoad(resultJson: String?)
     case onExportMarkdownReady(String)
-    case onExportPdfReady(base64: String)
 
     case saveDocument(bookmarkId: String, data: Data)
     case ensureReadableMirror(bookmarkId: String, json: String)

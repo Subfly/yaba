@@ -40,7 +40,6 @@ struct NotemarkEditorWebView: UIViewRepresentable {
     let onPersistDocument: (WKWebViewRuntime) async -> Void
     var onRuntimeReady: ((WKWebViewRuntime) -> Void)?
     var onHighlightColorMarkTap: ((HighlightColorMarkTapEvent) -> Void)?
-    @Binding var pendingPdfExport: LinkmarkReaderPdfExport?
 
     func makeCoordinator() -> Coordinator {
         Coordinator(parent: self)
@@ -52,10 +51,6 @@ struct NotemarkEditorWebView: UIViewRepresentable {
 
     func updateUIView(_ uiView: NotemarkEditorContainerView, context: Context) {
         context.coordinator.update(parent: self)
-        if let export = pendingPdfExport {
-            pendingPdfExport = nil
-            context.coordinator.exportPdfToDisk(parentDirectory: export.parentDirectory, fileBaseName: export.fileBaseName)
-        }
     }
 
     final class Coordinator: NSObject {
@@ -180,43 +175,6 @@ struct NotemarkEditorWebView: UIViewRepresentable {
                     WebEditorBridgeScripts.setSyncedScrollFraction(hydrate.fraction)
                 )
                 try? await Task.sleep(nanoseconds: 48_000_000)
-            }
-        }
-
-        func exportPdfToDisk(parentDirectory: URL, fileBaseName: String) {
-            let webView = runtime.webView
-            let config = WKPDFConfiguration()
-            let contentSize = webView.scrollView.contentSize
-            var width = max(contentSize.width, webView.bounds.width)
-            var height = max(contentSize.height, webView.bounds.height)
-            if width < 1 { width = 612 }
-            if height < 1 { height = 792 }
-            config.rect = CGRect(x: 0, y: 0, width: width, height: height)
-            webView.createPDF(configuration: config) { result in
-                DispatchQueue.main.async {
-                    switch result {
-                    case let .success(data):
-                        let ok = ExportSupport.writeExportedDocument(
-                            data: data,
-                            into: parentDirectory,
-                            fileBaseName: fileBaseName,
-                            pathExtension: "pdf"
-                        )
-                        if !ok {
-                            CoreToastManager.shared.show(
-                                message: LocalizedStringKey("Bookmark Detail Markdown Export Failed Message"),
-                                iconType: .error,
-                                duration: .short
-                            )
-                        }
-                    case .failure:
-                        CoreToastManager.shared.show(
-                            message: LocalizedStringKey("Bookmark Detail Markdown Export Failed Message"),
-                            iconType: .error,
-                            duration: .short
-                        )
-                    }
-                }
             }
         }
     }

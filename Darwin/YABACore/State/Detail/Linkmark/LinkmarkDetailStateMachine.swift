@@ -86,8 +86,6 @@ public final class LinkmarkDetailStateMachine: YabaBaseObservableState<LinkmarkD
             apply { $0.reminderDate = nil }
         case let .onExportMarkdownReady(md):
             apply { $0.lastExportMarkdown = md }
-        case let .onExportPdfReady(b64):
-            apply { $0.lastExportPdfBase64 = b64 }
         case let .updateLinkMetadata(
             bookmarkId,
             url,
@@ -171,13 +169,6 @@ public final class LinkmarkDetailStateMachine: YabaBaseObservableState<LinkmarkD
         )
     }
 
-    public var showPdfExportDirectoryPickerBinding: Binding<Bool> {
-        Binding(
-            get: { self.state.showPdfExportDirectoryPicker },
-            set: { newValue in self.apply { $0.showPdfExportDirectoryPicker = newValue } }
-        )
-    }
-
     // MARK: - Markdown export (UI hands `BookmarkModel`-derived fields; models stay internal to YABACore)
 
     public func startMarkdownExport(
@@ -216,29 +207,6 @@ public final class LinkmarkDetailStateMachine: YabaBaseObservableState<LinkmarkD
                 iconType: .error,
                 duration: .short
             )
-        }
-    }
-
-    // MARK: - Reader PDF export (directory picker + WKWebView.createPDF)
-
-    public func preparePdfExport(bookmarkLabel: String) {
-        let base = ExportSupport.sanitizeBaseFolderName(bookmarkLabel, emptyFallback: "reader")
-        apply {
-            $0.pdfExportFileBaseName = base
-            $0.showPdfExportDirectoryPicker = true
-        }
-    }
-
-    public func finalizePdfExportDirectorySelection(_ parentDirectory: URL?) {
-        let baseName = state.pdfExportFileBaseName
-        apply {
-            $0.showPdfExportDirectoryPicker = false
-            $0.pdfExportFileBaseName = ""
-            if let parentDirectory, !baseName.isEmpty {
-                $0.readerPdfExport = LinkmarkReaderPdfExport(parentDirectory: parentDirectory, fileBaseName: baseName)
-            } else {
-                $0.readerPdfExport = nil
-            }
         }
     }
 }

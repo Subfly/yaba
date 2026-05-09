@@ -1397,22 +1397,22 @@
         }
       }
     },
-    "Bookmark Creation Pick PDF Document Action" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Select PDF"
-          }
-        }
-      }
-    },
     "Bookmark Creation Pick EPUB Document Action" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Select EPUB"
+          }
+        }
+      }
+    },
+    "Bookmark Creation Pick PDF Document Action" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select PDF"
           }
         }
       }
@@ -1742,12 +1742,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Markdown"
+            "value" : "Export"
           }
         }
       }
     },
     "Bookmark Detail Export Format PDF Title" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1758,6 +1759,7 @@
       }
     },
     "Bookmark Detail Export Menu Title" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

@@ -9,7 +9,6 @@ public struct NotemarkDetailUIState: Sendable {
     public var bookmarkId: String?
     public var inlineImageDocumentSrc: String?
     public var lastExportMarkdown: String?
-    public var lastExportPdfBase64: String?
     public var reminderDate: Date?
     public var webInitialContentLoadResultJson: String?
 
@@ -29,16 +28,11 @@ public struct NotemarkDetailUIState: Sendable {
 
     public var markdownExportRequest: MarkdownExportRequest?
     public var showMarkdownExportDirectoryPicker: Bool
-    public var showPdfExportDirectoryPicker: Bool
-    public var pdfExportFileBaseName: String
-    /// Consumed by `NotemarkEditorWebView` to snapshot the editor and write `<parent>/<base>.pdf`.
-    public var editorPdfExport: LinkmarkReaderPdfExport?
 
     public init(
         bookmarkId: String? = nil,
         inlineImageDocumentSrc: String? = nil,
         lastExportMarkdown: String? = nil,
-        lastExportPdfBase64: String? = nil,
         reminderDate: Date? = nil,
         webInitialContentLoadResultJson: String? = nil,
         readerTheme: ReaderTheme = .system,
@@ -51,15 +45,11 @@ public struct NotemarkDetailUIState: Sendable {
         showReminderSheet: Bool = false,
         showDeleteAlert: Bool = false,
         markdownExportRequest: MarkdownExportRequest? = nil,
-        showMarkdownExportDirectoryPicker: Bool = false,
-        showPdfExportDirectoryPicker: Bool = false,
-        pdfExportFileBaseName: String = "",
-        editorPdfExport: LinkmarkReaderPdfExport? = nil
+        showMarkdownExportDirectoryPicker: Bool = false
     ) {
         self.bookmarkId = bookmarkId
         self.inlineImageDocumentSrc = inlineImageDocumentSrc
         self.lastExportMarkdown = lastExportMarkdown
-        self.lastExportPdfBase64 = lastExportPdfBase64
         self.reminderDate = reminderDate
         self.webInitialContentLoadResultJson = webInitialContentLoadResultJson
         self.readerTheme = readerTheme
@@ -73,8 +63,5 @@ public struct NotemarkDetailUIState: Sendable {
         self.showDeleteAlert = showDeleteAlert
         self.markdownExportRequest = markdownExportRequest
         self.showMarkdownExportDirectoryPicker = showMarkdownExportDirectoryPicker
-        self.showPdfExportDirectoryPicker = showPdfExportDirectoryPicker
-        self.pdfExportFileBaseName = pdfExportFileBaseName
-        self.editorPdfExport = editorPdfExport
     }
 }
