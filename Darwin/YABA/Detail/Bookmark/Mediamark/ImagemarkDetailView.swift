@@ -20,7 +20,7 @@ struct ImagemarkDetailView: View {
                         .scaledToFit()
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .ignoresSafeArea()
+                .ignoresSafeArea(edges: [.top, .bottom])
             } else {
                 ContentUnavailableView {
                     Label {

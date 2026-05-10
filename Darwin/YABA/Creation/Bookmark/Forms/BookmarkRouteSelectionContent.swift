@@ -13,71 +13,74 @@ struct BookmarkRouteSelectionContent: View {
 
     var body: some View {
         NavigationStack {
-            List {
-                Section {
-                    linkRow
-                    noteRow
+            ZStack {
+                AnimatedGradient(color: .blue)
+                List {
+                    Section {
+                        linkRow
+                        noteRow
+                    }
+                    Section {
+                        routeButton(
+                            title: "Bookmark Route Selection New Image",
+                            iconKey: "image-03",
+                            color: .green,
+                            action: { onSelectKind(.media, .image, nil) }
+                        )
+                        routeButton(
+                            title: "Bookmark Route Selection New Audio",
+                            iconKey: "audio-wave-01",
+                            color: .cyan,
+                            action: { onSelectKind(.media, .audio, nil) }
+                        )
+                        routeButton(
+                            title: "Bookmark Route Selection New Video",
+                            iconKey: "video-01",
+                            color: .indigo,
+                            action: { onSelectKind(.media, .video, nil) }
+                        )
+                    } header: {
+                        sectionHeaderLabel(
+                            title: "Bookmark Route Selection Media",
+                            iconKey: "play-circle"
+                        )
+                    }
+                    Section {
+                        routeButton(
+                            title: "Bookmark Route Selection New PDF",
+                            iconKey: "pdf-02",
+                            color: .red,
+                            action: { onSelectKind(.file, nil, .pdf) }
+                        )
+                        routeButton(
+                            title: "Bookmark Route Selection New EPUB",
+                            iconKey: "book-bookmark-02",
+                            color: .orange,
+                            action: { onSelectKind(.file, nil, .epub) }
+                        )
+                        routeButton(
+                            title: "Bookmark Route Selection New CSV",
+                            iconKey: "csv-02",
+                            color: .green,
+                            action: { onSelectKind(.file, nil, .csv) }
+                        )
+                    } header: {
+                        sectionHeaderLabel(
+                            title: "Bookmark Route Selection Document",
+                            iconKey: "doc-02"
+                        )
+                    }
                 }
-                Section {
-                    routeButton(
-                        title: "Bookmark Route Selection New Image",
-                        iconKey: "image-03",
-                        color: .green,
-                        action: { onSelectKind(.media, .image, nil) }
-                    )
-                    routeButton(
-                        title: "Bookmark Route Selection New Audio",
-                        iconKey: "audio-wave-01",
-                        color: .cyan,
-                        action: { onSelectKind(.media, .audio, nil) }
-                    )
-                    routeButton(
-                        title: "Bookmark Route Selection New Video",
-                        iconKey: "video-01",
-                        color: .indigo,
-                        action: { onSelectKind(.media, .video, nil) }
-                    )
-                } header: {
-                    sectionHeaderLabel(
-                        title: "Bookmark Route Selection Media",
-                        iconKey: "play-circle"
-                    )
-                }
-                Section {
-                    routeButton(
-                        title: "Bookmark Route Selection New PDF",
-                        iconKey: "pdf-02",
-                        color: .red,
-                        action: { onSelectKind(.file, nil, .pdf) }
-                    )
-                    routeButton(
-                        title: "Bookmark Route Selection New EPUB",
-                        iconKey: "book-bookmark-02",
-                        color: .orange,
-                        action: { onSelectKind(.file, nil, .epub) }
-                    )
-                    routeButton(
-                        title: "Bookmark Route Selection New CSV",
-                        iconKey: "csv-02",
-                        color: .green,
-                        action: { onSelectKind(.file, nil, .csv) }
-                    )
-                } header: {
-                    sectionHeaderLabel(
-                        title: "Bookmark Route Selection Document",
-                        iconKey: "doc-02"
-                    )
-                }
-            }
-            .listStyle(.sidebar)
-            .scrollDismissesKeyboard(.immediately)
-            .scrollContentBackground(.hidden)
-            .navigationTitle("New Bookmark")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button(role: .cancel, action: onCancel) {
-                        Text("Cancel")
+                .listStyle(.sidebar)
+                .scrollDismissesKeyboard(.immediately)
+                .scrollContentBackground(.hidden)
+                .navigationTitle("New Bookmark")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button(role: .cancel, action: onCancel) {
+                            Text("Cancel")
+                        }
                     }
                 }
             }

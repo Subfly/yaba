@@ -343,7 +343,7 @@ struct NotemarkDetailView: View {
                 .accessibilityHidden(machine.state.surfaceMode != .preview)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .ignoresSafeArea()
+            .ignoresSafeArea(edges: [.top, .bottom])
             .preferredColorScheme(readerThemeColorScheme(machine.state.readerTheme))
 
             HStack {

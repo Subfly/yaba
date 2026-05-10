@@ -194,7 +194,7 @@ struct EPUBDocmarkDetailView: View {
                     ),
                     navigationCoordinator: navigationCoordinator
                 )
-                .ignoresSafeArea(edges: .all)
+                .ignoresSafeArea(edges: [.top, .bottom])
             case .failed:
                 ContentUnavailableView {
                     Label {

@@ -210,7 +210,7 @@ struct LinkmarkDetailView: View {
                     },
                     onRuntimeReady: { _ in }
                 )
-                .ignoresSafeArea()
+                .ignoresSafeArea(edges: [.top, .bottom])
                 .preferredColorScheme(effectiveReaderColorScheme(readerTheme: machine.state.readerTheme))
 
                 LinkmarkReaderFloatingToolbar(

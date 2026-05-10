@@ -47,7 +47,7 @@ struct PDFDocmarkDetailView: View {
             if !pdfData.isEmpty {
                 DocmarkPDFKitView(pdfData: pdfData)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .ignoresSafeArea()
+                    .ignoresSafeArea(edges: [.top, .bottom])
             } else {
                 ContentUnavailableView {
                     Label {
