@@ -9,7 +9,7 @@ import Foundation
 import ReadiumShared
 import ReadiumStreamer
 
-/// Opens packaged EPUB bytes using the same asset pipeline as ``EPUBMetadataExtractor``.
+/// Opens packaged EPUB bytes with Readium for in-app reading (`ReadiumShared` + `ReadiumStreamer`).
 @MainActor
 enum EpubPublicationOpening {
     /// Returns the opened publication and the temporary `.epub` file URL. Caller must delete the temp file when finished.

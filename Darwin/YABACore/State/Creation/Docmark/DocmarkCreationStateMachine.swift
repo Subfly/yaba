@@ -37,10 +37,6 @@ public final class DocmarkCreationStateMachine: YabaBaseObservableState<DocmarkC
             apply {
                 $0.pickedDocumentData = nil
                 $0.sourceFileName = nil
-                $0.metadataTitle = nil
-                $0.metadataDescription = nil
-                $0.metadataAuthor = nil
-                $0.metadataDate = nil
                 $0.previewImageData = nil
                 $0.isLoading = false
                 $0.lastError = nil
@@ -52,21 +48,17 @@ public final class DocmarkCreationStateMachine: YabaBaseObservableState<DocmarkC
                 $0.pickedDocumentData = data
                 $0.sourceFileName = name
                 $0.docmarkType = docType
-                $0.metadataTitle = nil
-                $0.metadataDescription = nil
-                $0.metadataAuthor = nil
-                $0.metadataDate = nil
                 $0.previewImageData = nil
                 $0.isLoading = docType == .pdf || docType == .epub
                 $0.lastError = nil
             }
             switch docType {
             case .pdf:
-                Task { await self.extractDocumentMetadata(data: data, generation: generation) }
+                Task { await self.extractPdfPreview(data: data, generation: generation) }
             case .csv:
                 Task { await self.send(.onDocumentExtractionFinished) }
             case .epub:
-                Task { await self.extractEpubDocumentMetadata(data: data, generation: generation) }
+                Task { await self.extractEpubCoverPreview(data: data, generation: generation) }
             }
         case .onCyclePreviewAppearance:
             apply {
@@ -76,26 +68,12 @@ public final class DocmarkCreationStateMachine: YabaBaseObservableState<DocmarkC
                 case .grid: $0.bookmarkAppearance = .list
                 }
             }
-        case let .onDocumentMetadataExtracted(title, desc, author, date):
-            apply {
-                $0.metadataTitle = title
-                $0.metadataDescription = desc
-                $0.metadataAuthor = author
-                $0.metadataDate = date
-            }
         case let .onSetGeneratedPreview(data, _):
             apply { $0.previewImageData = data }
         case let .onChangeLabel(s):
             apply { $0.label = s }
         case let .onChangeDescription(s):
             apply { $0.bookmarkDescription = s }
-        case .onApplyFromMetadata:
-            withAnimation {
-                apply {
-                    if let t = $0.metadataTitle, !t.isEmpty { $0.label = t }
-                    if let d = $0.metadataDescription, !d.isEmpty { $0.bookmarkDescription = d }
-                }
-            }
         case let .onSelectFolderId(id):
             apply {
                 $0.selectedFolderId = id
@@ -184,96 +162,46 @@ public final class DocmarkCreationStateMachine: YabaBaseObservableState<DocmarkC
                 iconBytes: nil
             )
         }
-        if state.docmarkType == .csv {
-            DocmarkManager.queueCreateOrUpdateDocDetails(
-                bookmarkId: bid,
-                summary: summary,
-                docmarkType: state.editingBookmarkId != nil ? nil : state.docmarkType,
-                metadataTitle: nil,
-                metadataDescription: nil,
-                metadataAuthor: nil,
-                metadataDate: nil
-            )
-        } else {
-            DocmarkManager.queueCreateOrUpdateDocDetails(
-                bookmarkId: bid,
-                summary: summary,
-                docmarkType: state.editingBookmarkId != nil ? nil : state.docmarkType,
-                metadataTitle: state.metadataTitle,
-                metadataDescription: state.metadataDescription,
-                metadataAuthor: state.metadataAuthor,
-                metadataDate: state.metadataDate
-            )
-        }
+        DocmarkManager.queueCreateOrUpdateDocDetails(
+            bookmarkId: bid,
+            summary: summary,
+            docmarkType: state.editingBookmarkId != nil ? nil : state.docmarkType
+        )
         if state.editingBookmarkId == nil, let docBytes = state.pickedDocumentData {
             DocmarkManager.queueUpsertDocBookmarkPayloadBytes(bookmarkId: bid, documentBytes: docBytes)
         }
         apply { $0.isSaving = false }
     }
 
-    private func extractDocumentMetadata(data: Data, generation: Int) async {
-        typealias Extracted = (
-            metadataTitle: String?,
-            metadataDescription: String?,
-            metadataAuthor: String?,
-            metadataDate: String?,
-            preview: Data?,
-            previewExt: String
-        )
-        let extracted: Extracted? = await Task.detached(priority: .userInitiated) {
-            guard let meta = PDFMetadataExtractor.extract(from: data) else { return nil }
-            return (
-                meta.title,
-                meta.subject,
-                meta.author,
-                meta.creationDate,
-                meta.firstPageImageData,
-                "png"
-            )
+    private func extractPdfPreview(data: Data, generation: Int) async {
+        let previewPNG: Data? = await Task.detached(priority: .userInitiated) {
+            PDFPreviewExtractor.firstPagePNG(from: data)
         }.value
 
         guard generation == documentExtractionGeneration else { return }
-        if let extracted {
-            await send(
-                .onDocumentMetadataExtracted(
-                    metadataTitle: extracted.metadataTitle,
-                    metadataDescription: extracted.metadataDescription,
-                    metadataAuthor: extracted.metadataAuthor,
-                    metadataDate: extracted.metadataDate
-                )
+        await send(
+            .onSetGeneratedPreview(
+                imageData: previewPNG,
+                fileExtension: "png"
             )
-            await send(
-                .onSetGeneratedPreview(
-                    imageData: extracted.preview,
-                    fileExtension: extracted.previewExt
-                )
-            )
-        }
+        )
         await send(.onDocumentExtractionFinished)
     }
 
-    private func extractEpubDocumentMetadata(data: Data, generation: Int) async {
-        let extracted: EpubMetadataResult? = await Task.detached(priority: .userInitiated) {
-            await EPUBMetadataExtractor.extract(from: data)
+    private func extractEpubCoverPreview(data: Data, generation: Int) async {
+        let cover: Data? = await Task.detached(priority: .userInitiated) {
+            EPUBCoverExtractor.coverImageData(from: data)
         }.value
 
         guard generation == documentExtractionGeneration else { return }
-        if let extracted {
-            await send(
-                .onDocumentMetadataExtracted(
-                    metadataTitle: extracted.title,
-                    metadataDescription: extracted.subject,
-                    metadataAuthor: extracted.author,
-                    metadataDate: extracted.creationDate
-                )
+
+        await send(
+            .onSetGeneratedPreview(
+                imageData: cover,
+                fileExtension: "png"
             )
-            await send(
-                .onSetGeneratedPreview(
-                    imageData: extracted.coverImageData,
-                    fileExtension: "png"
-                )
-            )
-        }
+        )
+
         await send(.onDocumentExtractionFinished)
     }
 }

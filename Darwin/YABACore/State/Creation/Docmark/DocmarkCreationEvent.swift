@@ -17,16 +17,9 @@ public enum DocmarkCreationEvent: Sendable {
     case onClearDocument
     case onDocumentFromShare(Data, sourceFileName: String?, docmarkType: DocmarkType)
     case onCyclePreviewAppearance
-    case onDocumentMetadataExtracted(
-        metadataTitle: String?,
-        metadataDescription: String?,
-        metadataAuthor: String?,
-        metadataDate: String?
-    )
     case onSetGeneratedPreview(imageData: Data?, fileExtension: String)
     case onChangeLabel(String)
     case onChangeDescription(String)
-    case onApplyFromMetadata
     case onSelectFolderId(String?)
     case onSelectTagIds([String])
     case onDocumentExtractionFinished

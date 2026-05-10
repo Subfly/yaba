@@ -29,10 +29,6 @@ public enum DocmarkManager {
                 bookmarkId: bookmarkId,
                 summary: nil,
                 docmarkType: nil,
-                metadataTitle: nil,
-                metadataDescription: nil,
-                metadataAuthor: nil,
-                metadataDate: nil,
                 context: context
             )
         }
@@ -41,21 +37,13 @@ public enum DocmarkManager {
     public static func queueCreateOrUpdateDocDetails(
         bookmarkId: String,
         summary: String? = nil,
-        docmarkType: DocmarkType? = nil,
-        metadataTitle: String? = nil,
-        metadataDescription: String? = nil,
-        metadataAuthor: String? = nil,
-        metadataDate: String? = nil
+        docmarkType: DocmarkType? = nil
     ) {
         CoreOperationQueue.shared.queue(name: "CreateOrUpdateDocDetails:\(bookmarkId)") { context in
             try upsertDocDetails(
                 bookmarkId: bookmarkId,
                 summary: summary,
                 docmarkType: docmarkType,
-                metadataTitle: metadataTitle,
-                metadataDescription: metadataDescription,
-                metadataAuthor: metadataAuthor,
-                metadataDate: metadataDate,
                 context: context
             )
         }
@@ -91,10 +79,6 @@ public enum DocmarkManager {
         bookmarkId: String,
         summary: String?,
         docmarkType: DocmarkType?,
-        metadataTitle: String?,
-        metadataDescription: String?,
-        metadataAuthor: String?,
-        metadataDate: String?,
         context: ModelContext
     ) throws {
         guard let bookmark = try YabaCorePersistenceHelpers.bookmark(bookmarkId: bookmarkId, context: context) else {
@@ -111,10 +95,6 @@ public enum DocmarkManager {
         }
         if let summary { row.summary = summary.nilIfEmpty }
         if let docmarkType { row.docmarkTypeRaw = docmarkType.rawValue }
-        if let metadataTitle { row.metadataTitle = metadataTitle.nilIfEmpty }
-        if let metadataDescription { row.metadataDescription = metadataDescription.nilIfEmpty }
-        if let metadataAuthor { row.metadataAuthor = metadataAuthor.nilIfEmpty }
-        if let metadataDate { row.metadataDate = metadataDate.nilIfEmpty }
         bookmark.editedAt = .now
     }
 

@@ -114,12 +114,6 @@ enum BookmarkFlowHydration {
         state.isPinned = bookmark.isPinned
         state.docmarkType = bookmark.docDetail.map { $0.docmarkType }
         state.creationDocmarkKind = state.docmarkType ?? .pdf
-        if let doc = bookmark.docDetail {
-            state.metadataTitle = doc.metadataTitle
-            state.metadataDescription = doc.metadataDescription
-            state.metadataAuthor = doc.metadataAuthor
-            state.metadataDate = doc.metadataDate
-        }
         state.previewImageData = bookmark.imagePayload?.bytes
         state.uncategorizedFolderCreationRequired = false
         return state

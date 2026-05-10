@@ -66,29 +66,6 @@ struct DocmarkDetailInfoSheet: View {
                     sectionHeader("Info", icon: "information-circle")
                 }
 
-                if hasExtractedMetadata {
-                    Section {
-                        metadataRow("Bookmark Detail Metadata Title Label", icon: "text", value: bookmark.docDetail?.metadataTitle)
-                        metadataRow(
-                            "Bookmark Creation Metadata Description Label",
-                            icon: "paragraph",
-                            value: bookmark.docDetail?.metadataDescription
-                        )
-                        metadataRow(
-                            "Bookmark Creation Metadata Author Label",
-                            icon: "user-edit-01",
-                            value: bookmark.docDetail?.metadataAuthor
-                        )
-                        metadataRow(
-                            "Bookmark Creation Metadata Date Label",
-                            icon: "calendar-03",
-                            value: bookmark.docDetail?.metadataDate
-                        )
-                    } header: {
-                        sectionHeader("Bookmark Creation Metadata Section Title", icon: "database-01")
-                    }
-                }
-
                 if let folder = bookmark.folder {
                     Section {
                         PresentableFolderItemView(
@@ -145,39 +122,6 @@ struct DocmarkDetailInfoSheet: View {
                     Button("Done") {
                         dismiss()
                     }
-                }
-            }
-        }
-    }
-
-    private var hasExtractedMetadata: Bool {
-        let d = bookmark.docDetail
-        let fields = [
-            d?.metadataTitle,
-            d?.metadataDescription,
-            d?.metadataAuthor,
-            d?.metadataDate,
-        ]
-        return fields.contains { v in
-            guard let v else { return false }
-            return !v.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-        }
-    }
-
-    @ViewBuilder
-    private func metadataRow(_ key: LocalizedStringKey, icon: String, value: String?) -> some View {
-        if let value, !value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            HStack(alignment: .top, spacing: 12) {
-                YabaIconView(bundleKey: icon)
-                    .frame(width: 22, height: 22)
-                    .foregroundStyle(folderAccent)
-                    .padding(.top, 2)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(key)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    Text(value)
-                        .font(.body)
                 }
             }
         }

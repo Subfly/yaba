@@ -240,6 +240,7 @@ final class LinkBookmarkModel {
 
 @Model
 final class MediaBookmarkModel {
+    var summary: String?
     var mediaMarkTypeRaw: Int = MediaMarkType.image.rawValue
 
     @Attribute(.externalStorage)
@@ -249,10 +250,12 @@ final class MediaBookmarkModel {
 
     init(
         mediaMarkTypeRaw: Int = MediaMarkType.image.rawValue,
+        summary: String? = nil,
         originalData: Data? = nil,
         bookmark: BookmarkModel? = nil
     ) {
         self.mediaMarkTypeRaw = mediaMarkTypeRaw
+        self.summary = summary
         self.originalData = originalData
         self.bookmark = bookmark
     }
@@ -264,10 +267,6 @@ final class MediaBookmarkModel {
 final class DocBookmarkModel {
     var summary: String?
     var docmarkTypeRaw: Int = DocmarkType.pdf.rawValue
-    var metadataTitle: String?
-    var metadataDescription: String?
-    var metadataAuthor: String?
-    var metadataDate: String?
 
     @Relationship(deleteRule: .cascade, inverse: \DocBookmarkPayloadModel.docBookmark)
     var payload: DocBookmarkPayloadModel?
@@ -277,19 +276,11 @@ final class DocBookmarkModel {
     init(
         summary: String? = nil,
         docmarkTypeRaw: Int = DocmarkType.pdf.rawValue,
-        metadataTitle: String? = nil,
-        metadataDescription: String? = nil,
-        metadataAuthor: String? = nil,
-        metadataDate: String? = nil,
         payload: DocBookmarkPayloadModel? = nil,
         bookmark: BookmarkModel? = nil
     ) {
         self.summary = summary
         self.docmarkTypeRaw = docmarkTypeRaw
-        self.metadataTitle = metadataTitle
-        self.metadataDescription = metadataDescription
-        self.metadataAuthor = metadataAuthor
-        self.metadataDate = metadataDate
         self.payload = payload
         self.bookmark = bookmark
     }

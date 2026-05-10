@@ -2,7 +2,7 @@
 //  PDFDocmarkCreationContent.swift
 //  YABA
 //
-//  PDF document bookmark creation (metadata + PDFKit preview extraction).
+//  PDF document bookmark creation (PDFKit first-page bookmark preview image only).
 //
 
 import SwiftUI
@@ -145,32 +145,6 @@ struct PDFDocmarkCreationContent: View {
                             .frame(width: 22, height: 22)
                     }
                     Spacer(minLength: 0)
-                    if !isEditing && hasApplicableMetadata {
-                        Button {
-                            Task { await machine.send(.onApplyFromMetadata) }
-                        } label: {
-                            Text("Bookmark Creation Apply From Metadata Title")
-                                .textCase(.none)
-                        }
-                        .buttonStyle(.plain)
-                        .foregroundStyle(mainTint)
-                    }
-                }
-            }
-
-            if hasMetadataRows {
-                Section {
-                    metadataRow("Bookmark Creation Metadata Title Label", icon: "text", value: machine.state.metadataTitle, mainTint: mainTint)
-                    metadataRow("Bookmark Creation Metadata Description Label", icon: "paragraph", value: machine.state.metadataDescription, mainTint: mainTint)
-                    metadataRow("Bookmark Creation Metadata Author Label", icon: "user-edit-01", value: machine.state.metadataAuthor, mainTint: mainTint)
-                    metadataRow("Bookmark Creation Metadata Date Label", icon: "calendar-03", value: machine.state.metadataDate, mainTint: mainTint)
-                } header: {
-                    Label {
-                        Text("Bookmark Creation Metadata Section Title")
-                    } icon: {
-                        YabaIconView(bundleKey: "database-01")
-                            .frame(width: 22, height: 22)
-                    }
                 }
             }
 
@@ -301,25 +275,6 @@ struct PDFDocmarkCreationContent: View {
             }
             .buttonStyle(.plain)
             .foregroundStyle(mainTint)
-        }
-    }
-
-    private var hasApplicableMetadata: Bool {
-        let title = machine.state.metadataTitle?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        let description = machine.state.metadataDescription?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        return !title.isEmpty || !description.isEmpty
-    }
-
-    private var hasMetadataRows: Bool {
-        [
-            machine.state.metadataTitle,
-            machine.state.metadataDescription,
-            machine.state.metadataAuthor,
-            machine.state.metadataDate
-        ]
-        .contains { value in
-            guard let value else { return false }
-            return !value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         }
     }
 
@@ -513,28 +468,6 @@ struct PDFDocmarkCreationContent: View {
             previewContentAppearance = machine.state.cardImageSizing == .big ? .cardBigImage : .cardSmallImage
         case .grid:
             previewContentAppearance = .grid
-        }
-    }
-
-    @ViewBuilder
-    private func metadataRow(
-        _ key: LocalizedStringKey,
-        icon: String,
-        value: String?,
-        mainTint: Color
-    ) -> some View {
-        if let value, !value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            HStack(alignment: .top, spacing: 12) {
-                fieldIcon(icon, mainTint: mainTint)
-                    .frame(width: 24, height: 24)
-                    .padding(.top, 2)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(key)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    Text(value)
-                }
-            }
         }
     }
 }

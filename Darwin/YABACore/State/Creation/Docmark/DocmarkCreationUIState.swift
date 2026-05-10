@@ -19,10 +19,6 @@ public struct DocmarkCreationUIState: Sendable {
     public var sourceFileName: String?
     public var previewImageData: Data?
     public var isLoading: Bool
-    public var metadataTitle: String?
-    public var metadataDescription: String?
-    public var metadataAuthor: String?
-    public var metadataDate: String?
     public var bookmarkAppearance: BookmarkAppearance
     public var cardImageSizing: CardImageSizing
     public var isPinned: Bool
@@ -43,10 +39,6 @@ public struct DocmarkCreationUIState: Sendable {
         sourceFileName: String? = nil,
         previewImageData: Data? = nil,
         isLoading: Bool = false,
-        metadataTitle: String? = nil,
-        metadataDescription: String? = nil,
-        metadataAuthor: String? = nil,
-        metadataDate: String? = nil,
         bookmarkAppearance: BookmarkAppearance = .list,
         cardImageSizing: CardImageSizing = .small,
         isPinned: Bool = false,
@@ -66,10 +58,6 @@ public struct DocmarkCreationUIState: Sendable {
         self.sourceFileName = sourceFileName
         self.previewImageData = previewImageData
         self.isLoading = isLoading
-        self.metadataTitle = metadataTitle
-        self.metadataDescription = metadataDescription
-        self.metadataAuthor = metadataAuthor
-        self.metadataDate = metadataDate
         self.bookmarkAppearance = bookmarkAppearance
         self.cardImageSizing = cardImageSizing
         self.isPinned = isPinned
