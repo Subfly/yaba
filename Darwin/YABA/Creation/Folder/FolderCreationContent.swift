@@ -44,20 +44,23 @@ struct FolderCreationContent: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 24) {
-                HStack(alignment: .center, spacing: 24) {
-                    iconPickerButton
-                    labelField
-                    colorPickerButton
+            ZStack {
+                AnimatedGradient(color: machine.state.colorRole.getUIColor())
+                List {
+                    VStack {
+                        HStack(alignment: .center, spacing: 24) {
+                            iconPickerButton
+                            labelField
+                            colorPickerButton
+                        }.padding(.horizontal)
+                        descriptionField
+                        parentFolderRow
+                    }
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(.all, 0)
                 }
-                .padding(.horizontal)
-                .padding(.horizontal)
-
-                descriptionField
-                    .padding(.horizontal)
-
-                parentFolderRow
-                    .padding(.horizontal)
+                .scrollDisabled(true)
+                .scrollContentBackground(.hidden)
             }
             .navigationTitle(Text(LocalizedStringKey(navigationTitleKey)))
             .navigationBarTitleDisplayMode(.inline)
@@ -124,10 +127,13 @@ struct FolderCreationContent: View {
                 }
             }
         }
-        .presentationDetents([.fraction(0.4)])
         #if !targetEnvironment(macCatalyst)
         .presentationDragIndicator(.visible)
+        #else
+        .frame(width: 600, height: 350)
         #endif
+        .presentationSizing(.fitted)
+        .presentationDetents([.fraction(0.4)])
         .task(id: existingFolderId) {
             await hydrateIfNeeded()
         }

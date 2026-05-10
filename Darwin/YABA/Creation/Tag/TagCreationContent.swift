@@ -41,13 +41,21 @@ struct TagCreationContent: View {
 
     var body: some View {
         NavigationStack {
-            HStack(alignment: .center, spacing: 24) {
-                iconPickerButton
-                labelField
-                colorPickerButton
+            ZStack {
+                AnimatedGradient(color: machine.state.colorRole.getUIColor())
+                List {
+                    HStack(alignment: .center, spacing: 24) {
+                        iconPickerButton
+                        labelField
+                        colorPickerButton
+                    }
+                    .padding(.horizontal)
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(.all, 0)
+                }
+                .scrollDisabled(true)
+                .scrollContentBackground(.hidden)
             }
-            .padding(.all)
-            .padding(.horizontal)
             .navigationTitle(Text(LocalizedStringKey(navigationTitleKey)))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -100,10 +108,13 @@ struct TagCreationContent: View {
                 )
             }
         }
-        .presentationDetents([.fraction(0.2)])
         #if !targetEnvironment(macCatalyst)
         .presentationDragIndicator(.visible)
+        #else
+        .frame(width: 600, height: 200)
         #endif
+        .presentationSizing(.fitted)
+        .presentationDetents([.fraction(0.2)])
         .task(id: existingTagId) {
             await hydrateIfNeeded()
         }
