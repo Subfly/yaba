@@ -98,20 +98,8 @@ struct FolderCreationContent: View {
                     }
                 )
             }
-            .sheet(isPresented: $shouldShowColorPicker) {
-                YabaColorPicker(
-                    selection: Binding(
-                        get: { machine.state.colorRole },
-                        set: { new in
-                            Task {
-                                await machine.send(.onSelectNewColor(new))
-                            }
-                        }
-                    ),
-                    onDismiss: {
-                        shouldShowColorPicker = false
-                    }
-                )
+            .sheet(isPresented: ColorPickerPresentationPolicy.sheetBinding($shouldShowColorPicker)) {
+                colorPickerPanel(usesSheetPresentationChrome: true)
             }
             .sheet(isPresented: $shouldShowParentPicker) {
                 NavigationStack {
@@ -171,6 +159,31 @@ struct FolderCreationContent: View {
                 }
         }
         .buttonStyle(.plain)
+        .popover(
+            isPresented: ColorPickerPresentationPolicy.popoverBinding($shouldShowColorPicker),
+            arrowEdge: .top
+        ) {
+            colorPickerPanel(usesSheetPresentationChrome: false)
+                .frame(width: 320, height: 250)
+                .presentationCompactAdaptation(.popover)
+        }
+    }
+
+    private func colorPickerPanel(usesSheetPresentationChrome: Bool) -> some View {
+        YabaColorPicker(
+            selection: Binding(
+                get: { machine.state.colorRole },
+                set: { new in
+                    Task {
+                        await machine.send(.onSelectNewColor(new))
+                    }
+                }
+            ),
+            onDismiss: {
+                shouldShowColorPicker = false
+            },
+            usesSheetPresentationChrome: usesSheetPresentationChrome
+        )
     }
 
     private var labelField: some View {

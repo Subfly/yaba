@@ -11,8 +11,25 @@ struct YabaColorPicker: View {
     @Binding
     var selection: YabaColor
     var onDismiss: () -> Void
-    
+
+    /// When `true`, applies detents and drag indicator for use inside a `.sheet`. Set to `false` for `.popover`.
+    var usesSheetPresentationChrome: Bool = true
+
     var body: some View {
+        Group {
+            if usesSheetPresentationChrome {
+                navigationContainer
+                    .presentationDetents([.fraction(0.3)])
+                    #if !targetEnvironment(macCatalyst)
+                    .presentationDragIndicator(.visible)
+                    #endif
+            } else {
+                navigationContainer
+            }
+        }
+    }
+
+    private var navigationContainer: some View {
         NavigationView {
             Picker(
                 selection: $selection,
@@ -50,9 +67,5 @@ struct YabaColorPicker: View {
                 onDismiss()
             }
         }
-        .presentationDetents([.fraction(0.3)])
-        #if !targetEnvironment(macCatalyst)
-        .presentationDragIndicator(.visible)
-        #endif
     }
 }

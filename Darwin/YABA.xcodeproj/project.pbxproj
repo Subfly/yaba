@@ -138,6 +138,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Assets.xcassets,
+				Core/Components/ColorPicker/ColorPickerPresentationPolicy.swift,
 				Core/Components/ColorPicker/YabaColorPicker.swift,
 				Core/Components/Gradient/AnimatedGradient.swift,
 				Core/Components/Icon/YabaIconView.swift,
@@ -156,6 +157,7 @@
 				Core/Components/Selection/SelectTagsContent.swift,
 				Core/Components/Share/ShareSheet.swift,
 				Core/Components/Toast/CoreToastOverlayView.swift,
+				Core/Sync/Model/DeviceType.swift,
 				Core/Util/AnnouncementSeverity.swift,
 				Core/Util/CreationType.swift,
 				Core/Util/InverseLabelStyle.swift,
