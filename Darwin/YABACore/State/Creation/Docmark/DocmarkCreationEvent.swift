@@ -15,7 +15,7 @@ public enum DocmarkCreationEvent: Sendable {
     )
     case onPickDocument
     case onClearDocument
-    case onDocumentFromShare(Data, sourceFileName: String?, docmarkType: DocmarkType)
+    case onDocumentFromShare(Data, sourceFileName: String?, selectedPath: String?, docmarkType: DocmarkType)
     case onCyclePreviewAppearance
     case onSetGeneratedPreview(imageData: Data?, fileExtension: String)
     case onChangeLabel(String)

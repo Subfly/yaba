@@ -67,7 +67,12 @@ struct CSVDocmarkCreationContent: View {
                     guard url.pathExtension.lowercased() == "csv" else { return }
                     guard let data = try? Data(contentsOf: url) else { return }
                     await machine.send(
-                        .onDocumentFromShare(data, sourceFileName: url.lastPathComponent, docmarkType: .csv)
+                        .onDocumentFromShare(
+                            data,
+                            sourceFileName: url.lastPathComponent,
+                            selectedPath: url.path,
+                            docmarkType: .csv
+                        )
                     )
                 }
             }
@@ -86,7 +91,13 @@ struct CSVDocmarkCreationContent: View {
                 )
                 .bookmarkCreationPreviewListRowBackground(appearance: previewContentAppearance)
                 .redacted(reason: machine.state.isLoading ? .placeholder : [])
-                
+
+                if let path = machine.state.selectedFilePath, !path.isEmpty {
+                    BookmarkCreationSelectedContentIndicator(path: path, mainTint: mainTint)
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                }
+
                 Button {
                     Task { await machine.send(.onPickDocument) }
                     showFileImporter = true

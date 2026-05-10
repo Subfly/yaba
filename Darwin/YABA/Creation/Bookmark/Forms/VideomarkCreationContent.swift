@@ -160,7 +160,14 @@ struct VideomarkCreationContent: View {
         guard let data = try? Data(contentsOf: url), !data.isEmpty else { return }
         let ext = url.pathExtension.lowercased().trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty ?? "mp4"
         let thumb = try? VideoThumbnailGenerator.randomPNGThumbnailData(fromMovieBytes: data, fileExtension: ext)
-        await machine.send(.onVideoPicked(videoData: data, thumbnailData: thumb, fileExtension: ext))
+        await machine.send(
+            .onVideoPicked(
+                videoData: data,
+                thumbnailData: thumb,
+                fileExtension: ext,
+                selectedPath: url.path
+            )
+        )
     }
 
     private func formList(
@@ -175,6 +182,12 @@ struct VideomarkCreationContent: View {
                     mainTint: mainTint
                 )
                 .bookmarkCreationPreviewListRowBackground(appearance: previewContentAppearance)
+
+                if let path = machine.state.selectedFilePath, !path.isEmpty {
+                    BookmarkCreationSelectedContentIndicator(path: path, mainTint: mainTint)
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                }
 
                 HStack {
                     PhotosPicker(selection: $videoItem, matching: .videos) {
@@ -200,11 +213,15 @@ struct VideomarkCreationContent: View {
                                     fromMovieBytes: picked.data,
                                     fileExtension: picked.fileExtension
                                 )
+                                let galleryPath = FileManager.default.temporaryDirectory
+                                    .appendingPathComponent("yaba-gallery-\(UUID().uuidString).\(picked.fileExtension)")
+                                    .path
                                 await machine.send(
                                     .onVideoPicked(
                                         videoData: picked.data,
                                         thumbnailData: thumb,
-                                        fileExtension: picked.fileExtension
+                                        fileExtension: picked.fileExtension,
+                                        selectedPath: galleryPath
                                     )
                                 )
                             }
@@ -620,7 +637,14 @@ struct VideomarkCreationContent: View {
         guard editingBookmarkId == nil, !didApplyInitialSharePayload else { return }
         guard case let .video(videoData, thumbnailData, fileExtension) = initialSharePayload else { return }
         didApplyInitialSharePayload = true
-        await machine.send(.onVideoPicked(videoData: videoData, thumbnailData: thumbnailData, fileExtension: fileExtension))
+        await machine.send(
+            .onVideoPicked(
+                videoData: videoData,
+                thumbnailData: thumbnailData,
+                fileExtension: fileExtension,
+                selectedPath: BookmarkCreationSelectedPathFactory.syntheticMediaSharePath(fileExtension: fileExtension)
+            )
+        )
     }
 }
 

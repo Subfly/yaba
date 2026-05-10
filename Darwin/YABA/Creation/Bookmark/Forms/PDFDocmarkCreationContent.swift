@@ -67,7 +67,12 @@ struct PDFDocmarkCreationContent: View {
                     guard url.pathExtension.lowercased() == "pdf" else { return }
                     guard let data = try? Data(contentsOf: url) else { return }
                     await machine.send(
-                        .onDocumentFromShare(data, sourceFileName: url.lastPathComponent, docmarkType: .pdf)
+                        .onDocumentFromShare(
+                            data,
+                            sourceFileName: url.lastPathComponent,
+                            selectedPath: url.path,
+                            docmarkType: .pdf
+                        )
                     )
                 }
             }
@@ -86,7 +91,13 @@ struct PDFDocmarkCreationContent: View {
                 )
                 .bookmarkCreationPreviewListRowBackground(appearance: previewContentAppearance)
                 .redacted(reason: machine.state.isLoading ? .placeholder : [])
-                
+
+                if let path = machine.state.selectedFilePath, !path.isEmpty {
+                    BookmarkCreationSelectedContentIndicator(path: path, mainTint: mainTint)
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                }
+
                 Button {
                     Task { await machine.send(.onPickDocument) }
                     showFileImporter = true

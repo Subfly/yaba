@@ -37,16 +37,18 @@ public final class DocmarkCreationStateMachine: YabaBaseObservableState<DocmarkC
             apply {
                 $0.pickedDocumentData = nil
                 $0.sourceFileName = nil
+                $0.selectedFilePath = nil
                 $0.previewImageData = nil
                 $0.isLoading = false
                 $0.lastError = nil
             }
-        case let .onDocumentFromShare(data, name, docType):
+        case let .onDocumentFromShare(data, name, selectedPath, docType):
             documentExtractionGeneration += 1
             let generation = documentExtractionGeneration
             apply {
                 $0.pickedDocumentData = data
                 $0.sourceFileName = name
+                $0.selectedFilePath = selectedPath
                 $0.docmarkType = docType
                 $0.previewImageData = nil
                 $0.isLoading = docType == .pdf || docType == .epub

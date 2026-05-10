@@ -135,16 +135,16 @@ struct AudiomarkCreationContent: View {
                 guard let data = try? Data(contentsOf: url), !data.isEmpty else { return }
                 let ext = url.pathExtension.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
                 let normalized = ext.nilIfEmpty ?? "wav"
-                await machine.send(.onAudioPicked(audioData: data, fileExtension: normalized))
+                await machine.send(.onAudioPicked(audioData: data, fileExtension: normalized, selectedPath: url.path))
             }
         }
         .sheet(isPresented: $showRecorderSheet) {
             NavigationStack {
                 AudioRecorderSheet(
                     onDismiss: { showRecorderSheet = false },
-                    onDone: { data, ext in
+                    onDone: { data, ext, path in
                         Task {
-                            await machine.send(.onAudioPicked(audioData: data, fileExtension: ext))
+                            await machine.send(.onAudioPicked(audioData: data, fileExtension: ext, selectedPath: path))
                             showRecorderSheet = false
                         }
                     }
@@ -166,6 +166,12 @@ struct AudiomarkCreationContent: View {
             Section {
                 previewContent(fallbackIcon: "audio-wave-01", mainTint: mainTint)
                     .bookmarkCreationPreviewListRowBackground(appearance: previewContentAppearance)
+
+                if let path = machine.state.selectedFilePath, !path.isEmpty {
+                    BookmarkCreationSelectedContentIndicator(path: path, mainTint: mainTint)
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                }
 
                 HStack {
                     Button {
@@ -530,7 +536,13 @@ struct AudiomarkCreationContent: View {
         guard editingBookmarkId == nil, !didApplyInitialSharePayload else { return }
         guard case let .audio(audioData, fileExtension) = initialSharePayload else { return }
         didApplyInitialSharePayload = true
-        await machine.send(.onAudioPicked(audioData: audioData, fileExtension: fileExtension))
+        await machine.send(
+            .onAudioPicked(
+                audioData: audioData,
+                fileExtension: fileExtension,
+                selectedPath: BookmarkCreationSelectedPathFactory.syntheticMediaSharePath(fileExtension: fileExtension)
+            )
+        )
     }
 }
 

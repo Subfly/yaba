@@ -190,6 +190,7 @@
 				Creation/Bookmark/Share/BookmarkSharePayloadExtractor.swift,
 				Creation/Bookmark/Shared/BookmarkCreationFolderVisuals.swift,
 				Creation/Bookmark/Shared/BookmarkCreationPreviewListRowBackground.swift,
+				Creation/Bookmark/Shared/BookmarkCreationSelectedContentIndicator.swift,
 				Creation/Bookmark/Shared/BookmarkFlowHydration.swift,
 				Creation/Bookmark/Shared/BookmarkFolderTagSheetModifier.swift,
 				Creation/Bookmark/Shared/BookmarkFormFolderTagRows.swift,

@@ -151,6 +151,16 @@ struct DocmarkCreationContent: View {
         guard editingBookmarkId == nil, !didApplyInitialSharePayload else { return }
         guard case let .document(data, fileName, docmarkType) = initialSharePayload else { return }
         didApplyInitialSharePayload = true
-        await machine.send(.onDocumentFromShare(data, sourceFileName: fileName, docmarkType: docmarkType))
+        await machine.send(
+            .onDocumentFromShare(
+                data,
+                sourceFileName: fileName,
+                selectedPath: BookmarkCreationSelectedPathFactory.syntheticDocumentSharePath(
+                    fileName: fileName,
+                    docmarkType: docmarkType
+                ),
+                docmarkType: docmarkType
+            )
+        )
     }
 }

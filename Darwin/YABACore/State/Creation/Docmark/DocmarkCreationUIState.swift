@@ -17,6 +17,7 @@ public struct DocmarkCreationUIState: Sendable {
     public var creationDocmarkKind: DocmarkType
     public var pickedDocumentData: Data?
     public var sourceFileName: String?
+    public var selectedFilePath: String?
     public var previewImageData: Data?
     public var isLoading: Bool
     public var bookmarkAppearance: BookmarkAppearance
@@ -37,6 +38,7 @@ public struct DocmarkCreationUIState: Sendable {
         creationDocmarkKind: DocmarkType = .pdf,
         pickedDocumentData: Data? = nil,
         sourceFileName: String? = nil,
+        selectedFilePath: String? = nil,
         previewImageData: Data? = nil,
         isLoading: Bool = false,
         bookmarkAppearance: BookmarkAppearance = .list,
@@ -56,6 +58,7 @@ public struct DocmarkCreationUIState: Sendable {
         self.creationDocmarkKind = creationDocmarkKind
         self.pickedDocumentData = pickedDocumentData
         self.sourceFileName = sourceFileName
+        self.selectedFilePath = selectedFilePath
         self.previewImageData = previewImageData
         self.isLoading = isLoading
         self.bookmarkAppearance = bookmarkAppearance

@@ -126,7 +126,10 @@ struct ImagemarkCreationContent: View {
                 onDismiss: { showCameraCapture = false },
                 onCapture: { data in
                     Task {
-                        await machine.send(.onImageFromShare(data, fileExtension: "png"))
+                        let path = FileManager.default.temporaryDirectory
+                            .appendingPathComponent("yaba-camera-\(UUID().uuidString).png")
+                            .path
+                        await machine.send(.onImageFromShare(data, fileExtension: "png", selectedPath: path))
                     }
                 }
             )
@@ -146,6 +149,12 @@ struct ImagemarkCreationContent: View {
                     mainTint: mainTint
                 )
                 .bookmarkCreationPreviewListRowBackground(appearance: previewContentAppearance)
+
+                if let path = machine.state.selectedFilePath, !path.isEmpty {
+                    BookmarkCreationSelectedContentIndicator(path: path, mainTint: mainTint)
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                }
 
                 HStack {
                     PhotosPicker(selection: $photoItem, matching: .images) {
@@ -173,7 +182,10 @@ struct ImagemarkCreationContent: View {
                                 } else {
                                     payload = data
                                 }
-                                await machine.send(.onImageFromShare(payload, fileExtension: "png"))
+                                let path = FileManager.default.temporaryDirectory
+                                    .appendingPathComponent("yaba-gallery-\(UUID().uuidString).png")
+                                    .path
+                                await machine.send(.onImageFromShare(payload, fileExtension: "png", selectedPath: path))
                             }
                         }
                     }
@@ -589,7 +601,15 @@ struct ImagemarkCreationContent: View {
         guard editingBookmarkId == nil, !didApplyInitialSharePayload else { return }
         guard case let .image(data, fileExtension) = initialSharePayload else { return }
         didApplyInitialSharePayload = true
-        await machine.send(.onImageFromShare(data, fileExtension: fileExtension))
+        await machine.send(
+            .onImageFromShare(
+                data,
+                fileExtension: fileExtension,
+                selectedPath: BookmarkCreationSelectedPathFactory.syntheticMediaSharePath(
+                    fileExtension: fileExtension
+                )
+            )
+        )
     }
 }
 

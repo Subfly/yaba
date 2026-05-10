@@ -10,7 +10,8 @@ import SwiftUI
 
 struct AudioRecorderSheet: View {
     let onDismiss: () -> Void
-    let onDone: (Data, String) -> Void
+    /// WAV bytes, extension (always `wav`), recorder temp file path when available.
+    let onDone: (Data, String, String?) -> Void
 
     @State
     private var phase: RecorderPhase = .idle
@@ -264,7 +265,7 @@ struct AudioRecorderSheet: View {
 
     private func finishRecording() {
         guard let data = pendingOutputData, !data.isEmpty else { return }
-        onDone(data, "wav")
+        onDone(data, "wav", recordingURL?.path)
         onDismiss()
     }
 

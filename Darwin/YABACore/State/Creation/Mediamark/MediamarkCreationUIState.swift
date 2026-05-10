@@ -17,6 +17,7 @@ public struct MediamarkCreationUIState: Sendable {
     public var videoData: Data?
     public var audioData: Data?
     public var mediaFileExtension: String
+    public var selectedFilePath: String?
     public var bookmarkAppearance: BookmarkAppearance
     public var cardImageSizing: CardImageSizing
     public var isPinned: Bool
@@ -35,6 +36,7 @@ public struct MediamarkCreationUIState: Sendable {
         videoData: Data? = nil,
         audioData: Data? = nil,
         mediaFileExtension: String = "png",
+        selectedFilePath: String? = nil,
         bookmarkAppearance: BookmarkAppearance = .list,
         cardImageSizing: CardImageSizing = .small,
         isPinned: Bool = false,
@@ -52,6 +54,7 @@ public struct MediamarkCreationUIState: Sendable {
         self.videoData = videoData
         self.audioData = audioData
         self.mediaFileExtension = mediaFileExtension
+        self.selectedFilePath = selectedFilePath
         self.bookmarkAppearance = bookmarkAppearance
         self.cardImageSizing = cardImageSizing
         self.isPinned = isPinned

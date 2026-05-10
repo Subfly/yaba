@@ -48,23 +48,25 @@ public final class MediamarkCreationStateMachine: YabaBaseObservableState<Mediam
             }
         case .onPickFromGallery, .onCaptureFromCamera:
             break
-        case let .onImageFromShare(data, ext):
+        case let .onImageFromShare(data, ext, selectedPath):
             apply {
                 $0.mediaMarkType = .image
                 $0.imageData = data
                 $0.videoData = nil
                 $0.audioData = nil
                 $0.mediaFileExtension = ext
+                $0.selectedFilePath = selectedPath
             }
-        case let .onVideoPicked(videoData, thumbnailData, ext):
+        case let .onVideoPicked(videoData, thumbnailData, ext, selectedPath):
             apply {
                 $0.mediaMarkType = .video
                 $0.videoData = videoData
                 $0.imageData = thumbnailData
                 $0.audioData = nil
                 $0.mediaFileExtension = ext.isEmpty ? "mp4" : ext
+                $0.selectedFilePath = selectedPath
             }
-        case let .onAudioPicked(audioData, ext):
+        case let .onAudioPicked(audioData, ext, selectedPath):
             apply {
                 $0.mediaMarkType = .audio
                 $0.audioData = audioData
@@ -72,12 +74,14 @@ public final class MediamarkCreationStateMachine: YabaBaseObservableState<Mediam
                 // Keep preview image as-is for audio (none by default).
                 $0.imageData = nil
                 $0.mediaFileExtension = ext.isEmpty ? "wav" : ext
+                $0.selectedFilePath = selectedPath
             }
         case .onClearMedia:
             apply {
                 $0.imageData = nil
                 $0.videoData = nil
                 $0.audioData = nil
+                $0.selectedFilePath = nil
             }
         case let .onChangeLabel(s):
             apply { $0.label = s }
