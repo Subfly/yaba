@@ -211,6 +211,7 @@ struct VideomarkCreationContent: View {
                         }
                     }
 
+                    #if !targetEnvironment(macCatalyst)
                     Button {
                         showCameraCapture = true
                     } label: {
@@ -228,6 +229,7 @@ struct VideomarkCreationContent: View {
                     .buttonStyle(.plain)
                     .frame(maxWidth: .infinity)
                     .disabled(restrictsPrimaryPayloadUI)
+                    #endif
                 }
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)

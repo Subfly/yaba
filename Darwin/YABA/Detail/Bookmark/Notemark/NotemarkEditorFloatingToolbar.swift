@@ -131,11 +131,13 @@ struct NotemarkEditorFloatingToolbar: View {
                 menuRow(icon: "at", title: "Notemark Option Add Mention Label")
             }
             Menu {
+                #if !targetEnvironment(macCatalyst)
                 Button {
                     onRequestPickImageFromCamera()
                 } label: {
                     menuRow(icon: "camera-01", title: "Notemark Option Pick Image From Camera Label")
                 }
+                #endif
                 Button {
                     showGalleryPhotoPicker = true
                 } label: {

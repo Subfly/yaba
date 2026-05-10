@@ -64,8 +64,10 @@ struct NotemarkDetailView: View {
     @State
     private var notemarkGalleryPhotoItem: PhotosPickerItem?
 
+    #if !targetEnvironment(macCatalyst)
     @State
     private var showNotemarkCameraCapture = false
+    #endif
 
     @State
     private var highlightColorMarkEdit: HighlightColorMarkTapEvent?
@@ -229,6 +231,7 @@ struct NotemarkDetailView: View {
                 }
             }
         }
+        #if !targetEnvironment(macCatalyst)
         .fullScreenCover(isPresented: $showNotemarkCameraCapture) {
             CameraCapturePicker(
                 onDismiss: { showNotemarkCameraCapture = false },
@@ -245,6 +248,7 @@ struct NotemarkDetailView: View {
             )
             .ignoresSafeArea()
         }
+        #endif
         .sheet(isPresented: $showHighlightColorSheet) {
             YabaColorPicker(selection: $highlightColorPick, onDismiss: {
                 handleHighlightColorPickerDismissed()
@@ -369,7 +373,9 @@ struct NotemarkDetailView: View {
                         dismissNotemarkEditorKeyboard()
                     },
                     onRequestPickImageFromCamera: {
+                        #if !targetEnvironment(macCatalyst)
                         showNotemarkCameraCapture = true
+                        #endif
                     },
                     galleryPhotoItem: $notemarkGalleryPhotoItem
                 )

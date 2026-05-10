@@ -178,6 +178,7 @@ struct ImagemarkCreationContent: View {
                         }
                     }
 
+                    #if !targetEnvironment(macCatalyst)
                     Button {
                         showCameraCapture = true
                     } label: {
@@ -195,6 +196,7 @@ struct ImagemarkCreationContent: View {
                     .buttonStyle(.plain)
                     .frame(maxWidth: .infinity)
                     .disabled(restrictsPrimaryPayloadUI)
+                    #endif
                 }
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
