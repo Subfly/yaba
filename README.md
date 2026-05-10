@@ -85,7 +85,7 @@ YABA aims to be the ultimate cross-platform bookmark manager with:
 ### Prerequisites
 - **Darwin Development**:
   - Xcode 15.0+
-  - iOS 18.0+, macOS 15.0+, visionOS 2.0+
+  - iOS 26.0+, macOS 26.0+
 - **Compose Development** (Future):
   - Android Studio Hedgehog+
   - JDK 17+

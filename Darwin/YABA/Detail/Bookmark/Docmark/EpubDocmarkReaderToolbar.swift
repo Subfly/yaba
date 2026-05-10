@@ -18,31 +18,18 @@ struct EpubDocmarkReaderToolbar: View {
     let onSelectLineHeight: (ReaderLineHeight) -> Void
 
     var body: some View {
-        Group {
-            if #available(iOS 26, *) {
-                GlassEffectContainer(spacing: 14) {
-                    controlsRow(padIos26Glyphs: true)
-                }
-                .glassEffect(.regular.interactive())
-            } else {
-                controlsRow(padIos26Glyphs: false)
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 10)
-                    .background {
-                        Capsule()
-                            .fill(.ultraThinMaterial)
-                    }
-            }
+        GlassEffectContainer(spacing: 14) {
+            controlsRow()
         }
+        .glassEffect(.regular.interactive())
         .fixedSize(horizontal: true, vertical: false)
     }
 
     @ViewBuilder
-    private func controlsRow(padIos26Glyphs: Bool) -> some View {
-        let spacing: CGFloat = padIos26Glyphs ? 10 : 12
-        HStack(spacing: spacing) {
+    private func controlsRow() -> some View {
+        HStack(spacing: 10) {
             Button(action: onPrevious) {
-                toolbarGlyphButton("previous", pad: padIos26Glyphs)
+                toolbarGlyphButton("previous")
             }
             .buttonStyle(.plain)
 
@@ -60,7 +47,7 @@ struct EpubDocmarkReaderToolbar: View {
                     }
                 }
             } label: {
-                menuLabelIcon("colors", padLabels: padIos26Glyphs, color: folderAccent)
+                menuLabelIcon("colors", color: folderAccent)
             }
 
             Menu {
@@ -77,7 +64,7 @@ struct EpubDocmarkReaderToolbar: View {
                     }
                 }
             } label: {
-                menuLabelIcon("text-square", padLabels: padIos26Glyphs, color: folderAccent)
+                menuLabelIcon("text-square", color: folderAccent)
             }
 
             Menu {
@@ -94,11 +81,11 @@ struct EpubDocmarkReaderToolbar: View {
                     }
                 }
             } label: {
-                menuLabelIcon("cursor-text", padLabels: padIos26Glyphs, color: folderAccent)
+                menuLabelIcon("cursor-text", color: folderAccent)
             }
 
             Button(action: onNext) {
-                toolbarGlyphButton("next", pad: padIos26Glyphs)
+                toolbarGlyphButton("next")
             }
             .buttonStyle(.plain)
         }
@@ -107,14 +94,9 @@ struct EpubDocmarkReaderToolbar: View {
     @ViewBuilder
     private func menuLabelIcon(
         _ icon: String,
-        padLabels: Bool,
         color: Color
     ) -> some View {
-        if padLabels {
-            toolbarGlyph(icon, color: color).padding()
-        } else {
-            toolbarGlyph(icon, color: color)
-        }
+        toolbarGlyph(icon, color: color).padding()
     }
 
     private func toolbarGlyph(_ icon: String, color: Color) -> some View {
@@ -123,18 +105,10 @@ struct EpubDocmarkReaderToolbar: View {
             .frame(width: 22, height: 22)
     }
 
-    private func toolbarGlyphButton(_ bundleKey: String, pad: Bool) -> some View {
-        Group {
-            if pad {
-                YabaIconView(bundleKey: bundleKey)
-                    .foregroundStyle(folderAccent)
-                    .frame(width: 22, height: 22)
-                    .padding()
-            } else {
-                YabaIconView(bundleKey: bundleKey)
-                    .foregroundStyle(folderAccent)
-                    .frame(width: 22, height: 22)
-            }
-        }
+    private func toolbarGlyphButton(_ bundleKey: String) -> some View {
+        YabaIconView(bundleKey: bundleKey)
+            .foregroundStyle(folderAccent)
+            .frame(width: 22, height: 22)
+            .padding()
     }
 }

@@ -106,7 +106,7 @@ struct AudiomarkDetailView: View {
                     width: isBig ? 72 : 54,
                     height: isBig ? 72 : 54
                 )
-                .ifAvailableiOS26Glass()
+                .glassEffect(.regular.interactive())
         }
         .buttonStyle(.plain)
     }
@@ -179,19 +179,5 @@ struct AudiomarkDetailView: View {
         let target = min(max(0, player.currentTime + seconds), max(0, duration))
         player.currentTime = target
         currentTime = target
-    }
-}
-
-private extension View {
-    @ViewBuilder
-    func ifAvailableiOS26Glass() -> some View {
-        if #available(iOS 26, *) {
-            self.glassEffect(.regular.interactive())
-        } else {
-            self.background {
-                Circle()
-                    .fill(.ultraThinMaterial)
-            }
-        }
     }
 }

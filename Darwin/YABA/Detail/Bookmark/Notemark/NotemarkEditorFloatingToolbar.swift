@@ -8,7 +8,7 @@ import SwiftUI
 
 // MARK: - Editor floating toolbar
 
-/// Floating Markdown editor chrome — mirrors ``LinkmarkReaderFloatingToolbar`` glass / fallback styling.
+/// Floating Markdown editor chrome — mirrors ``LinkmarkReaderFloatingToolbar`` styling.
 struct NotemarkEditorFloatingToolbar: View {
     let folderAccent: Color
     let isVisible: Bool
@@ -25,22 +25,10 @@ struct NotemarkEditorFloatingToolbar: View {
     private var showGalleryPhotoPicker = false
 
     var body: some View {
-        Group {
-            if #available(iOS 26, *) {
-                GlassEffectContainer(spacing: 18) {
-                    toolbarMenusRow
-                }
-                .glassEffect(.regular.interactive())
-            } else {
-                toolbarMenusRow
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 10)
-                    .background {
-                        Capsule()
-                            .fill(.ultraThinMaterial)
-                    }
-            }
+        GlassEffectContainer(spacing: 18) {
+            toolbarMenusRow
         }
+        .glassEffect(.regular.interactive())
         .photosPicker(
             isPresented: $showGalleryPhotoPicker,
             selection: galleryPhotoItem,
@@ -278,11 +266,7 @@ struct NotemarkEditorFloatingToolbar: View {
 
     @ViewBuilder
     private func menuLabelIcon(_ icon: String, color: Color) -> some View {
-        if #available(iOS 26, *) {
-            toolbarGlyph(icon, color: color).padding()
-        } else {
-            toolbarGlyph(icon, color: color)
-        }
+        toolbarGlyph(icon, color: color).padding()
     }
 
     private func toolbarGlyph(_ icon: String, color: Color) -> some View {

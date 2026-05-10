@@ -4,8 +4,7 @@ The Apple platform implementation of YABA, supporting iOS, iPadOS and macOS with
 
 ## 🍎 Platform Support
 
-- **iOS**: 18.0+ (iPhone, iPad)
-- **macOS**: 15.0+ (Mac)
+- **iOS/macOS**: 26.0+ (iPhone, iPad, Mac)
 
 ## 📁 Project Structure
 
@@ -127,8 +126,8 @@ User Action → SwiftUI View → @Observable State → Business Logic → SwiftD
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Xcode 15.0+
-- iOS 18.0+, macOS 15.0+
+- Xcode 26.0+
+- iOS 26.0+, macOS 26.0+
 - Apple Developer Account (for distribution)
 
 ### Development Setup

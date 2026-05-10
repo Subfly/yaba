@@ -413,17 +413,7 @@ struct NotemarkDetailView: View {
                 }
                 .animation(.smooth, value: machine.selectedMode)
             }
-            if #available(iOS 26, *) {
-                ToolbarSpacer(.fixed, placement: .topBarTrailing)
-            } else {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Rectangle()
-                        .fill(Color.clear)
-                        .frame(width: 12)
-                        .allowsHitTesting(false)
-                        .accessibilityHidden(true)
-                }
-            }
+            ToolbarSpacer(.fixed, placement: .topBarTrailing)
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     machine.apply { $0.showDetailSheet = true }
@@ -431,9 +421,7 @@ struct NotemarkDetailView: View {
                     homeToolbarIcon("information-circle")
                 }
             }
-            if #available(iOS 26, *) {
-                ToolbarSpacer(.fixed, placement: .topBarTrailing)
-            }
+            ToolbarSpacer(.fixed, placement: .topBarTrailing)
             ToolbarItem(placement: .topBarTrailing) {
                 overflowMenu(for: bm)
             }

@@ -113,17 +113,10 @@ struct AudioRecorderSheet: View {
         Button {
             beginRecording()
         } label: {
-            if #available (iOS 26, *) {
-                Circle()
-                    .stroke(.white, lineWidth: 2)
-                    .frame(width: 64, height: 64)
-                    .glassEffect(.regular.tint(.red.opacity(0.8)).interactive())
-            } else {
-                Circle()
-                    .fill(Color.red)
-                    .stroke(.white, lineWidth: 2)
-                    .frame(width: 64, height: 64)
-            }
+            Circle()
+                .stroke(.white, lineWidth: 2)
+                .frame(width: 64, height: 64)
+                .glassEffect(.regular.tint(.red.opacity(0.8)).interactive())
         }
         .buttonStyle(.plain)
         .animation(.smooth, value: phase)
@@ -156,7 +149,7 @@ struct AudioRecorderSheet: View {
                 .background {
                     Circle().fill(.ultraThinMaterial)
                 }
-                .ifAvailableiOS26Glass()
+                .glassEffect(.regular.interactive())
         }
         .buttonStyle(.plain)
     }
@@ -318,15 +311,4 @@ private enum RecorderPhase {
     case idle
     case recording
     case recorded
-}
-
-private extension View {
-    @ViewBuilder
-    func ifAvailableiOS26Glass() -> some View {
-        if #available(iOS 26, *) {
-            self.glassEffect(.regular.interactive())
-        } else {
-            self
-        }
-    }
 }

@@ -2,7 +2,7 @@
 //  CSVDocmarkPaginationToolbar.swift
 //  YABA
 //
-//  Floating paging chrome — mirrors ``LinkmarkReaderFloatingToolbar`` / ``NotemarkEditorFloatingToolbar`` glass / capsule fallbacks.
+//  Floating paging chrome — mirrors ``LinkmarkReaderFloatingToolbar`` / ``NotemarkEditorFloatingToolbar``.
 //
 
 import SwiftUI
@@ -19,33 +19,21 @@ struct CSVDocmarkPaginationToolbar: View {
     private static let menuPageCap = 400
 
     var body: some View {
-        Group {
-            if #available(iOS 26, *) {
-                GlassEffectContainer(spacing: 18) {
-                    controlsRow(padIos26Glyphs: true)
-                }
-                .glassEffect(.regular.interactive())
-            } else {
-                controlsRow(padIos26Glyphs: false)
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 10)
-                    .background {
-                        Capsule()
-                            .fill(.ultraThinMaterial)
-                    }
-            }
+        GlassEffectContainer(spacing: 18) {
+            controlsRow()
         }
+        .glassEffect(.regular.interactive())
         .fixedSize(horizontal: true, vertical: false)
     }
 
     @ViewBuilder
-    private func controlsRow(padIos26Glyphs: Bool) -> some View {
+    private func controlsRow() -> some View {
         let last = Swift.max(totalPages, 1)
-        HStack(spacing: padIos26Glyphs ? 6 : 10) {
+        HStack(spacing: 6) {
             Button {
                 onPrevious()
             } label: {
-                toolbarGlyphButton("previous", pad: padIos26Glyphs)
+                toolbarGlyphButton("previous")
             }
             .buttonStyle(.plain)
             .disabled(currentPage <= 1)
@@ -57,34 +45,26 @@ struct CSVDocmarkPaginationToolbar: View {
                     .font(.footnote.weight(.semibold))
                     .monospacedDigit()
                     .foregroundStyle(folderAccent)
-                    .padding(.horizontal, padIos26Glyphs ? 14 : 10)
-                    .padding(.vertical, padIos26Glyphs ? 10 : 4)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 10)
                     .contentShape(Rectangle())
             }
 
             Button {
                 onNext()
             } label: {
-                toolbarGlyphButton("next", pad: padIos26Glyphs)
+                toolbarGlyphButton("next")
             }
             .buttonStyle(.plain)
             .disabled(currentPage >= last)
         }
     }
 
-    private func toolbarGlyphButton(_ bundleKey: String, pad: Bool) -> some View {
-        Group {
-            if pad {
-                YabaIconView(bundleKey: bundleKey)
-                    .foregroundStyle(folderAccent)
-                    .frame(width: 22, height: 22)
-                    .padding()
-            } else {
-                YabaIconView(bundleKey: bundleKey)
-                    .foregroundStyle(folderAccent)
-                    .frame(width: 22, height: 22)
-            }
-        }
+    private func toolbarGlyphButton(_ bundleKey: String) -> some View {
+        YabaIconView(bundleKey: bundleKey)
+            .foregroundStyle(folderAccent)
+            .frame(width: 22, height: 22)
+            .padding()
     }
 
     @ViewBuilder

@@ -17,30 +17,18 @@ struct LinkmarkReaderFloatingToolbar: View {
     let onSelectLineHeight: (ReaderLineHeight) -> Void
 
     var body: some View {
-        Group {
-            if #available(iOS 26, *) {
-                GlassEffectContainer(spacing: 30) {
-                    toolbarMenus(padLabels: true)
-                }
-                .glassEffect(.regular.interactive())
-            } else {
-                toolbarMenus(padLabels: false)
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 10)
-                    .background {
-                        Capsule()
-                            .fill(.ultraThinMaterial)
-                    }
-            }
+        GlassEffectContainer(spacing: 30) {
+            toolbarMenus()
         }
+        .glassEffect(.regular.interactive())
         .opacity(isVisible ? 1 : 0)
         .offset(y: isVisible ? 0 : 24)
         .animation(.smooth, value: isVisible)
     }
 
     @ViewBuilder
-    private func toolbarMenus(padLabels: Bool) -> some View {
-        HStack(spacing: padLabels ? 0 : 10) {
+    private func toolbarMenus() -> some View {
+        HStack(spacing: 0) {
             Menu {
                 ForEach(ReaderTheme.allCases, id: \.self) { t in
                     Button {
@@ -55,7 +43,7 @@ struct LinkmarkReaderFloatingToolbar: View {
                     }
                 }
             } label: {
-                menuLabelIcon("colors", padLabels: padLabels, color: folderAccent)
+                menuLabelIcon("colors", color: folderAccent)
             }
             Menu {
                 ForEach(ReaderFontSize.allCases, id: \.self) { f in
@@ -71,7 +59,7 @@ struct LinkmarkReaderFloatingToolbar: View {
                     }
                 }
             } label: {
-                menuLabelIcon("text-square", padLabels: padLabels, color: folderAccent)
+                menuLabelIcon("text-square", color: folderAccent)
             }
             Menu {
                 ForEach(ReaderLineHeight.allCases, id: \.self) { lh in
@@ -87,7 +75,7 @@ struct LinkmarkReaderFloatingToolbar: View {
                     }
                 }
             } label: {
-                menuLabelIcon("cursor-text", padLabels: padLabels, color: folderAccent)
+                menuLabelIcon("cursor-text", color: folderAccent)
             }
         }
     }
@@ -95,14 +83,9 @@ struct LinkmarkReaderFloatingToolbar: View {
     @ViewBuilder
     private func menuLabelIcon(
         _ icon: String,
-        padLabels: Bool,
         color: Color
     ) -> some View {
-        if padLabels {
-            toolbarGlyph(icon, color: color).padding()
-        } else {
-            toolbarGlyph(icon, color: color)
-        }
+        toolbarGlyph(icon, color: color).padding()
     }
 
     private func toolbarGlyph(_ icon: String, color: Color) -> some View {

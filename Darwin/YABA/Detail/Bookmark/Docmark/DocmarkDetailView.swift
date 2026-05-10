@@ -230,9 +230,7 @@ struct DocmarkDetailView: View {
                     homeToolbarIcon("information-circle")
                 }
             }
-            if #available(iOS 26, *) {
-                ToolbarSpacer(.fixed, placement: .topBarTrailing)
-            }
+            ToolbarSpacer(.fixed, placement: .topBarTrailing)
             ToolbarItem(placement: .topBarTrailing) {
                 overflowMenu(for: bm)
             }
