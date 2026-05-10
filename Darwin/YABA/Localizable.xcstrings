@@ -2926,6 +2926,16 @@
         }
       }
     },
+    "Bookmark Route Selection Essentials" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Essentials"
+          }
+        }
+      }
+    },
     "Bookmark Route Selection Media" : {
       "localizations" : {
         "en" : {

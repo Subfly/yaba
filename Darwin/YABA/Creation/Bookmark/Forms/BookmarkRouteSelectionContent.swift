@@ -19,6 +19,11 @@ struct BookmarkRouteSelectionContent: View {
                     Section {
                         linkRow
                         noteRow
+                    } header: {
+                        sectionHeaderLabel(
+                            title: "Bookmark Route Selection Essentials",
+                            iconKey: "bookmark-02"
+                        )
                     }
                     Section {
                         routeButton(
