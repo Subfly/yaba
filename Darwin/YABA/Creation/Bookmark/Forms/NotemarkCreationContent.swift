@@ -66,14 +66,6 @@ struct NotemarkCreationContent: View {
         editingBookmarkId != nil
     }
 
-    private func dismissOrCancelBookmarkCreation() {
-        if let bookmarkCreationOnCloseRequest {
-            bookmarkCreationOnCloseRequest()
-        } else {
-            dismiss()
-        }
-    }
-
     var body: some View {
         NavigationStack {
             BookmarkCreationFolderVisuals(
@@ -117,46 +109,33 @@ struct NotemarkCreationContent: View {
     ) -> some View {
         List {
             Section {
-                previewContent(fallbackIcon: "note-edit", mainTint: mainTint)
+                BookmarkCreationBookmarkPreviewContent(
+                    previewContentAppearance: previewContentAppearance,
+                    imageData: nil,
+                    fallbackIcon: "note-edit",
+                    mainTint: mainTint,
+                    label: machine.state.label,
+                    bookmarkDescription: machine.state.bookmarkDescription,
+                    bigCardImageHeight: 160
+                )
                     .bookmarkCreationPreviewListRowBackground(appearance: previewContentAppearance)
             } header: {
-                previewHeader(mainTint: mainTint)
+                BookmarkCreationPreviewHeader(
+                    previewContentAppearance: $previewContentAppearance,
+                    mainTint: mainTint
+                )
             }
 
             Section {
-                TextField(
-                    "",
-                    text: labelBinding,
-                    prompt: Text("Create Bookmark Title Placeholder")
+                BookmarkCreationPinnedTitleDescriptionFields(
+                    mainTint: mainTint,
+                    label: labelBinding,
+                    bookmarkDescription: descriptionBinding,
+                    isPinned: isPinnedBinding,
+                    pinIconBundleKey: machine.state.isPinned ? "pin" : "pin-off"
                 )
-                .safeAreaInset(edge: .leading) {
-                    fieldIcon("text", mainTint: mainTint)
-                }
-                TextField(
-                    "",
-                    text: descriptionBinding,
-                    prompt: Text("Create Bookmark Description Placeholder"),
-                    axis: .vertical
-                )
-                .lineLimit(3 ... 8)
-                .safeAreaInset(edge: .leading) {
-                    fieldIcon("paragraph", mainTint: mainTint)
-                }
-                Toggle(isOn: isPinnedBinding) {
-                    Label {
-                        Text("Bookmark Creation Toggle Pinned Title")
-                    } icon: {
-                        fieldIcon(machine.state.isPinned ? "pin" : "pin-off", mainTint: mainTint)
-                            .animation(.smooth, value: machine.state.isPinned)
-                    }
-                }
             } header: {
-                Label {
-                    Text("Info")
-                } icon: {
-                    YabaIconView(bundleKey: "information-circle")
-                        .frame(width: 22, height: 22)
-                }
+                BookmarkCreationInfoSectionHeaderBuilders.infoHeader()
             }
 
             BookmarkFormFolderTagRows(
@@ -166,21 +145,9 @@ struct NotemarkCreationContent: View {
                 onTagsNavigate: { showTagSheet = true }
             )
 
-            if let lastError = machine.state.lastError {
-                Section {
-                    Text(lastError)
-                        .foregroundStyle(.red)
-                }
-            }
+            BookmarkCreationLastErrorSection(message: machine.state.lastError)
         }
-        #if !targetEnvironment(macCatalyst)
-        .listStyle(.sidebar)
-        #endif
-        .scrollContentBackground(.hidden)
-        .tint(mainTint)
-        #if !os(visionOS)
-        .scrollDismissesKeyboard(.immediately)
-        #endif
+        .bookmarkCreationFormListModifiers(mainTint: mainTint)
         .navigationTitle(
             LocalizedStringKey(isEditing ? "Edit Bookmark Title" : "Create Bookmark Title")
         )
@@ -188,7 +155,10 @@ struct NotemarkCreationContent: View {
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 Button(role: .cancel) {
-                    dismissOrCancelBookmarkCreation()
+                    BookmarkCreationDismiss.perform(
+                        bookmarkCreationOnCloseRequest: bookmarkCreationOnCloseRequest,
+                        dismiss: dismiss
+                    )
                 } label: {
                     Text("Cancel")
                 }
@@ -246,207 +216,11 @@ struct NotemarkCreationContent: View {
         )
     }
 
-    private func previewHeader(mainTint: Color) -> some View {
-        HStack {
-            Label {
-                Text("Preview")
-            } icon: {
-                YabaIconView(bundleKey: "image-03")
-                    .scaledToFit()
-                    .frame(width: 22, height: 22)
-            }
-            Spacer()
-            Button {
-                withAnimation {
-                    switch previewContentAppearance {
-                    case .list:
-                        previewContentAppearance = .cardSmallImage
-                    case .cardSmallImage:
-                        previewContentAppearance = .cardBigImage
-                    case .cardBigImage:
-                        previewContentAppearance = .grid
-                    case .grid:
-                        previewContentAppearance = .list
-                    }
-                }
-            } label: {
-                HStack(spacing: 10) {
-                    if previewContentAppearance == .cardSmallImage || previewContentAppearance == .cardBigImage {
-                        Label {
-                            Text(ContentAppearance.card.getUITitle())
-                                .textCase(.none)
-                        } icon: {
-                            YabaIconView(bundleKey: ContentAppearance.card.getUIIconName())
-                                .scaledToFit()
-                                .frame(width: 22, height: 22)
-                        }
-                    }
-                    Label {
-                        Text(previewContentAppearance.getUITitle())
-                            .textCase(.none)
-                    } icon: {
-                        YabaIconView(bundleKey: previewContentAppearance.getUIIconName())
-                            .scaledToFit()
-                            .frame(width: 22, height: 22)
-                    }
-                }
-            }
-            .buttonStyle(.plain)
-            .foregroundStyle(mainTint)
-        }
-    }
-
-    @ViewBuilder
-    private func previewContent(fallbackIcon: String, mainTint: Color) -> some View {
-        switch previewContentAppearance {
-        case .list:
-            HStack(alignment: .center, spacing: 12) {
-                placeholderPreviewImage(fallbackIcon: fallbackIcon, width: 56, height: 56, mainTint: mainTint)
-                VStack(alignment: .leading, spacing: 4) {
-                    if machine.state.label.isEmpty {
-                        Text("Bookmark Title Placeholder")
-                            .font(.headline)
-                            .lineLimit(1)
-                    } else {
-                        Text(machine.state.label)
-                            .font(.headline)
-                            .lineLimit(1)
-                            .animation(.smooth, value: machine.state.label)
-                    }
-                    if machine.state.bookmarkDescription.isEmpty {
-                        Text("Bookmark Description Placeholder")
-                            .foregroundStyle(.secondary)
-                            .lineLimit(2)
-                    } else {
-                        Text(machine.state.bookmarkDescription)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(2)
-                            .animation(.smooth, value: machine.state.bookmarkDescription)
-                    }
-                }
-            }
-        case .cardSmallImage:
-            VStack(alignment: .leading, spacing: 8) {
-                HStack(alignment: .center, spacing: 10) {
-                    placeholderPreviewImage(fallbackIcon: fallbackIcon, width: 56, height: 56, mainTint: mainTint)
-                    if machine.state.label.isEmpty {
-                        Text("Bookmark Title Placeholder")
-                            .font(.headline)
-                            .lineLimit(2)
-                    } else {
-                        Text(machine.state.label)
-                            .font(.headline)
-                            .lineLimit(2)
-                            .animation(.smooth, value: machine.state.label)
-                    }
-                    Spacer(minLength: 0)
-                }
-                if machine.state.bookmarkDescription.isEmpty {
-                    Text("Bookmark Description Placeholder")
-                        .foregroundStyle(.secondary)
-                        .lineLimit(4)
-                } else {
-                    Text(machine.state.bookmarkDescription)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(4)
-                        .animation(.smooth, value: machine.state.bookmarkDescription)
-                }
-            }
-        case .cardBigImage:
-            VStack(alignment: .leading, spacing: 10) {
-                placeholderPreviewImage(fallbackIcon: fallbackIcon, width: nil, height: 160, mainTint: mainTint)
-                if machine.state.label.isEmpty {
-                    Text("Bookmark Title Placeholder")
-                        .font(.headline)
-                } else {
-                    Text(machine.state.label)
-                        .font(.headline)
-                        .animation(.smooth, value: machine.state.label)
-                }
-                if machine.state.bookmarkDescription.isEmpty {
-                    Text("Bookmark Description Placeholder")
-                        .foregroundStyle(.secondary)
-                        .lineLimit(3)
-                } else {
-                    Text(machine.state.bookmarkDescription)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(3)
-                        .animation(.smooth, value: machine.state.bookmarkDescription)
-                }
-            }
-        case .grid:
-            HStack {
-                Spacer(minLength: 0)
-                VStack(spacing: 0) {
-                    placeholderPreviewImage(fallbackIcon: fallbackIcon, width: 200, height: 200, mainTint: mainTint)
-                    VStack(alignment: .leading, spacing: 4) {
-                        HStack {
-                            if machine.state.label.isEmpty {
-                                Text("Bookmark Title Placeholder")
-                                    .font(.headline)
-                                    .lineLimit(2)
-                                    .multilineTextAlignment(.leading)
-                            } else {
-                                Text(machine.state.label)
-                                    .font(.headline)
-                                    .lineLimit(2)
-                                    .multilineTextAlignment(.leading)
-                                    .animation(.smooth, value: machine.state.label)
-                            }
-                            Spacer(minLength: 0)
-                        }
-                        if machine.state.bookmarkDescription.isEmpty {
-                            Text("Bookmark Description Placeholder")
-                                .foregroundStyle(.secondary)
-                                .lineLimit(2)
-                                .multilineTextAlignment(.leading)
-                        } else {
-                            Text(machine.state.bookmarkDescription)
-                                .foregroundStyle(.secondary)
-                                .lineLimit(2)
-                                .multilineTextAlignment(.leading)
-                                .animation(.smooth, value: machine.state.bookmarkDescription)
-                        }
-                    }
-                    .padding()
-                }
-                .background {
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(.thinMaterial)
-                }
-                .frame(width: 200)
-                Spacer(minLength: 0)
-            }
-        }
-    }
-
-    private func placeholderPreviewImage(fallbackIcon: String, width: CGFloat?, height: CGFloat, mainTint: Color) -> some View {
-        RoundedRectangle(cornerRadius: 10)
-            .fill(mainTint.opacity(0.25))
-            .frame(width: width, height: height)
-            .overlay {
-                YabaIconView(bundleKey: fallbackIcon)
-                    .frame(width: 28, height: 28)
-                    .foregroundStyle(mainTint)
-            }
-    }
-
-    private func fieldIcon(_ bundleKey: String, mainTint: Color) -> some View {
-        YabaIconView(bundleKey: bundleKey)
-            .scaledToFit()
-            .frame(width: 24, height: 24)
-            .foregroundStyle(mainTint)
-    }
-
     private func syncPreviewAppearanceFromMachine() {
-        switch machine.state.bookmarkAppearance {
-        case .list:
-            previewContentAppearance = .list
-        case .card:
-            previewContentAppearance = machine.state.cardImageSizing == .big ? .cardBigImage : .cardSmallImage
-        case .grid:
-            previewContentAppearance = .grid
-        }
+        previewContentAppearance = BookmarkCreationPreviewAppearanceMapping.previewContentAppearance(
+            bookmarkAppearance: machine.state.bookmarkAppearance,
+            cardImageSizing: machine.state.cardImageSizing
+        )
     }
 
     private func bootstrap() async {

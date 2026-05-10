@@ -81,7 +81,7 @@ struct DocmarkDetailView: View {
             if let bm = bookmark {
                 DocmarkDetailInfoSheet(
                     bookmark: bm,
-                    folderAccent: folderColor(for: bm),
+                    folderAccent: BookmarkDetailChrome.folderAccent(for: bm),
                     reminderDate: machine.state.reminderDate,
                     onDeleteReminder: {
                         Task { await machine.send(.onCancelReminder) }
@@ -105,19 +105,10 @@ struct DocmarkDetailView: View {
         .sheet(isPresented: $showMoveSheet) {
             if let bm = bookmark {
                 NavigationStack {
-                    SelectFolderContent(
-                        mode: .bookmarksMove,
+                    BookmarkDetailMoveToFolderPickContent(
+                        bookmarkId: bm.bookmarkId,
                         contextFolderId: bm.folder?.folderId,
-                        contextBookmarkIds: [bm.bookmarkId],
-                        onPick: { target in
-                            if let target {
-                                AllBookmarksManager.queueMoveBookmarksToFolder(
-                                    bookmarkIds: [bm.bookmarkId],
-                                    targetFolderId: target
-                                )
-                            }
-                            showMoveSheet = false
-                        }
+                        onComplete: { showMoveSheet = false }
                     )
                 }
             }
@@ -138,58 +129,37 @@ struct DocmarkDetailView: View {
             }
         }
         .sheet(isPresented: $showReminderSheet) {
-            NavigationStack {
-                DatePicker(
-                    "Setup Reminder Picker Title",
-                    selection: $reminderDraft,
-                    in: Date()...,
-                    displayedComponents: [.date, .hourAndMinute]
-                )
-                .datePickerStyle(.graphical)
-                .padding()
-                .navigationTitle("Setup Reminder Title")
-                .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
-                        Button("Cancel") { showReminderSheet = false }
+            BookmarkDetailReminderPickerSheetContent(
+                reminderDraft: $reminderDraft,
+                onCancel: { showReminderSheet = false },
+                onConfirm: {
+                    Task {
+                        await machine.send(.onRequestNotificationPermission)
+                        await machine.send(
+                            .onScheduleReminder(
+                                titleKey: "Reminder Default Title",
+                                messageKey: "Reminder Default Body",
+                                fireAt: reminderDraft
+                            )
+                        )
                     }
-                    ToolbarItem(placement: .confirmationAction) {
-                        Button("Done") {
-                            Task {
-                                await machine.send(.onRequestNotificationPermission)
-                                await machine.send(
-                                    .onScheduleReminder(
-                                        titleKey: "Reminder Default Title",
-                                        messageKey: "Reminder Default Body",
-                                        fireAt: reminderDraft
-                                    )
-                                )
-                            }
-                            showReminderSheet = false
-                        }
-                    }
+                    showReminderSheet = false
                 }
-            }
+            )
         }
-        .alert("Delete Bookmark Title", isPresented: $showDeleteAlert) {
-            Button("Cancel", role: .cancel) {}
-            Button("Delete", role: .destructive) {
-                Task {
-                    await machine.send(.onDeleteBookmark(bookmarkId: bookmarkId))
-                    dismiss()
-                }
-            }
-        } message: {
-            if let bm = bookmark {
-                Text("Delete Content Message \(bm.label)")
-            }
-        }
+        .bookmarkDetailDeleteBookmarkAlert(
+            isPresented: $showDeleteAlert,
+            bookmarkLabel: bookmark?.label ?? "",
+            onDelete: { await machine.send(.onDeleteBookmark(bookmarkId: bookmarkId)) },
+            dismiss: dismiss
+        )
     }
 
     private var bookmark: YabaBookmark? { bookmarks.first }
 
     @ViewBuilder
     private func mainContent(for bm: YabaBookmark) -> some View {
-        let folderTint = folderColor(for: bm)
+        let folderTint = BookmarkDetailChrome.folderAccent(for: bm)
         ZStack {
             Color(uiColor: .systemBackground)
                 .ignoresSafeArea()
@@ -216,30 +186,13 @@ struct DocmarkDetailView: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                Button {
-                    dismiss()
-                } label: {
-                    homeToolbarIcon("arrow-left-01")
-                }
-            }
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    showDetailSheet = true
-                } label: {
-                    homeToolbarIcon("information-circle")
-                }
-            }
-            ToolbarSpacer(.fixed, placement: .topBarTrailing)
-            ToolbarItem(placement: .topBarTrailing) {
+            BookmarkDetailPrimaryToolbarPieces.backDismissButton { dismiss() }
+            BookmarkDetailPrimaryToolbarPieces.bookmarkInfoSheetGlyphButton { showDetailSheet = true }
+            BookmarkDetailPrimaryToolbarPieces.trailingOverflowChrome {
                 overflowMenu(for: bm)
             }
         }
         .tint(folderTint)
-    }
-
-    private func folderColor(for bm: YabaBookmark) -> Color {
-        bm.folder?.color.getUIColor() ?? .accentColor
     }
 
     private func resolvedDocmarkType(for bm: YabaBookmark) -> DocmarkType {
@@ -252,35 +205,38 @@ struct DocmarkDetailView: View {
             Button {
                 showEditSheet = true
             } label: {
-                overflowMenuItemLabel("Edit", icon: "edit-02")
+                BookmarkDetailOverflowRowLabel(title: "Edit", iconBundleKey: "edit-02")
             }
             .tint(YabaColor.orange.getUIColor())
             Button {
                 showMoveSheet = true
             } label: {
-                overflowMenuItemLabel("Move", icon: "arrow-move-up-right")
+                BookmarkDetailOverflowRowLabel(title: "Move", iconBundleKey: "arrow-move-up-right")
             }
             .tint(YabaColor.teal.getUIColor())
             Button {
                 AllBookmarksManager.queueToggleBookmarkPinned(bookmarkId: bm.bookmarkId)
             } label: {
-                overflowMenuItemLabel(
-                    bm.isPinned ? "Bookmark Detail Unpin Action" : "Bookmark Detail Pin Action",
-                    icon: bm.isPinned ? "pin" : "pin-off"
+                BookmarkDetailOverflowRowLabel(
+                    title: bm.isPinned ? "Bookmark Detail Unpin Action" : "Bookmark Detail Pin Action",
+                    iconBundleKey: bm.isPinned ? "pin" : "pin-off"
                 )
             }
             .tint(YabaColor.yellow.getUIColor())
             Button {
                 machine.prepareDocumentSaveCopy(bookmarkLabel: bm.label)
             } label: {
-                overflowMenuItemLabel(LocalizedStringKey("Bookmark Detail Save Copy Label"), icon: "download-01")
+                BookmarkDetailOverflowRowLabel(
+                    title: LocalizedStringKey("Bookmark Detail Save Copy Label"),
+                    iconBundleKey: "download-01"
+                )
             }
             .tint(YabaColor.blue.getUIColor())
             if machine.state.reminderDate == nil {
                 Button {
                     showReminderSheet = true
                 } label: {
-                    overflowMenuItemLabel("Remind Me", icon: "notification-01")
+                    BookmarkDetailOverflowRowLabel(title: "Remind Me", iconBundleKey: "notification-01")
                 }
                 .tint(YabaColor.yellow.getUIColor())
             }
@@ -293,7 +249,7 @@ struct DocmarkDetailView: View {
                     }
                 }
             } label: {
-                overflowMenuItemLabel("Share", icon: "share-03")
+                BookmarkDetailOverflowRowLabel(title: "Share", iconBundleKey: "share-03")
             }
             .tint(YabaColor.indigo.getUIColor())
             Divider()
@@ -301,9 +257,9 @@ struct DocmarkDetailView: View {
                 Button {
                     Task { await machine.send(.onCancelReminder) }
                 } label: {
-                    overflowMenuItemLabel(
-                        "Bookmark Detail Cancel Reminder Action",
-                        icon: "notification-off-03"
+                    BookmarkDetailOverflowRowLabel(
+                        title: "Bookmark Detail Cancel Reminder Action",
+                        iconBundleKey: "notification-off-03"
                     )
                 }
                 .tint(YabaColor.red.getUIColor())
@@ -311,28 +267,11 @@ struct DocmarkDetailView: View {
             Button {
                 showDeleteAlert = true
             } label: {
-                overflowMenuItemLabel("Delete", icon: "delete-02")
+                BookmarkDetailOverflowRowLabel(title: "Delete", iconBundleKey: "delete-02")
             }
             .tint(YabaColor.red.getUIColor())
         } label: {
-            homeToolbarIcon("more-horizontal-circle-02")
-        }
-    }
-
-    @ViewBuilder
-    private func homeToolbarIcon(_ bundleKey: String) -> some View {
-        YabaIconView(bundleKey: bundleKey)
-            .frame(width: 22, height: 22)
-    }
-
-    @ViewBuilder
-    private func overflowMenuItemLabel(_ key: LocalizedStringKey, icon: String) -> some View {
-        Label {
-            Text(key)
-        } icon: {
-            YabaIconView(bundleKey: icon)
-                .scaledToFit()
-                .frame(width: 20, height: 20)
+            BookmarkDetailHomeToolbarGlyph(bundleKey: "more-horizontal-circle-02")
         }
     }
 }

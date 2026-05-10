@@ -49,18 +49,7 @@ struct PDFDocmarkDetailView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .ignoresSafeArea(edges: [.top, .bottom])
             } else {
-                ContentUnavailableView {
-                    Label {
-                        Text("Reader Not Available Title")
-                    } icon: {
-                        YabaIconView(bundleKey: "pdf-02")
-                            .scaledToFit()
-                            .frame(width: 52, height: 52)
-                            .foregroundStyle(folderTint)
-                    }
-                } description: {
-                    Text("Reader Not Available Description")
-                }
+                BookmarkDetailReaderChrome.readerUnavailablePlaceholder(iconBundleKey: "pdf-02", tint: folderTint)
             }
         }
     }

@@ -22,7 +22,7 @@ struct CSVDocmarkPaginationToolbar: View {
         GlassEffectContainer(spacing: 18) {
             controlsRow()
         }
-        .glassEffect(.regular.interactive())
+        .bookmarkFloatingReaderGlassEffectInteractive()
         .fixedSize(horizontal: true, vertical: false)
     }
 
@@ -33,7 +33,7 @@ struct CSVDocmarkPaginationToolbar: View {
             Button {
                 onPrevious()
             } label: {
-                toolbarGlyphButton("previous")
+                BookmarkReaderFloatingToolbarGlyph.paginationNavTrigger(bundleKey: "previous", accent: folderAccent)
             }
             .buttonStyle(.plain)
             .disabled(currentPage <= 1)
@@ -53,18 +53,11 @@ struct CSVDocmarkPaginationToolbar: View {
             Button {
                 onNext()
             } label: {
-                toolbarGlyphButton("next")
+                BookmarkReaderFloatingToolbarGlyph.paginationNavTrigger(bundleKey: "next", accent: folderAccent)
             }
             .buttonStyle(.plain)
             .disabled(currentPage >= last)
         }
-    }
-
-    private func toolbarGlyphButton(_ bundleKey: String) -> some View {
-        YabaIconView(bundleKey: bundleKey)
-            .foregroundStyle(folderAccent)
-            .frame(width: 22, height: 22)
-            .padding()
     }
 
     @ViewBuilder

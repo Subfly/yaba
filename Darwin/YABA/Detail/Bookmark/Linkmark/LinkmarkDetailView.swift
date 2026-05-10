@@ -71,7 +71,7 @@ struct LinkmarkDetailView: View {
             if let bm = bookmark {
                 LinkmarkDetailInfoSheet(
                     bookmark: bm,
-                    folderAccent: folderColor(for: bm),
+                    folderAccent: BookmarkDetailChrome.folderAccent(for: bm),
                     reminderDate: machine.state.reminderDate,
                     onDeleteReminder: {
                         Task { await machine.send(.onCancelReminder) }
@@ -95,19 +95,10 @@ struct LinkmarkDetailView: View {
         .sheet(isPresented: machine.showMoveSheetBinding) {
             if let bm = bookmark {
                 NavigationStack {
-                    SelectFolderContent(
-                        mode: .bookmarksMove,
+                    BookmarkDetailMoveToFolderPickContent(
+                        bookmarkId: bm.bookmarkId,
                         contextFolderId: bm.folder?.folderId,
-                        contextBookmarkIds: [bm.bookmarkId],
-                        onPick: { target in
-                            if let target {
-                                AllBookmarksManager.queueMoveBookmarksToFolder(
-                                    bookmarkIds: [bm.bookmarkId],
-                                    targetFolderId: target
-                                )
-                            }
-                            machine.apply { $0.showMoveSheet = false }
-                        }
+                        onComplete: { machine.apply { $0.showMoveSheet = false } }
                     )
                 }
             }
@@ -128,51 +119,30 @@ struct LinkmarkDetailView: View {
             }
         }
         .sheet(isPresented: machine.showReminderSheetBinding) {
-            NavigationStack {
-                DatePicker(
-                    "Setup Reminder Picker Title",
-                    selection: $reminderDraft,
-                    in: Date()...,
-                    displayedComponents: [.date, .hourAndMinute]
-                )
-                .datePickerStyle(.graphical)
-                .padding()
-                .navigationTitle("Setup Reminder Title")
-                .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
-                        Button("Cancel") { machine.apply { $0.showReminderSheet = false } }
+            BookmarkDetailReminderPickerSheetContent(
+                reminderDraft: $reminderDraft,
+                onCancel: { machine.apply { $0.showReminderSheet = false } },
+                onConfirm: {
+                    Task {
+                        await machine.send(.onRequestNotificationPermission)
+                        await machine.send(
+                            .onScheduleReminder(
+                                fireAt: reminderDraft,
+                                titleKey: "Reminder Default Title",
+                                messageKey: "Reminder Default Body"
+                            )
+                        )
                     }
-                    ToolbarItem(placement: .confirmationAction) {
-                        Button("Done") {
-                            Task {
-                                await machine.send(.onRequestNotificationPermission)
-                                await machine.send(
-                                    .onScheduleReminder(
-                                        fireAt: reminderDraft,
-                                        titleKey: "Reminder Default Title",
-                                        messageKey: "Reminder Default Body"
-                                    )
-                                )
-                            }
-                            machine.apply { $0.showReminderSheet = false }
-                        }
-                    }
+                    machine.apply { $0.showReminderSheet = false }
                 }
-            }
+            )
         }
-        .alert("Delete Bookmark Title", isPresented: machine.showDeleteAlertBinding) {
-            Button("Cancel", role: .cancel) {}
-            Button("Delete", role: .destructive) {
-                Task {
-                    await machine.send(.onDeleteBookmark(bookmarkId: bookmarkId))
-                    dismiss()
-                }
-            }
-        } message: {
-            if let bm = bookmark {
-                Text("Delete Content Message \(bm.label)")
-            }
-        }
+        .bookmarkDetailDeleteBookmarkAlert(
+            isPresented: machine.showDeleteAlertBinding,
+            bookmarkLabel: bookmark?.label ?? "",
+            onDelete: { await machine.send(.onDeleteBookmark(bookmarkId: bookmarkId)) },
+            dismiss: dismiss
+        )
     }
 
     private var bookmark: YabaBookmark? { bookmarks.first }
@@ -180,10 +150,10 @@ struct LinkmarkDetailView: View {
     @ViewBuilder
     private func mainContent(for bm: YabaBookmark) -> some View {
         let hasReadable = linkHasReadableContent(bm)
-        let folderTint = folderColor(for: bm)
+        let folderTint = BookmarkDetailChrome.folderAccent(for: bm)
         ZStack(alignment: .bottom) {
             if hasReadable {
-                linkmarkReaderBackground(readerTheme: machine.state.readerTheme)
+                BookmarkDetailReaderChrome.readerSurfaceBackground(readerTheme: machine.state.readerTheme)
                     .ignoresSafeArea()
 
                 LinkmarkReadItLaterWebView(
@@ -211,7 +181,12 @@ struct LinkmarkDetailView: View {
                     onRuntimeReady: { _ in }
                 )
                 .ignoresSafeArea(edges: [.top, .bottom])
-                .preferredColorScheme(effectiveReaderColorScheme(readerTheme: machine.state.readerTheme))
+                .preferredColorScheme(
+                    BookmarkDetailReaderChrome.preferredColorScheme(
+                        readerTheme: machine.state.readerTheme,
+                        userInterfaceColorScheme: colorScheme
+                    )
+                )
 
                 LinkmarkReaderFloatingToolbar(
                     folderAccent: folderTint,
@@ -230,37 +205,23 @@ struct LinkmarkDetailView: View {
                     }
                 ).padding(.bottom, 14)
             } else {
-                LinkmarkNoReadableVersionView(accent: folderTint)
+                BookmarkDetailReaderChrome.linkReaderUnavailablePlaceholder(tint: folderTint)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                Button {
-                    dismiss()
-                } label: {
-                    homeToolbarIcon("arrow-left-01")
-                }
+            BookmarkDetailPrimaryToolbarPieces.backDismissButton { dismiss() }
+            BookmarkDetailPrimaryToolbarPieces.bookmarkInfoSheetGlyphButton {
+                machine.apply { $0.showDetailSheet = true }
             }
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    machine.apply { $0.showDetailSheet = true }
-                } label: {
-                    homeToolbarIcon("information-circle")
-                }
-            }
-            ToolbarSpacer(.fixed, placement: .topBarTrailing)
-            ToolbarItem(placement: .topBarTrailing) {
+            BookmarkDetailPrimaryToolbarPieces.trailingOverflowChrome {
                 overflowMenu(for: bm)
             }
         }
         .tint(folderTint)
     }
 
-    private func folderColor(for bm: YabaBookmark) -> Color {
-        bm.folder?.color.getUIColor() ?? .accentColor
-    }
 
     private func linkHasReadableContent(_ bm: YabaBookmark) -> Bool {
         let md = bm.linkDetail?.markdown ?? ""
@@ -273,23 +234,6 @@ struct LinkmarkDetailView: View {
 
     private func readerInlineAssets(for bm: YabaBookmark) -> [YabaInlineAssetPayload] {
         (bm.linkDetail?.inlineAssets ?? []).compactMap { YabaInlineAssetPayload(inlineAsset: $0) }
-    }
-
-    @ViewBuilder
-    private func linkmarkReaderBackground(readerTheme: ReaderTheme) -> some View {
-        if readerTheme == .sepia {
-            Color(red: 0.98, green: 0.95, blue: 0.88)
-        } else {
-            Color(.systemBackground)
-        }
-    }
-
-    private func effectiveReaderColorScheme(readerTheme: ReaderTheme) -> ColorScheme {
-        switch readerTheme {
-        case .light, .sepia: return .light
-        case .dark: return .dark
-        case .system: return colorScheme
-        }
     }
 
     private func linkSourceURL(for bm: YabaBookmark) -> URL? {
@@ -316,28 +260,31 @@ struct LinkmarkDetailView: View {
                 Button {
                     UIApplication.shared.open(u)
                 } label: {
-                    overflowMenuItemLabel("Bookmark Detail Open Link Action", icon: "link-04")
+                    BookmarkDetailOverflowRowLabel(
+                        title: "Bookmark Detail Open Link Action",
+                        iconBundleKey: "link-04"
+                    )
                 }
                 .tint(YabaColor.green.getUIColor())
             }
             Button {
                 machine.apply { $0.showEditSheet = true }
             } label: {
-                overflowMenuItemLabel("Edit", icon: "edit-02")
+                BookmarkDetailOverflowRowLabel(title: "Edit", iconBundleKey: "edit-02")
             }
             .tint(YabaColor.orange.getUIColor())
             Button {
                 machine.apply { $0.showMoveSheet = true }
             } label: {
-                overflowMenuItemLabel("Move", icon: "arrow-move-up-right")
+                BookmarkDetailOverflowRowLabel(title: "Move", iconBundleKey: "arrow-move-up-right")
             }
             .tint(YabaColor.teal.getUIColor())
             Button {
                 AllBookmarksManager.queueToggleBookmarkPinned(bookmarkId: bm.bookmarkId)
             } label: {
-                overflowMenuItemLabel(
-                    bm.isPinned ? "Bookmark Detail Unpin Action" : "Bookmark Detail Pin Action",
-                    icon: bm.isPinned ? "pin" : "pin-off"
+                BookmarkDetailOverflowRowLabel(
+                    title: bm.isPinned ? "Bookmark Detail Unpin Action" : "Bookmark Detail Pin Action",
+                    iconBundleKey: bm.isPinned ? "pin" : "pin-off"
                 )
             }
             .tint(YabaColor.yellow.getUIColor())
@@ -350,9 +297,9 @@ struct LinkmarkDetailView: View {
                     )
                 }
             } label: {
-                overflowMenuItemLabel(
-                    "Bookmark Detail Export Format Markdown Title",
-                    icon: "document-attachment"
+                BookmarkDetailOverflowRowLabel(
+                    title: "Bookmark Detail Export Format Markdown Title",
+                    iconBundleKey: "document-attachment"
                 )
             }
             .tint(YabaColor.gray.getUIColor())
@@ -360,14 +307,14 @@ struct LinkmarkDetailView: View {
                 Button {
                     machine.apply { $0.showReminderSheet = true }
                 } label: {
-                    overflowMenuItemLabel("Remind Me", icon: "notification-01")
+                    BookmarkDetailOverflowRowLabel(title: "Remind Me", iconBundleKey: "notification-01")
                 }
                 .tint(YabaColor.yellow.getUIColor())
             }
             Button {
                 machine.apply { $0.showShareURLSheet = true }
             } label: {
-                overflowMenuItemLabel("Share", icon: "share-03")
+                BookmarkDetailOverflowRowLabel(title: "Share", iconBundleKey: "share-03")
             }
             .tint(YabaColor.indigo.getUIColor())
             Divider()
@@ -375,9 +322,9 @@ struct LinkmarkDetailView: View {
                 Button {
                     Task { await machine.send(.onCancelReminder) }
                 } label: {
-                    overflowMenuItemLabel(
-                        "Bookmark Detail Cancel Reminder Action",
-                        icon: "notification-off-03"
+                    BookmarkDetailOverflowRowLabel(
+                        title: "Bookmark Detail Cancel Reminder Action",
+                        iconBundleKey: "notification-off-03"
                     )
                 }
                 .tint(YabaColor.red.getUIColor())
@@ -385,30 +332,11 @@ struct LinkmarkDetailView: View {
             Button {
                 machine.apply { $0.showDeleteAlert = true }
             } label: {
-                overflowMenuItemLabel("Delete", icon: "delete-02")
+                BookmarkDetailOverflowRowLabel(title: "Delete", iconBundleKey: "delete-02")
             }
             .tint(YabaColor.red.getUIColor())
         } label: {
-            homeToolbarIcon("more-horizontal-circle-02")
-        }
-    }
-
-    /// Same template size as `HomeCollectionView` section headers and `LinkmarkReaderFloatingToolbar` glyphs (22×22).
-    @ViewBuilder
-    private func homeToolbarIcon(_ bundleKey: String) -> some View {
-        YabaIconView(bundleKey: bundleKey)
-            .frame(width: 22, height: 22)
-    }
-
-    /// Plain label; color the row with `.tint(...)` on the `Button` or `Menu` (same pattern as `FolderDetailView` overflow actions).
-    @ViewBuilder
-    private func overflowMenuItemLabel(_ key: LocalizedStringKey, icon: String) -> some View {
-        Label {
-            Text(key)
-        } icon: {
-            YabaIconView(bundleKey: icon)
-                .scaledToFit()
-                .frame(width: 20, height: 20)
+            BookmarkDetailHomeToolbarGlyph(bundleKey: "more-horizontal-circle-02")
         }
     }
 
@@ -416,32 +344,6 @@ struct LinkmarkDetailView: View {
         (bm.linkDetail?.inlineAssets ?? []).compactMap { item in
             guard let bytes = item.bytes, !bytes.isEmpty else { return nil }
             return MarkdownExportInlineSource(assetId: item.assetId, pathExtension: item.pathExtension, bytes: bytes)
-        }
-    }
-}
-
-/// Same CUV pattern as the old reader-not-available empty state (legacy `ReaderView` was removed during the Darwin rebuild).
-private struct LinkmarkNoReadableVersionView: View {
-    let accent: Color
-
-    var body: some View {
-        ContentUnavailableView {
-            Label {
-                Text("Reader Not Available Title")
-                    .padding(.bottom)
-            } icon: {
-                YabaIconView(bundleKey: "cancel-square")
-                    .scaledToFit()
-                    .frame(width: 52, height: 52)
-                    .foregroundStyle(accent)
-                    .padding(.top)
-            }
-        } description: {
-            Text("Reader Not Available Description")
-                .padding(
-                    .horizontal,
-                    UIDevice.current.userInterfaceIdiom == .pad ? 52 : 0
-                )
         }
     }
 }

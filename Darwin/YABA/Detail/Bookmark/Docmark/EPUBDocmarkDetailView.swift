@@ -176,7 +176,7 @@ struct EPUBDocmarkDetailView: View {
 
     var body: some View {
         ZStack {
-            epubReaderBackground(readerTheme: machine.state.epubReaderTheme)
+            BookmarkDetailReaderChrome.readerSurfaceBackground(readerTheme: machine.state.epubReaderTheme)
                 .ignoresSafeArea()
 
             switch loadState {
@@ -196,21 +196,18 @@ struct EPUBDocmarkDetailView: View {
                 )
                 .ignoresSafeArea(edges: [.top, .bottom])
             case .failed:
-                ContentUnavailableView {
-                    Label {
-                        Text("Reader Not Available Title")
-                    } icon: {
-                        YabaIconView(bundleKey: "book-bookmark-02")
-                            .scaledToFit()
-                            .frame(width: 52, height: 52)
-                            .foregroundStyle(folderTint)
-                    }
-                } description: {
-                    Text("Reader Not Available Description")
-                }
+                BookmarkDetailReaderChrome.readerUnavailablePlaceholder(
+                    iconBundleKey: "book-bookmark-02",
+                    tint: folderTint
+                )
             }
         }
-        .preferredColorScheme(effectiveReaderColorScheme(readerTheme: machine.state.epubReaderTheme))
+        .preferredColorScheme(
+            BookmarkDetailReaderChrome.preferredColorScheme(
+                readerTheme: machine.state.epubReaderTheme,
+                userInterfaceColorScheme: colorScheme
+            )
+        )
         .safeAreaInset(edge: .bottom, spacing: 0) {
             if case .ready = loadState {
                 HStack {
@@ -246,25 +243,6 @@ struct EPUBDocmarkDetailView: View {
         }
         .onDisappear {
             tearDownLoadedPublication(deleteFile: true)
-        }
-    }
-
-    private func epubReaderBackground(readerTheme: ReaderTheme) -> SwiftUI.Color {
-        if readerTheme == .sepia {
-            Color(red: 0.98, green: 0.95, blue: 0.88)
-        } else {
-            Color(.systemBackground)
-        }
-    }
-
-    private func effectiveReaderColorScheme(readerTheme: ReaderTheme) -> ColorScheme {
-        switch readerTheme {
-        case .light, .sepia:
-            return .light
-        case .dark:
-            return .dark
-        case .system:
-            return colorScheme
         }
     }
 

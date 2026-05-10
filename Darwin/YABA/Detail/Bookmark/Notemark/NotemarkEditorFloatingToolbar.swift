@@ -28,7 +28,7 @@ struct NotemarkEditorFloatingToolbar: View {
         GlassEffectContainer(spacing: 18) {
             toolbarMenusRow
         }
-        .glassEffect(.regular.interactive())
+        .bookmarkFloatingReaderGlassEffectInteractive()
         .photosPicker(
             isPresented: $showGalleryPhotoPicker,
             selection: galleryPhotoItem,

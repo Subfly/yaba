@@ -181,19 +181,8 @@ struct CSVDocmarkDetailView: View {
     }
 
     private var emptyStateView: some View {
-        ContentUnavailableView {
-            Label {
-                Text("Reader Not Available Title")
-            } icon: {
-                YabaIconView(bundleKey: "csv-02")
-                    .scaledToFit()
-                    .frame(width: 52, height: 52)
-                    .foregroundStyle(folderTint)
-            }
-        } description: {
-            Text("Reader Not Available Description")
-        }
-        .padding()
+        BookmarkDetailReaderChrome.readerUnavailablePlaceholder(iconBundleKey: "csv-02", tint: folderTint)
+            .padding()
     }
     
     // MARK: — `Table` (iPhone + iPad)
