@@ -98,6 +98,8 @@ final class TagModel {
 final class BookmarkModel {
     var bookmarkId: String = UUID().uuidString
     var kindRaw: Int = BookmarkKind.link.rawValue
+    var mediaMarkTypeRaw: Int = MediaMarkType.image.rawValue
+    var docmarkTypeRaw: Int = DocmarkType.pdf.rawValue
     var label: String = ""
     var bookmarkDescription: String?
     var createdAt: Date = Date.now
@@ -130,6 +132,8 @@ final class BookmarkModel {
     init(
         bookmarkId: String = UUID().uuidString,
         kindRaw: Int = BookmarkKind.link.rawValue,
+        mediaMarkTypeRaw: Int = MediaMarkType.image.rawValue,
+        docmarkTypeRaw: Int = DocmarkType.pdf.rawValue,
         label: String = "",
         bookmarkDescription: String? = nil,
         createdAt: Date = .now,
@@ -140,6 +144,8 @@ final class BookmarkModel {
     ) {
         self.bookmarkId = bookmarkId
         self.kindRaw = kindRaw
+        self.mediaMarkTypeRaw = mediaMarkTypeRaw
+        self.docmarkTypeRaw = docmarkTypeRaw
         self.label = label
         self.bookmarkDescription = bookmarkDescription
         self.createdAt = createdAt

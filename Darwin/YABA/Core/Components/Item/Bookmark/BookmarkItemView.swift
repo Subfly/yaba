@@ -17,6 +17,26 @@ private func bookmarkItemShareURL(_ bookmark: BookmarkModel) -> URL? {
     return nil
 }
 
+/// Fallback list/card/grid thumbnail icon when preview image bytes are missing (uses denormalized subtype fields on ``BookmarkModel``).
+private func bookmarkItemPlaceholderThumbnailIconKey(_ bookmark: BookmarkModel) -> String {
+    switch bookmark.kind {
+    case .media:
+        switch MediaMarkType(rawValue: bookmark.mediaMarkTypeRaw) ?? .image {
+        case .image: return "image-03"
+        case .video: return "video-01"
+        case .audio: return "audio-wave-01"
+        }
+    case .file:
+        switch DocmarkType(rawValue: bookmark.docmarkTypeRaw) ?? .pdf {
+        case .pdf: return "pdf-02"
+        case .csv: return "csv-02"
+        case .epub: return "book-bookmark-02"
+        }
+    case .link, .note:
+        return bookmark.kind.getIconName()
+    }
+}
+
 struct BookmarkItemView: View {
     @AppStorage(Constants.preferredContentAppearanceKey)
     private var contentAppearance: ContentAppearance = .list
@@ -477,7 +497,7 @@ private struct BookmarkItemImage: View {
                 .fill(folderTint.opacity(0.3))
                 .frame(width: 50, height: 50)
                 .overlay {
-                    YabaIconView(bundleKey: bookmark.kind.getIconName())
+                    YabaIconView(bundleKey: bookmarkItemPlaceholderThumbnailIconKey(bookmark))
                         .scaledToFit()
                         .foregroundStyle(folderTint)
                         .frame(width: 32, height: 32)
@@ -489,7 +509,7 @@ private struct BookmarkItemImage: View {
                     .fill(folderTint.opacity(0.3))
                     .frame(height: 150)
                     .overlay {
-                        YabaIconView(bundleKey: bookmark.kind.getIconName())
+                        YabaIconView(bundleKey: bookmarkItemPlaceholderThumbnailIconKey(bookmark))
                             .scaledToFit()
                             .foregroundStyle(folderTint)
                             .frame(width: 96, height: 96)
@@ -499,7 +519,7 @@ private struct BookmarkItemImage: View {
                     .fill(folderTint.opacity(0.3))
                     .frame(width: 50, height: 50)
                     .overlay {
-                        YabaIconView(bundleKey: bookmark.kind.getIconName())
+                        YabaIconView(bundleKey: bookmarkItemPlaceholderThumbnailIconKey(bookmark))
                             .scaledToFit()
                             .foregroundStyle(folderTint)
                             .frame(width: 32, height: 32)
@@ -511,7 +531,7 @@ private struct BookmarkItemImage: View {
                 .frame(maxWidth: .infinity)
                 .frame(height: 128)
                 .overlay {
-                    YabaIconView(bundleKey: bookmark.kind.getIconName())
+                    YabaIconView(bundleKey: bookmarkItemPlaceholderThumbnailIconKey(bookmark))
                         .scaledToFit()
                         .foregroundStyle(folderTint)
                         .frame(width: 48, height: 48)

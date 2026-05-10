@@ -94,6 +94,7 @@ public enum MediamarkManager {
         if let originalData {
             row.originalData = originalData
         }
+        bookmark.mediaMarkTypeRaw = row.mediaMarkTypeRaw
         bookmark.editedAt = .now
     }
 

@@ -71,6 +71,7 @@ public enum DocmarkManager {
                 context.insert(payload)
                 row.payload = payload
             }
+            bookmark.docmarkTypeRaw = row.docmarkTypeRaw
             bookmark.editedAt = .now
         }
     }
@@ -95,6 +96,7 @@ public enum DocmarkManager {
         }
         if let summary { row.summary = summary.nilIfEmpty }
         if let docmarkType { row.docmarkTypeRaw = docmarkType.rawValue }
+        bookmark.docmarkTypeRaw = row.docmarkTypeRaw
         bookmark.editedAt = .now
     }
 
