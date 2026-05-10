@@ -15,10 +15,8 @@ struct ShareSheet: UIViewControllerRepresentable {
         let activityItems: [Any] = [self.bookmarkLink]
         let activityViewController = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
         activityViewController.modalPresentationStyle = .formSheet
-        #if !os(visionOS)
         let detents: [UISheetPresentationController.Detent] = [.medium()]
         activityViewController.sheetPresentationController?.detents = detents
-        #endif
         return activityViewController
     }
     

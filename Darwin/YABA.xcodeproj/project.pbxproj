@@ -155,6 +155,7 @@
 				Core/Components/Selection/SelectFolderContent.swift,
 				Core/Components/Selection/SelectTagsContent.swift,
 				Core/Components/Share/ShareSheet.swift,
+				Core/Components/Toast/CoreToastOverlayView.swift,
 				Core/Util/AnnouncementSeverity.swift,
 				Core/Util/CreationType.swift,
 				Core/Util/InverseLabelStyle.swift,
@@ -210,7 +211,6 @@
 			membershipExceptions = (
 				Assets.xcassets,
 				Core/Components/Share/ShareSheet.swift,
-				Core/Navigation/NavigationDestination.swift,
 				Core/Util/InverseLabelStyle.swift,
 				Core/Util/PreviewContentAppearance.swift,
 				Detail/Bookmark/Linkmark/LinkmarkReadItLaterWebView.swift,
@@ -261,15 +261,6 @@
 				Info.plist,
 			);
 			platformFiltersByRelativePath = {
-				Core/Components/ZoomablePannableView.swift = (ios, );
-				Core/Sync/Model/ConnectedDevice.swift = (ios, );
-				Core/Sync/Model/DeviceType.swift = (ios, );
-				Core/Sync/Model/NetworkSyncError.swift = (ios, );
-				Core/Sync/Model/SyncConflict.swift = (ios, );
-				Core/Sync/Model/SyncMergeResult.swift = (ios, );
-				Core/Sync/Model/SyncModels.swift = (ios, );
-				Core/Sync/Network/NetworkSyncManager.swift = (ios, );
-				Core/Sync/Network/NetworkSyncService.swift = (ios, );
 				LaunchScreen.storyboard = (ios, );
 				Search/SearchView.swift = (ios, );
 			};
@@ -1217,6 +1208,7 @@
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SUPPORTS_MACCATALYST = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited) WIDGET_EXTENSION";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
@@ -1259,6 +1251,7 @@
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SUPPORTS_MACCATALYST = NO;
+				"SWIFT_ACTIVE_COMPILATION_CONDITIONS[arch=*]" = WIDGET_EXTENSION;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
