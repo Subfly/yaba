@@ -7,6 +7,9 @@
 
 import Foundation
 import PDFKit
+#if os(macOS)
+import AppKit
+#endif
 
 public enum PDFMetadataExtractor {
     public static func extract(fromFile url: URL, renderScale: CGFloat = 1.2) -> PdfMetadataResult? {
@@ -76,6 +79,20 @@ public enum PDFMetadataExtractor {
         let size = CGSize(width: w, height: h)
 
         let image = page.thumbnail(of: size, for: .mediaBox)
+#if os(iOS)
         return image.pngData()
+#elseif os(macOS)
+        return pngData(from: image)
+#else
+        return nil
+#endif
     }
+
+#if os(macOS)
+    private static func pngData(from image: NSImage) -> Data? {
+        guard let tiff = image.tiffRepresentation,
+              let rep = NSBitmapImageRep(data: tiff) else { return nil }
+        return rep.representation(using: .png, properties: [:])
+    }
+#endif
 }

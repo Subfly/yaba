@@ -191,6 +191,48 @@ public enum ExportSupport {
 
 // MARK: - Directory picker (export destination)
 
+#if MENU_ITEM
+import AppKit
+
+/// Native macOS status-menu target (`MENU_ITEM`) links AppKit-only SwiftUI; UIKit picker APIs are unavailable.
+public struct ExportDirectoryPicker: View {
+    @Environment(\.dismiss) private var dismiss
+    @State private var didPresentPanel = false
+    public let onPicked: (URL?) -> Void
+
+    public init(onPicked: @escaping (URL?) -> Void) {
+        self.onPicked = onPicked
+    }
+
+    public var body: some View {
+        Color.clear
+            .frame(width: 1, height: 1)
+            .accessibilityHidden(true)
+            .onAppear {
+                guard !didPresentPanel else { return }
+                didPresentPanel = true
+                let panel = NSOpenPanel()
+                panel.canChooseFiles = false
+                panel.canChooseDirectories = true
+                panel.allowsMultipleSelection = false
+                panel.canCreateDirectories = true
+                panel.begin { response in
+                    DispatchQueue.main.async {
+                        defer { dismiss() }
+                        guard response == .OK, let url = panel.url else {
+                            onPicked(nil)
+                            return
+                        }
+                        onPicked(url)
+                    }
+                }
+            }
+    }
+}
+
+#else
+import UIKit
+
 public struct ExportDirectoryPicker: UIViewControllerRepresentable {
     public let onPicked: (URL?) -> Void
 
@@ -236,3 +278,4 @@ public struct ExportDirectoryPicker: UIViewControllerRepresentable {
         }
     }
 }
+#endif
