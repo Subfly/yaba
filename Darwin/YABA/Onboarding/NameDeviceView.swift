@@ -38,7 +38,9 @@ struct NameDeviceView: View {
                                 .foregroundStyle(.tint)
                         }
                     }
+                    #if !targetEnvironment(macCatalyst)
                     .listStyle(.sidebar)
+                    #endif
                     .listRowSeparator(.hidden)
                     .listRowSpacing(12)
                     .scrollContentBackground(.hidden)

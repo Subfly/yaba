@@ -133,7 +133,9 @@ struct DocmarkDetailInfoSheet: View {
                     sectionHeader("Tags Title", icon: "tag-01")
                 }
             }
+            #if !targetEnvironment(macCatalyst)
             .listStyle(.sidebar)
+            #endif
             .scrollContentBackground(.hidden)
             .tint(folderAccent)
             .navigationTitle("Bookmark Detail Sheet Navigation Title")

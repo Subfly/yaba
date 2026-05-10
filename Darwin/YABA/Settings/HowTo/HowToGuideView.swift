@@ -66,7 +66,9 @@ struct HowToGuideView: View {
                     generateHowToItem(for: .tips)
                     generateHowToItem(for: .widgets)
                 }
+                #if !targetEnvironment(macCatalyst)
                 .listStyle(.sidebar)
+                #endif
                 .listRowSpacing(12)
                 .scrollContentBackground(.hidden)
             }
@@ -91,7 +93,9 @@ struct HowToGuideView: View {
                 }
             }
             .presentationDetents([.large])
+            #if !targetEnvironment(macCatalyst)
             .presentationDragIndicator(.visible)
+            #endif
         }
     }
     

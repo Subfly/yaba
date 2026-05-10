@@ -37,6 +37,8 @@ struct BookmarkFlowSheet: View {
             }
         }
         .presentationDetents([.large])
+        #if !targetEnvironment(macCatalyst)
         .presentationDragIndicator(.visible)
+        #endif
     }
 }

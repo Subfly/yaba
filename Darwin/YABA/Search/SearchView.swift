@@ -173,7 +173,9 @@ private struct SearchableContent: View {
                 }
                 .listRowSpacing(contentAppearance == .list ? 0 : 8)
                 .scrollContentBackground(.hidden)
+                #if !targetEnvironment(macCatalyst)
                 .listStyle(.sidebar)
+                #endif
                 .scrollDismissesKeyboard(.immediately)
             }
         }

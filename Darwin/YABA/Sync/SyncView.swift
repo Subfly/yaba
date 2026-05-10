@@ -197,7 +197,9 @@ struct SyncView: View {
                 }
             }
         }
+        #if !targetEnvironment(macCatalyst)
         .listStyle(.sidebar)
+        #endif
         .scrollContentBackground(.hidden)
     }
     

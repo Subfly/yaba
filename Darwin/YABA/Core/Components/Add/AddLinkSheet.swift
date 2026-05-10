@@ -42,7 +42,9 @@ struct AddLinkSheet: View {
                 .autocorrectionDisabled()
                 .keyboardType(.URL)
         }
+        #if !targetEnvironment(macCatalyst)
         .listStyle(.sidebar)
+        #endif
         .navigationTitle(navigationTitleKey)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {

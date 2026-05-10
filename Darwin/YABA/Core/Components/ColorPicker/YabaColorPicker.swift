@@ -51,6 +51,8 @@ struct YabaColorPicker: View {
             }
         }
         .presentationDetents([.fraction(0.3)])
+        #if !targetEnvironment(macCatalyst)
         .presentationDragIndicator(.visible)
+        #endif
     }
 }

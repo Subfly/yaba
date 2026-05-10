@@ -372,7 +372,9 @@ private struct FolderSearchableContent: View {
                 .listRowSeparator(.hidden)
                 .listRowSpacing(contentAppearance == .list ? 0 : 8)
                 .scrollContentBackground(.hidden)
+                #if !targetEnvironment(macCatalyst)
                 .listStyle(.sidebar)
+                #endif
             }
         }
     }

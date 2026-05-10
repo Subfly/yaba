@@ -112,7 +112,10 @@ private struct SearchableContent: View {
                 ForEach(bookmarks) { bookmark in
                     BookmarkItemView(bookmark: bookmark)
                 }
-            }.listStyle(.sidebar)
+            }
+            #if !targetEnvironment(macCatalyst)
+            .listStyle(.sidebar)
+            #endif
         }
     }
 }

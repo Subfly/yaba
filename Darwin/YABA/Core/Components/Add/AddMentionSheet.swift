@@ -56,7 +56,9 @@ struct AddMentionSheet: View {
             }
             .buttonStyle(.plain)
         }
+        #if !targetEnvironment(macCatalyst)
         .listStyle(.sidebar)
+        #endif
         .navigationTitle("Add Mention Label")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {

@@ -26,7 +26,9 @@ internal struct EventsLogView: View {
                     generateLogView(log)
                 }
             }
+            #if !targetEnvironment(macCatalyst)
             .listStyle(.sidebar)
+            #endif
             .scrollContentBackground(.hidden)
             .background(.clear)
         }

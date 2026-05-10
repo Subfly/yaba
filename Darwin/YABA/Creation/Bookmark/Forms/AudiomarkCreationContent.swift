@@ -151,7 +151,9 @@ struct AudiomarkCreationContent: View {
                 )
             }
             .presentationDetents([.fraction(0.4)])
+            #if !targetEnvironment(macCatalyst)
             .presentationDragIndicator(.visible)
+            #endif
             .interactiveDismissDisabled()
         }
     }
@@ -249,12 +251,12 @@ struct AudiomarkCreationContent: View {
                 }
             }
         }
+        #if !targetEnvironment(macCatalyst)
         .listStyle(.sidebar)
+        #endif
         .scrollContentBackground(.hidden)
         .tint(mainTint)
-        #if !os(visionOS)
         .scrollDismissesKeyboard(.immediately)
-        #endif
         .navigationTitle(
             LocalizedStringKey(isEditing ? "Edit Bookmark Title" : "Create Bookmark Title")
         )

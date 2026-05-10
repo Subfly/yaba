@@ -173,7 +173,9 @@ struct NotemarkCreationContent: View {
                 }
             }
         }
+        #if !targetEnvironment(macCatalyst)
         .listStyle(.sidebar)
+        #endif
         .scrollContentBackground(.hidden)
         .tint(mainTint)
         #if !os(visionOS)

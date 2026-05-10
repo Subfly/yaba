@@ -169,7 +169,9 @@ struct LinkmarkDetailInfoSheet: View {
                 sectionHeader("Tags Title", icon: "tag-01")
             }
         }
+        #if !targetEnvironment(macCatalyst)
         .listStyle(.sidebar)
+        #endif
         .scrollContentBackground(.hidden)
     }
 

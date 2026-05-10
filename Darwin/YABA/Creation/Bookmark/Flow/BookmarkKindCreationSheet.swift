@@ -31,7 +31,9 @@ struct BookmarkKindCreationSheet: View {
         }
         .environment(\.bookmarkCreationOnCloseRequest, onCloseRequest)
         .presentationDetents([.large])
+        #if !targetEnvironment(macCatalyst)
         .presentationDragIndicator(.visible)
+        #endif
     }
 }
 

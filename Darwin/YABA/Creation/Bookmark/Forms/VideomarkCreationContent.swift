@@ -282,12 +282,12 @@ struct VideomarkCreationContent: View {
                 }
             }
         }
+        #if !targetEnvironment(macCatalyst)
         .listStyle(.sidebar)
+        #endif
         .scrollContentBackground(.hidden)
         .tint(mainTint)
-        #if !os(visionOS)
         .scrollDismissesKeyboard(.immediately)
-        #endif
         .navigationTitle(
             LocalizedStringKey(isEditing ? "Edit Bookmark Title" : "Create Bookmark Title")
         )

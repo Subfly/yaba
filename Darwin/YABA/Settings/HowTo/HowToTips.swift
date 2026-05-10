@@ -23,7 +23,9 @@ struct HowToTips: View {
                         .listRowSeparator(.hidden)
                 }
             }
+            #if !targetEnvironment(macCatalyst)
             .listStyle(.sidebar)
+            #endif
             .scrollContentBackground(.hidden)
         }.navigationTitle("How To Tips Title")
     }

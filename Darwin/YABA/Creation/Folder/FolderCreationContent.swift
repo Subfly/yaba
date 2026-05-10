@@ -125,7 +125,9 @@ struct FolderCreationContent: View {
             }
         }
         .presentationDetents([.fraction(0.4)])
+        #if !targetEnvironment(macCatalyst)
         .presentationDragIndicator(.visible)
+        #endif
         .task(id: existingFolderId) {
             await hydrateIfNeeded()
         }

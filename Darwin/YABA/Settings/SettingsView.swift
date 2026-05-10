@@ -100,7 +100,9 @@ struct SettingsView: View {
             developerSection
             #endif
         }
+        #if !targetEnvironment(macCatalyst)
         .listStyle(.sidebar)
+        #endif
         .scrollContentBackground(.hidden)
         .background(.clear)
         .navigationTitle("Settings Title")

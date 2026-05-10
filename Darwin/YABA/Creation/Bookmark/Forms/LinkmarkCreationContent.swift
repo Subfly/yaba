@@ -252,7 +252,9 @@ struct LinkmarkCreationContent: View {
                 onTagsNavigate: { showTagSheet = true }
             )
         }
+        #if !targetEnvironment(macCatalyst)
         .listStyle(.sidebar)
+        #endif
         .scrollContentBackground(.hidden)
         .tint(mainTint)
         #if !os(visionOS)

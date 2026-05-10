@@ -38,7 +38,9 @@ struct HomeView: View {
                 onSelectBookmark: onSelectBookmark
             )
             .scrollContentBackground(.hidden)
+            #if !targetEnvironment(macCatalyst)
             .listStyle(.sidebar)
+            #endif
             
             HomeCreateContentFAB(
                 isActive: $homeState.isFABActive,

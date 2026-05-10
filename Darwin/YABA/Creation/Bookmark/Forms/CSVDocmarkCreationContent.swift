@@ -162,7 +162,9 @@ struct CSVDocmarkCreationContent: View {
                 }
             }
         }
+        #if !targetEnvironment(macCatalyst)
         .listStyle(.sidebar)
+        #endif
         .scrollContentBackground(.hidden)
         .tint(mainTint)
         .scrollDismissesKeyboard(.immediately)

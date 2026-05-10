@@ -49,7 +49,9 @@ struct IconPickerView: View {
                         IconCategoryRow(category: category)
                     }
                 }
+                #if !targetEnvironment(macCatalyst)
                 .listStyle(.sidebar)
+                #endif
             }
         }
         .navigationTitle(Text("Pick Icon Category Title"))

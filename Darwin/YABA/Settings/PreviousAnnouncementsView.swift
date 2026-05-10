@@ -127,7 +127,9 @@ internal struct PreviousAnnouncementsView: View {
                     onDismiss: { }
                 )
             }
+            #if !targetEnvironment(macCatalyst)
             .listStyle(.sidebar)
+            #endif
             .scrollContentBackground(.hidden)
             .background(.clear)
         }

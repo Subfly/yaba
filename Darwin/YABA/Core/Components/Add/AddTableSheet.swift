@@ -26,7 +26,9 @@ struct AddTableSheet: View {
                 Text("Table Columns Label \(columnCount)")
             }
         }
+        #if !targetEnvironment(macCatalyst)
         .listStyle(.sidebar)
+        #endif
         .navigationTitle("Add Table Label")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {

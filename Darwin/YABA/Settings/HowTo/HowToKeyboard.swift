@@ -23,7 +23,9 @@ struct HowToKeyboard: View {
                         .listRowSeparator(.hidden)
                 }
             }
+            #if !targetEnvironment(macCatalyst)
             .listStyle(.sidebar)
+            #endif
             .scrollContentBackground(.hidden)
         }.navigationTitle("How To Keyboard Title")
     }
