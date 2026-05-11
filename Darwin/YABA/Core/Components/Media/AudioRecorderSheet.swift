@@ -117,6 +117,7 @@ struct AudioRecorderSheet: View {
                 .stroke(.white, lineWidth: 2)
                 .frame(width: 64, height: 64)
                 .glassEffect(.regular.tint(.red.opacity(0.8)).interactive())
+                .contentShape(.circle)
         }
         .buttonStyle(.plain)
         .animation(.smooth, value: phase)
@@ -134,6 +135,7 @@ struct AudioRecorderSheet: View {
                     Circle()
                         .stroke(Color.red, lineWidth: 2)
                 }
+                .contentShape(.circle)
         }
         .buttonStyle(.plain)
         .animation(.smooth, value: phase)
@@ -150,6 +152,7 @@ struct AudioRecorderSheet: View {
                     Circle().fill(.ultraThinMaterial)
                 }
                 .glassEffect(.regular.interactive())
+                .contentShape(.circle)
         }
         .buttonStyle(.plain)
     }
