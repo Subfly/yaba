@@ -29,49 +29,25 @@ struct AudiomarkDetailView: View {
     @State
     private var timer: Timer?
 
+    private var playbackClockFont: Font {
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            return .title2.weight(.medium)
+        } else {
+            return .body.weight(.medium)
+        }
+    }
+
     var body: some View {
-        VStack(spacing: 0) {
-            Spacer()
-            
-            AudioWaveformScrubber(
-                mode: .playback,
-                amplitudes: waveform,
-                duration: max(duration, 0.001),
-                currentTime: currentTime,
-                barColor: folderTint,
-                passedBarColor: .secondary.opacity(0.4),
-                allowsScrubbing: true,
-                onScrubBegan: {
-                    isScrubbing = true
-                },
-                onScrubChanged: { t in
-                    currentTime = t
-                    player?.currentTime = t
-                },
-                onScrubEnded: { t in
-                    currentTime = t
-                    player?.currentTime = t
-                    isScrubbing = false
-                }
-            )
-            .frame(height: 120)
-            .padding(.horizontal, 16)
-            .padding(.top, 16)
-
-            Spacer()
-
-            HStack(spacing: 28) {
-                controlButton(icon: "go-backward-5sec") {
-                    seek(by: -5)
-                }
-                controlButton(icon: isPlaying ? "pause" : "play", isBig: true) {
-                    togglePlayPause()
-                }
-                controlButton(icon: "go-forward-5sec") {
-                    seek(by: 5)
-                }
+        GeometryReader { geo in
+            let contentMaxWidth = AudiomarkDetailLayout.contentMaxWidth(containerWidth: geo.size.width)
+            HStack(spacing: 0) {
+                Spacer(minLength: 0)
+                columnContent
+                    .frame(maxWidth: contentMaxWidth)
+                    .frame(maxHeight: .infinity)
+                Spacer(minLength: 0)
             }
-            .padding(.bottom, 24)
+            .frame(width: geo.size.width, height: geo.size.height)
         }
         .task(id: bookmark.bookmarkId) {
             await setupAudio()
@@ -92,6 +68,70 @@ struct AudiomarkDetailView: View {
         }
     }
 
+    private var columnContent: some View {
+        VStack(spacing: 0) {
+            Spacer()
+
+            VStack(spacing: 52) {
+                AudioWaveformScrubber(
+                    mode: .playback,
+                    amplitudes: waveform,
+                    duration: max(duration, 0.001),
+                    currentTime: currentTime,
+                    barColor: folderTint,
+                    passedBarColor: .secondary.opacity(0.4),
+                    allowsScrubbing: true,
+                    onScrubBegan: {
+                        isScrubbing = true
+                    },
+                    onScrubChanged: { t in
+                        currentTime = t
+                        player?.currentTime = t
+                    },
+                    onScrubEnded: { t in
+                        currentTime = t
+                        player?.currentTime = t
+                        isScrubbing = false
+                    }
+                )
+                .frame(height: 120)
+
+                HStack {
+                    Text(formatElapsedClock(currentTime))
+                        .font(playbackClockFont)
+                        .monospacedDigit()
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Text(formatElapsedClock(duration))
+                        .font(playbackClockFont)
+                        .monospacedDigit()
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 16)
+
+            Spacer()
+
+            HStack(spacing: 28) {
+                controlButton(icon: "go-backward-5sec") {
+                    seek(by: -5)
+                }
+                controlButton(icon: isPlaying ? "pause" : "play", isBig: true) {
+                    togglePlayPause()
+                }
+                controlButton(icon: "go-forward-5sec") {
+                    seek(by: 5)
+                }
+            }
+            .padding(.bottom, 24)
+            
+            if UIDevice.current.userInterfaceIdiom == .pad {
+                Spacer()
+            }
+        }
+    }
+
     @ViewBuilder
     private func controlButton(
         icon: String,
@@ -107,6 +147,7 @@ struct AudiomarkDetailView: View {
                     height: isBig ? 72 : 54
                 )
                 .glassEffect(.regular.interactive())
+                .contentShape(.circle)
         }
         .buttonStyle(.plain)
     }
@@ -179,5 +220,38 @@ struct AudiomarkDetailView: View {
         let target = min(max(0, player.currentTime + seconds), max(0, duration))
         player.currentTime = target
         currentTime = target
+    }
+
+    private func formatElapsedClock(_ seconds: TimeInterval) -> String {
+        guard seconds.isFinite else {
+            return Duration.zero.formatted(
+                .time(pattern: .minuteSecond(padMinuteToLength: 2, roundFractionalSeconds: .down))
+            )
+        }
+        let sec = Int64(max(0, seconds).rounded(.towardZero))
+        let d = Duration(secondsComponent: sec, attosecondsComponent: 0)
+        if sec >= 3600 {
+            return d.formatted(.time(pattern: .hourMinuteSecond(padHourToLength: 2, roundFractionalSeconds: .down)))
+        }
+        return d.formatted(.time(pattern: .minuteSecond(padMinuteToLength: 2, roundFractionalSeconds: .down)))
+    }
+}
+
+// MARK: - Column width (iPhone full width; iPad / Mac constrained)
+
+private enum AudiomarkDetailLayout {
+    static func contentMaxWidth(containerWidth: CGFloat) -> CGFloat {
+        #if targetEnvironment(macCatalyst)
+        containerWidth * 0.7
+        #elseif os(iOS)
+        switch UIDevice.current.userInterfaceIdiom {
+        case .pad:
+            return containerWidth * 0.9
+        default:
+            return containerWidth
+        }
+        #else
+        containerWidth
+        #endif
     }
 }
