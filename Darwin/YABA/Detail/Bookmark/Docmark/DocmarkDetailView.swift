@@ -163,11 +163,12 @@ struct DocmarkDetailView: View {
     @ViewBuilder
     private func mainContent(for bm: YabaBookmark) -> some View {
         let folderTint = BookmarkDetailChrome.folderAccent(for: bm)
+        let docType = resolvedDocmarkType(for: bm)
         ZStack {
             Color(uiColor: .systemBackground)
                 .ignoresSafeArea()
 
-            switch resolvedDocmarkType(for: bm) {
+            switch docType {
             case .csv:
                 CSVDocmarkDetailView(
                     bookmarkId: bm.bookmarkId,
@@ -191,6 +192,45 @@ struct DocmarkDetailView: View {
         .toolbar {
             if showsBackButton {
                 BookmarkDetailPrimaryToolbarPieces.backDismissButton { dismiss() }
+            }
+            if docType == .epub, !DocmarkEpubReaderToolbarLayout.isIPhone {
+                ToolbarItem(placement: .topBarTrailing) {
+                    ReaderToolbarThemeMenu(
+                        folderAccent: folderTint,
+                        readerTheme: machine.state.epubReaderTheme,
+                        onSelectTheme: { theme in
+                            Task { await machine.send(.onSetEpubReaderTheme(theme)) }
+                        },
+                        menuIconPadding: 6
+                    )
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    ReaderToolbarFontMenu(
+                        folderAccent: folderTint,
+                        readerFontSize: machine.state.epubReaderFontSize,
+                        onSelectFontSize: { fontSize in
+                            Task { await machine.send(.onSetEpubReaderFontSize(fontSize)) }
+                        },
+                        menuIconPadding: 6
+                    )
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    ReaderToolbarLineHeightMenu(
+                        folderAccent: folderTint,
+                        readerLineHeight: machine.state.epubReaderLineHeight,
+                        onSelectLineHeight: { lineHeight in
+                            Task { await machine.send(.onSetEpubReaderLineHeight(lineHeight)) }
+                        },
+                        menuIconPadding: 6
+                    )
+                }
+                BookmarkDetailPrimaryToolbarPieces.fixedTrailingToolbarSpacer()
+            }
+            if docType == .epub, DocmarkEpubReaderToolbarLayout.isIPhone {
+                ToolbarItem(placement: .topBarTrailing) {
+                    epubReaderToolbarAppearanceRootMenu()
+                }
+                BookmarkDetailPrimaryToolbarPieces.fixedTrailingToolbarSpacer()
             }
             BookmarkDetailPrimaryToolbarPieces.bookmarkInfoSheetGlyphButton { showDetailSheet = true }
             BookmarkDetailPrimaryToolbarPieces.trailingOverflowChrome {
@@ -278,5 +318,82 @@ struct DocmarkDetailView: View {
         } label: {
             BookmarkDetailHomeToolbarGlyph(bundleKey: "more-horizontal-circle-02")
         }
+    }
+
+    @ViewBuilder
+    private func epubReaderToolbarAppearanceRootMenu() -> some View {
+        Menu {
+            Menu {
+                ForEach(ReaderTheme.allCases, id: \.self) { t in
+                    Button {
+                        Task { await machine.send(.onSetEpubReaderTheme(t)) }
+                    } label: {
+                        HStack {
+                            if machine.state.epubReaderTheme == t {
+                                Image(systemName: "checkmark")
+                            }
+                            Text(t.getUITitle())
+                        }
+                    }
+                }
+            } label: {
+                BookmarkDetailOverflowRowLabel(
+                    title: "Markdown Preview Background Color Options Label",
+                    iconBundleKey: "paint-bucket"
+                )
+            }
+            Menu {
+                ForEach(ReaderFontSize.allCases, id: \.self) { f in
+                    Button {
+                        Task { await machine.send(.onSetEpubReaderFontSize(f)) }
+                    } label: {
+                        HStack {
+                            if machine.state.epubReaderFontSize == f {
+                                Image(systemName: "checkmark")
+                            }
+                            Text(f.getUITitle())
+                        }
+                    }
+                }
+            } label: {
+                BookmarkDetailOverflowRowLabel(
+                    title: "Markdown Preview Font Size Options Label",
+                    iconBundleKey: "text-font"
+                )
+            }
+            Menu {
+                ForEach(ReaderLineHeight.allCases, id: \.self) { lh in
+                    Button {
+                        Task { await machine.send(.onSetEpubReaderLineHeight(lh)) }
+                    } label: {
+                        HStack {
+                            if machine.state.epubReaderLineHeight == lh {
+                                Image(systemName: "checkmark")
+                            }
+                            Text(lh.getUITitle())
+                        }
+                    }
+                }
+            } label: {
+                BookmarkDetailOverflowRowLabel(
+                    title: "Markdown Preview Line Height Options Label",
+                    iconBundleKey: "paragraph-spacing"
+                )
+            }
+        } label: {
+            BookmarkDetailHomeToolbarGlyph(bundleKey: "settings-05")
+        }
+    }
+}
+
+// MARK: - EPUB reader toolbar layout
+
+private enum DocmarkEpubReaderToolbarLayout {
+    static var isIPhone: Bool {
+        #if os(iOS)
+        UIDevice.current.userInterfaceIdiom == .phone
+        #else
+        false
+        #endif
     }
 }

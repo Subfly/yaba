@@ -9,21 +9,6 @@ import ReadiumNavigator
 import ReadiumShared
 import SwiftUI
 
-// MARK: - Toolbar navigation bridge
-
-@MainActor
-final class EpubNavigatorNavigationCoordinator {
-    weak var navigator: EPUBNavigatorViewController?
-
-    func goForward() async {
-        _ = await navigator?.goForward()
-    }
-
-    func goBackward() async {
-        _ = await navigator?.goBackward()
-    }
-}
-
 // MARK: - Readium preferences mapping
 
 private extension EPUBPreferences {
@@ -70,14 +55,12 @@ private extension EPUBPreferences {
 struct EpubReadiumNavigatorRepresentable: UIViewControllerRepresentable {
     let publication: Publication
     var preferences: EPUBPreferences
-    var navigationCoordinator: EpubNavigatorNavigationCoordinator
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(navigationCoordinator: navigationCoordinator)
+        Coordinator()
     }
 
     func makeUIViewController(context: Context) -> UIViewController {
-        navigationCoordinator.navigator = nil
         do {
             let nav = try EPUBNavigatorViewController(
                 publication: publication,
@@ -85,10 +68,8 @@ struct EpubReadiumNavigatorRepresentable: UIViewControllerRepresentable {
                 config: EPUBNavigatorViewController.Configuration(
                     preferences: preferences,
                     defaults: EPUBDefaults(),
-                    disablePageTurnsWhileScrolling: true
                 )
             )
-            navigationCoordinator.navigator = nav
             nav.delegate = context.coordinator
             nav.view.backgroundColor = .systemBackground
             return nav
@@ -101,7 +82,6 @@ struct EpubReadiumNavigatorRepresentable: UIViewControllerRepresentable {
 
     func updateUIViewController(_ uiViewController: UIViewController, context: Context) {
         guard let nav = uiViewController as? EPUBNavigatorViewController else { return }
-        navigationCoordinator.navigator = nav
         nav.delegate = context.coordinator
         nav.submitPreferences(preferences)
     }
@@ -110,38 +90,27 @@ struct EpubReadiumNavigatorRepresentable: UIViewControllerRepresentable {
         if let nav = uiViewController as? EPUBNavigatorViewController {
             nav.delegate = nil
         }
-        coordinator.navigationCoordinator.navigator = nil
     }
 
     final class Coordinator: EPUBNavigatorDelegate {
-        let navigationCoordinator: EpubNavigatorNavigationCoordinator
-
-        init(navigationCoordinator: EpubNavigatorNavigationCoordinator) {
-            self.navigationCoordinator = navigationCoordinator
-        }
-
         /// Extra breathing room inside device / SwiftUI chrome so body text clears bars and toolbars.
-        private static let innerPadding = UIEdgeInsets(top: 12, left: 16, bottom: 12, right: 16)
+        private static let innerPadding = UIEdgeInsets(top: 12, left: 0, bottom: 12, right: 0)
 
         func navigatorContentInset(_ navigator: VisualNavigator) -> UIEdgeInsets? {
             guard let epubVC = navigator as? EPUBNavigatorViewController else {
                 return nil
             }
-
+            
             let windowInsets = epubVC.view.window?.safeAreaInsets ?? .zero
             let viewInsets = epubVC.view.safeAreaInsets
-            let merged = UIEdgeInsets(
-                top: max(windowInsets.top, viewInsets.top),
-                left: max(windowInsets.left, viewInsets.left),
-                bottom: max(windowInsets.bottom, viewInsets.bottom),
-                right: max(windowInsets.right, viewInsets.right)
-            )
+            let top = max(windowInsets.top, viewInsets.top) + Self.innerPadding.top
+            let bottom = max(windowInsets.bottom, viewInsets.bottom) + Self.innerPadding.bottom
 
             return UIEdgeInsets(
-                top: merged.top + Self.innerPadding.top,
-                left: merged.left + Self.innerPadding.left,
-                bottom: merged.bottom + Self.innerPadding.bottom,
-                right: merged.right + Self.innerPadding.right
+                top: top,
+                left: Self.innerPadding.left,
+                bottom: bottom,
+                right: Self.innerPadding.right
             )
         }
 
@@ -154,7 +123,7 @@ struct EpubReadiumNavigatorRepresentable: UIViewControllerRepresentable {
 struct EPUBDocmarkDetailView: View {
     let epubData: Data
     let folderTint: SwiftUI.Color
-    
+
     @Bindable
     var machine: DocmarkDetailStateMachine
 
@@ -163,9 +132,6 @@ struct EPUBDocmarkDetailView: View {
 
     @State
     private var loadState: LoadState = .idle
-
-    @State
-    private var navigationCoordinator = EpubNavigatorNavigationCoordinator()
 
     private enum LoadState {
         case idle
@@ -191,8 +157,7 @@ struct EPUBDocmarkDetailView: View {
                         colorScheme: colorScheme,
                         fontSize: machine.state.epubReaderFontSize,
                         lineHeight: machine.state.epubReaderLineHeight
-                    ),
-                    navigationCoordinator: navigationCoordinator
+                    )
                 )
                 .ignoresSafeArea(edges: [.top, .bottom])
             case .failed:
@@ -208,36 +173,6 @@ struct EPUBDocmarkDetailView: View {
                 userInterfaceColorScheme: colorScheme
             )
         )
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            if case .ready = loadState {
-                HStack {
-                    Spacer(minLength: 0)
-                    EpubDocmarkReaderToolbar(
-                        folderAccent: folderTint,
-                        readerTheme: machine.state.epubReaderTheme,
-                        readerFontSize: machine.state.epubReaderFontSize,
-                        readerLineHeight: machine.state.epubReaderLineHeight,
-                        onPrevious: {
-                            Task { await navigationCoordinator.goBackward() }
-                        },
-                        onNext: {
-                            Task { await navigationCoordinator.goForward() }
-                        },
-                        onSelectTheme: { t in
-                            Task { await machine.send(.onSetEpubReaderTheme(t)) }
-                        },
-                        onSelectFontSize: { f in
-                            Task { await machine.send(.onSetEpubReaderFontSize(f)) }
-                        },
-                        onSelectLineHeight: { lh in
-                            Task { await machine.send(.onSetEpubReaderLineHeight(lh)) }
-                        }
-                    )
-                    Spacer(minLength: 0)
-                }
-                .padding(.bottom, 8)
-            }
-        }
         .task(id: epubData) {
             await openPublicationIfNeeded()
         }
