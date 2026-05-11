@@ -50,3 +50,27 @@ html[data-yaba-note-surface-mode="preview"] .yaba-note-preview-pane,
 html[data-yaba-note-surface-mode="editor"] .yaba-note-editor-pane {
   flex: 1;
 }
+
+/*
+ * Editor-only: Same horizontal rhythm as preview (Swift → `--yaba-reader-column-*`), but the scroll surface
+ * must stay full pane width — scrollbar hugs the WKWebView edge (`global.css` note for preview-scroll).
+ * Inset is applied only inside `.cm-scroller` padding; containment uses the editor pane width (not `100vw`).
+ */
+html[data-yaba-note-surface-mode="editor"] .yaba-note-editor-pane {
+  container-type: inline-size;
+  container-name: yaba-note-editor-pane;
+}
+
+/* `100cqw` = editor pane width (scrollbar stays flush with WKWebView; only content inset). */
+html[data-yaba-note-surface-mode="editor"]
+  body[data-yaba-page="note"]
+  .yaba-note-editor-pane
+  .yaba-editor-container[data-yaba-editor-root]
+  .cm-scroller {
+  --yn-pane-w: 100cqw;
+  --yn-cap: min(var(--yn-pane-w), calc(var(--yaba-reader-column-max-vw, 100) * 1vw));
+  --yn-margin: max(0px, calc((var(--yn-pane-w) - var(--yn-cap)) / 2));
+  --yn-pad: calc(var(--yaba-reader-column-pad-x-px, 0) * 1px);
+  padding-inline-start: calc(var(--yn-margin) + var(--yn-pad));
+  padding-inline-end: calc(var(--yn-margin) + var(--yn-pad));
+}

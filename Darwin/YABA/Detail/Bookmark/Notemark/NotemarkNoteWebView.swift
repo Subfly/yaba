@@ -191,12 +191,9 @@ struct NotemarkNoteWebView: UIViewRepresentable {
         private static func readerColumnLayoutForCurrentDevice() -> ReaderViewportColumnLayout {
             #if targetEnvironment(macCatalyst)
                 return ReaderViewportColumnLayout(maxWidthVWPercent: 70, horizontalPaddingPx: 16)
-            #elseif os(iOS)
-                if UIDevice.current.userInterfaceIdiom == .pad {
-                    return ReaderViewportColumnLayout(maxWidthVWPercent: 90, horizontalPaddingPx: 16)
-                }
+            #else
+                return ReaderViewportColumnLayout(maxWidthVWPercent: 100, horizontalPaddingPx: 0)
             #endif
-            return ReaderViewportColumnLayout(maxWidthVWPercent: 100, horizontalPaddingPx: 16)
         }
     }
 }

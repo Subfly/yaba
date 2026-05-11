@@ -137,7 +137,7 @@ export function initNoteBridge(
     unFocus: () => ed.unFocus(),
     exportMarkdown: () => ed.exportMarkdown(),
     getSyncedScrollFraction: () => "0",
-    setSyncedScrollFraction: () => {},
+    setSyncedScrollFraction: () => { },
     dispatch: (payload) => ed.dispatch(payload),
     replaceHighlightColorMark: (from, to, hex) => ed.replaceHighlightColorMark(from, to, hex),
     togglePreviewTaskCheckbox: (bracketOpen: number) => {
