@@ -130,8 +130,8 @@ struct EPUBDocmarkTableOfContentsSheet: View {
             .navigationTitle("ToC Navigation Title")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Close") {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Done") {
                         dismiss()
                     }
                 }

@@ -105,7 +105,7 @@ struct NotemarkDetailInfoSheet: View {
             bookmark.bookmarkDetailInfoFolderSection(onOpenFolder: onOpenFolder)
             bookmark.bookmarkDetailInfoTagsSection(onOpenTag: onOpenTag)
         }
-        .bookmarkDetailInfoListSurfaceOnly()
+        .bookmarkDetailInfoListSurfaceOnly(folderAccent: folderAccent)
     }
 
     private var imagesTabContent: some View {

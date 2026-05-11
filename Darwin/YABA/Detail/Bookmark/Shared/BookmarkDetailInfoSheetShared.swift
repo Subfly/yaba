@@ -236,19 +236,23 @@ private struct BookmarkDetailInfoSheetChromeModifier: ViewModifier {
     private var dismiss
 
     func body(content: Content) -> some View {
-        content
-            .listStyle(.insetGrouped)
-            .scrollContentBackground(.hidden)
-            .tint(folderAccent)
-            .navigationTitle("Bookmark Detail Sheet Navigation Title")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") {
-                        dismiss()
-                    }
+        ZStack {
+            AnimatedGradient(color: folderAccent)
+            content
+                .listStyle(.insetGrouped)
+                .scrollContentBackground(.hidden)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        .tint(folderAccent)
+        .navigationTitle("Bookmark Detail Sheet Navigation Title")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .confirmationAction) {
+                Button("Done") {
+                    dismiss()
                 }
             }
+        }
     }
 }
 
@@ -279,20 +283,28 @@ struct BookmarkDetailInfoCaptionValueRow: View {
 }
 
 extension View {
-    func bookmarkDetailInfoListSurfaceOnly() -> some View {
-        modifier(BookmarkDetailInfoListSurfaceOnlyModifier())
+    func bookmarkDetailInfoListSurfaceOnly(folderAccent: Color) -> some View {
+        modifier(BookmarkDetailInfoListSurfaceOnlyModifier(folderAccent: folderAccent))
     }
 }
 
 private struct BookmarkDetailInfoListSurfaceOnlyModifier: ViewModifier {
+    let folderAccent: Color
+
     func body(content: Content) -> some View {
-        #if !targetEnvironment(macCatalyst)
-        content
-            .listStyle(.sidebar)
-            .scrollContentBackground(.hidden)
-        #else
-        content
-            .scrollContentBackground(.hidden)
-        #endif
+        ZStack {
+            AnimatedGradient(color: folderAccent)
+            Group {
+                #if !targetEnvironment(macCatalyst)
+                content
+                    .listStyle(.sidebar)
+                    .scrollContentBackground(.hidden)
+                #else
+                content
+                    .scrollContentBackground(.hidden)
+                #endif
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
     }
 }

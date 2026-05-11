@@ -5361,9 +5361,6 @@
     "Changes:" : {
       "shouldTranslate" : false
     },
-    "Close" : {
-
-    },
     "Collection" : {
       "comment" : "Collection",
       "extractionState" : "manual",
