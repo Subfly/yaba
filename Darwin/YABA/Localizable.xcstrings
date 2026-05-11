@@ -1434,7 +1434,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Value copied to clipboard"
+            "value" : "Row value copied to clipboard"
           }
         }
       }

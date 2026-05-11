@@ -209,11 +209,19 @@ struct CSVDocmarkDetailView: View {
                         TableColumn(
                             columnHeading(rows[0][colIdx], columnIndex: colIdx)
                         ) { row in
-                            Text(at(row.cells, colIdx))
-                                .font(.footnote.monospaced())
-                                .multilineTextAlignment(.leading)
-                                .lineLimit(6)
-                                .fixedSize(horizontal: false, vertical: true)
+                            Button {
+                                copyCsvRowToClipboard(
+                                    headerCells: rows[0],
+                                    row: row,
+                                    columnCount: widths
+                                )
+                            } label: {
+                                Text(at(row.cells, colIdx))
+                                    .font(.footnote.monospaced())
+                                    .multilineTextAlignment(.leading)
+                                    .lineLimit(6)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
                         }
                         .width(min: 110, ideal: 134)
                     }
