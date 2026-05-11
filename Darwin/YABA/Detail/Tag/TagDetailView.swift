@@ -350,12 +350,9 @@ private struct TagSearchableContent: View {
                         }
                     }
                 }
-                .listRowSeparator(.hidden)
+                .listStyle(.insetGrouped)
                 .listRowSpacing(contentAppearance == .list ? 0 : 8)
                 .scrollContentBackground(.hidden)
-                #if !targetEnvironment(macCatalyst)
-                .listStyle(.sidebar)
-                #endif
             }
         }
     }
