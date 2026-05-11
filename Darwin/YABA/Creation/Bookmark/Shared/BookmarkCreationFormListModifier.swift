@@ -34,11 +34,7 @@ struct BookmarkCreationFormListModifier: ViewModifier {
 
     @ViewBuilder
     private func catalystListStyled(_ content: Content) -> some View {
-        #if !targetEnvironment(macCatalyst)
-        content.listStyle(.sidebar)
-        #else
-        content
-        #endif
+        content.listStyle(.insetGrouped)
     }
 }
 
