@@ -21,14 +21,10 @@ export interface YabaPreviewBridge {
   setWebChromeInsets: (topChromeInsetPx: number) => void
   setReaderColumnLayout: (layout: ReaderColumnLayoutPayload) => void
   setReaderPreferences: (preferences: Partial<ReaderPreferences>) => void
-  /** Normalized `[0,1]` scroll fraction of `.yaba-preview-scroll`. */
+  /** No-op stub — scroll sync disabled (native callers may still exist). */
   getSyncedScrollFraction: () => string
-  /** Apply fractional scroll after switching from editor (layout may lag one frame). */
-  setSyncedScrollFraction: (t: number) => void
-}
-
-function previewScrollEl(): HTMLElement | null {
-  return document.querySelector(".yaba-preview-scroll")
+  /** No-op stub — scroll sync disabled (native callers may still exist). */
+  setSyncedScrollFraction: (_t: number) => void
 }
 
 let latestMarkdown = ""
@@ -178,33 +174,8 @@ export function initPreviewBridge(api: { setMarkdownState: (md: string) => void 
       readerPreferences = { ...readerPreferences, ...prefs }
       applyReaderPreferences()
     },
-    getSyncedScrollFraction: () => {
-      try {
-        const el = previewScrollEl()
-        if (!el) return "0"
-        const denom = Math.max(1e-6, el.scrollHeight - el.clientHeight)
-        const frac = Math.max(0, Math.min(1, el.scrollTop / denom))
-        return String(frac)
-      } catch {
-        return "0"
-      }
-    },
-    setSyncedScrollFraction: (t: number) => {
-      const apply = (): void => {
-        try {
-          const el = previewScrollEl()
-          if (!el) return
-          const denom = Math.max(0, el.scrollHeight - el.clientHeight)
-          const tt = Number.isFinite(t) ? Math.max(0, Math.min(1, t)) : 0
-          el.scrollTo({ top: tt * denom, behavior: "auto" })
-        } catch {
-          /* ignore */
-        }
-      }
-      apply()
-      queueMicrotask(apply)
-      requestAnimationFrame(apply)
-    },
+    getSyncedScrollFraction: () => "0",
+    setSyncedScrollFraction: () => {},
   }
 
   postToYabaNativeHost({ type: "bridgeReady", feature: "preview" })

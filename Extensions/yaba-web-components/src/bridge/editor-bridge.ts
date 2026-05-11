@@ -56,10 +56,10 @@ export interface YabaEditorBridge {
   focus: () => void
   unFocus: () => void
   exportMarkdown: () => string
-  /** Normalized `[0,1]` scroll fraction of the Markdown edit surface (Codemirror scroll parent). */
+  /** No-op stub — scroll sync disabled (native callers may still exist). */
   getSyncedScrollFraction: () => string
-  /** Apply fractional scroll `[0,1]` after preview/editor surface switches — best-effort layout match. */
-  setSyncedScrollFraction: (t: number) => void
+  /** No-op stub — scroll sync disabled (native callers may still exist). */
+  setSyncedScrollFraction: (_t: number) => void
   /** Android `WebViewEditorBridge.dispatch` parity — CodeMirror command wiring lands incrementally. */
   dispatch: (payload: EditorCommandPayload) => void
   /** Replace `{#hex}` token range after native color pick (six lowercase hex digits, no `#`). */
@@ -349,34 +349,8 @@ export function initEditorBridge(
       const md = win.YabaEditorBridge?.getMarkdown() ?? ""
       return md.trimEnd() + "\n"
     },
-    getSyncedScrollFraction: () => {
-      try {
-        const dom = editorSurface?.view.scrollDOM
-        if (!dom) return "0"
-        const denom = Math.max(1e-6, dom.scrollHeight - dom.clientHeight)
-        const t = Math.max(0, Math.min(1, dom.scrollTop / denom))
-        return String(t)
-      } catch {
-        return "0"
-      }
-    },
-    setSyncedScrollFraction: (t: number) => {
-      try {
-        const dom = editorSurface?.view.scrollDOM
-        if (!dom) return
-        const denom = Math.max(0, dom.scrollHeight - dom.clientHeight)
-        const tt = Number.isFinite(t) ? Math.max(0, Math.min(1, t)) : 0
-        dom.scrollTo({ top: tt * denom, behavior: "auto" })
-        requestAnimationFrame(() => {
-          const d2 = editorSurface?.view.scrollDOM
-          if (!d2) return
-          const denom2 = Math.max(0, d2.scrollHeight - d2.clientHeight)
-          d2.scrollTo({ top: tt * denom2, behavior: "auto" })
-        })
-      } catch {
-        /* ignore */
-      }
-    },
+    getSyncedScrollFraction: () => "0",
+    setSyncedScrollFraction: () => {},
     dispatch: (payload: EditorCommandPayload) => {
       dispatchEditorNativeCommand(editorSurface?.view ?? null, payload)
       scheduleNoteAutosaveAfterEditorActivity()

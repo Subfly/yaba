@@ -35,8 +35,10 @@ export interface YabaNoteBridge {
   focus: YabaEditorBridge["focus"]
   unFocus: YabaEditorBridge["unFocus"]
   exportMarkdown: () => string
+  /** No-op stub — scroll sync disabled (native callers may still exist). */
   getSyncedScrollFraction: () => string
-  setSyncedScrollFraction: (t: number) => void
+  /** No-op stub — scroll sync disabled (native callers may still exist). */
+  setSyncedScrollFraction: (_t: number) => void
   dispatch: (payload: EditorCommandPayload) => void
   replaceHighlightColorMark: YabaEditorBridge["replaceHighlightColorMark"]
   /** Matches Darwin link preview checkbox toggle (UTF-16 indices). */
@@ -50,90 +52,6 @@ export interface YabaNoteBridge {
     hexDigitsNoHash: string,
   ) => void
   setSurfaceMode: (mode: YabaNoteSurfaceMode) => void
-}
-
-let scrollSyncDetach: (() => void) | null = null
-
-function getSurfaceMode(): YabaNoteSurfaceMode {
-  const m = document.documentElement.dataset.yabaNoteSurfaceMode
-  if (m === "preview" || m === "split") return m
-  return "editor"
-}
-
-function notePreviewScrollEl(): HTMLElement | null {
-  return document.querySelector(".yaba-note-root .yaba-preview-scroll")
-}
-
-function noteEditorScrollerEl(): HTMLElement | null {
-  return document.querySelector(".yaba-note-root .cm-scroller")
-}
-
-function fractionForEl(el: HTMLElement): number {
-  const denom = Math.max(1e-6, el.scrollHeight - el.clientHeight)
-  return Math.max(0, Math.min(1, el.scrollTop / denom))
-}
-
-function setFractionOnEl(el: HTMLElement, t: number): void {
-  const denom = Math.max(0, el.scrollHeight - el.clientHeight)
-  const tt = Number.isFinite(t) ? Math.max(0, Math.min(1, t)) : 0
-  el.scrollTo({ top: tt * denom, behavior: "auto" })
-  requestAnimationFrame(() => {
-    const denom2 = Math.max(0, el.scrollHeight - el.clientHeight)
-    el.scrollTo({ top: tt * denom2, behavior: "auto" })
-  })
-}
-
-function detachScrollSync(): void {
-  scrollSyncDetach?.()
-  scrollSyncDetach = null
-}
-
-function attachSplitScrollSync(): void {
-  detachScrollSync()
-  let syncing = false
-  const edEl = (): HTMLElement | null => noteEditorScrollerEl()
-  const prEl = (): HTMLElement | null => notePreviewScrollEl()
-
-  const run = (source: "editor" | "preview"): void => {
-    if (getSurfaceMode() !== "split") return
-    const a = edEl()
-    const b = prEl()
-    if (!a || !b) return
-    if (syncing) return
-    syncing = true
-    const t = fractionForEl(source === "editor" ? a : b)
-    const target = source === "editor" ? b : a
-    setFractionOnEl(target, t)
-    requestAnimationFrame(() => {
-      syncing = false
-    })
-  }
-
-  const onEditorScroll = (): void => run("editor")
-  const onPreviewScroll = (): void => run("preview")
-
-  const tryWire = (): boolean => {
-    const a = edEl()
-    const b = prEl()
-    if (!a || !b) return false
-    a.addEventListener("scroll", onEditorScroll, { passive: true })
-    b.addEventListener("scroll", onPreviewScroll, { passive: true })
-    scrollSyncDetach = () => {
-      a.removeEventListener("scroll", onEditorScroll)
-      b.removeEventListener("scroll", onPreviewScroll)
-    }
-    return true
-  }
-
-  if (tryWire()) return
-
-  let attempts = 0
-  const id = window.setInterval(() => {
-    attempts += 1
-    if (tryWire() || attempts > 80) {
-      window.clearInterval(id)
-    }
-  }, 32)
 }
 
 function wrapSetMarkdownToSyncPreview(
@@ -218,28 +136,8 @@ export function initNoteBridge(
     focus: () => ed.focus(),
     unFocus: () => ed.unFocus(),
     exportMarkdown: () => ed.exportMarkdown(),
-    getSyncedScrollFraction: () => {
-      const mode = getSurfaceMode()
-      if (mode === "preview") {
-        const el = notePreviewScrollEl()
-        if (!el) return "0"
-        return String(fractionForEl(el))
-      }
-      return ed.getSyncedScrollFraction()
-    },
-    setSyncedScrollFraction: (t: number) => {
-      const mode = getSurfaceMode()
-      if (mode === "preview") {
-        const el = notePreviewScrollEl()
-        if (el) setFractionOnEl(el, t)
-        return
-      }
-      ed.setSyncedScrollFraction(t)
-      if (mode === "split") {
-        const pel = notePreviewScrollEl()
-        if (pel) setFractionOnEl(pel, t)
-      }
-    },
+    getSyncedScrollFraction: () => "0",
+    setSyncedScrollFraction: () => {},
     dispatch: (payload) => ed.dispatch(payload),
     replaceHighlightColorMark: (from, to, hex) => ed.replaceHighlightColorMark(from, to, hex),
     togglePreviewTaskCheckbox: (bracketOpen: number) => {
@@ -262,11 +160,6 @@ export function initNoteBridge(
     },
     setSurfaceMode: (mode: YabaNoteSurfaceMode) => {
       document.documentElement.dataset.yabaNoteSurfaceMode = mode
-      if (mode === "split") {
-        queueMicrotask(() => attachSplitScrollSync())
-      } else {
-        detachScrollSync()
-      }
     },
   }
 
@@ -277,6 +170,5 @@ export function initNoteBridge(
 
   queueMicrotask(() => {
     opts.setPreviewMarkdown(ed.getMarkdown())
-    attachSplitScrollSync()
   })
 }
