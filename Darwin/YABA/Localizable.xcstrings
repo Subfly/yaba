@@ -5361,6 +5361,9 @@
     "Changes:" : {
       "shouldTranslate" : false
     },
+    "Close" : {
+
+    },
     "Collection" : {
       "comment" : "Collection",
       "extractionState" : "manual",
@@ -28020,6 +28023,26 @@
         }
       }
     },
+    "No ToC Description" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "YABA could not parse the ToC for this EPUB. Sorry."
+          }
+        }
+      }
+    },
+    "No ToC Title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ToC Not Found"
+          }
+        }
+      }
+    },
     "None Mapper Label" : {
       "comment" : "Label of None in mapper selection if user don't want to select any existing option",
       "extractionState" : "manual",
@@ -46565,6 +46588,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "系统"
+          }
+        }
+      }
+    },
+    "ToC Navigation Title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Table of Contents"
           }
         }
       }

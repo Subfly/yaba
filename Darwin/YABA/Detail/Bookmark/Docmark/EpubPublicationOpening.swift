@@ -1,5 +1,5 @@
 //
-//  EpubPublicationOpening.swift
+//  EPUBPublicationOpening.swift
 //  YABA
 //
 //  Loads a Readium ``Publication`` from persisted EPUB bytes for in-app reading (main target — Readium linked).
@@ -11,7 +11,7 @@ import ReadiumStreamer
 
 /// Opens packaged EPUB bytes with Readium for in-app reading (`ReadiumShared` + `ReadiumStreamer`).
 @MainActor
-enum EpubPublicationOpening {
+enum EPUBPublicationOpening {
     /// Returns the opened publication and the temporary `.epub` file URL. Caller must delete the temp file when finished.
     static func openPublication(fromEPUBData data: Data) async -> (publication: Publication, tempFileURL: URL)? {
         guard !data.isEmpty else { return nil }

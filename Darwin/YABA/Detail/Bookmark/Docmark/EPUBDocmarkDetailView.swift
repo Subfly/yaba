@@ -55,9 +55,10 @@ private extension EPUBPreferences {
 struct EpubReadiumNavigatorRepresentable: UIViewControllerRepresentable {
     let publication: Publication
     var preferences: EPUBPreferences
+    var tocBridge: EPUBDocmarkTOCBridge
 
     func makeCoordinator() -> Coordinator {
-        Coordinator()
+        Coordinator(tocBridge: tocBridge)
     }
 
     func makeUIViewController(context: Context) -> UIViewController {
@@ -72,27 +73,39 @@ struct EpubReadiumNavigatorRepresentable: UIViewControllerRepresentable {
             )
             nav.delegate = context.coordinator
             nav.view.backgroundColor = .systemBackground
+            context.coordinator.tocBridge.attach(navigator: nav)
             return nav
         } catch {
             let placeholder = UIViewController()
             placeholder.view.backgroundColor = .systemBackground
+            context.coordinator.tocBridge.attach(navigator: nil)
             return placeholder
         }
     }
 
     func updateUIViewController(_ uiViewController: UIViewController, context: Context) {
-        guard let nav = uiViewController as? EPUBNavigatorViewController else { return }
+        guard let nav = uiViewController as? EPUBNavigatorViewController else {
+            context.coordinator.tocBridge.attach(navigator: nil)
+            return
+        }
         nav.delegate = context.coordinator
         nav.submitPreferences(preferences)
+        context.coordinator.tocBridge.attach(navigator: nav)
     }
 
     static func dismantleUIViewController(_ uiViewController: UIViewController, coordinator: Coordinator) {
         if let nav = uiViewController as? EPUBNavigatorViewController {
             nav.delegate = nil
         }
+        coordinator.tocBridge.attach(navigator: nil)
     }
 
     final class Coordinator: EPUBNavigatorDelegate {
+        let tocBridge: EPUBDocmarkTOCBridge
+
+        init(tocBridge: EPUBDocmarkTOCBridge) {
+            self.tocBridge = tocBridge
+        }
         /// Extra breathing room inside device / SwiftUI chrome so body text clears bars and toolbars.
         private static let innerPadding = UIEdgeInsets(top: 12, left: 0, bottom: 12, right: 0)
 
@@ -127,6 +140,8 @@ struct EPUBDocmarkDetailView: View {
     @Bindable
     var machine: DocmarkDetailStateMachine
 
+    let tocBridge: EPUBDocmarkTOCBridge
+
     @Environment(\.colorScheme)
     private var colorScheme
 
@@ -157,7 +172,8 @@ struct EPUBDocmarkDetailView: View {
                         colorScheme: colorScheme,
                         fontSize: machine.state.epubReaderFontSize,
                         lineHeight: machine.state.epubReaderLineHeight
-                    )
+                    ),
+                    tocBridge: tocBridge
                 )
                 .ignoresSafeArea(edges: [.top, .bottom])
             case .failed:
@@ -178,6 +194,7 @@ struct EPUBDocmarkDetailView: View {
         }
         .onDisappear {
             tearDownLoadedPublication(deleteFile: true)
+            tocBridge.resetForUnload()
         }
     }
 
@@ -186,6 +203,7 @@ struct EPUBDocmarkDetailView: View {
             try? FileManager.default.removeItem(at: url)
         }
         if case .ready = loadState {
+            tocBridge.setPublication(nil)
             loadState = .idle
         }
     }
@@ -193,19 +211,23 @@ struct EPUBDocmarkDetailView: View {
     private func openPublicationIfNeeded() async {
         guard !epubData.isEmpty else {
             tearDownLoadedPublication(deleteFile: true)
+            tocBridge.setPublication(nil)
             loadState = .failed
             return
         }
 
         tearDownLoadedPublication(deleteFile: true)
+        tocBridge.setPublication(nil)
 
         loadState = .loading
 
-        guard let result = await EpubPublicationOpening.openPublication(fromEPUBData: epubData) else {
+        guard let result = await EPUBPublicationOpening.openPublication(fromEPUBData: epubData) else {
             loadState = .failed
+            tocBridge.setPublication(nil)
             return
         }
 
+        tocBridge.setPublication(result.publication)
         loadState = .ready(publication: result.publication, tempURL: result.tempFileURL)
     }
 }

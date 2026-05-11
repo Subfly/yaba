@@ -47,6 +47,12 @@ struct DocmarkDetailView: View {
     @State
     private var reminderDraft = Date().addingTimeInterval(3600)
 
+    @State
+    private var epubTocBridge = EPUBDocmarkTOCBridge()
+
+    @State
+    private var showEpubTocSheet = false
+
     init(
         bookmarkId: String,
         onOpenFolder: @escaping (String) -> Void = { _ in },
@@ -156,6 +162,15 @@ struct DocmarkDetailView: View {
             onDelete: { await machine.send(.onDeleteBookmark(bookmarkId: bookmarkId)) },
             dismiss: dismiss
         )
+        .sheet(isPresented: $showEpubTocSheet) {
+            if let bm = bookmark {
+                EPUBDocmarkTableOfContentsSheet(
+                    bridge: epubTocBridge,
+                    folderTint: BookmarkDetailChrome.folderAccent(for: bm),
+                    dismiss: { showEpubTocSheet = false }
+                )
+            }
+        }
     }
 
     private var bookmark: YabaBookmark? { bookmarks.first }
@@ -184,7 +199,8 @@ struct DocmarkDetailView: View {
                 EPUBDocmarkDetailView(
                     epubData: bm.docDetail?.payload?.bytes ?? Data(),
                     folderTint: folderTint,
-                    machine: machine
+                    machine: machine,
+                    tocBridge: epubTocBridge
                 )
             }
         }
@@ -194,6 +210,14 @@ struct DocmarkDetailView: View {
                 BookmarkDetailPrimaryToolbarPieces.backDismissButton { dismiss() }
             }
             if docType == .epub, !DocmarkEpubReaderToolbarLayout.isIPhone {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        showEpubTocSheet = true
+                    } label: {
+                        BookmarkDetailHomeToolbarGlyph(bundleKey: "left-to-right-list-triangle")
+                    }
+                }
+                BookmarkDetailPrimaryToolbarPieces.fixedTrailingToolbarSpacer()
                 ToolbarItem(placement: .topBarTrailing) {
                     ReaderToolbarThemeMenu(
                         folderAccent: folderTint,
@@ -227,6 +251,14 @@ struct DocmarkDetailView: View {
                 BookmarkDetailPrimaryToolbarPieces.fixedTrailingToolbarSpacer()
             }
             if docType == .epub, DocmarkEpubReaderToolbarLayout.isIPhone {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        showEpubTocSheet = true
+                    } label: {
+                        BookmarkDetailHomeToolbarGlyph(bundleKey: "left-to-right-list-triangle")
+                    }
+                }
+                BookmarkDetailPrimaryToolbarPieces.fixedTrailingToolbarSpacer()
                 ToolbarItem(placement: .topBarTrailing) {
                     epubReaderToolbarAppearanceRootMenu()
                 }
