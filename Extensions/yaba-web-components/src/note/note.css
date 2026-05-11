@@ -1,0 +1,52 @@
+/* Unified notemark: editor + preview in one document — mode controlled via `html[data-yaba-note-surface-mode]`. */
+
+html[data-yaba-note-surface-mode="editor"] .yaba-note-preview-pane {
+  display: none;
+}
+
+html[data-yaba-note-surface-mode="preview"] .yaba-note-editor-pane {
+  display: none;
+}
+
+html[data-yaba-note-surface-mode="split"] .yaba-note-editor-pane,
+html[data-yaba-note-surface-mode="split"] .yaba-note-preview-pane {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+
+.yaba-note-editor-pane {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+
+.yaba-note-preview-pane {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+
+html[data-yaba-note-surface-mode="split"] .yaba-note-root {
+  flex-direction: row;
+}
+
+html[data-yaba-note-surface-mode="split"] .yaba-note-editor-pane {
+  border-right: 1px solid color-mix(in srgb, var(--yaba-outline, currentColor) 35%, transparent);
+}
+
+body[data-yaba-page="note"] {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+html[data-yaba-note-surface-mode="preview"] .yaba-note-preview-pane,
+html[data-yaba-note-surface-mode="editor"] .yaba-note-editor-pane {
+  flex: 1;
+}

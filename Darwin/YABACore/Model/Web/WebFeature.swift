@@ -2,7 +2,7 @@
 //  WebFeature.swift
 //  YABACore
 //
-//  Bundled web shells for Darwin: CodeMirror editor (`editor.html`) and Markdown preview (`preview.html`).
+//  Bundled web shells for Darwin: `editor.html`, `preview.html`, unified notemark `note.html`.
 //  Aligns with `YabaNativeHostFeature` in yaba-web-components.
 //
 
@@ -30,6 +30,18 @@ public enum WebFeature: Sendable {
         appearance: WebAppearance
     )
 
+    /// Notemark unified editor + preview (`note.html`, `YabaNoteBridge`, `bridgeReady`: `note`).
+    case note(
+        initialMarkdown: String,
+        assetsBaseUrl: String?,
+        placeholderText: String?,
+        appearance: WebAppearance,
+        readerTheme: ReaderTheme,
+        readerFontSize: ReaderFontSize,
+        readerLineHeight: ReaderLineHeight,
+        documentLoadGeneration: Int
+    )
+
     /// `bridgeReady` `feature` string from the web layer (`native-host.ts`).
     public var expectedBridgeFeature: String {
         switch self {
@@ -37,6 +49,8 @@ public enum WebFeature: Sendable {
             return "editor"
         case .readItLater:
             return "preview"
+        case .note:
+            return "note"
         }
     }
 }

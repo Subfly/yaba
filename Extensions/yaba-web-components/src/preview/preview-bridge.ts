@@ -89,7 +89,7 @@ function applyReaderPreferences(): void {
   })
 }
 
-function applyReaderColumnLayoutToDocument(layout: ReaderColumnLayoutPayload): void {
+export function applyReaderColumnLayoutToDocument(layout: ReaderColumnLayoutPayload): void {
   const root = document.documentElement
   const w = Number.isFinite(layout.maxWidthVWPercent)
     ? Math.max(1, Math.min(100, layout.maxWidthVWPercent))

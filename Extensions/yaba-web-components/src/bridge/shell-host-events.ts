@@ -41,7 +41,7 @@ export function setNoteEditorAutosaveIdleEnabled(enabled: boolean): void {
 
 export function scheduleNoteAutosaveAfterEditorActivity(): void {
   const page = typeof document !== "undefined" ? document.body?.dataset.yabaPage : undefined
-  if (page !== "editor" || !noteEditorAutosaveIdleEnabled) return
+  if ((page !== "editor" && page !== "note") || !noteEditorAutosaveIdleEnabled) return
   clearNoteAutosaveIdleTimer()
   noteAutosaveIdleTimer = setTimeout(() => {
     noteAutosaveIdleTimer = null

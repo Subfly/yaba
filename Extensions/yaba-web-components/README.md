@@ -1,6 +1,6 @@
 # YABA Web Components
 
-WebView-hosted bundles for YABA: **CodeMirror 6** Markdown note editor (GFM), **markdown preview** (`react-markdown` + GFM + sanitized HTML for Darwin link reading), plus a standalone **`dist/html-to-markdown.bundle.min.js`** (linkedom + Mozilla Readability, then unified/rehype/remark + GFM) for Darwin JavaScriptCore. Built with Vite 7, React 19 (editor + preview), and TypeScript.
+WebView-hosted bundles for YABA: **CodeMirror 6** Markdown note editor (GFM), **markdown preview** (`react-markdown` + GFM + sanitized HTML for Darwin link reading), **unified notemark** (`note.html`: editor + live preview + split in one `WKWebView`), plus a standalone **`dist/html-to-markdown.bundle.min.js`** (linkedom + Mozilla Readability, then unified/rehype/remark + GFM) for Darwin JavaScriptCore. Built with Vite 7, React 19 (editor + preview + note), and TypeScript.
 
 ## Build
 
@@ -9,7 +9,7 @@ npm install
 npm run build
 ```
 
-Output: `dist/editor.html`, `dist/preview.html`, `dist/html-to-markdown.bundle.min.js`, plus JS/CSS assets. Run `npm run dev` for local development.
+Output: `dist/editor.html`, `dist/preview.html`, `dist/note.html`, `dist/html-to-markdown.bundle.min.js`, plus JS/CSS assets. Run `npm run dev` for local development.
 
 ## Entrypoints
 
@@ -17,6 +17,7 @@ Output: `dist/editor.html`, `dist/preview.html`, `dist/html-to-markdown.bundle.m
 |------|---------|
 | `editor.html` | CodeMirror Markdown note editor (GFM) |
 | `preview.html` | Saved link **Markdown** reader: `react-markdown` + `remark-gfm` + sanitized raw HTML; `YabaPreviewBridge`; `bridgeReady`: `preview` |
+| `note.html` | **Darwin notemark detail** — CodeMirror + `react-markdown` preview in one document; `YabaNoteBridge`; `bridgeReady`: `note`; `setSurfaceMode(editor|preview|split)` |
 | `html-to-markdown.bundle.min.js` | No HTML shell: `globalThis.HTMLToMarkdown(html, baseURL?)` → JSON `{ markdown, assets }` for Darwin JSC |
 
 ## URL parameters

@@ -23,4 +23,8 @@ public enum WebBridgeScripts {
     public static let previewBridgeReadyLoose = """
     (function(){ try { return !!(window.YabaPreviewBridge && window.YabaPreviewBridge.isReady); } catch(e){ return false; } })();
     """
+
+    public static let noteBridgeReady = """
+    (function(){ try { return !!(window.YabaNoteBridge && window.YabaNoteBridge.isReady && window.YabaNoteBridge.isReady()); } catch(e){ return false; } })();
+    """
 }

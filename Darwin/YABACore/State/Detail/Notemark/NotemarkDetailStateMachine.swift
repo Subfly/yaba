@@ -113,11 +113,11 @@ public final class NotemarkDetailStateMachine: YabaBaseObservableState<NotemarkD
     // MARK: - Editor snapshot (WKWebView bridge)
 
     public func persistEditorSnapshot(runtime: WKWebViewRuntime) async {
-        guard let md = try? await runtime.evaluateJavaScriptStringResult(WebEditorBridgeScripts.getMarkdown()) else {
+        guard let md = try? await runtime.evaluateJavaScriptStringResult(WebNoteBridgeScripts.getMarkdown()) else {
             return
         }
         let usedSrcsEncoded =
-            (try? await runtime.evaluateJavaScriptStringResult(WebEditorBridgeScripts.getUsedInlineAssetSrcs())) ?? "[]"
+            (try? await runtime.evaluateJavaScriptStringResult(WebNoteBridgeScripts.getUsedInlineAssetSrcs())) ?? "[]"
         let srcs = Self.parseInlineAssetSrcArray(from: usedSrcsEncoded)
         await send(.onSave(document: md, usedInlineAssetSrcs: srcs))
     }
@@ -132,7 +132,7 @@ public final class NotemarkDetailStateMachine: YabaBaseObservableState<NotemarkD
             return
         }
         Task {
-            let md = (try? await runtime.evaluateJavaScriptStringResult(WebEditorBridgeScripts.exportMarkdown())) ?? ""
+            let md = (try? await runtime.evaluateJavaScriptStringResult(WebNoteBridgeScripts.exportMarkdown())) ?? ""
             await MainActor.run {
                 self.startMarkdownExport(markdown: md, bookmarkLabel: bookmarkLabel, inlineSources: [])
             }

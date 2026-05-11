@@ -164,7 +164,7 @@ function applyWebChromeInsetsToDocument(topChromeInsetPx: number): void {
 
 function applyReaderPreferences(): void {
   const page = document.body?.dataset.yabaPage
-  const useReaderAppearancePipeline = page === "editor"
+  const useReaderAppearancePipeline = page === "editor" || page === "note"
 
   if (useReaderAppearancePipeline) {
     if (readerPreferences.theme === "system") {
@@ -209,7 +209,8 @@ function resolvedEditorAppearanceIsDark(): boolean {
 
 function syncEditorCodemirrorDarkTheme(): void {
   if (!editorSurface) return
-  if (document.body?.dataset.yabaPage !== "editor") return
+  const page = document.body?.dataset.yabaPage
+  if (page !== "editor" && page !== "note") return
   editorSurface.syncCodemirrorDarkTheme(resolvedEditorAppearanceIsDark())
 }
 
@@ -227,9 +228,15 @@ function wireViewActivity(viewActivityRef: { current: ((u: ViewUpdate) => void) 
   }
 }
 
+export type InitEditorBridgeOptions = {
+  /** When true, skip posting `bridgeReady` (unified `note.html` posts `feature: "note"`). */
+  suppressBridgeReady?: boolean
+}
+
 export function initEditorBridge(
   surface: EditorSurface,
   viewActivityRef: { current: ((u: ViewUpdate) => void) | null },
+  options?: InitEditorBridgeOptions,
 ): void {
   editorSurface = surface
   editorShellLoadNotified = false
@@ -306,7 +313,8 @@ export function initEditorBridge(
           publishShellLoad("loaded")
         }
         queueMicrotask(() => {
-          if (document.body?.dataset.yabaPage === "editor") {
+          const page = document.body?.dataset.yabaPage
+          if (page === "editor" || page === "note") {
             setNoteEditorAutosaveIdleEnabled(true)
           }
         })
@@ -395,7 +403,7 @@ export function initEditorBridge(
 
   applyReaderPreferences()
 
-  if (document.body?.dataset.yabaPage === "editor") {
+  if (document.body?.dataset.yabaPage === "editor" && !options?.suppressBridgeReady) {
     postToYabaNativeHost({ type: "bridgeReady", feature: "editor" })
   }
 }

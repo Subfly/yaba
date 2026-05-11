@@ -11,9 +11,10 @@ export default defineConfig({
   build: {
     outDir: "dist",
     rollupOptions: {
-      input: {
+        input: {
         editor: resolve(__dirname, "editor.html"),
         preview: resolve(__dirname, "preview.html"),
+        note: resolve(__dirname, "note.html"),
       },
       output: {
         entryFileNames: "[name].js",

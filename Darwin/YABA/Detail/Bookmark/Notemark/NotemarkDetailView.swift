@@ -8,7 +8,7 @@ import SwiftUI
 import WebKit
 import PhotosUI
 
-/// SwiftData-driven note bookmark detail + CodeMirror editor host (`editor.html`).
+/// SwiftData-driven note bookmark detail + unified `note.html` editor/preview host.
 /// Sheet/export state lives on ``NotemarkDetailStateMachine`` (parity with ``LinkmarkDetailView`` / ``LinkmarkDetailStateMachine``).
 struct NotemarkDetailView: View {
     let bookmarkId: String
@@ -16,72 +16,60 @@ struct NotemarkDetailView: View {
     let onOpenTag: (String) -> Void
     let onOpenBookmark: (String) -> Void
     var showsBackButton: Bool = true
-
+    
     @Environment(\.dismiss)
     private var dismiss
-
+    
     @Environment(\.colorScheme)
     private var colorScheme
-
+    
     @Query
     private var bookmarks: [YabaBookmark]
-
+    
     @State
     private var machine = NotemarkDetailStateMachine()
-
+    
     @State
     private var reminderDraft = Date().addingTimeInterval(3600)
-
+    
     @State
-    private var editorRuntime: WKWebViewRuntime?
-
-    @State
-    private var previewRuntime: WKWebViewRuntime?
-
-    @State
-    private var previewSurfaceMarkdown: String = ""
-
-    @State
-    private var editorScrollHydrate = NotemarkWebScrollHydrate.inactive
-
-    @State
-    private var previewScrollHydrate = NotemarkWebScrollHydrate.inactive
-
+    private var noteRuntime: WKWebViewRuntime?
+    
     @State
     private var isSoftwareKeyboardVisible = false
-
+    
     @State
     private var showAddLinkSheet = false
-
+    
     @State
     private var addLinkSheetMode: AddLinkSheetMode = .link
-
+    
     @State
     private var showAddTableSheet = false
-
+    
     @State
     private var showAddMentionSheet = false
-
+    
     @State
     private var notemarkGalleryPhotoItem: PhotosPickerItem?
-
-    #if !targetEnvironment(macCatalyst)
+    
+#if !targetEnvironment(macCatalyst)
     @State
     private var showNotemarkCameraCapture = false
-    #endif
-
+#endif
+    
     @State
     private var highlightColorMarkEdit: HighlightColorMarkTapEvent?
-
+    
     @State
     private var previewHighlightMarkEdit: PreviewHighlightMarkTapEvent?
-
+    
     @State
     private var highlightColorPick: YabaColor = .yellow
-
+    
     @State
     private var showHighlightColorSheet = false
-
+    
     init(
         bookmarkId: String,
         onOpenFolder: @escaping (String) -> Void = { _ in },
@@ -100,7 +88,7 @@ struct NotemarkDetailView: View {
         d.fetchLimit = 1
         _bookmarks = Query(d, animation: .smooth)
     }
-
+    
     var body: some View {
         Group {
             if let bm = bookmark {
@@ -187,9 +175,9 @@ struct NotemarkDetailView: View {
                 AddLinkSheet(mode: addLinkSheetMode) { text, url in
                     switch addLinkSheetMode {
                     case .link:
-                        dispatchEditorCommand(YabaEditorDispatchPayload.insertLink(text: text, url: url))
+                        dispatchNoteCommand(YabaEditorDispatchPayload.insertLink(text: text, url: url))
                     case .image:
-                        dispatchEditorCommand(YabaEditorDispatchPayload.insertLink(text: text, url: url, asImage: true))
+                        dispatchNoteCommand(YabaEditorDispatchPayload.insertLink(text: text, url: url, asImage: true))
                     }
                     showAddLinkSheet = false
                 }
@@ -198,7 +186,7 @@ struct NotemarkDetailView: View {
         .sheet(isPresented: $showAddTableSheet) {
             NavigationStack {
                 AddTableSheet { rows, cols in
-                    dispatchEditorCommand(YabaEditorDispatchPayload.insertTable(rows: rows, cols: cols, withHeaderRow: false))
+                    dispatchNoteCommand(YabaEditorDispatchPayload.insertTable(rows: rows, cols: cols, withHeaderRow: false))
                     showAddTableSheet = false
                 }
             }
@@ -206,12 +194,12 @@ struct NotemarkDetailView: View {
         .sheet(isPresented: $showAddMentionSheet) {
             NavigationStack {
                 AddMentionSheet(excludeBookmarkId: bookmarkId) { text, url in
-                    dispatchEditorCommand(YabaEditorDispatchPayload.insertLink(text: text, url: url))
+                    dispatchNoteCommand(YabaEditorDispatchPayload.insertLink(text: text, url: url))
                     showAddMentionSheet = false
                 }
             }
         }
-        #if !targetEnvironment(macCatalyst)
+#if !targetEnvironment(macCatalyst)
         .fullScreenCover(isPresented: $showNotemarkCameraCapture) {
             CameraCapturePicker(
                 onDismiss: { showNotemarkCameraCapture = false },
@@ -222,13 +210,13 @@ struct NotemarkDetailView: View {
                         data: data,
                         bookmarkId: bm.bookmarkId,
                         storedPathExtension: "png",
-                        onAssetPersisted: { dispatchEditorCommand($0) }
+                        onAssetPersisted: { dispatchNoteCommand($0) }
                     )
                 }
             )
             .ignoresSafeArea()
         }
-        #endif
+#endif
         .sheet(isPresented: $showHighlightColorSheet) {
             YabaColorPicker(selection: $highlightColorPick, onDismiss: {
                 handleHighlightColorPickerDismissed()
@@ -241,9 +229,20 @@ struct NotemarkDetailView: View {
             dismiss: dismiss
         )
     }
-
+    
     private var bookmark: YabaBookmark? { bookmarks.first }
-
+    
+    private var notemarkSurfaceModeToolbarIconKey: String {
+        switch machine.state.surfaceMode {
+        case .editor:
+            return "edit-01"
+        case .preview:
+            return "book-open-01"
+        case .split:
+            return "column-insert"
+        }
+    }
+    
     @ViewBuilder
     private func mainContent(for bm: YabaBookmark) -> some View {
         let folderTint = BookmarkDetailChrome.folderAccent(for: bm)
@@ -256,69 +255,44 @@ struct NotemarkDetailView: View {
         ZStack(alignment: .bottom) {
             Color(uiColor: .systemBackground)
                 .ignoresSafeArea()
-
-            ZStack {
-                NotemarkEditorWebView(
-                    markdown: markdown,
-                    inlineAssets: notemarkPreviewInlineAssets(for: bm),
-                    readerPreferences: readerPreferences,
-                    appearance: .auto,
-                    markdownScrollHydrate: editorScrollHydrate,
-                    onHostEvent: { event in
-                        handleEditorHostEvent(event)
-                    },
-                    onPersistDocument: { runtime in
-                        await machine.persistEditorSnapshot(runtime: runtime)
-                    },
-                    onRuntimeReady: { runtime in
-                        editorRuntime = runtime
-                        sendSurfaceModeAnnouncement(to: runtime)
-                    },
-                    onHighlightColorMarkTap: { ev in
-                        previewHighlightMarkEdit = nil
-                        highlightColorPick = YabaColor.fromPaletteHexDigits(ev.hexDigits) ?? .blue
-                        highlightColorMarkEdit = ev
-                        showHighlightColorSheet = true
+            
+            NotemarkNoteWebView(
+                markdown: markdown,
+                inlineAssets: notemarkPreviewInlineAssets(for: bm),
+                readerPreferences: readerPreferences,
+                appearance: .auto,
+                surfaceMode: machine.state.surfaceMode,
+                onHostEvent: { event in
+                    handleNoteHostEvent(event)
+                },
+                onPersistDocument: { runtime in
+                    await machine.persistEditorSnapshot(runtime: runtime)
+                },
+                onRuntimeReady: { runtime in
+                    noteRuntime = runtime
+                },
+                onHighlightColorMarkTap: { ev in
+                    previewHighlightMarkEdit = nil
+                    highlightColorPick = YabaColor.fromPaletteHexDigits(ev.hexDigits) ?? .blue
+                    highlightColorMarkEdit = ev
+                    showHighlightColorSheet = true
+                },
+                onInlineLinkTap: handlePreviewInlineLinkTap,
+                onPreviewHighlightMarkTap: { ev in
+                    highlightColorMarkEdit = nil
+                    let digits = ev.hexDigits.trimmingCharacters(in: .whitespacesAndNewlines)
+                        .replacingOccurrences(of: "#", with: "").lowercased()
+                    highlightColorPick = YabaColor.fromPaletteHexDigits(digits) ?? .yellow
+                    previewHighlightMarkEdit = ev
+                    showHighlightColorSheet = true
+                },
+                onPreviewTaskCheckboxTap: { ev in
+                    Task { @MainActor in
+                        await handlePreviewTaskCheckboxTapInWeb(bracketOpen: ev.bracketOpen)
                     }
-                )
-                .id(bm.bookmarkId)
-                .opacity(machine.state.surfaceMode == .editor ? 1 : 0)
-                .allowsHitTesting(machine.state.surfaceMode == .editor)
-                .accessibilityHidden(machine.state.surfaceMode != .editor)
-
-                NotemarkPreviewWebView(
-                    markdown: previewSurfaceMarkdown,
-                    inlineAssets: notemarkPreviewInlineAssets(for: bm),
-                    readerPreferences: readerPreferences,
-                    appearance: .auto,
-                    markdownScrollHydrate: previewScrollHydrate,
-                    onHostEvent: { event in
-                        handlePreviewHostEvent(event)
-                    },
-                    onInlineLinkTap: handlePreviewInlineLinkTap,
-                    onRuntimeReady: { runtime in
-                        previewRuntime = runtime
-                        sendSurfaceModeAnnouncement(to: runtime)
-                    },
-                    onPreviewHighlightMarkTap: { ev in
-                        highlightColorMarkEdit = nil
-                        let digits = ev.hexDigits.trimmingCharacters(in: .whitespacesAndNewlines)
-                            .replacingOccurrences(of: "#", with: "").lowercased()
-                        highlightColorPick = YabaColor.fromPaletteHexDigits(digits) ?? .yellow
-                        previewHighlightMarkEdit = ev
-                        showHighlightColorSheet = true
-                    },
-                    onPreviewTaskCheckboxTap: { ev in
-                        Task { @MainActor in
-                            await applyPreviewTaskCheckboxToggle(bracketOpen: ev.bracketOpen, bookmarkId: bm.bookmarkId)
-                        }
-                    },
-                )
-                .id("\(bm.bookmarkId)-preview")
-                .opacity(machine.state.surfaceMode == .preview ? 1 : 0)
-                .allowsHitTesting(machine.state.surfaceMode == .preview)
-                .accessibilityHidden(machine.state.surfaceMode != .preview)
-            }
+                }
+            )
+            .id(bm.bookmarkId)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .ignoresSafeArea(edges: [.top, .bottom])
             .preferredColorScheme(
@@ -327,15 +301,16 @@ struct NotemarkDetailView: View {
                     userInterfaceColorScheme: colorScheme
                 )
             )
-
+            
             HStack {
                 Spacer(minLength: 0)
                 NotemarkEditorFloatingToolbar(
                     folderAccent: folderTint,
-                    isVisible: machine.state.surfaceMode == .editor,
-                    showsDoneButton: machine.state.surfaceMode == .editor && isSoftwareKeyboardVisible,
+                    isVisible: machine.state.surfaceMode == .editor || machine.state.surfaceMode == .split,
+                    showsDoneButton: (machine.state.surfaceMode == .editor || machine.state.surfaceMode == .split)
+                    && isSoftwareKeyboardVisible,
                     onDispatch: { payload in
-                        dispatchEditorCommand(payload)
+                        dispatchNoteCommand(payload)
                     },
                     onRequestAddLinkSheet: { mode in
                         addLinkSheetMode = mode
@@ -362,15 +337,20 @@ struct NotemarkDetailView: View {
             .padding(.bottom, 14)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .onAppear {
+            if UIDevice.current.userInterfaceIdiom != .pad, machine.state.surfaceMode == .split {
+                machine.apply { $0.surfaceMode = .editor }
+            }
+        }
         .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
-            guard machine.state.surfaceMode == .editor else { return }
+            guard machine.state.surfaceMode == .editor || machine.state.surfaceMode == .split else { return }
             isSoftwareKeyboardVisible = true
         }
         .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
             isSoftwareKeyboardVisible = false
         }
         .onChange(of: machine.state.surfaceMode) { _, newMode in
-            if newMode != .editor {
+            if newMode == .preview {
                 isSoftwareKeyboardVisible = false
             }
         }
@@ -381,10 +361,10 @@ struct NotemarkDetailView: View {
             }
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
-                    notemarkSurfaceModeToggleTapped(for: bm)
+                    notemarkSurfaceModeToggleTapped()
                 } label: {
                     BookmarkDetailHomeToolbarGlyph(
-                        bundleKey: machine.state.surfaceMode == .editor ? "edit-01" : "book-open-01"
+                        bundleKey: notemarkSurfaceModeToolbarIconKey
                     )
                 }
                 .animation(.smooth, value: machine.selectedMode)
@@ -409,15 +389,14 @@ struct NotemarkDetailView: View {
                     machine.handlePickedInlineImage(
                         data: data,
                         bookmarkId: bm.bookmarkId,
-                        onAssetPersisted: { dispatchEditorCommand($0) }
+                        onAssetPersisted: { dispatchNoteCommand($0) }
                     )
                     notemarkGalleryPhotoItem = nil
                 }
             }
         }
     }
-
-
+    
     private func noteMarkdown(for bm: YabaBookmark) -> String {
         guard let data = bm.noteDetail?.payload?.documentBody,
               let s = String(data: data, encoding: .utf8)
@@ -426,12 +405,12 @@ struct NotemarkDetailView: View {
         }
         return s
     }
-
+    
     private func notemarkPreviewInlineAssets(for bm: YabaBookmark) -> [YabaInlineAssetPayload] {
         (bm.noteDetail?.inlineAssets ?? []).compactMap { YabaInlineAssetPayload(inlineAsset: $0) }
     }
-
-    private func handleEditorHostEvent(_ event: WebHostEvent) {
+    
+    private func handleNoteHostEvent(_ event: WebHostEvent) {
         switch event {
         case let .initialContentLoad(loadResult):
             let loadDetail = (loadResult == .loaded) ? #"{"result":"loaded"}"# : #"{"result":"error"}"#
@@ -442,114 +421,89 @@ struct NotemarkDetailView: View {
             break
         }
     }
-
-    private func sendSurfaceModeAnnouncement(to runtime: WKWebViewRuntime) {
+    
+    private func notemarkSurfaceModeToggleTapped() {
         Task { @MainActor in
-            let mode = machine.state.surfaceMode
-            let script = WebNotemarkBridgeScripts.dispatchSurfaceModeChange(mode)
-            _ = try? await runtime.evaluateJavaScriptStringResult(script)
+            await performNotemarkSurfaceModeAdvance()
         }
     }
-
-    private func notemarkSurfaceModeToggleTapped(for bm: YabaBookmark) {
-        Task { @MainActor in
-            await performNotemarkSurfaceModeToggle(bookmark: bm)
-        }
-    }
-
+    
     @MainActor
-    private func performNotemarkSurfaceModeToggle(bookmark bm: YabaBookmark) async {
-        let nextMode: NotemarkDetailSurfaceMode = machine.state.surfaceMode == .editor ? .preview : .editor
-
-        if machine.state.surfaceMode == .editor, nextMode == .preview {
-            let fraction = await readEditorScrollFraction()
-            let md = await readEditorMarkdown(bookmark: bm)
-            previewSurfaceMarkdown = md
-            previewScrollHydrate.enqueueFraction(fraction)
+    private func performNotemarkSurfaceModeAdvance() async {
+        let current = machine.state.surfaceMode
+        let next = advanceNotemarkSurfaceMode(from: current)
+        
+        if current == .editor, next == .preview {
             await resignNotemarkEditorFirstResponder()
-        } else if machine.state.surfaceMode == .preview, nextMode == .editor {
-            let fraction = await readPreviewScrollFraction()
-            editorScrollHydrate.enqueueFraction(fraction)
         }
-
+        
         withAnimation(.smooth) {
-            machine.apply { $0.surfaceMode = nextMode }
-        }
-        await broadcastSurfaceModeToBothRuntimes()
-    }
-
-    @MainActor
-    private func broadcastSurfaceModeToBothRuntimes() async {
-        let mode = machine.state.surfaceMode
-        let script = WebNotemarkBridgeScripts.dispatchSurfaceModeChange(mode)
-        if let editorRuntime {
-            _ = try? await editorRuntime.evaluateJavaScriptStringResult(script)
-        }
-        if let previewRuntime {
-            _ = try? await previewRuntime.evaluateJavaScriptStringResult(script)
+            machine.apply { $0.surfaceMode = next }
         }
     }
-
-    private func readEditorScrollFraction() async -> Double {
-        guard let rt = editorRuntime else { return 0 }
-        guard let js = try? await rt.evaluateJavaScriptStringResult(WebEditorBridgeScripts.getSyncedScrollFraction()) else {
-            return 0
+    
+    private func advanceNotemarkSurfaceMode(from current: NotemarkDetailSurfaceMode) -> NotemarkDetailSurfaceMode {
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            switch current {
+            case .editor:
+                return .preview
+            case .preview:
+                return .split
+            case .split:
+                return .editor
+            }
+        } else {
+            switch current {
+            case .editor:
+                return .preview
+            case .preview:
+                return .editor
+            case .split:
+                return .editor
+            }
         }
-        return parseNormalizedScrollFraction(js)
     }
-
-    private func readPreviewScrollFraction() async -> Double {
-        guard let rt = previewRuntime else { return 0 }
-        guard let js = try? await rt.evaluateJavaScriptStringResult(WebPreviewBridgeScripts.getSyncedScrollFraction()) else {
-            return 0
-        }
-        return parseNormalizedScrollFraction(js)
-    }
-
-    private func readEditorMarkdown(bookmark bm: YabaBookmark) async -> String {
-        if let rt = editorRuntime,
-           let md = try? await rt.evaluateJavaScriptStringResult(WebEditorBridgeScripts.getMarkdown())
-        {
-            return md
-        }
-        return noteMarkdown(for: bm)
-    }
-
-    private func parseNormalizedScrollFraction(_ js: String) -> Double {
-        Double(js.trimmingCharacters(in: .whitespacesAndNewlines)) ?? 0
-    }
-
-    private func dispatchEditorCommand(_ payload: String) {
+    
+    private func dispatchNoteCommand(_ payload: String) {
         Task { @MainActor in
-            guard let rt = editorRuntime else { return }
-            _ = try? await rt.evaluateJavaScriptStringResult(WebEditorBridgeScripts.dispatchCommand(payload))
+            guard let rt = noteRuntime else { return }
+            _ = try? await rt.evaluateJavaScriptStringResult(WebNoteBridgeScripts.dispatchCommand(payload))
         }
     }
-
+    
     private func handleHighlightColorPickerDismissed() {
         showHighlightColorSheet = false
-
+        
         let previewEv = previewHighlightMarkEdit
         previewHighlightMarkEdit = nil
-
+        
         let editorEv = highlightColorMarkEdit
         highlightColorMarkEdit = nil
-
+        
         let hex =
-            highlightColorPick.canonicalHexDigits ?? YabaColor.yellow.canonicalHexDigits ?? "ffcc00"
-
+        highlightColorPick.canonicalHexDigits ?? YabaColor.yellow.canonicalHexDigits ?? "ffcc00"
+        
         if let previewEv {
             Task { @MainActor in
-                await applyPreviewHighlightRecolor(ev: previewEv, newHexDigits: hex, bookmarkId: bookmarkId)
+                guard let rt = noteRuntime else { return }
+                _ = try? await rt.evaluateJavaScriptStringResult(
+                    WebNoteBridgeScripts.replacePreviewHighlightSyntax(
+                        syntaxStart: previewEv.syntaxStart,
+                        syntaxEnd: previewEv.syntaxEnd,
+                        innerStart: previewEv.innerStart,
+                        innerEnd: previewEv.innerEnd,
+                        hexDigits: hex
+                    )
+                )
             }
             return
         }
-
+        
         guard let editorEv else { return }
         Task { @MainActor in
-            guard let rt = editorRuntime else { return }
+            guard let rt = noteRuntime else { return }
             _ = try? await rt.evaluateJavaScriptStringResult(
-                WebEditorBridgeScripts.replaceHighlightColorMark(
+                WebNoteBridgeScripts.replaceHighlightColorMark(
                     from: editorEv.from,
                     to: editorEv.to,
                     hexDigits: hex
@@ -557,65 +511,29 @@ struct NotemarkDetailView: View {
             )
         }
     }
-
+    
     @MainActor
-    private func applyPreviewHighlightRecolor(ev: PreviewHighlightMarkTapEvent, newHexDigits: String, bookmarkId: String)
-        async {
-        var md = previewSurfaceMarkdown
-        let ns = md as NSString
-        let len = ns.length
-        guard ev.syntaxStart >= 0, ev.syntaxEnd <= len, ev.innerStart >= 0, ev.innerEnd <= len,
-              ev.innerEnd >= ev.innerStart, ev.syntaxEnd >= ev.innerEnd else { return }
-
-        let inner = ns.substring(with: NSRange(location: ev.innerStart, length: ev.innerEnd - ev.innerStart))
-        let replacement = "=={#\(newHexDigits)}" + inner + "=="
-        md = ns.replacingCharacters(
-            in: NSRange(location: ev.syntaxStart, length: ev.syntaxEnd - ev.syntaxStart),
-            with: replacement
+    private func handlePreviewTaskCheckboxTapInWeb(bracketOpen: Int) async {
+        guard let rt = noteRuntime else { return }
+        _ = try? await rt.evaluateJavaScriptStringResult(
+            WebNoteBridgeScripts.togglePreviewTaskCheckbox(bracketOpen: bracketOpen)
         )
-        await persistMarkdownShared(md, bookmarkId: bookmarkId)
     }
-
-    @MainActor
-    private func applyPreviewTaskCheckboxToggle(bracketOpen: Int, bookmarkId: String) async {
-        var md = previewSurfaceMarkdown
-        let ns = md as NSString
-        let len = ns.length
-        guard bracketOpen >= 0, bracketOpen + 2 < len else { return }
-        let innerRange = NSRange(location: bracketOpen + 1, length: 1)
-        let ch = ns.substring(with: innerRange)
-        let newCh = ch.lowercased() == "x" ? " " : "x"
-        md = ns.replacingCharacters(in: innerRange, with: newCh)
-        await persistMarkdownShared(md, bookmarkId: bookmarkId)
-    }
-
-    @MainActor
-    private func persistMarkdownShared(_ md: String, bookmarkId: String) async {
-        previewSurfaceMarkdown = md
-        let data = Data(md.utf8)
-        await machine.send(.saveDocument(bookmarkId: bookmarkId, data: data))
-        if let rt = editorRuntime {
-            _ = try? await rt.evaluateJavaScriptStringResult(WebEditorBridgeScripts.setMarkdown(md, assetsBaseUrl: nil))
-        }
-        if let pr = previewRuntime {
-            _ = try? await pr.evaluateJavaScriptStringResult(WebPreviewBridgeScripts.setMarkdown(md))
-        }
-    }
-
+    
     @MainActor
     private func resignNotemarkEditorFirstResponder() async {
-        if let rt = editorRuntime {
-            _ = try? await rt.evaluateJavaScriptStringResult(WebEditorBridgeScripts.unFocus())
+        if let rt = noteRuntime {
+            _ = try? await rt.evaluateJavaScriptStringResult(WebNoteBridgeScripts.unFocus())
         }
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
-
+    
     private func dismissNotemarkEditorKeyboard() {
         Task { @MainActor in
             await resignNotemarkEditorFirstResponder()
         }
     }
-
+    
     private func handlePreviewInlineLinkTap(_ event: InlineLinkTapEvent) {
         let trimmed = event.url.trimmingCharacters(in: .whitespacesAndNewlines)
         if let mentionId = bookmarkIdFromYabaMentionURL(trimmed), !mentionId.isEmpty {
@@ -625,31 +543,27 @@ struct NotemarkDetailView: View {
         guard let url = URL(string: trimmed) else { return }
         UIApplication.shared.open(url)
     }
-
+    
     /// `[label](yaba-mention://<bookmarkId>)` — host carries the bookmark id Swift stored when inserting mentions.
     private func bookmarkIdFromYabaMentionURL(_ raw: String) -> String? {
         guard let url = URL(string: raw), url.scheme?.lowercased() == "yaba-mention" else {
             return nil
         }
-
+        
         if let host = url.host?.trimmingCharacters(in: .whitespacesAndNewlines), !host.isEmpty {
             let decoded = host.removingPercentEncoding ?? host
             return decoded.isEmpty ? nil : decoded
         }
-
+        
         if let frag = url.path.trimmingCharacters(in: CharacterSet(charactersIn: "/")).split(separator: "/", omittingEmptySubsequences: true).first {
             let s = String(frag).trimmingCharacters(in: .whitespacesAndNewlines)
             guard !s.isEmpty else { return nil }
             return s.removingPercentEncoding ?? s
         }
-
+        
         return nil
     }
-
-    private func handlePreviewHostEvent(_ event: WebHostEvent) {
-        _ = event
-    }
-
+    
     @ViewBuilder
     private func overflowMenu(for bm: YabaBookmark) -> some View {
         Menu {
@@ -675,7 +589,7 @@ struct NotemarkDetailView: View {
             }
             .tint(YabaColor.yellow.getUIColor())
             Button {
-                machine.startMarkdownExportFromEditor(runtime: editorRuntime, bookmarkLabel: bm.label)
+                machine.startMarkdownExportFromEditor(runtime: noteRuntime, bookmarkLabel: bm.label)
             } label: {
                 BookmarkDetailOverflowRowLabel(
                     title: "Bookmark Detail Export Format Markdown Title",

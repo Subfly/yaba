@@ -1,6 +1,6 @@
 import type { EditorFormattingState } from "../editor-formatting"
 
-export type YabaNativeHostFeature = "editor" | "preview"
+export type YabaNativeHostFeature = "editor" | "preview" | "note"
 
 /** Single envelope for all web -> native host events. */
 export type YabaNativeHostPayload =

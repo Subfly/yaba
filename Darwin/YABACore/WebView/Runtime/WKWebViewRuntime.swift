@@ -223,6 +223,8 @@ public final class WKWebViewRuntime: NSObject {
         switch expectedBridgeFeature {
         case "preview":
             return WebBridgeScripts.previewBridgeReady
+        case "note":
+            return WebBridgeScripts.noteBridgeReady
         default:
             return WebBridgeScripts.editorBridgeReady
         }
@@ -281,6 +283,13 @@ public final class WKWebViewRuntime: NSObject {
         case let .readItLater(_, _, _, appearance):
             return BundleReader.webShellURLWithQuery(
                 named: "preview.html",
+                platform: .darwin,
+                appearance: appearance,
+                bundle: bundle
+            )
+        case let .note(_, _, _, appearance, _, _, _, _):
+            return BundleReader.webShellURLWithQuery(
+                named: "note.html",
                 platform: .darwin,
                 appearance: appearance,
                 bundle: bundle
