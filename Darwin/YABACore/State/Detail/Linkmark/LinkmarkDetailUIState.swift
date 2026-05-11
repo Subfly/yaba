@@ -27,7 +27,6 @@ public struct LinkmarkDetailUIState: Sendable {
 
     public var markdownExportRequest: MarkdownExportRequest?
     public var showMarkdownExportDirectoryPicker: Bool
-    public var readerChromeVisible: Bool
 
     public init(
         bookmarkId: String? = nil,
@@ -47,8 +46,7 @@ public struct LinkmarkDetailUIState: Sendable {
         showDeleteAlert: Bool = false,
         showActivitySheet: Bool = false,
         markdownExportRequest: MarkdownExportRequest? = nil,
-        showMarkdownExportDirectoryPicker: Bool = false,
-        readerChromeVisible: Bool = true
+        showMarkdownExportDirectoryPicker: Bool = false
     ) {
         self.bookmarkId = bookmarkId
         self.linkSourceUrl = linkSourceUrl
@@ -68,6 +66,5 @@ public struct LinkmarkDetailUIState: Sendable {
         self.showActivitySheet = showActivitySheet
         self.markdownExportRequest = markdownExportRequest
         self.showMarkdownExportDirectoryPicker = showMarkdownExportDirectoryPicker
-        self.readerChromeVisible = readerChromeVisible
     }
 }

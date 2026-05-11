@@ -65,3 +65,17 @@ public struct ReaderPreferences: Sendable, Equatable {
         self.lineHeight = lineHeight
     }
 }
+
+/// Reading column sizing for `preview.html`: applied via CSS in the scroll surface (not SwiftUI) so scrollbar and reader background stay edge-to-edge.
+public struct ReaderViewportColumnLayout: Sendable, Equatable {
+    /// 1–100: maps to `min(100%, N vw)` inside the WKWebView.
+    public var maxWidthVWPercent: Int
+    public var horizontalPaddingPx: Int
+
+    public init(maxWidthVWPercent: Int, horizontalPaddingPx: Int) {
+        self.maxWidthVWPercent = maxWidthVWPercent
+        self.horizontalPaddingPx = horizontalPaddingPx
+    }
+
+    public static let fullWidth = ReaderViewportColumnLayout(maxWidthVWPercent: 100, horizontalPaddingPx: 0)
+}

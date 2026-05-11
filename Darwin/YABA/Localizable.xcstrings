@@ -25902,6 +25902,36 @@
       },
       "shouldTranslate" : false
     },
+    "Markdown Preview Background Color Options Label" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Background Color"
+          }
+        }
+      }
+    },
+    "Markdown Preview Font Size Options Label" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Font Size"
+          }
+        }
+      }
+    },
+    "Markdown Preview Line Height Options Label" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Line Height"
+          }
+        }
+      }
+    },
     "Menu Item Open Web Label" : {
       "comment" : "Label of open in browser button",
       "extractionState" : "manual",

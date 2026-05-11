@@ -5,6 +5,13 @@ import { publishShellLoad } from "@/bridge/shell-host-events"
 import { postToYabaNativeHost } from "@/bridge/yaba-native-host"
 import type { ReaderPreferences } from "@/bridge/reader-preferences"
 
+export interface ReaderColumnLayoutPayload {
+  /** Cap reading column width as a fraction of the WebView viewport (1–100, e.g. 90 ⇒ `90vw`). */
+  maxWidthVWPercent: number
+  /** Extra horizontal inset (px) inside the scroll view, applied in CSS beside `max-width`. */
+  horizontalPaddingPx: number
+}
+
 export interface YabaPreviewBridge {
   isReady: () => boolean
   setMarkdown: (markdown: string) => void
@@ -12,6 +19,7 @@ export interface YabaPreviewBridge {
   setAppearance: (mode: AppearanceMode) => void
   setCursorColor: (color: string) => void
   setWebChromeInsets: (topChromeInsetPx: number) => void
+  setReaderColumnLayout: (layout: ReaderColumnLayoutPayload) => void
   setReaderPreferences: (preferences: Partial<ReaderPreferences>) => void
   /** Normalized `[0,1]` scroll fraction of `.yaba-preview-scroll`. */
   getSyncedScrollFraction: () => string
@@ -79,6 +87,16 @@ function applyReaderPreferences(): void {
     fontSize: readerPreferences.fontSize,
     lineHeight: readerPreferences.lineHeight,
   })
+}
+
+function applyReaderColumnLayoutToDocument(layout: ReaderColumnLayoutPayload): void {
+  const root = document.documentElement
+  const w = Number.isFinite(layout.maxWidthVWPercent)
+    ? Math.max(1, Math.min(100, layout.maxWidthVWPercent))
+    : 100
+  const p = Number.isFinite(layout.horizontalPaddingPx) ? Math.max(0, layout.horizontalPaddingPx) : 0
+  root.style.setProperty("--yaba-reader-column-max-vw", String(w))
+  root.style.setProperty("--yaba-reader-column-pad-x-px", String(p))
 }
 
 function applyWebChromeInsetsToDocument(topChromeInsetPx: number): void {
@@ -152,6 +170,9 @@ export function initPreviewBridge(api: { setMarkdownState: (md: string) => void 
     },
     setWebChromeInsets: (topChromeInsetPx: number) => {
       applyWebChromeInsetsToDocument(topChromeInsetPx)
+    },
+    setReaderColumnLayout: (layout: ReaderColumnLayoutPayload) => {
+      applyReaderColumnLayoutToDocument(layout)
     },
     setReaderPreferences: (prefs: Partial<ReaderPreferences>) => {
       readerPreferences = { ...readerPreferences, ...prefs }

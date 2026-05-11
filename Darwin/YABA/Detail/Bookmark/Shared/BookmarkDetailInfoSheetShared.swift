@@ -237,9 +237,7 @@ private struct BookmarkDetailInfoSheetChromeModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            #if !targetEnvironment(macCatalyst)
-            .listStyle(.sidebar)
-            #endif
+            .listStyle(.insetGrouped)
             .scrollContentBackground(.hidden)
             .tint(folderAccent)
             .navigationTitle("Bookmark Detail Sheet Navigation Title")

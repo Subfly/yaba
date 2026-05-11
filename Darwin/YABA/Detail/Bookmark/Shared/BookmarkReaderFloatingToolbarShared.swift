@@ -32,6 +32,7 @@ struct ReaderToolbarThemeMenu: View {
     let folderAccent: Color
     let readerTheme: ReaderTheme
     let onSelectTheme: (ReaderTheme) -> Void
+    var menuIconPadding: CGFloat = 10
 
     var body: some View {
         Menu {
@@ -48,7 +49,8 @@ struct ReaderToolbarThemeMenu: View {
                 }
             }
         } label: {
-            BookmarkReaderFloatingToolbarGlyph.menuTrigger(bundleKey: "colors", accent: folderAccent)
+            BookmarkReaderFloatingToolbarGlyph.icon(bundleKey: "colors", accent: folderAccent)
+                .padding(menuIconPadding)
         }
     }
 }
@@ -57,6 +59,7 @@ struct ReaderToolbarFontMenu: View {
     let folderAccent: Color
     let readerFontSize: ReaderFontSize
     let onSelectFontSize: (ReaderFontSize) -> Void
+    var menuIconPadding: CGFloat = 10
 
     var body: some View {
         Menu {
@@ -73,7 +76,8 @@ struct ReaderToolbarFontMenu: View {
                 }
             }
         } label: {
-            BookmarkReaderFloatingToolbarGlyph.menuTrigger(bundleKey: "text-square", accent: folderAccent)
+            BookmarkReaderFloatingToolbarGlyph.icon(bundleKey: "text-square", accent: folderAccent)
+                .padding(menuIconPadding)
         }
     }
 }
@@ -82,6 +86,7 @@ struct ReaderToolbarLineHeightMenu: View {
     let folderAccent: Color
     let readerLineHeight: ReaderLineHeight
     let onSelectLineHeight: (ReaderLineHeight) -> Void
+    var menuIconPadding: CGFloat = 10
 
     var body: some View {
         Menu {
@@ -98,7 +103,8 @@ struct ReaderToolbarLineHeightMenu: View {
                 }
             }
         } label: {
-            BookmarkReaderFloatingToolbarGlyph.menuTrigger(bundleKey: "cursor-text", accent: folderAccent)
+            BookmarkReaderFloatingToolbarGlyph.icon(bundleKey: "cursor-text", accent: folderAccent)
+                .padding(menuIconPadding)
         }
     }
 }

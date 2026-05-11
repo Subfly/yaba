@@ -37,7 +37,9 @@ export function PreviewApp() {
           WebkitOverflowScrolling: "touch",
         }}
       >
-        <MarkdownPreviewBody markdown={markdown} />
+        <div className="yaba-reader-column-wrap">
+          <MarkdownPreviewBody markdown={markdown} />
+        </div>
       </div>
     </div>
   )

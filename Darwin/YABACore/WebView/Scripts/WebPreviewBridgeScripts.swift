@@ -71,6 +71,21 @@ public enum WebPreviewBridgeScripts {
         """
     }
 
+    public static func applyReaderColumnLayout(_ layout: ReaderViewportColumnLayout) -> String {
+        let w = min(100, max(1, layout.maxWidthVWPercent))
+        let p = max(0, layout.horizontalPaddingPx)
+        return """
+        (function(){
+          try {
+            var b = window.YabaPreviewBridge;
+            if (!b || !b.setReaderColumnLayout) { return "no_bridge"; }
+            b.setReaderColumnLayout({ maxWidthVWPercent: \(w), horizontalPaddingPx: \(p) });
+            return "ok";
+          } catch(e) { return String(e); }
+        })();
+        """
+    }
+
     public static func setWebChromeInsets(topPx: CGFloat) -> String {
         let t = Int(round(topPx))
         return """

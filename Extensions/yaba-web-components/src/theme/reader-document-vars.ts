@@ -36,7 +36,7 @@ export function applyReaderThemeCssVars(theme: ReaderThemeName): void {
     return
   }
 
-  root.style.setProperty("--yaba-reader-bg", "#f4ecd8")
+  root.style.setProperty("--yaba-reader-bg", "#faf2e0")
   root.style.setProperty("--yaba-reader-on-bg", "#5b4636")
 }
 

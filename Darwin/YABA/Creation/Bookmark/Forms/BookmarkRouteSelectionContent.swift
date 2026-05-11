@@ -76,9 +76,7 @@ struct BookmarkRouteSelectionContent: View {
                         )
                     }
                 }
-                #if !targetEnvironment(macCatalyst)
-                .listStyle(.sidebar)
-                #endif
+                .listStyle(.insetGrouped)
                 .scrollDismissesKeyboard(.immediately)
                 .scrollContentBackground(.hidden)
                 .navigationTitle("New Bookmark")

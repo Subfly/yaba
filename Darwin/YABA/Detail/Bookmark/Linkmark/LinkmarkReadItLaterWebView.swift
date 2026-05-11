@@ -14,32 +14,29 @@ struct LinkmarkReadItLaterWebView: NSViewRepresentable {
     let markdown: String
     let inlineAssets: [YabaInlineAssetPayload]
     let readerPreferences: ReaderPreferences
+    let readerColumnLayout: ReaderViewportColumnLayout
     let appearance: WebAppearance
     let onHostEvent: (WebHostEvent) -> Void
     let onInlineLinkTap: (InlineLinkTapEvent) -> Void
-    let onScrollShowChrome: (() -> Void)?
-    let onScrollHideChrome: (() -> Void)?
     let onRuntimeReady: ((WKWebViewRuntime) -> Void)?
 
     init(
         markdown: String,
         inlineAssets: [YabaInlineAssetPayload],
         readerPreferences: ReaderPreferences,
+        readerColumnLayout: ReaderViewportColumnLayout = .fullWidth,
         appearance: WebAppearance,
         onHostEvent: @escaping (WebHostEvent) -> Void,
         onInlineLinkTap: @escaping (InlineLinkTapEvent) -> Void,
-        onScrollShowChrome: (() -> Void)?,
-        onScrollHideChrome: (() -> Void)?,
         onRuntimeReady: ((WKWebViewRuntime) -> Void)? = nil
     ) {
         self.markdown = markdown
         self.inlineAssets = inlineAssets
         self.readerPreferences = readerPreferences
+        self.readerColumnLayout = readerColumnLayout
         self.appearance = appearance
         self.onHostEvent = onHostEvent
         self.onInlineLinkTap = onInlineLinkTap
-        self.onScrollShowChrome = onScrollShowChrome
-        self.onScrollHideChrome = onScrollHideChrome
         self.onRuntimeReady = onRuntimeReady
     }
 
@@ -123,7 +120,9 @@ struct LinkmarkReadItLaterWebView: NSViewRepresentable {
             let prefs = parent.readerPreferences
             let appearance = parent.appearance
 
-            let fp = "\(prefs.theme.rawValue)|\(prefs.fontSize.rawValue)|\(prefs.lineHeight.rawValue)"
+            let fp =
+                "\(prefs.theme.rawValue)|\(prefs.fontSize.rawValue)|\(prefs.lineHeight.rawValue)"
+                + "|\(parent.readerColumnLayout.maxWidthVWPercent)|\(parent.readerColumnLayout.horizontalPaddingPx)"
             let markdownChanged = markdown != lastMarkdownApplied
             let prefsChanged = fp != lastPrefsFingerprint
 
@@ -136,6 +135,9 @@ struct LinkmarkReadItLaterWebView: NSViewRepresentable {
                         appearance: appearance,
                         prefs: prefs
                     )
+                )
+                _ = try? await runtime.evaluateJavaScriptStringResult(
+                    WebPreviewBridgeScripts.applyReaderColumnLayout(parent.readerColumnLayout)
                 )
                 _ = try? await runtime.evaluateJavaScriptStringResult(
                     WebPreviewBridgeScripts.setMarkdown(markdown)
@@ -154,32 +156,29 @@ struct LinkmarkReadItLaterWebView: UIViewRepresentable {
     let markdown: String
     let inlineAssets: [YabaInlineAssetPayload]
     let readerPreferences: ReaderPreferences
+    let readerColumnLayout: ReaderViewportColumnLayout
     let appearance: WebAppearance
     let onHostEvent: (WebHostEvent) -> Void
     let onInlineLinkTap: (InlineLinkTapEvent) -> Void
-    let onScrollShowChrome: (() -> Void)?
-    let onScrollHideChrome: (() -> Void)?
     let onRuntimeReady: ((WKWebViewRuntime) -> Void)?
 
     init(
         markdown: String,
         inlineAssets: [YabaInlineAssetPayload],
         readerPreferences: ReaderPreferences,
+        readerColumnLayout: ReaderViewportColumnLayout = .fullWidth,
         appearance: WebAppearance,
         onHostEvent: @escaping (WebHostEvent) -> Void,
         onInlineLinkTap: @escaping (InlineLinkTapEvent) -> Void,
-        onScrollShowChrome: (() -> Void)?,
-        onScrollHideChrome: (() -> Void)?,
         onRuntimeReady: ((WKWebViewRuntime) -> Void)? = nil
     ) {
         self.markdown = markdown
         self.inlineAssets = inlineAssets
         self.readerPreferences = readerPreferences
+        self.readerColumnLayout = readerColumnLayout
         self.appearance = appearance
         self.onHostEvent = onHostEvent
         self.onInlineLinkTap = onInlineLinkTap
-        self.onScrollShowChrome = onScrollShowChrome
-        self.onScrollHideChrome = onScrollHideChrome
         self.onRuntimeReady = onRuntimeReady
     }
 
@@ -195,13 +194,12 @@ struct LinkmarkReadItLaterWebView: UIViewRepresentable {
         context.coordinator.update(parent: self)
     }
 
-    final class Coordinator: NSObject, UIScrollViewDelegate {
+    final class Coordinator: NSObject {
         private(set) var parent: LinkmarkReadItLaterWebView
         fileprivate let schemeHandler: YabaInlineAssetSchemeHandler
         let runtime: WKWebViewRuntime
         private var hasLoadedShell = false
         private var isBridgeReady = false
-        private var lastScrollOffsetY: CGFloat?
         private var lastMarkdownApplied = ""
         private var lastPrefsFingerprint = ""
 
@@ -217,7 +215,6 @@ struct LinkmarkReadItLaterWebView: UIViewRepresentable {
                 )
             )
             super.init()
-            runtime.webView.scrollView.delegate = self
             runtime.onBridgeReady = { [weak self] in
                 guard let self else { return }
                 self.isBridgeReady = true
@@ -235,18 +232,6 @@ struct LinkmarkReadItLaterWebView: UIViewRepresentable {
             runtime.webView.scrollView.contentInsetAdjustmentBehavior = .never
             if #available(iOS 13.0, *) {
                 runtime.webView.scrollView.automaticallyAdjustsScrollIndicatorInsets = false
-            }
-        }
-
-        func scrollViewDidScroll(_ scrollView: UIScrollView) {
-            let y = scrollView.contentOffset.y
-            defer { lastScrollOffsetY = y }
-            guard let last = lastScrollOffsetY else { return }
-            let dy = y - last
-            if dy > 8 {
-                parent.onScrollHideChrome?()
-            } else if dy < -8 {
-                parent.onScrollShowChrome?()
             }
         }
 
@@ -281,7 +266,9 @@ struct LinkmarkReadItLaterWebView: UIViewRepresentable {
             let prefs = parent.readerPreferences
             let appearance = parent.appearance
 
-            let fp = "\(prefs.theme.rawValue)|\(prefs.fontSize.rawValue)|\(prefs.lineHeight.rawValue)"
+            let fp =
+                "\(prefs.theme.rawValue)|\(prefs.fontSize.rawValue)|\(prefs.lineHeight.rawValue)"
+                + "|\(parent.readerColumnLayout.maxWidthVWPercent)|\(parent.readerColumnLayout.horizontalPaddingPx)"
             let markdownChanged = markdown != lastMarkdownApplied
             let prefsChanged = fp != lastPrefsFingerprint
 
@@ -294,6 +281,9 @@ struct LinkmarkReadItLaterWebView: UIViewRepresentable {
                         appearance: appearance,
                         prefs: prefs
                     )
+                )
+                _ = try? await runtime.evaluateJavaScriptStringResult(
+                    WebPreviewBridgeScripts.applyReaderColumnLayout(parent.readerColumnLayout)
                 )
                 _ = try? await runtime.evaluateJavaScriptStringResult(
                     WebPreviewBridgeScripts.setMarkdown(markdown)

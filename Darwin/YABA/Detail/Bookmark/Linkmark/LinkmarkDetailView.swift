@@ -167,6 +167,7 @@ struct LinkmarkDetailView: View {
                         fontSize: machine.state.readerFontSize,
                         lineHeight: machine.state.readerLineHeight
                     ),
+                    readerColumnLayout: LinkmarkReaderDetailLayout.readerColumnLayout,
                     appearance: .auto,
                     onHostEvent: { event in
                         handleReaderHostEvent(event)
@@ -174,12 +175,6 @@ struct LinkmarkDetailView: View {
                     onInlineLinkTap: { event in
                         guard let url = URL(string: event.url) else { return }
                         UIApplication.shared.open(url)
-                    },
-                    onScrollShowChrome: {
-                        machine.apply { $0.readerChromeVisible = true }
-                    },
-                    onScrollHideChrome: {
-                        machine.apply { $0.readerChromeVisible = false }
                     },
                     onRuntimeReady: { _ in }
                 )
@@ -190,23 +185,6 @@ struct LinkmarkDetailView: View {
                         userInterfaceColorScheme: colorScheme
                     )
                 )
-
-                LinkmarkReaderFloatingToolbar(
-                    folderAccent: folderTint,
-                    isVisible: machine.state.readerChromeVisible,
-                    readerTheme: machine.state.readerTheme,
-                    readerFontSize: machine.state.readerFontSize,
-                    readerLineHeight: machine.state.readerLineHeight,
-                    onSelectTheme: { theme in
-                        Task { await machine.send(.onSetReaderTheme(theme)) }
-                    },
-                    onSelectFontSize: { fontSize in
-                        Task { await machine.send(.onSetReaderFontSize(fontSize)) }
-                    },
-                    onSelectLineHeight: { lineHeight in
-                        Task { await machine.send(.onSetReaderLineHeight(lineHeight)) }
-                    }
-                ).padding(.bottom, 14)
             } else {
                 BookmarkDetailReaderChrome.linkReaderUnavailablePlaceholder(tint: folderTint)
             }
@@ -217,14 +195,122 @@ struct LinkmarkDetailView: View {
             if showsBackButton {
                 BookmarkDetailPrimaryToolbarPieces.backDismissButton { dismiss() }
             }
-            BookmarkDetailPrimaryToolbarPieces.bookmarkInfoSheetGlyphButton {
-                machine.apply { $0.showDetailSheet = true }
+            if hasReadable, !LinkmarkReaderDetailLayout.isIPhone {
+                ToolbarItem(placement: .topBarTrailing) {
+                    ReaderToolbarThemeMenu(
+                        folderAccent: folderTint,
+                        readerTheme: machine.state.readerTheme,
+                        onSelectTheme: { theme in
+                            Task { await machine.send(.onSetReaderTheme(theme)) }
+                        },
+                        menuIconPadding: 6
+                    )
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    ReaderToolbarFontMenu(
+                        folderAccent: folderTint,
+                        readerFontSize: machine.state.readerFontSize,
+                        onSelectFontSize: { fontSize in
+                            Task { await machine.send(.onSetReaderFontSize(fontSize)) }
+                        },
+                        menuIconPadding: 6
+                    )
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    ReaderToolbarLineHeightMenu(
+                        folderAccent: folderTint,
+                        readerLineHeight: machine.state.readerLineHeight,
+                        onSelectLineHeight: { lineHeight in
+                            Task { await machine.send(.onSetReaderLineHeight(lineHeight)) }
+                        },
+                        menuIconPadding: 6
+                    )
+                }
+                BookmarkDetailPrimaryToolbarPieces.fixedTrailingToolbarSpacer()
+            }
+            if hasReadable, LinkmarkReaderDetailLayout.isIPhone {
+                ToolbarItem(placement: .topBarTrailing) {
+                    linkmarkReaderToolbarAppearanceRootMenu()
+                }
+                BookmarkDetailPrimaryToolbarPieces.fixedTrailingToolbarSpacer()
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    machine.apply { $0.showDetailSheet = true }
+                } label: {
+                    BookmarkDetailHomeToolbarGlyph(bundleKey: "information-circle")
+                }
             }
             BookmarkDetailPrimaryToolbarPieces.trailingOverflowChrome {
                 overflowMenu(for: bm)
             }
         }
         .tint(folderTint)
+    }
+
+    @ViewBuilder
+    private func linkmarkReaderToolbarAppearanceRootMenu() -> some View {
+        Menu {
+            Menu {
+                ForEach(ReaderTheme.allCases, id: \.self) { t in
+                    Button {
+                        Task { await machine.send(.onSetReaderTheme(t)) }
+                    } label: {
+                        HStack {
+                            if machine.state.readerTheme == t {
+                                Image(systemName: "checkmark")
+                            }
+                            Text(t.getUITitle())
+                        }
+                    }
+                }
+            } label: {
+                BookmarkDetailOverflowRowLabel(
+                    title: "Markdown Preview Background Color Options Label",
+                    iconBundleKey: "paint-bucket"
+                )
+            }
+            Menu {
+                ForEach(ReaderFontSize.allCases, id: \.self) { f in
+                    Button {
+                        Task { await machine.send(.onSetReaderFontSize(f)) }
+                    } label: {
+                        HStack {
+                            if machine.state.readerFontSize == f {
+                                Image(systemName: "checkmark")
+                            }
+                            Text(f.getUITitle())
+                        }
+                    }
+                }
+            } label: {
+                BookmarkDetailOverflowRowLabel(
+                    title: "Markdown Preview Font Size Options Label",
+                    iconBundleKey: "text-font"
+                )
+            }
+            Menu {
+                ForEach(ReaderLineHeight.allCases, id: \.self) { lh in
+                    Button {
+                        Task { await machine.send(.onSetReaderLineHeight(lh)) }
+                    } label: {
+                        HStack {
+                            if machine.state.readerLineHeight == lh {
+                                Image(systemName: "checkmark")
+                            }
+                            Text(lh.getUITitle())
+                        }
+                    }
+                }
+            } label: {
+                BookmarkDetailOverflowRowLabel(
+                    title: "Markdown Preview Line Height Options Label",
+                    iconBundleKey: "paragraph-spacing"
+                )
+            }
+        } label: {
+            BookmarkDetailHomeToolbarGlyph(bundleKey: "settings-05")
+        }
     }
 
 
@@ -350,5 +436,34 @@ struct LinkmarkDetailView: View {
             guard let bytes = item.bytes, !bytes.isEmpty else { return nil }
             return MarkdownExportInlineSource(assetId: item.assetId, pathExtension: item.pathExtension, bytes: bytes)
         }
+    }
+}
+
+// MARK: - Reader column (CSS in preview shell; WKWebView stays full-bleed)
+
+private enum LinkmarkReaderDetailLayout {
+    static var isIPhone: Bool {
+        #if os(iOS)
+        UIDevice.current.userInterfaceIdiom == .phone
+        #else
+        false
+        #endif
+    }
+
+    static var readerColumnLayout: ReaderViewportColumnLayout {
+        #if os(macOS)
+        ReaderViewportColumnLayout(maxWidthVWPercent: 70, horizontalPaddingPx: 16)
+        #elseif targetEnvironment(macCatalyst)
+        ReaderViewportColumnLayout(maxWidthVWPercent: 70, horizontalPaddingPx: 16)
+        #elseif os(iOS)
+        switch UIDevice.current.userInterfaceIdiom {
+        case .pad:
+            return ReaderViewportColumnLayout(maxWidthVWPercent: 90, horizontalPaddingPx: 16)
+        default:
+            return .fullWidth
+        }
+        #else
+        .fullWidth
+        #endif
     }
 }

@@ -19,6 +19,8 @@
   --yaba-reader-on-bg: var(--yaba-on-bg);
   --yaba-reader-font-size: 18px;
   --yaba-reader-line-height: 1.6;
+  --yaba-reader-column-max-vw: 100;
+  --yaba-reader-column-pad-x-px: 0;
 }
 
 html,
@@ -62,6 +64,20 @@ body[data-yaba-page="preview"] #root,
 body[data-yaba-page="preview"] [data-yaba-preview-root] {
   min-width: 0;
   max-width: 100%;
+}
+
+/* Full-viewport reader chrome; column width + horizontal inset are CSS-only so the scrollbar stays at the WKWebView edge. */
+body[data-yaba-page="preview"] .yaba-preview-scroll {
+  background: var(--yaba-reader-bg, var(--yaba-bg));
+}
+
+.yaba-reader-column-wrap {
+  min-height: 100%;
+  width: 100%;
+  max-width: min(100%, calc(var(--yaba-reader-column-max-vw, 100) * 1vw));
+  margin-inline: auto;
+  padding-inline: calc(var(--yaba-reader-column-pad-x-px, 0) * 1px);
+  box-sizing: border-box;
 }
 
 #root {
