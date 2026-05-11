@@ -42,6 +42,15 @@ struct FolderCreationContent: View {
         !machine.state.label.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
+    /// Larger sheet / window chrome on iPad
+    private var isPadIdiom: Bool {
+        UIDevice.current.userInterfaceIdiom == .pad
+    }
+
+    private var presentationHeightDetent: PresentationDetent {
+        .fraction(isPadIdiom ? 0.5 : 0.4)
+    }
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -119,9 +128,9 @@ struct FolderCreationContent: View {
         .presentationDragIndicator(.visible)
         #else
         .frame(width: 600, height: 350)
-        #endif
         .presentationSizing(.fitted)
-        .presentationDetents([.fraction(0.4)])
+        #endif
+        .presentationDetents([presentationHeightDetent])
         .task(id: existingFolderId) {
             await hydrateIfNeeded()
         }

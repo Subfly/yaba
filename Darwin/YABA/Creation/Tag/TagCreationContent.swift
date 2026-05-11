@@ -39,6 +39,15 @@ struct TagCreationContent: View {
         !machine.state.label.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
+    /// Larger sheet / window chrome on iPad
+    private var isPadIdiom: Bool {
+        UIDevice.current.userInterfaceIdiom == .pad
+    }
+
+    private var presentationHeightDetent: PresentationDetent {
+        .fraction(isPadIdiom ? 0.3 : 0.2)
+    }
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -100,9 +109,9 @@ struct TagCreationContent: View {
         .presentationDragIndicator(.visible)
         #else
         .frame(width: 600, height: 200)
-        #endif
         .presentationSizing(.fitted)
-        .presentationDetents([.fraction(0.2)])
+        #endif
+        .presentationDetents([presentationHeightDetent])
         .task(id: existingTagId) {
             await hydrateIfNeeded()
         }
