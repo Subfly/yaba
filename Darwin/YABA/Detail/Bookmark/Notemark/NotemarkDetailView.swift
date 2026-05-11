@@ -53,6 +53,9 @@ struct NotemarkDetailView: View {
     @State
     private var notemarkGalleryPhotoItem: PhotosPickerItem?
     
+    @State
+    private var showNotemarkNavGalleryPhotoPicker = false
+    
 #if !targetEnvironment(macCatalyst)
     @State
     private var showNotemarkCameraCapture = false
@@ -232,6 +235,19 @@ struct NotemarkDetailView: View {
     
     private var bookmark: YabaBookmark? { bookmarks.first }
     
+    /// Floating bottom chrome is iPhone-only; iPad and Mac Catalyst use the navigation toolbar title area.
+    private var usesFloatingNotemarkEditorToolbar: Bool {
+        UIDevice.current.userInterfaceIdiom != .pad
+    }
+    
+    private var notemarkEditorChromeVisible: Bool {
+        machine.state.surfaceMode == .editor || machine.state.surfaceMode == .split
+    }
+    
+    private var notemarkEditorShowsDoneButton: Bool {
+        notemarkEditorChromeVisible && isSoftwareKeyboardVisible
+    }
+    
     private var notemarkSurfaceModeToolbarIconKey: String {
         switch machine.state.surfaceMode {
         case .editor:
@@ -302,39 +318,40 @@ struct NotemarkDetailView: View {
                 )
             )
             
-            HStack {
-                Spacer(minLength: 0)
-                NotemarkEditorFloatingToolbar(
-                    folderAccent: folderTint,
-                    isVisible: machine.state.surfaceMode == .editor || machine.state.surfaceMode == .split,
-                    showsDoneButton: (machine.state.surfaceMode == .editor || machine.state.surfaceMode == .split)
-                    && isSoftwareKeyboardVisible,
-                    onDispatch: { payload in
-                        dispatchNoteCommand(payload)
-                    },
-                    onRequestAddLinkSheet: { mode in
-                        addLinkSheetMode = mode
-                        showAddLinkSheet = true
-                    },
-                    onRequestAddTableSheet: {
-                        showAddTableSheet = true
-                    },
-                    onRequestAddMentionSheet: {
-                        showAddMentionSheet = true
-                    },
-                    onDismissKeyboard: {
-                        dismissNotemarkEditorKeyboard()
-                    },
-                    onRequestPickImageFromCamera: {
-                        #if !targetEnvironment(macCatalyst)
-                        showNotemarkCameraCapture = true
-                        #endif
-                    },
-                    galleryPhotoItem: $notemarkGalleryPhotoItem
-                )
-                Spacer(minLength: 0)
+            if usesFloatingNotemarkEditorToolbar {
+                HStack {
+                    Spacer(minLength: 0)
+                    NotemarkEditorFloatingToolbar(
+                        folderAccent: folderTint,
+                        isVisible: notemarkEditorChromeVisible,
+                        showsDoneButton: notemarkEditorShowsDoneButton,
+                        onDispatch: { payload in
+                            dispatchNoteCommand(payload)
+                        },
+                        onRequestAddLinkSheet: { mode in
+                            addLinkSheetMode = mode
+                            showAddLinkSheet = true
+                        },
+                        onRequestAddTableSheet: {
+                            showAddTableSheet = true
+                        },
+                        onRequestAddMentionSheet: {
+                            showAddMentionSheet = true
+                        },
+                        onDismissKeyboard: {
+                            dismissNotemarkEditorKeyboard()
+                        },
+                        onRequestPickImageFromCamera: {
+                            #if !targetEnvironment(macCatalyst)
+                            showNotemarkCameraCapture = true
+                            #endif
+                        },
+                        galleryPhotoItem: $notemarkGalleryPhotoItem
+                    )
+                    Spacer(minLength: 0)
+                }
+                .padding(.bottom, 14)
             }
-            .padding(.bottom, 14)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onAppear {
@@ -358,6 +375,35 @@ struct NotemarkDetailView: View {
         .toolbar {
             if showsBackButton {
                 BookmarkDetailPrimaryToolbarPieces.backDismissButton { dismiss() }
+            }
+            if !usesFloatingNotemarkEditorToolbar, notemarkEditorChromeVisible {
+                NotemarkEditorNavigationTitleToolbar.items(
+                    folderAccent: folderTint,
+                    showsDoneButton: notemarkEditorShowsDoneButton,
+                    showGalleryPhotoPicker: $showNotemarkNavGalleryPhotoPicker,
+                    galleryPhotoItem: $notemarkGalleryPhotoItem,
+                    onDispatch: { payload in
+                        dispatchNoteCommand(payload)
+                    },
+                    onRequestAddLinkSheet: { mode in
+                        addLinkSheetMode = mode
+                        showAddLinkSheet = true
+                    },
+                    onRequestAddTableSheet: {
+                        showAddTableSheet = true
+                    },
+                    onRequestAddMentionSheet: {
+                        showAddMentionSheet = true
+                    },
+                    onDismissKeyboard: {
+                        dismissNotemarkEditorKeyboard()
+                    },
+                    onRequestPickImageFromCamera: {
+                        #if !targetEnvironment(macCatalyst)
+                        showNotemarkCameraCapture = true
+                        #endif
+                    }
+                )
             }
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
