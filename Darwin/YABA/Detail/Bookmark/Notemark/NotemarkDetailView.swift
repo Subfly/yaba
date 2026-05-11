@@ -15,6 +15,7 @@ struct NotemarkDetailView: View {
     let onOpenFolder: (String) -> Void
     let onOpenTag: (String) -> Void
     let onOpenBookmark: (String) -> Void
+    var showsBackButton: Bool = true
 
     @Environment(\.dismiss)
     private var dismiss
@@ -85,12 +86,14 @@ struct NotemarkDetailView: View {
         bookmarkId: String,
         onOpenFolder: @escaping (String) -> Void = { _ in },
         onOpenTag: @escaping (String) -> Void = { _ in },
-        onOpenBookmark: @escaping (String) -> Void = { _ in }
+        onOpenBookmark: @escaping (String) -> Void = { _ in },
+        showsBackButton: Bool = true
     ) {
         self.bookmarkId = bookmarkId
         self.onOpenFolder = onOpenFolder
         self.onOpenTag = onOpenTag
         self.onOpenBookmark = onOpenBookmark
+        self.showsBackButton = showsBackButton
         var d = FetchDescriptor<YabaBookmark>(
             predicate: #Predicate<YabaBookmark> { $0.bookmarkId == bookmarkId }
         )
@@ -373,7 +376,9 @@ struct NotemarkDetailView: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            BookmarkDetailPrimaryToolbarPieces.backDismissButton { dismiss() }
+            if showsBackButton {
+                BookmarkDetailPrimaryToolbarPieces.backDismissButton { dismiss() }
+            }
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     notemarkSurfaceModeToggleTapped(for: bm)

@@ -12,6 +12,7 @@ struct DocmarkDetailView: View {
     let bookmarkId: String
     let onOpenFolder: (String) -> Void
     let onOpenTag: (String) -> Void
+    var showsBackButton: Bool = true
 
     @Environment(\.dismiss)
     private var dismiss
@@ -49,11 +50,13 @@ struct DocmarkDetailView: View {
     init(
         bookmarkId: String,
         onOpenFolder: @escaping (String) -> Void = { _ in },
-        onOpenTag: @escaping (String) -> Void = { _ in }
+        onOpenTag: @escaping (String) -> Void = { _ in },
+        showsBackButton: Bool = true
     ) {
         self.bookmarkId = bookmarkId
         self.onOpenFolder = onOpenFolder
         self.onOpenTag = onOpenTag
+        self.showsBackButton = showsBackButton
         var d = FetchDescriptor<YabaBookmark>(
             predicate: #Predicate<YabaBookmark> { $0.bookmarkId == bookmarkId }
         )
@@ -186,7 +189,9 @@ struct DocmarkDetailView: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            BookmarkDetailPrimaryToolbarPieces.backDismissButton { dismiss() }
+            if showsBackButton {
+                BookmarkDetailPrimaryToolbarPieces.backDismissButton { dismiss() }
+            }
             BookmarkDetailPrimaryToolbarPieces.bookmarkInfoSheetGlyphButton { showDetailSheet = true }
             BookmarkDetailPrimaryToolbarPieces.trailingOverflowChrome {
                 overflowMenu(for: bm)

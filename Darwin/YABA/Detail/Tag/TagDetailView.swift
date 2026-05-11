@@ -11,6 +11,7 @@ import SwiftUI
 struct TagDetailView: View {
     let tagId: String
     let onSelectBookmark: (String) -> Void
+    var showsBackButton: Bool = true
 
     @Environment(\.dismiss)
     private var dismiss
@@ -30,9 +31,10 @@ struct TagDetailView: View {
     @Query
     private var tagResults: [YabaTag]
 
-    init(tagId: String, onSelectBookmark: @escaping (String) -> Void) {
+    init(tagId: String, onSelectBookmark: @escaping (String) -> Void, showsBackButton: Bool = true) {
         self.tagId = tagId
         self.onSelectBookmark = onSelectBookmark
+        self.showsBackButton = showsBackButton
         var descriptor = FetchDescriptor<YabaTag>(
             predicate: #Predicate<YabaTag> { $0.tagId == tagId }
         )
@@ -88,13 +90,15 @@ struct TagDetailView: View {
         )
         .navigationBarBackButtonHidden()
         .toolbar {
-            ToolbarItem(placement: .navigation) {
-                Button {
-                    dismiss()
-                } label: {
-                    YabaIconView(bundleKey: "arrow-left-01")
+            if showsBackButton {
+                ToolbarItem(placement: .navigation) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        YabaIconView(bundleKey: "arrow-left-01")
+                    }
+                    .buttonRepeatBehavior(.enabled)
                 }
-                .buttonRepeatBehavior(.enabled)
             }
             ToolbarItem(placement: .primaryAction) {
                 Menu {

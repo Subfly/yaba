@@ -10,6 +10,7 @@ import SwiftUI
 
 struct SearchView: View {
     let onSelectBookmark: (String) -> Void
+    var showsBackButton: Bool = true
 
     @Environment(\.dismiss)
     private var dismiss
@@ -22,6 +23,11 @@ struct SearchView: View {
 
     @State
     private var machine = SearchStateMachine()
+
+    init(onSelectBookmark: @escaping (String) -> Void, showsBackButton: Bool = true) {
+        self.onSelectBookmark = onSelectBookmark
+        self.showsBackButton = showsBackButton
+    }
 
     var body: some View {
         ZStack {
@@ -48,13 +54,15 @@ struct SearchView: View {
         )
         .navigationBarBackButtonHidden()
         .toolbar {
-            ToolbarItem(placement: .navigation) {
-                Button {
-                    dismiss()
-                } label: {
-                    YabaIconView(bundleKey: "arrow-left-01")
+            if showsBackButton {
+                ToolbarItem(placement: .navigation) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        YabaIconView(bundleKey: "arrow-left-01")
+                    }
+                    .buttonRepeatBehavior(.enabled)
                 }
-                .buttonRepeatBehavior(.enabled)
             }
             ToolbarItem(placement: .primaryAction) {
                 Menu {

@@ -10,6 +10,7 @@ struct LinkmarkDetailView: View {
     let bookmarkId: String
     let onOpenFolder: (String) -> Void
     let onOpenTag: (String) -> Void
+    var showsBackButton: Bool = true
 
     @Environment(\.dismiss)
     private var dismiss
@@ -32,11 +33,13 @@ struct LinkmarkDetailView: View {
     init(
         bookmarkId: String,
         onOpenFolder: @escaping (String) -> Void = { _ in },
-        onOpenTag: @escaping (String) -> Void = { _ in }
+        onOpenTag: @escaping (String) -> Void = { _ in },
+        showsBackButton: Bool = true
     ) {
         self.bookmarkId = bookmarkId
         self.onOpenFolder = onOpenFolder
         self.onOpenTag = onOpenTag
+        self.showsBackButton = showsBackButton
         var d = FetchDescriptor<YabaBookmark>(
             predicate: #Predicate<YabaBookmark> { $0.bookmarkId == bookmarkId }
         )
@@ -211,7 +214,9 @@ struct LinkmarkDetailView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            BookmarkDetailPrimaryToolbarPieces.backDismissButton { dismiss() }
+            if showsBackButton {
+                BookmarkDetailPrimaryToolbarPieces.backDismissButton { dismiss() }
+            }
             BookmarkDetailPrimaryToolbarPieces.bookmarkInfoSheetGlyphButton {
                 machine.apply { $0.showDetailSheet = true }
             }
