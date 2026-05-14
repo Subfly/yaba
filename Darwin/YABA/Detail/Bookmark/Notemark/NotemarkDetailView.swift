@@ -174,8 +174,11 @@ struct NotemarkDetailView: View {
             )
         }
         .sheet(isPresented: $showAddLinkSheet) {
-            NavigationStack {
-                AddLinkSheet(mode: addLinkSheetMode) { text, url in
+            if let bm = bookmark {
+                AddLinkSheet(
+                    mode: addLinkSheetMode,
+                    accentColor: BookmarkDetailChrome.folderAccent(for: bm)
+                ) { text, url in
                     switch addLinkSheetMode {
                     case .link:
                         dispatchNoteCommand(YabaEditorDispatchPayload.insertLink(text: text, url: url))
@@ -187,16 +190,19 @@ struct NotemarkDetailView: View {
             }
         }
         .sheet(isPresented: $showAddTableSheet) {
-            NavigationStack {
-                AddTableSheet { rows, cols in
+            if let bm = bookmark {
+                AddTableSheet(accentColor: BookmarkDetailChrome.folderAccent(for: bm)) { rows, cols in
                     dispatchNoteCommand(YabaEditorDispatchPayload.insertTable(rows: rows, cols: cols, withHeaderRow: false))
                     showAddTableSheet = false
                 }
             }
         }
         .sheet(isPresented: $showAddMentionSheet) {
-            NavigationStack {
-                AddMentionSheet(excludeBookmarkId: bookmarkId) { text, url in
+            if let bm = bookmark {
+                AddMentionSheet(
+                    excludeBookmarkId: bookmarkId,
+                    accentColor: BookmarkDetailChrome.folderAccent(for: bm)
+                ) { text, url in
                     dispatchNoteCommand(YabaEditorDispatchPayload.insertLink(text: text, url: url))
                     showAddMentionSheet = false
                 }
@@ -381,6 +387,17 @@ struct NotemarkDetailView: View {
             if showsBackButton {
                 BookmarkDetailPrimaryToolbarPieces.backDismissButton { dismiss() }
             }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    notemarkSurfaceModeToggleTapped()
+                } label: {
+                    BookmarkDetailHomeToolbarGlyph(
+                        bundleKey: notemarkSurfaceModeToolbarIconKey
+                    )
+                }
+                .animation(.smooth, value: machine.selectedMode)
+            }
+            BookmarkDetailPrimaryToolbarPieces.fixedTrailingToolbarSpacer()
             if !NotemarkReaderDetailLayout.isIPhone {
                 ToolbarItem(placement: .topBarTrailing) {
                     ReaderToolbarThemeMenu(
@@ -448,16 +465,6 @@ struct NotemarkDetailView: View {
                         #endif
                     }
                 )
-            }
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    notemarkSurfaceModeToggleTapped()
-                } label: {
-                    BookmarkDetailHomeToolbarGlyph(
-                        bundleKey: notemarkSurfaceModeToolbarIconKey
-                    )
-                }
-                .animation(.smooth, value: machine.selectedMode)
             }
             BookmarkDetailPrimaryToolbarPieces.fixedTrailingToolbarSpacer()
             BookmarkDetailPrimaryToolbarPieces.bookmarkInfoSheetGlyphButton {

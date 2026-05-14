@@ -15,14 +15,27 @@ struct YabaColorPicker: View {
     /// When `true`, applies detents and drag indicator for use inside a `.sheet`. Set to `false` for `.popover`.
     var usesSheetPresentationChrome: Bool = true
 
+    /// Larger sheet height on iPad (sheet presentation only).
+    private var isPadIdiom: Bool {
+        UIDevice.current.userInterfaceIdiom == .pad
+    }
+
+    /// Matches folder / tag auxiliary sheet sizing; ignored for popovers.
+    private var sheetPresentationDetent: PresentationDetent {
+        .fraction(isPadIdiom ? 0.4 : 0.32)
+    }
+
     var body: some View {
         Group {
             if usesSheetPresentationChrome {
                 navigationContainer
-                    .presentationDetents([.fraction(0.3)])
-                    #if !targetEnvironment(macCatalyst)
+                #if !targetEnvironment(macCatalyst)
                     .presentationDragIndicator(.visible)
-                    #endif
+                #else
+                    .frame(width: 600, height: 250)
+                    .presentationSizing(.fitted)
+                #endif
+                    .presentationDetents([sheetPresentationDetent])
             } else {
                 navigationContainer
             }

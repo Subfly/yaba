@@ -52,9 +52,8 @@ struct SelectFolderContent: View {
         )
         .id("\(machine.state.searchQuery)\(rules.stableKey)")
         .listRowSpacing(0)
-        #if !os(visionOS)
+        .listStyle(.insetGrouped)
         .scrollDismissesKeyboard(.immediately)
-        #endif
         .searchable(
             text: Binding(
                 get: { machine.state.searchQuery },

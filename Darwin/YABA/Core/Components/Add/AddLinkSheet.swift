@@ -16,6 +16,8 @@ struct AddLinkSheet: View {
 
     let mode: AddLinkSheetMode
 
+    let accentColor: Color
+
     @State
     private var linkText = ""
 
@@ -26,40 +28,61 @@ struct AddLinkSheet: View {
 
     init(
         mode: AddLinkSheetMode = .link,
+        accentColor: Color = .accentColor,
         onSubmit: @escaping (String, String) -> Void
     ) {
         self.mode = mode
+        self.accentColor = accentColor
         self.onSubmit = onSubmit
     }
 
+    /// Larger sheet / window chrome on iPad
+    private var isPadIdiom: Bool {
+        UIDevice.current.userInterfaceIdiom == .pad
+    }
+
+    private var presentationHeightDetent: PresentationDetent {
+        .fraction(isPadIdiom ? 0.36 : 0.25)
+    }
+
     var body: some View {
-        List {
-            TextField(firstFieldTitleKey, text: $linkText)
-                .textInputAutocapitalization(.never)
-                .autocorrectionDisabled()
-            TextField("Bookmark URL Placeholder", text: $linkUrl)
-                .textInputAutocapitalization(.never)
-                .autocorrectionDisabled()
-                .keyboardType(.URL)
+        NavigationStack {
+            ZStack {
+                AnimatedGradient(color: accentColor)
+                List {
+                    TextField(firstFieldTitleKey, text: $linkText)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                    TextField("Bookmark URL Placeholder", text: $linkUrl)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .keyboardType(.URL)
+                }
+                .scrollDisabled(true)
+                .scrollContentBackground(.hidden)
+            }
+            .navigationTitle(navigationTitleKey)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") {
+                        onSubmit(trimmedLinkText, trimmedLinkUrl)
+                        dismiss()
+                    }
+                    .disabled(!canSubmit)
+                }
+            }
         }
         #if !targetEnvironment(macCatalyst)
-        .listStyle(.sidebar)
+        .presentationDragIndicator(.visible)
+        #else
+        .frame(width: 600, height: 260)
+        .presentationSizing(.fitted)
         #endif
-        .navigationTitle(navigationTitleKey)
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .cancellationAction) {
-                Button("Cancel") { dismiss() }
-            }
-            ToolbarItem(placement: .confirmationAction) {
-                Button("Done") {
-                    onSubmit(trimmedLinkText, trimmedLinkUrl)
-                    dismiss()
-                }
-                .disabled(!canSubmit)
-            }
-        }
-        .presentationDetents([.fraction(0.3)])
+        .presentationDetents([presentationHeightDetent])
     }
 
     private var navigationTitleKey: LocalizedStringKey {

@@ -152,9 +152,7 @@ private struct SelectBookmarkQueryList: View {
                 }
                 .listRowSpacing(0)
                 .scrollContentBackground(.hidden)
-                #if !targetEnvironment(macCatalyst)
-                .listStyle(.sidebar)
-                #endif
+                .listStyle(.insetGrouped)
                 .scrollDismissesKeyboard(.immediately)
             }
         }

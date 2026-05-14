@@ -120,6 +120,7 @@ struct SelectTagsContent: View {
             }
         }
         .listRowSpacing(0)
+        .listStyle(.insetGrouped)
         .scrollDismissesKeyboard(.immediately)
         .searchable(
             text: Binding(

@@ -13,6 +13,8 @@ struct AddMentionSheet: View {
 
     let excludeBookmarkId: String
 
+    let accentColor: Color
+
     @State
     private var linkText = ""
 
@@ -26,66 +28,87 @@ struct AddMentionSheet: View {
 
     init(
         excludeBookmarkId: String,
+        accentColor: Color = .accentColor,
         onSubmit: @escaping (String, String) -> Void
     ) {
         self.excludeBookmarkId = excludeBookmarkId
+        self.accentColor = accentColor
         self.onSubmit = onSubmit
     }
 
-    var body: some View {
-        List {
-            TextField("Add Mention Text To Display Label", text: $linkText)
-                .textInputAutocapitalization(.never)
-                .autocorrectionDisabled()
+    /// Larger sheet / window chrome on iPad
+    private var isPadIdiom: Bool {
+        UIDevice.current.userInterfaceIdiom == .pad
+    }
 
-            Button {
-                showBookmarkPicker = true
-            } label: {
-                if let bookmarkId = selectedBookmarkId {
-                    AddMentionResolvedRowLabel(bookmarkId: bookmarkId)
-                } else {
-                    HStack {
-                        Text("Add Mention No Bookmark Selected Label")
-                            .foregroundStyle(.primary)
-                        Spacer()
-                        YabaIconView(bundleKey: "arrow-right-01")
-                            .scaledToFit()
-                            .frame(width: 22, height: 22)
+    private var presentationHeightDetent: PresentationDetent {
+        .fraction(isPadIdiom ? 0.42 : 0.28)
+    }
+
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                AnimatedGradient(color: accentColor)
+                List {
+                    TextField("Add Mention Text To Display Label", text: $linkText)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+
+                    Button {
+                        showBookmarkPicker = true
+                    } label: {
+                        if let bookmarkId = selectedBookmarkId {
+                            AddMentionResolvedRowLabel(bookmarkId: bookmarkId)
+                        } else {
+                            HStack {
+                                Text("Add Mention No Bookmark Selected Label")
+                                    .foregroundStyle(.primary)
+                                Spacer()
+                                YabaIconView(bundleKey: "arrow-right-01")
+                                    .scaledToFit()
+                                    .frame(width: 22, height: 22)
+                            }
+                        }
+                    }
+                    .buttonStyle(.plain)
+                }
+                .scrollDisabled(true)
+                .scrollContentBackground(.hidden)
+            }
+            .navigationTitle("Add Mention Label")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") {
+                        guard let id = selectedBookmarkId else { return }
+                        let mentionUrl = "yaba-mention://\(id)"
+                        onSubmit(trimmedLinkText, mentionUrl)
+                        dismiss()
+                    }
+                    .disabled(!canSubmit)
+                }
+            }
+            .sheet(isPresented: $showBookmarkPicker) {
+                NavigationStack {
+                    SelectBookmarkContent(
+                        excludeBookmarkId: excludeBookmarkId
+                    ) { pickedId in
+                        selectedBookmarkId = pickedId
+                        showBookmarkPicker = false
                     }
                 }
             }
-            .buttonStyle(.plain)
         }
         #if !targetEnvironment(macCatalyst)
-        .listStyle(.sidebar)
+        .presentationDragIndicator(.visible)
+        #else
+        .frame(width: 600, height: 250)
+        .presentationSizing(.fitted)
         #endif
-        .navigationTitle("Add Mention Label")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .cancellationAction) {
-                Button("Cancel") { dismiss() }
-            }
-            ToolbarItem(placement: .confirmationAction) {
-                Button("Done") {
-                    guard let id = selectedBookmarkId else { return }
-                    let mentionUrl = "yaba-mention://\(id)"
-                    onSubmit(trimmedLinkText, mentionUrl)
-                    dismiss()
-                }
-                .disabled(!canSubmit)
-            }
-        }
-        .presentationDetents([.fraction(0.42)])
-        .sheet(isPresented: $showBookmarkPicker) {
-            NavigationStack {
-                SelectBookmarkContent(
-                    excludeBookmarkId: excludeBookmarkId
-                ) { pickedId in
-                    selectedBookmarkId = pickedId
-                    showBookmarkPicker = false
-                }
-            }
-        }
+        .presentationDetents([presentationHeightDetent])
     }
 
     private var trimmedLinkText: String {
