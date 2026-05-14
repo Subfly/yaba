@@ -84,6 +84,8 @@ let readerPreferences: ReaderPreferences = {
   fontSize: "medium",
   lineHeight: "normal",
 }
+/** Tracks reader typography so we only force CM geometry when font size / line height actually change. */
+let lastTypographyPrefsFingerprint = ""
 let systemColorSchemeMedia: MediaQueryList | null = null
 let systemColorSchemeListener: (() => void) | null = null
 
@@ -191,6 +193,12 @@ function applyReaderPreferences(): void {
   applyReaderTypographyCssVars(readerPreferences)
 
   syncEditorCodemirrorDarkTheme()
+
+  const typoFp = `${readerPreferences.fontSize}\0${readerPreferences.lineHeight}`
+  if (typoFp !== lastTypographyPrefsFingerprint) {
+    lastTypographyPrefsFingerprint = typoFp
+    scheduleCodemirrorRelayoutAfterTypography()
+  }
 }
 
 /**
@@ -213,6 +221,27 @@ function syncEditorCodemirrorDarkTheme(): void {
   const page = document.body?.dataset.yabaPage
   if (page !== "editor" && page !== "note") return
   editorSurface.syncCodemirrorDarkTheme(resolvedEditorAppearanceIsDark())
+}
+
+/**
+ * Reader typography is driven by CSS vars (`--yaba-reader-line-height`, font size). CodeMirror caches
+ * per-line geometry for gutters — without a measure pass, line numbers stay misaligned until the doc changes.
+ */
+function scheduleCodemirrorRelayoutAfterTypography(): void {
+  const page = document.body?.dataset.yabaPage
+  if (page !== "editor" && page !== "note") return
+  const view = editorSurface?.view
+  if (!view) return
+
+  const kick = (): void => {
+    view.requestMeasure()
+  }
+
+  queueMicrotask(kick)
+  requestAnimationFrame(() => {
+    kick()
+    requestAnimationFrame(kick)
+  })
 }
 
 function wireViewActivity(viewActivityRef: { current: ((u: ViewUpdate) => void) | null }): void {

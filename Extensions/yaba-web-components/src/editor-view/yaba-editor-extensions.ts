@@ -1,8 +1,9 @@
-import { syntaxHighlighting } from "@codemirror/language"
+import { syntaxHighlighting, indentUnit } from "@codemirror/language"
 import { markdown, markdownLanguage } from "@codemirror/lang-markdown"
 import { languages } from "@codemirror/language-data"
-import { Compartment, EditorState, type Extension } from "@codemirror/state"
-import { EditorView, placeholder } from "@codemirror/view"
+import { indentLess, indentMore } from "@codemirror/commands"
+import { Compartment, EditorState, Prec, type Extension } from "@codemirror/state"
+import { EditorView, keymap, placeholder, type Command } from "@codemirror/view"
 
 import { markdownCodeFontFaces, embeddedCodeFontFaces } from "./editor-code-fonts"
 import { YABA_EDITOR_BASIC_SETUP } from "./yaba-basic-setup"
@@ -15,6 +16,52 @@ import {
   yabaLightCodeHighlightStyle,
 } from "./yaba-code-highlight-styles"
 import { yabaMacCatalystClipboardBridge } from "./catalyst-clipboard-bridge"
+
+/** Markdown list / prose indent step (two spaces per level). */
+const YABA_MARKDOWN_TAB_SIZE = 2
+const YABA_MARKDOWN_INDENT_UNIT = "  "
+
+/**
+ * WKWebView on iPad and Mac Catalyst forwards Tab to accessibility focus traversal unless the event
+ * is cancelled. `defaultKeymap` does not bind Tab — capture it here at top precedence.
+ */
+const insertFallbackIndentUnit: Command = (view) => {
+  view.dispatch(view.state.replaceSelection(view.state.facet(indentUnit)))
+  return true
+}
+
+const yabaTabIndent: Command = (view) => indentMore(view) || insertFallbackIndentUnit(view)
+
+/** Always consume Shift-Tab so focus cannot escape the editor when already fully outdented. */
+const yabaShiftTabIndent: Command = (view) => indentLess(view) || true
+
+/** Notes / editor WebViews: no in-editor find — consume Mod-f / Mod-g before CM search or WKWebView find. */
+const yabaNoOpCommand: Command = () => true
+
+const yabaHighestPriorityKeymap = Prec.highest(
+  keymap.of([
+    {
+      key: "Mod-f",
+      run: yabaNoOpCommand,
+      preventDefault: true,
+      stopPropagation: true,
+    },
+    {
+      key: "Mod-g",
+      run: yabaNoOpCommand,
+      shift: yabaNoOpCommand,
+      preventDefault: true,
+      stopPropagation: true,
+    },
+    {
+      key: "Tab",
+      run: yabaTabIndent,
+      shift: yabaShiftTabIndent,
+      preventDefault: true,
+      stopPropagation: true,
+    },
+  ]),
+)
 
 export interface YabaEditorExtensionCompartments {
   placeholder: Compartment
@@ -30,6 +77,9 @@ export interface YabaEditorExtensionCompartments {
  */
 export function createYabaMarkdownExtensions(c: YabaEditorExtensionCompartments): Extension[] {
   return [
+    EditorState.tabSize.of(YABA_MARKDOWN_TAB_SIZE),
+    indentUnit.of(YABA_MARKDOWN_INDENT_UNIT),
+    yabaHighestPriorityKeymap,
     c.codemirrorDark.of(EditorView.darkTheme.of(false)),
     ...YABA_EDITOR_BASIC_SETUP,
     markdown({

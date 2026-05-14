@@ -325,6 +325,117 @@ function lineCharRangeForSelection(state: EditorState, from: number, to: number)
   }
 }
 
+/** Map caret through list/quote line replacements so typing lands after the inserted prefix, not before it. */
+function mapPosAcrossPrefixLineReplace(lineFrom: number, oldText: string, newText: string, pos: number): number {
+  const rel = pos - lineFrom
+  if (rel < 0 || rel > oldText.length) return pos
+
+  const oldIndent = /^(\s*)/.exec(oldText)?.[1] ?? ""
+  const newIndent = /^(\s*)/.exec(newText)?.[1] ?? ""
+  if (oldIndent !== newIndent) {
+    return lineFrom + Math.min(rel + (newText.length - oldText.length), newText.length)
+  }
+
+  const indentLen = oldIndent.length
+  if (rel < indentLen) {
+    return lineFrom + rel
+  }
+
+  const oldSuffix = oldText.slice(indentLen)
+  const newSuffix = newText.slice(indentLen)
+
+  if (newSuffix.endsWith(oldSuffix) && newSuffix.length >= oldSuffix.length) {
+    const prefixLen = newSuffix.length - oldSuffix.length
+    return lineFrom + indentLen + prefixLen + (rel - indentLen)
+  }
+
+  if (oldSuffix.endsWith(newSuffix) && oldSuffix.length >= newSuffix.length) {
+    const removedLen = oldSuffix.length - newSuffix.length
+    const contentRel = rel - indentLen
+    if (contentRel < removedLen) {
+      return lineFrom + indentLen
+    }
+    return lineFrom + indentLen + (contentRel - removedLen)
+  }
+
+  return lineFrom + Math.min(newText.length, rel + (newText.length - oldText.length))
+}
+
+/** Map caret through heading line rewrites (hash depth changes) — keep offset in body; snap prefix clicks after `#… `. */
+function mapHeadingLevelCursor(lineFrom: number, oldLine: string, newLine: string, pos: number): number {
+  const rel = pos - lineFrom
+  if (rel < 0 || rel > oldLine.length) return pos
+
+  const wsOld = /^(\s*)/.exec(oldLine)?.[1] ?? ""
+  const wsNew = /^(\s*)/.exec(newLine)?.[1] ?? ""
+  if (wsOld !== wsNew) {
+    return lineFrom + Math.min(rel + (newLine.length - oldLine.length), newLine.length)
+  }
+
+  const wsLen = wsOld.length
+  if (rel < wsLen) {
+    return lineFrom + rel
+  }
+
+  const oldAfter = oldLine.slice(wsLen)
+  const newAfter = newLine.slice(wsLen)
+  const oldHashLen = /^#{1,6}\s*/.exec(oldAfter)?.[0]?.length ?? 0
+  const newHashLen = /^#{1,6}\s*/.exec(newAfter)?.[0]?.length ?? 0
+  const oldBodyStart = wsLen + oldHashLen
+  const newBodyStart = wsLen + newHashLen
+
+  if (rel <= oldBodyStart) {
+    return lineFrom + newBodyStart
+  }
+  return lineFrom + (rel - oldBodyStart) + newBodyStart
+}
+
+function mapCursorThroughOriginalLineChanges(
+  state: EditorState,
+  changes: { from: number; to: number; insert: string }[],
+  pos: number,
+  kind: "prefix" | "heading",
+): number {
+  const sorted = [...changes].sort((a, b) => a.from - b.from)
+  let cur = pos
+  let deltaSum = 0
+
+  for (const ch of sorted) {
+    const adjFrom = ch.from + deltaSum
+    const adjTo = ch.to + deltaSum
+    const diff = ch.insert.length - (ch.to - ch.from)
+
+    if (cur < adjFrom) {
+      deltaSum += diff
+      continue
+    }
+    if (cur > adjTo) {
+      cur += diff
+      deltaSum += diff
+      continue
+    }
+
+    const oldText = state.doc.sliceString(ch.from, ch.to)
+    cur =
+      kind === "prefix"
+        ? mapPosAcrossPrefixLineReplace(adjFrom, oldText, ch.insert, cur)
+        : mapHeadingLevelCursor(adjFrom, oldText, ch.insert, cur)
+    deltaSum += diff
+  }
+  return cur
+}
+
+function selectionAfterLineChanges(
+  state: EditorState,
+  changes: { from: number; to: number; insert: string }[],
+  main: { anchor: number; head: number },
+  kind: "prefix" | "heading",
+): EditorSelection {
+  const anchor = mapCursorThroughOriginalLineChanges(state, changes, main.anchor, kind)
+  const head = mapCursorThroughOriginalLineChanges(state, changes, main.head, kind)
+  return EditorSelection.create([EditorSelection.range(anchor, head)])
+}
+
 function toggleLinePrefix(
   view: EditorView,
   match: RegExp,
@@ -347,7 +458,8 @@ function toggleLinePrefix(
     }
     return { from: l.from, to: l.from + l.text.length, insert: add(l.text) }
   })
-  view.dispatch({ changes })
+  const selection = selectionAfterLineChanges(state, changes, main, "prefix")
+  view.dispatch({ changes, selection })
 }
 
 function toggleBlockquote(view: EditorView): void {
@@ -460,7 +572,8 @@ function setHeadingLevel(view: EditorView, level: number): void {
     const body = l.text.slice(ws.length).replace(/^#{1,6}\s+/, "")
     return { from: l.from, to: l.from + l.text.length, insert: `${ws}${hashes} ${body}` }
   })
-  view.dispatch({ changes })
+  const selection = selectionAfterLineChanges(state, changes, main, "heading")
+  view.dispatch({ changes, selection })
 }
 
 function toggleCodeBlockFence(view: EditorView): void {
@@ -589,9 +702,12 @@ export function dispatchEditorNativeCommand(view: EditorView | null, payload: Ed
       const main = state.selection.main
       const from = main.from
       const to = main.to
+      // First line is "\n| …" — place caret in the first header cell after "| "
+      const firstCellCursor =
+        inserted.startsWith("\n| ") && inserted.length >= 4 ? from + 3 : from + inserted.length
       view.dispatch({
         changes: { from, to, insert: inserted },
-        selection: EditorSelection.cursor(from + inserted.length),
+        selection: EditorSelection.cursor(firstCellCursor),
       })
       break
     }

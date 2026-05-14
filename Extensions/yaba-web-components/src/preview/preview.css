@@ -92,6 +92,11 @@
   background: color-mix(in srgb, var(--yaba-on-bg) 12%, transparent);
 }
 
+/* Sepia: ink mixes on reader paper (Darwin cream behind WKWebView); avoid cool grey from `--yaba-on-bg`. */
+:root[data-yaba-reader-theme="sepia"] .yaba-markdown-preview code:not(.yaba-syntax-highlighter-inner) {
+  background: color-mix(in srgb, var(--yaba-reader-on-bg) 14%, transparent);
+}
+
 .yaba-markdown-preview .katex-display {
   margin: 1em 0;
   max-width: 100%;

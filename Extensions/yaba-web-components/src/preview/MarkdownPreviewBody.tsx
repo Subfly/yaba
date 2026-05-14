@@ -18,6 +18,7 @@ import {
 } from "./preview-markdown-prepare"
 import { previewRehypeSanitizePlugin } from "./preview-sanitize"
 import { stripSecretHighlightColorMarks } from "./strip-secret-color-marks"
+import { YABA_READER_THEME_ATTR, type ReaderThemeName } from "@/theme/reader-document-vars"
 
 function normalizeClassName(className: unknown): string {
   if (className == null) return ""
@@ -61,6 +62,31 @@ function usePreviewPrismTheme(): PrismHighlightStyle {
   }, [])
 
   return scheme === "dark" ? oneDark : oneLight
+}
+
+function readDocumentReaderTheme(): ReaderThemeName {
+  const raw = document.documentElement.getAttribute(YABA_READER_THEME_ATTR)
+  if (raw === "dark" || raw === "light" || raw === "sepia" || raw === "system") return raw
+  return "system"
+}
+
+/** Tracks `applyReaderThemeCssVars` — Prism/code chrome need sepia-tinted surfaces (Darwin paper parity). */
+function useYabaReaderTheme(): ReaderThemeName {
+  const [theme, setTheme] = useState<ReaderThemeName>(() =>
+    typeof document === "undefined" ? "system" : readDocumentReaderTheme(),
+  )
+
+  useEffect(() => {
+    setTheme(readDocumentReaderTheme())
+    const observer = new MutationObserver(() => setTheme(readDocumentReaderTheme()))
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: [YABA_READER_THEME_ATTR],
+    })
+    return () => observer.disconnect()
+  }, [])
+
+  return theme
 }
 
 function linkLabel(children: ReactNode): string {
@@ -125,6 +151,7 @@ function buildMarkdownComponents(
   headingCounter: { current: number },
   prismTheme: PrismHighlightStyle,
   taskRegions: PreviewTaskToggleRegion[],
+  readerTheme: ReaderThemeName,
 ): Components {
   headingCounter.current = 0
   const nextHeadingId = (): string => {
@@ -138,6 +165,11 @@ function buildMarkdownComponents(
     padding: "0.6em 0.75em",
     borderRadius: 8,
     fontSize: "0.92em",
+    ...(readerTheme === "sepia"
+      ? {
+          background: "color-mix(in srgb, var(--yaba-reader-on-bg) 10%, var(--yaba-reader-bg))",
+        }
+      : {}),
   }
 
   const taskCheckboxIndex = { current: 0 }
@@ -292,11 +324,12 @@ export function MarkdownPreviewBody({ markdown }: { markdown: string }) {
   const headingCounter = useRef(0)
   headingCounter.current = 0
   const prismTheme = usePreviewPrismTheme()
+  const readerTheme = useYabaReaderTheme()
 
   const prepared = useMemo(() => prepareMarkdownForPreview(markdown ?? ""), [markdown])
   const components = useMemo(
-    () => buildMarkdownComponents(headingCounter, prismTheme, prepared.taskRegions),
-    [prismTheme, prepared.taskRegions],
+    () => buildMarkdownComponents(headingCounter, prismTheme, prepared.taskRegions, readerTheme),
+    [prismTheme, prepared.taskRegions, readerTheme],
   )
 
   const source = stripSecretHighlightColorMarks(prepared.markdown)
