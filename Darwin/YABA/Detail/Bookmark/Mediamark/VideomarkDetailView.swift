@@ -7,7 +7,6 @@
 
 import AVFoundation
 import SwiftUI
-import UIKit
 
 struct VideomarkDetailView: View {
     let bookmark: YabaBookmark

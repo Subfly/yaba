@@ -7,6 +7,9 @@
 
 import Foundation
 import WebKit
+#if targetEnvironment(macCatalyst)
+import UIKit
+#endif
 
 /// Owns a configured `WKWebView` for YABA web-component shells. Not tied to SwiftUI.
 /// Callbacks are delivered on the main queue.
@@ -45,6 +48,14 @@ public final class WKWebViewRuntime: NSObject {
             config.setURLSchemeHandler(assetHandler, forURLScheme: "yaba-asset")
         }
         config.userContentController.addUserScript(WKBridgeUserScript.nativeHostBridgeScript())
+        #if targetEnvironment(macCatalyst)
+        let catalystFlagScript = WKUserScript(
+            source: "window.__YABA_MAC_CATALYST__=true;",
+            injectionTime: .atDocumentStart,
+            forMainFrameOnly: true
+        )
+        config.userContentController.addUserScript(catalystFlagScript)
+        #endif
         config.userContentController.add(scriptBridge, name: NativeHostRouterDarwin.nativeHostScriptMessageName)
         config.preferences.setValue(true, forKey: "allowFileAccessFromFileURLs")
 
@@ -65,6 +76,13 @@ public final class WKWebViewRuntime: NSObject {
         scriptBridge.owner = self
         navProxy.owner = self
         uiProxy.owner = self
+
+        #if targetEnvironment(macCatalyst)
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            self.wireMacCatalystClipboardShortcutsIfNeeded(hostingWebView: self.webView)
+        }
+        #endif
 
         webView.navigationDelegate = navProxy
         webView.uiDelegate = uiProxy
@@ -147,6 +165,9 @@ public final class WKWebViewRuntime: NSObject {
         } else {
             return
         }
+        #if targetEnvironment(macCatalyst)
+        if handleCatalystClipboardMessageIfNeeded(body) { return }
+        #endif
         dispatchNativeHostJSON(body)
     }
 
@@ -390,6 +411,104 @@ private final class ScriptBridgeProxy: NSObject, WKScriptMessageHandler {
         }
     }
 }
+
+#if targetEnvironment(macCatalyst)
+
+extension WKWebViewRuntime {
+    @MainActor
+    fileprivate func wireMacCatalystClipboardShortcutsIfNeeded(hostingWebView wv: WKWebView) {
+        guard let accessory = wv as? YabaInputAccessoryWKWebView else { return }
+        accessory.catalystPerformCopy = { [weak self] in
+            guard let self else { return }
+            self.webView.evaluateJavaScript(
+                "window.__yabaTriggerNativeCopy&&window.__yabaTriggerNativeCopy()",
+                completionHandler: nil
+            )
+        }
+        accessory.catalystPerformPaste = { [weak self] in
+            guard let self else { return }
+            let text = Self.catalystPlainTextFromGeneralPasteboard()
+            self.deliverCatalystPasteToWeb(text)
+        }
+        accessory.catalystPerformCut = { [weak self] in
+            guard let self else { return }
+            self.webView.evaluateJavaScript(
+                "window.__yabaTriggerNativeCut&&window.__yabaTriggerNativeCut()",
+                completionHandler: nil
+            )
+        }
+    }
+
+    @MainActor
+    fileprivate func handleCatalystClipboardMessageIfNeeded(_ json: String) -> Bool {
+        guard let data = json.data(using: .utf8),
+              let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let type = root["type"] as? String,
+              type == "catalystClipboard",
+              let op = root["op"] as? String
+        else { return false }
+
+        switch op {
+        case "write":
+            let text = root["text"] as? String ?? ""
+            UIPasteboard.general.string = text
+            return true
+        case "readPaste":
+            let text = Self.catalystPlainTextFromGeneralPasteboard()
+            deliverCatalystPasteToWeb(text)
+            return true
+        default:
+            return false
+        }
+    }
+
+    /// `JSONSerialization` only accepts array/dictionary as the top-level object; `JSONEncoder` encodes `String`
+    /// as a JSON string literal (full Unicode + escapes), which is safe to splice into a JS argument list.
+    fileprivate func deliverCatalystPasteToWeb(_ text: String) {
+        guard let data = try? JSONEncoder().encode(text),
+              let encoded = String(data: data, encoding: .utf8)
+        else {
+            let js = "(function(t){if(window.__yabaDeliverNativePaste)window.__yabaDeliverNativePaste(t);})(\"\")"
+            webView.evaluateJavaScript(js, completionHandler: nil)
+            return
+        }
+        let js = "(function(t){if(window.__yabaDeliverNativePaste)window.__yabaDeliverNativePaste(t);})(\(encoded))"
+        webView.evaluateJavaScript(js, completionHandler: nil)
+    }
+
+    /// Best-effort plain text: `string` then common UTF-8 UTIs (rich paste often still exposes one of these).
+    private static func catalystPlainTextFromGeneralPasteboard() -> String {
+        let pb = UIPasteboard.general
+        if let s = pb.string { return s }
+
+        let utis = [
+            "public.utf8-plain-text",
+            "public.plain-text",
+            "public.text",
+            "NSStringPboardType",
+        ]
+        for uti in utis {
+            if let d = pb.data(forPasteboardType: uti), let s = String(data: d, encoding: .utf8) {
+                return s
+            }
+        }
+
+        for item in pb.items {
+            for (_, value) in item {
+                if let s = value as? String {
+                    return s
+                }
+                if let d = value as? Data, let s = String(data: d, encoding: .utf8) {
+                    return s
+                }
+            }
+        }
+
+        return ""
+    }
+}
+
+#endif
 
 #if os(iOS) || targetEnvironment(macCatalyst)
 

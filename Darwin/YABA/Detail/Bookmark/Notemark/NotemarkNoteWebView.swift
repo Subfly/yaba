@@ -84,6 +84,11 @@ struct NotemarkNoteWebView: UIViewRepresentable {
                 guard let self else { return }
                 self.isBridgeReady = true
                 self.parent.onRuntimeReady?(self.runtime)
+                #if targetEnvironment(macCatalyst)
+                DispatchQueue.main.async {
+                    _ = self.runtime.webView.becomeFirstResponder()
+                }
+                #endif
                 Task { @MainActor in
                     await self.applyNoteBridgeState(forceSurfaceMode: true)
                 }

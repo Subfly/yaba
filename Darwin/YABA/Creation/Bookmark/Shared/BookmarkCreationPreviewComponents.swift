@@ -4,7 +4,6 @@
 //
 
 import SwiftUI
-import UIKit
 
 enum BookmarkCreationPreviewAppearanceMapping {
     static func previewContentAppearance(

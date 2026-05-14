@@ -235,9 +235,14 @@ struct NotemarkDetailView: View {
     
     private var bookmark: YabaBookmark? { bookmarks.first }
     
-    /// Floating bottom chrome is iPhone-only; iPad and Mac Catalyst use the navigation toolbar title area.
+    /// Bottom floating editor chrome on iPhone and iPad. Mac Catalyst keeps controls in the navigation
+    /// title bar (``NotemarkEditorNavigationTitleToolbar``) for desktop-style window chrome.
     private var usesFloatingNotemarkEditorToolbar: Bool {
-        UIDevice.current.userInterfaceIdiom != .pad
+        #if targetEnvironment(macCatalyst)
+        false
+        #else
+        true
+        #endif
     }
     
     private var notemarkEditorChromeVisible: Bool {
@@ -269,7 +274,7 @@ struct NotemarkDetailView: View {
             lineHeight: machine.state.readerLineHeight
         )
         ZStack(alignment: .bottom) {
-            Color(uiColor: .systemBackground)
+            BookmarkDetailReaderChrome.readerSurfaceBackground(readerTheme: machine.state.readerTheme)
                 .ignoresSafeArea()
             
             NotemarkNoteWebView(
@@ -375,6 +380,45 @@ struct NotemarkDetailView: View {
         .toolbar {
             if showsBackButton {
                 BookmarkDetailPrimaryToolbarPieces.backDismissButton { dismiss() }
+            }
+            if !NotemarkReaderDetailLayout.isIPhone {
+                ToolbarItem(placement: .topBarTrailing) {
+                    ReaderToolbarThemeMenu(
+                        folderAccent: folderTint,
+                        readerTheme: machine.state.readerTheme,
+                        onSelectTheme: { theme in
+                            Task { await machine.send(.onSetReaderTheme(theme)) }
+                        },
+                        menuIconPadding: 6
+                    )
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    ReaderToolbarFontMenu(
+                        folderAccent: folderTint,
+                        readerFontSize: machine.state.readerFontSize,
+                        onSelectFontSize: { fontSize in
+                            Task { await machine.send(.onSetReaderFontSize(fontSize)) }
+                        },
+                        menuIconPadding: 6
+                    )
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    ReaderToolbarLineHeightMenu(
+                        folderAccent: folderTint,
+                        readerLineHeight: machine.state.readerLineHeight,
+                        onSelectLineHeight: { lineHeight in
+                            Task { await machine.send(.onSetReaderLineHeight(lineHeight)) }
+                        },
+                        menuIconPadding: 6
+                    )
+                }
+                BookmarkDetailPrimaryToolbarPieces.fixedTrailingToolbarSpacer()
+            }
+            if NotemarkReaderDetailLayout.isIPhone {
+                ToolbarItem(placement: .topBarTrailing) {
+                    notemarkReaderToolbarAppearanceRootMenu()
+                }
+                BookmarkDetailPrimaryToolbarPieces.fixedTrailingToolbarSpacer()
             }
             if !usesFloatingNotemarkEditorToolbar, notemarkEditorChromeVisible {
                 NotemarkEditorNavigationTitleToolbar.items(
@@ -611,6 +655,71 @@ struct NotemarkDetailView: View {
     }
     
     @ViewBuilder
+    private func notemarkReaderToolbarAppearanceRootMenu() -> some View {
+        Menu {
+            Menu {
+                ForEach(ReaderTheme.allCases, id: \.self) { t in
+                    Button {
+                        Task { await machine.send(.onSetReaderTheme(t)) }
+                    } label: {
+                        HStack {
+                            if machine.state.readerTheme == t {
+                                Image(systemName: "checkmark")
+                            }
+                            Text(t.getUITitle())
+                        }
+                    }
+                }
+            } label: {
+                BookmarkDetailOverflowRowLabel(
+                    title: "Markdown Preview Background Color Options Label",
+                    iconBundleKey: "paint-bucket"
+                )
+            }
+            Menu {
+                ForEach(ReaderFontSize.allCases, id: \.self) { f in
+                    Button {
+                        Task { await machine.send(.onSetReaderFontSize(f)) }
+                    } label: {
+                        HStack {
+                            if machine.state.readerFontSize == f {
+                                Image(systemName: "checkmark")
+                            }
+                            Text(f.getUITitle())
+                        }
+                    }
+                }
+            } label: {
+                BookmarkDetailOverflowRowLabel(
+                    title: "Markdown Preview Font Size Options Label",
+                    iconBundleKey: "text-font"
+                )
+            }
+            Menu {
+                ForEach(ReaderLineHeight.allCases, id: \.self) { lh in
+                    Button {
+                        Task { await machine.send(.onSetReaderLineHeight(lh)) }
+                    } label: {
+                        HStack {
+                            if machine.state.readerLineHeight == lh {
+                                Image(systemName: "checkmark")
+                            }
+                            Text(lh.getUITitle())
+                        }
+                    }
+                }
+            } label: {
+                BookmarkDetailOverflowRowLabel(
+                    title: "Markdown Preview Line Height Options Label",
+                    iconBundleKey: "paragraph-spacing"
+                )
+            }
+        } label: {
+            BookmarkDetailHomeToolbarGlyph(bundleKey: "settings-05")
+        }
+    }
+    
+    @ViewBuilder
     private func overflowMenu(for bm: YabaBookmark) -> some View {
         Menu {
             Button {
@@ -672,5 +781,17 @@ struct NotemarkDetailView: View {
         } label: {
             BookmarkDetailHomeToolbarGlyph(bundleKey: "more-horizontal-circle-02")
         }
+    }
+}
+
+// MARK: - Reader toolbar layout (parity with ``LinkmarkReaderDetailLayout``)
+
+private enum NotemarkReaderDetailLayout {
+    static var isIPhone: Bool {
+        #if os(iOS)
+        UIDevice.current.userInterfaceIdiom == .phone
+        #else
+        false
+        #endif
     }
 }

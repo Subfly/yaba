@@ -21,4 +21,8 @@ public enum NotemarkDetailEvent: Sendable {
     case saveDocument(bookmarkId: String, data: Data)
     case ensureReadableMirror(bookmarkId: String, document: String)
     case onDeleteNoteInlineAsset(bookmarkId: String, assetId: String)
+
+    case onSetReaderTheme(ReaderTheme)
+    case onSetReaderFontSize(ReaderFontSize)
+    case onSetReaderLineHeight(ReaderLineHeight)
 }

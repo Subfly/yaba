@@ -16,7 +16,7 @@
 	background: transparent;
 	letter-spacing: 0.01em;
 	tab-size: 2;
-	font-size: clamp(13px, calc(var(--yaba-reader-font-size, 16px) * 0.9), 16px);
+	font-size: max(13px, calc(var(--yaba-reader-font-size, 16px) * 0.95));
 }
 
 body[data-yaba-page="editor"] .yaba-editor-container[data-yaba-editor-root] {

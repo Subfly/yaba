@@ -76,6 +76,12 @@ public final class NotemarkDetailStateMachine: YabaBaseObservableState<NotemarkD
             )
         case let .onDeleteNoteInlineAsset(bookmarkId, assetId):
             NotemarkManager.queueDeleteNoteInlineAsset(bookmarkId: bookmarkId, assetId: assetId)
+        case let .onSetReaderTheme(t):
+            apply { $0.readerTheme = t }
+        case let .onSetReaderFontSize(s):
+            apply { $0.readerFontSize = s }
+        case let .onSetReaderLineHeight(l):
+            apply { $0.readerLineHeight = l }
         }
     }
 

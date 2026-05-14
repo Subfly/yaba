@@ -14,6 +14,7 @@ import {
   yabaDarkCodeHighlightStyle,
   yabaLightCodeHighlightStyle,
 } from "./yaba-code-highlight-styles"
+import { yabaMacCatalystClipboardBridge } from "./catalyst-clipboard-bridge"
 
 export interface YabaEditorExtensionCompartments {
   placeholder: Compartment
@@ -47,6 +48,7 @@ export function createYabaMarkdownExtensions(c: YabaEditorExtensionCompartments)
     syntaxHighlighting(yabaDarkCodeHighlightStyle),
     c.placeholder.of(placeholder("")),
     c.editable.of(EditorState.readOnly.of(false)),
+    yabaMacCatalystClipboardBridge(),
     EditorView.theme({
       "&": {
         height: "100%",

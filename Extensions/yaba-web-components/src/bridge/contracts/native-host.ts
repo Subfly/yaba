@@ -60,3 +60,9 @@ export type YabaNativeHostPayload =
       outputJson?: string
       error?: string
     }
+  /**
+   * Mac Catalyst only (`window.__YABA_MAC_CATALYST__`): CodeMirror + WKWebView clipboard bridge.
+   * Compose / iOS / Android hosts should ignore unknown `type` values without failing.
+   */
+  | { type: "catalystClipboard"; op: "write"; text: string }
+  | { type: "catalystClipboard"; op: "readPaste" }

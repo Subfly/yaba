@@ -28,6 +28,7 @@ import { postToYabaNativeHost } from "./yaba-native-host"
 import type { ReaderPreferences } from "./reader-preferences"
 import type { EditorCommandPayload } from "./editor-commands"
 import { dispatchEditorNativeCommand } from "./editor-native-dispatch"
+import { installYabaCatalystClipboardGlobals } from "@/editor-view/catalyst-clipboard-bridge"
 
 export type {
   ReaderFontSize,
@@ -239,6 +240,7 @@ export function initEditorBridge(
   options?: InitEditorBridgeOptions,
 ): void {
   editorSurface = surface
+  installYabaCatalystClipboardGlobals(() => editorSurface?.view ?? null)
   editorShellLoadNotified = false
   setNoteEditorAutosaveIdleEnabled(false)
   resetPublishedEditorHostState()
