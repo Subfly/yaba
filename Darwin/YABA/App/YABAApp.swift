@@ -36,6 +36,9 @@ struct YABAApp: App {
                 // .environment(\.networkSyncManager, networkSyncManager)
                 .preferredColorScheme(preferredTheme.getScheme())
                 .onAppear {
+                    #if targetEnvironment(macCatalyst)
+                    CatalystBookmarkWebViewPool.shared.prewarmBookmarkShellsAtLaunchIfNeeded()
+                    #endif
                     try? Tips.configure()
                     WidgetCenter.shared.reloadAllTimelines()
                 }

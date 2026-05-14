@@ -194,6 +194,12 @@ struct LinkmarkReadItLaterWebView: UIViewRepresentable {
         context.coordinator.update(parent: self)
     }
 
+    #if targetEnvironment(macCatalyst)
+    static func dismantleUIView(_ uiView: WKWebView, coordinator: Coordinator) {
+        coordinator.catalystTearDownForPool()
+    }
+    #endif
+
     final class Coordinator: NSObject {
         private(set) var parent: LinkmarkReadItLaterWebView
         fileprivate let schemeHandler: YabaInlineAssetSchemeHandler
@@ -202,19 +208,55 @@ struct LinkmarkReadItLaterWebView: UIViewRepresentable {
         private var isBridgeReady = false
         private var lastMarkdownApplied = ""
         private var lastPrefsFingerprint = ""
+        #if targetEnvironment(macCatalyst)
+        /// When false, pooled runtime checkout was unavailable — dismiss without returning to idle bucket.
+        private let catalystLoanedFromPool: Bool
+        private let catalystReuseWarmShellFingerprint: String?
+        private var catalystCommittedShellFingerprint = ""
+        private var catalystDidTearDown = false
+        #endif
 
         init(parent: LinkmarkReadItLaterWebView) {
             self.parent = parent
-            let handler = YabaInlineAssetSchemeHandler()
-            handler.updateAssets(parent.inlineAssets)
-            self.schemeHandler = handler
-            self.runtime = WKWebViewRuntime(
-                configuration: WebRuntimeConfiguration(
-                    websiteDataStore: .nonPersistent(),
-                    yabaAssetSchemeHandler: handler
+
+            #if targetEnvironment(macCatalyst)
+                /// Pool + WKWebKit are main-thread-bound; coordinators are created synchronously while SwiftUI is on the main thread.
+                let pooled = MainActor.assumeIsolated {
+                    let checkout = CatalystBookmarkWebViewPool.shared.checkoutReadItLaterRuntime()
+                    checkout.schemeHandler.updateAssets(parent.inlineAssets)
+                    let parentFpWarm = CatalystBookmarkWebViewPool.readItLaterShellFingerprint(
+                        appearance: parent.appearance,
+                        prefs: parent.readerPreferences
+                    )
+                    let reuseWarmShell =
+                        checkout.loanedFromPool
+                        && checkout.pooledShellFingerprint == parentFpWarm
+                        && checkout.runtime.isCombinedBridgeReady
+                    return (
+                        checkout.schemeHandler,
+                        checkout.runtime,
+                        checkout.loanedFromPool,
+                        reuseWarmShell ? parentFpWarm : nil as String?
+                    )
+                }
+                self.schemeHandler = pooled.0
+                self.runtime = pooled.1
+                self.catalystLoanedFromPool = pooled.2
+                self.catalystReuseWarmShellFingerprint = pooled.3
+            #else
+                let handler = YabaInlineAssetSchemeHandler()
+                handler.updateAssets(parent.inlineAssets)
+                self.schemeHandler = handler
+                self.runtime = WKWebViewRuntime(
+                    configuration: WebRuntimeConfiguration(
+                        websiteDataStore: .nonPersistent(),
+                        yabaAssetSchemeHandler: handler
+                    )
                 )
-            )
+            #endif
+
             super.init()
+
             runtime.onBridgeReady = { [weak self] in
                 guard let self else { return }
                 self.isBridgeReady = true
@@ -233,7 +275,55 @@ struct LinkmarkReadItLaterWebView: UIViewRepresentable {
             if #available(iOS 13.0, *) {
                 runtime.webView.scrollView.automaticallyAdjustsScrollIndicatorInsets = false
             }
+
+            #if targetEnvironment(macCatalyst)
+                if let wf = catalystReuseWarmShellFingerprint {
+                    hasLoadedShell = true
+                    isBridgeReady = true
+                    catalystCommittedShellFingerprint = wf
+                    parent.onRuntimeReady?(runtime)
+                    Task { @MainActor in
+                        await applyReaderBridgeStateAndNavigation()
+                    }
+                }
+            #endif
         }
+
+        #if targetEnvironment(macCatalyst)
+            fileprivate func catalystTearDownForPool() {
+                MainActor.assumeIsolated {
+                    guard !catalystDidTearDown else { return }
+                    catalystDidTearDown = true
+                    if catalystLoanedFromPool {
+                        let fp =
+                            catalystCommittedShellFingerprint.isEmpty
+                                ? CatalystBookmarkWebViewPool.readItLaterShellFingerprint(
+                                    appearance: parent.appearance,
+                                    prefs: parent.readerPreferences
+                                ) : catalystCommittedShellFingerprint
+                        CatalystBookmarkWebViewPool.shared.checkinReadItLaterLoanIfPooled(
+                            loanedFromPool: catalystLoanedFromPool,
+                            runtime: runtime,
+                            schemeHandler: schemeHandler,
+                            shellFingerprintWhenLoaded: fp
+                        )
+                    } else {
+                        runtime.clearHostCallbacks()
+                        runtime.webView.stopLoading()
+                        runtime.webView.removeFromSuperview()
+                    }
+                }
+            }
+
+            private static func catalystReadItLaterShellFingerprint(_ parent: LinkmarkReadItLaterWebView) -> String {
+                MainActor.assumeIsolated {
+                    CatalystBookmarkWebViewPool.readItLaterShellFingerprint(
+                        appearance: parent.appearance,
+                        prefs: parent.readerPreferences
+                    )
+                }
+            }
+        #endif
 
         @MainActor
         func update(parent: LinkmarkReadItLaterWebView) {
@@ -250,6 +340,9 @@ struct LinkmarkReadItLaterWebView: UIViewRepresentable {
         @MainActor
         private func loadShell() {
             hasLoadedShell = true
+            #if targetEnvironment(macCatalyst)
+                catalystCommittedShellFingerprint = Self.catalystReadItLaterShellFingerprint(parent)
+            #endif
             runtime.loadBundledShell(
                 for: .readItLater(
                     readerTheme: parent.readerPreferences.theme,

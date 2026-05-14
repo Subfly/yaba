@@ -39,6 +39,23 @@ public final class WKWebViewRuntime: NSObject {
     private var webPostedBridgeReadyForCycle = false
     private var emittedCombinedBridgeReadyForCycle = false
 
+    /// True once the bundled shell loaded and JS reported `bridgeReady` for this load cycle / until the next `loadBundledShell`.
+    public var isCombinedBridgeReady: Bool { emittedCombinedBridgeReadyForCycle }
+
+    /// Nil out native callbacks without tearing down WKWebKit (pool check-in path).
+    @MainActor
+    public func clearHostCallbacks() {
+        onHostEvent = nil
+        onBridgeReady = nil
+        onMathTap = nil
+        onInlineLinkTap = nil
+        onInlineMentionTap = nil
+        onHighlightColorMarkTap = nil
+        onPreviewHighlightMarkTap = nil
+        onPreviewTaskCheckboxTap = nil
+        onLoadProgress = nil
+    }
+
     public init(configuration: WebRuntimeConfiguration = WebRuntimeConfiguration()) {
         self.configuration = configuration
         let config = WKWebViewConfiguration()

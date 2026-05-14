@@ -57,6 +57,12 @@ struct NotemarkNoteWebView: UIViewRepresentable {
         context.coordinator.update(parent: self)
     }
 
+    #if targetEnvironment(macCatalyst)
+    static func dismantleUIView(_ uiView: NotemarkNoteWebContainerView, coordinator: Coordinator) {
+        coordinator.catalystTearDownForPool()
+    }
+    #endif
+
     final class Coordinator: NSObject {
         private(set) var parent: NotemarkNoteWebView
         fileprivate let schemeHandler: YabaInlineAssetSchemeHandler
@@ -67,27 +73,59 @@ struct NotemarkNoteWebView: UIViewRepresentable {
         private var lastPrefsFingerprint = ""
         private var lastSurfaceModeApplied: NotemarkDetailSurfaceMode?
 
+        #if targetEnvironment(macCatalyst)
+        private let catalystLoanedFromPool: Bool
+        private let catalystReuseWarmShellFingerprint: String?
+        private var catalystCommittedShellFingerprint = ""
+        private var catalystDidTearDown = false
+        #endif
+
         init(parent: NotemarkNoteWebView) {
             self.parent = parent
-            let handler = YabaInlineAssetSchemeHandler()
-            handler.updateAssets(parent.inlineAssets)
-            self.schemeHandler = handler
-            self.runtime = WKWebViewRuntime(
-                configuration: WebRuntimeConfiguration(
-                    websiteDataStore: .nonPersistent(),
-                    yabaAssetSchemeHandler: handler,
-                    usesInputAccessoryHostingWebView: true
+            #if targetEnvironment(macCatalyst)
+                let pooled = MainActor.assumeIsolated {
+                    let checkout = CatalystBookmarkWebViewPool.shared.checkoutNoteRuntime()
+                    checkout.schemeHandler.updateAssets(parent.inlineAssets)
+                    let parentFpWarm = CatalystBookmarkWebViewPool.noteShellFingerprint(
+                        appearance: parent.appearance,
+                        prefs: parent.readerPreferences
+                    )
+                    let reuseWarmShell =
+                        checkout.loanedFromPool
+                        && checkout.pooledShellFingerprint == parentFpWarm
+                        && checkout.runtime.isCombinedBridgeReady
+                    return (
+                        checkout.schemeHandler,
+                        checkout.runtime,
+                        checkout.loanedFromPool,
+                        reuseWarmShell ? parentFpWarm : nil as String?
+                    )
+                }
+                self.schemeHandler = pooled.0
+                self.runtime = pooled.1
+                self.catalystLoanedFromPool = pooled.2
+                self.catalystReuseWarmShellFingerprint = pooled.3
+            #else
+                let handler = YabaInlineAssetSchemeHandler()
+                handler.updateAssets(parent.inlineAssets)
+                self.schemeHandler = handler
+                self.runtime = WKWebViewRuntime(
+                    configuration: WebRuntimeConfiguration(
+                        websiteDataStore: .nonPersistent(),
+                        yabaAssetSchemeHandler: handler,
+                        usesInputAccessoryHostingWebView: true
+                    )
                 )
-            )
+            #endif
             super.init()
             runtime.onBridgeReady = { [weak self] in
                 guard let self else { return }
                 self.isBridgeReady = true
                 self.parent.onRuntimeReady?(self.runtime)
                 #if targetEnvironment(macCatalyst)
-                DispatchQueue.main.async {
-                    _ = self.runtime.webView.becomeFirstResponder()
-                }
+                    DispatchQueue.main.async {
+                        _ = self.runtime.webView.becomeFirstResponder()
+                    }
                 #endif
                 Task { @MainActor in
                     await self.applyNoteBridgeState(forceSurfaceMode: true)
@@ -122,7 +160,58 @@ struct NotemarkNoteWebView: UIViewRepresentable {
                 guard let self else { return }
                 self.parent.onPreviewTaskCheckboxTap?(ev)
             }
+
+            #if targetEnvironment(macCatalyst)
+                if let wf = catalystReuseWarmShellFingerprint {
+                    hasLoadedShell = true
+                    isBridgeReady = true
+                    catalystCommittedShellFingerprint = wf
+                    parent.onRuntimeReady?(runtime)
+                    DispatchQueue.main.async {
+                        _ = self.runtime.webView.becomeFirstResponder()
+                    }
+                    Task { @MainActor in
+                        await applyNoteBridgeState(forceSurfaceMode: true)
+                    }
+                }
+            #endif
         }
+
+        #if targetEnvironment(macCatalyst)
+            fileprivate func catalystTearDownForPool() {
+                MainActor.assumeIsolated {
+                    guard !catalystDidTearDown else { return }
+                    catalystDidTearDown = true
+                    if catalystLoanedFromPool {
+                        let fp =
+                            catalystCommittedShellFingerprint.isEmpty
+                                ? CatalystBookmarkWebViewPool.noteShellFingerprint(
+                                    appearance: parent.appearance,
+                                    prefs: parent.readerPreferences
+                                ) : catalystCommittedShellFingerprint
+                        CatalystBookmarkWebViewPool.shared.checkinNoteLoanIfPooled(
+                            loanedFromPool: catalystLoanedFromPool,
+                            runtime: runtime,
+                            schemeHandler: schemeHandler,
+                            shellFingerprintWhenLoaded: fp
+                        )
+                    } else {
+                        runtime.clearHostCallbacks()
+                        runtime.webView.stopLoading()
+                        runtime.webView.removeFromSuperview()
+                    }
+                }
+            }
+
+            private static func catalystNoteShellFingerprint(_ parent: NotemarkNoteWebView) -> String {
+                MainActor.assumeIsolated {
+                    CatalystBookmarkWebViewPool.noteShellFingerprint(
+                        appearance: parent.appearance,
+                        prefs: parent.readerPreferences
+                    )
+                }
+            }
+        #endif
 
         @MainActor
         func update(parent: NotemarkNoteWebView) {
@@ -130,6 +219,9 @@ struct NotemarkNoteWebView: UIViewRepresentable {
             schemeHandler.updateAssets(parent.inlineAssets)
             if !hasLoadedShell {
                 hasLoadedShell = true
+                #if targetEnvironment(macCatalyst)
+                    catalystCommittedShellFingerprint = Self.catalystNoteShellFingerprint(parent)
+                #endif
                 runtime.loadBundledShell(
                     for: .note(
                         initialMarkdown: "",
