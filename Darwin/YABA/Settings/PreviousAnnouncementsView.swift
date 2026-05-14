@@ -1,6 +1,3 @@
-// ARCHIVED: Previous implementation preserved below (not compiled). UI rebuild in progress.
-
-#if false
 //
 //  PreviousAnnouncementsView.swift
 //  YABA
@@ -13,10 +10,10 @@ import SwiftUI
 internal struct PreviousAnnouncementsView: View {
     @Environment(\.dismiss)
     private var dismiss
-    
+
     var body: some View {
         ZStack {
-            AnimatedGradient(collectionColor: .accentColor)
+            AnimatedGradient(color: .accentColor)
             List {
                 AnnouncementView(
                     titleKey: "Announcements Legals Update MIT Title",
@@ -149,5 +146,3 @@ internal struct PreviousAnnouncementsView: View {
 #Preview {
     PreviousAnnouncementsView()
 }
-
-#endif

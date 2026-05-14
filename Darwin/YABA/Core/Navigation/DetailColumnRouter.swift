@@ -64,4 +64,11 @@ final class DetailColumnRouter {
             splitSelectedBookmarkId = id
         }
     }
+
+    /// Clears navigation after all bookmarks/collections were removed (e.g. Settings delete all).
+    func clearNavigationAfterBulkDataDelete() {
+        splitSelectedBookmarkId = nil
+        splitMiddleContent = nil
+        navigationPath = NavigationPath()
+    }
 }

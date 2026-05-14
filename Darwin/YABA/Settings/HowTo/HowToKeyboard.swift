@@ -1,6 +1,3 @@
-// ARCHIVED: Previous implementation preserved below (not compiled). UI rebuild in progress.
-
-#if false
 //
 //  HowToKeyboard.swift
 //  YABA
@@ -13,7 +10,7 @@ import SwiftUI
 struct HowToKeyboard: View {
     var body: some View {
         ZStack {
-            AnimatedGradient(collectionColor: .teal)
+            AnimatedGradient(color: .teal)
             List {
                 if UIDevice.current.userInterfaceIdiom == .pad {
                     iPadKeyboard()
@@ -150,5 +147,3 @@ private struct iPhoneKeyboard: View {
 #Preview {
     HowToKeyboard()
 }
-
-#endif

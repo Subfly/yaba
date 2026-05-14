@@ -30,7 +30,6 @@ data class UserPreferences(
     val deviceName: String = "",
     val showRecents: Boolean = true,
     val showMenuBarItem: Boolean = true,
-    val useSimplifiedShare: Boolean = false,
     val preventDeletionSync: Boolean = false,
     val imageCompressionPercent: Int = 25,
     val announcementsYaba1_2Update: Boolean = true,

@@ -1,6 +1,3 @@
-// ARCHIVED: Previous implementation preserved below (not compiled). UI rebuild in progress.
-
-#if false
 //
 //  EventsLogView.swift
 //  YABA
@@ -9,21 +6,29 @@
 //
 
 import SwiftUI
-import SwiftData
 
+/// Developer event log UI. Legacy `YabaDataLog` / `YabaDataLogger` models were removed with the v2 parity schema;
+/// this screen is kept so Settings navigation compiles and can be wired to a new logger later.
 internal struct EventsLogView: View {
     @Environment(\.dismiss)
     private var dismiss
-    
-    @Query(sort: \YabaDataLog.timestamp, order: .reverse)
-    private var logs: [YabaDataLog]
-    
+
     var body: some View {
         ZStack {
-            AnimatedGradient(collectionColor: .accentColor)
+            AnimatedGradient(color: .accentColor)
             List {
-                ForEach(logs, id: \.id) { log in
-                    generateLogView(log)
+                Section {
+                    ContentUnavailableView {
+                        Label {
+                            Text("Settings Event Logs Label")
+                        } icon: {
+                            YabaIconView(bundleKey: "calendar-03")
+                                .scaledToFit()
+                                .frame(width: 40, height: 40)
+                        }
+                    } description: {
+                        Text(verbatim: "The current data model does not include a persisted change log. This list will show entries when logging is wired to the v2 schema.")
+                    }
                 }
             }
             #if !targetEnvironment(macCatalyst)
@@ -53,47 +58,4 @@ internal struct EventsLogView: View {
             }
         }
     }
-    
-    @ViewBuilder
-    private func generateLogView(_ log: YabaDataLog) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("\(log.entityType.rawValue) (\(log.entityId))")
-                .font(.headline)
-                .lineLimit(1)
-            HStack {
-                Text(log.timestamp.formatted(date: .abbreviated, time: .shortened))
-                    .font(.caption)
-                Spacer()
-                Text(log.actionType.rawValue.capitalized)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-            }
-            
-            if let fieldChanges = log.fieldChanges, !fieldChanges.isEmpty {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Changes:")
-                        .font(.subheadline)
-                        .bold()
-                    
-                    ForEach(fieldChanges, id: \.self) { change in
-                        generateChanges(change)
-                    }
-                }
-            }
-        }
-        .padding(.vertical, 6)
-    }
-    
-    @ViewBuilder
-    private func generateChanges(_ change: FieldChange) -> some View {
-        HStack(alignment: .top) {
-            Text("• \(change.key.rawValue):")
-                .bold()
-            Spacer()
-            Text(change.newValue ?? "")
-        }
-        .font(.caption)
-    }
 }
-
-#endif

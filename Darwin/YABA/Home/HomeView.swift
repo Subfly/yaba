@@ -23,11 +23,17 @@ struct HomeView: View {
     /// After creating a note from the bookmark FAB flow; invoked once the creation sheet begins dismiss.
     var onCreatedBookmarkNavigate: ((String) -> Void)? = nil
 
+    /// After Settings delete-all removes all data; clear navigation selection.
+    var onBulkDeleteCompleted: (() -> Void)? = nil
+
     @State
     private var homeState: HomeState = .init()
 
     @State
     private var homeStateMachine = HomeStateMachine()
+
+    @State
+    private var showSettingsSheet = false
 
     var body: some View {
         ZStack {
@@ -72,6 +78,9 @@ struct HomeView: View {
         .sheet(item: $homeState.bookmarkFlow) { context in
             BookmarkFlowSheet(context: context)
         }
+        .sheet(isPresented: $showSettingsSheet) {
+            SettingsView(onBulkDeleteCompleted: onBulkDeleteCompleted)
+        }
         .bookmarkCreateTwoStepSheets(
             typeSelection: $homeState.bookmarkTypeSelection,
             onCreatedBookmarkNavigate: onCreatedBookmarkNavigate
@@ -105,7 +114,7 @@ struct HomeView: View {
                 Menu {
                     SortingPicker(contentType: .collection)
                     Button {
-                        // TODO: SHOW SETTINGS SHEET
+                        showSettingsSheet = true
                     } label: {
                         Label {
                             Text("Settings Title")

@@ -64,7 +64,6 @@ enum Constants {
         static let deviceName = "deviceName"
         static let showRecents = "showRecents"
         static let showMenuBarItem = "showMenuBarItem"
-        static let useSimplifiedShare = "useSimplifiedShare"
         static let preventDeletionSync = "preventDeletionSync"
         /// 0...50: extra compression; effective UI quality = 100 - this (50...100). Default 25 => 75% quality.
         static let imageCompressionPercent = "imageCompressionPercent"
@@ -143,7 +142,6 @@ enum Constants {
     static let deviceNameKey = SettingsKeys.deviceName
     static let showRecentsKey = SettingsKeys.showRecents
     static let showMenuBarItem = SettingsKeys.showMenuBarItem
-    static let useSimplifiedShare = SettingsKeys.useSimplifiedShare
     static let preventDeletionSyncKey = SettingsKeys.preventDeletionSync
     static let imageCompressionPercentKey = SettingsKeys.imageCompressionPercent
 

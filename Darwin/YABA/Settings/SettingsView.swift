@@ -1,6 +1,3 @@
-// ARCHIVED: Previous implementation preserved below (not compiled). UI rebuild in progress.
-
-#if false
 //
 //  SettingsView.swift
 //  YABA
@@ -8,55 +5,39 @@
 //  Created by Ali Taha on 2.05.2025.
 //
 
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct SettingsView: View {
     @Environment(\.dismiss)
     private var dismiss
-    
+
     @Environment(\.modelContext)
     private var modelContext
-    
-    @Environment(\.appState)
-    private var appState
-    
+
+    /// Invoked after delete-all succeeds (e.g. clear split/compact navigation selection).
+    var onBulkDeleteCompleted: (() -> Void)?
+
     @AppStorage(Constants.preferredThemeKey)
     private var preferredTheme: ThemePreference = .system
-    
+
     @AppStorage(Constants.showRecentsKey)
     private var showRecents: Bool = true
-    
-    @AppStorage(Constants.showMenuBarItem)
-    private var showMenuBarItem: Bool = true
-    
-    // #if false
-    // @AppStorage(Constants.preventDeletionSyncKey)
-    // private var preventDeletionSync: Bool = false
-    // #endif
-    
+
     @AppStorage(Constants.disableBackgroundAnimationKey)
     private var disableBackgroundAnimation: Bool = false
-    
-    @AppStorage(
-        Constants.useSimplifiedShare,
-        store: UserDefaults(
-            suiteName: "group.dev.subfly.YABA"
-        )
-    )
-    private var useSimplifiedShare: Bool = false
-    
-    // Used by commented `syncSection` (device display name for sync).
-    // @AppStorage(Constants.deviceNameKey)
-    // private var deviceName: String = ""
-    
+
     @State
     private var settingsState = SettingsState()
-    
+
+    init(onBulkDeleteCompleted: (() -> Void)? = nil) {
+        self.onBulkDeleteCompleted = onBulkDeleteCompleted
+    }
+
     var body: some View {
         NavigationStack(path: $settingsState.settingsNavPath) {
             ZStack {
-                AnimatedGradient(collectionColor: .accentColor)
+                AnimatedGradient(color: .accentColor)
                 content
                     .toolbar {
                         ToolbarItem(placement: .confirmationAction) {
@@ -74,16 +55,18 @@ struct SettingsView: View {
             }
             .navigationDestination(for: SettingsNavigationDestination.self) { destination in
                 switch destination {
-                case .previousAnnouncements: PreviousAnnouncementsView()
+                case .previousAnnouncements:
+                    PreviousAnnouncementsView()
                         .navigationBarBackButtonHidden()
-                case .logs: EventsLogView()
+                case .logs:
+                    EventsLogView()
                         .navigationBarBackButtonHidden()
                 }
             }
         }
         .preferredColorScheme(preferredTheme.getScheme())
     }
-    
+
     @ViewBuilder
     private var content: some View {
         List {
@@ -91,7 +74,6 @@ struct SettingsView: View {
             appearanceSection
             keyboardSection
             announcementsSection
-            // syncSection
             dataSection
             aboutSection
             socialsSection
@@ -110,7 +92,7 @@ struct SettingsView: View {
             HowToGuideView()
         }
     }
-    
+
     @ViewBuilder
     private var themeAndLangaugeSection: some View {
         Section {
@@ -126,7 +108,7 @@ struct SettingsView: View {
             }
         }
     }
-    
+
     @ViewBuilder
     private var appearanceSection: some View {
         Section {
@@ -142,15 +124,6 @@ struct SettingsView: View {
                             .scaledToFit()
                             .frame(width: 24, height: 24)
                     }
-                }
-            }
-            Toggle(isOn: $useSimplifiedShare) {
-                Label {
-                    Text("Settings Simplified Share Sheet Title")
-                } icon: {
-                    YabaIconView(bundleKey: "relieved-02")
-                        .scaledToFit()
-                        .frame(width: 24, height: 24)
                 }
             }
             Toggle(isOn: $disableBackgroundAnimation) {
@@ -175,7 +148,7 @@ struct SettingsView: View {
             }
         }
     }
-    
+
     @ViewBuilder
     private var keyboardSection: some View {
         Section {
@@ -210,7 +183,7 @@ struct SettingsView: View {
             }
         }
     }
-    
+
     @ViewBuilder
     private var announcementsSection: some View {
         Section {
@@ -242,47 +215,7 @@ struct SettingsView: View {
             }
         }
     }
-    
-    // Sync / device-name-for-sync section disabled — full UI preserved below.
-    // #if false
-    // @ViewBuilder
-    // private var syncSection: some View {
-    //     Section {
-    //         HStack {
-    //             Label {
-    //                 Text("Settings Name Device Label")
-    //             } icon: {
-    //                 YabaIconView(bundleKey: DeviceType.current.symbolName)
-    //                     .scaledToFit()
-    //                     .frame(width: 24, height: 24)
-    //             }
-    //             TextField("", text: $deviceName)
-    //                 .multilineTextAlignment(.trailing)
-    //                 .frame(maxWidth: .infinity, alignment: .trailing)
-    //         }
-    //         Toggle(isOn: $preventDeletionSync) {
-    //             Label {
-    //                 Text("Settings Prevent Deletion Sync Label")
-    //             } icon: {
-    //                 YabaIconView(bundleKey: "folder-transfer")
-    //                     .scaledToFit()
-    //                     .frame(width: 24, height: 24)
-    //             }
-    //         }
-    //     } header: {
-    //         Label {
-    //             Text("Synchronization")
-    //         } icon: {
-    //             YabaIconView(bundleKey: "computer-phone-sync")
-    //                 .scaledToFit()
-    //                 .frame(width: 18, height: 18)
-    //         }
-    //     } footer: {
-    //         Text("Settings Prevent Deletion Sync Description")
-    //     }
-    // }
-    // #endif
-    
+
     @ViewBuilder
     private var dataSection: some View {
         Section {
@@ -297,7 +230,7 @@ struct SettingsView: View {
             }
         }
     }
-    
+
     @ViewBuilder
     private var socialsSection: some View {
         Section {
@@ -331,7 +264,7 @@ struct SettingsView: View {
             }
         }
     }
-    
+
     @ViewBuilder
     private var aboutSection: some View {
         Section {
@@ -383,7 +316,7 @@ struct SettingsView: View {
             }
         }
     }
-    
+
     @ViewBuilder
     private var thanksToSection: some View {
         Section {
@@ -418,7 +351,7 @@ struct SettingsView: View {
             .onTapGesture {
                 settingsState.shouldShowHugeIconsAlert = true
             }
-            
+
             HStack {
                 Label {
                     Text("Settings IconKitchen Title")
@@ -460,7 +393,7 @@ struct SettingsView: View {
             }
         }
     }
-    
+
     @ViewBuilder
     private var developerSection: some View {
         Section {
@@ -510,7 +443,7 @@ struct SettingsView: View {
             }
         }
     }
-    
+
     @ViewBuilder
     private var deleteAllButton: some View {
         HStack {
@@ -552,7 +485,7 @@ struct SettingsView: View {
                         using: modelContext,
                         onFinishCallback: {
                             withAnimation {
-                                appState.selectedBookmark = nil
+                                onBulkDeleteCompleted?()
                             }
                         }
                     )
@@ -565,7 +498,7 @@ struct SettingsView: View {
             }
         )
     }
-    
+
     @ViewBuilder
     private func generateLinkableItem(
         title: LocalizedStringKey,
@@ -598,5 +531,3 @@ struct SettingsView: View {
 #Preview {
     SettingsView()
 }
-
-#endif

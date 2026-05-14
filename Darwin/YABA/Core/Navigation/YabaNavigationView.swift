@@ -109,7 +109,8 @@ struct YabaNavigationView: View {
             onSelectFolder: { detailRouter.openFolder(id: $0, isCompact: shouldUseCompactNavigation) },
             onSelectTag: { detailRouter.openTag(id: $0, isCompact: shouldUseCompactNavigation) },
             onSelectBookmark: { detailRouter.openBookmark(id: $0, isCompact: shouldUseCompactNavigation) },
-            onCreatedBookmarkNavigate: { detailRouter.openBookmark(id: $0, isCompact: shouldUseCompactNavigation) }
+            onCreatedBookmarkNavigate: { detailRouter.openBookmark(id: $0, isCompact: shouldUseCompactNavigation) },
+            onBulkDeleteCompleted: { detailRouter.clearNavigationAfterBulkDataDelete() }
         )
     }
 

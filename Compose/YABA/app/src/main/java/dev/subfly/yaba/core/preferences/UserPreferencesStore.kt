@@ -97,9 +97,6 @@ internal constructor(
 
     suspend fun setShowMenuBarItem(value: Boolean) = update { it.copy(showMenuBarItem = value) }
 
-    suspend fun setUseSimplifiedShare(value: Boolean) =
-        update { it.copy(useSimplifiedShare = value) }
-
     suspend fun setPreventDeletionSync(value: Boolean) =
         update { it.copy(preventDeletionSync = value) }
 

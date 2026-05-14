@@ -21,17 +21,6 @@
       },
       "shouldTranslate" : false
     },
-    "%@ (%@)" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@ (%2$@)"
-          }
-        }
-      },
-      "shouldTranslate" : false
-    },
     "%lld" : {
       "shouldTranslate" : false
     },
@@ -128,9 +117,6 @@
           }
         }
       },
-      "shouldTranslate" : false
-    },
-    "• %@:" : {
       "shouldTranslate" : false
     },
     "+%lld" : {
@@ -5357,9 +5343,6 @@
           }
         }
       }
-    },
-    "Changes:" : {
-      "shouldTranslate" : false
     },
     "Collection" : {
       "comment" : "Collection",
@@ -42157,102 +42140,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "重置应用存储"
-          }
-        }
-      }
-    },
-    "Settings Simplified Share Sheet Title" : {
-      "comment" : "Title of using simplified share sheet for content creation",
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Einfache Erstellung beim Teilen verwenden"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Use Simplified Creation on Share"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Usar creación simplificada al compartir"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Utiliser la création simplifiée lors du partage"
-          }
-        },
-        "hi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "शेयर पर सरल निर्माण का उपयोग करें"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Usa creazione semplificata su Condivisione"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "簡易作成を共有に使用"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "간소화된 공유 생성 사용"
-          }
-        },
-        "nb" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bruk forenklet opprettelse ved deling"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vereenvoudigde creatie bij delen gebruiken"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Usar criação simplificada no compartilhamento"
-          }
-        },
-        "sk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Použiť zjednodušené vytváranie pri zdieľaní"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Använd förenklad delning för skapande"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Paylaşımda Basitleştirilmiş Oluşturmayı Kullan"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "使用简化分享创建"
           }
         }
       }

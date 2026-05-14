@@ -1,6 +1,3 @@
-// ARCHIVED: Previous implementation preserved below (not compiled). UI rebuild in progress.
-
-#if false
 //
 //  HowToTips.swift
 //  YABA
@@ -13,7 +10,7 @@ import SwiftUI
 struct HowToTips: View {
     var body: some View {
         ZStack {
-            AnimatedGradient(collectionColor: .green)
+            AnimatedGradient(color: .green)
             List {
                 if UIDevice.current.userInterfaceIdiom == .pad {
                     GeneralTips(width: 500)
@@ -79,5 +76,3 @@ private struct GeneralTips: View {
 #Preview {
     HowToTips()
 }
-
-#endif

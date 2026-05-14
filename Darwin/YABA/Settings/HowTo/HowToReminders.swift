@@ -1,6 +1,3 @@
-// ARCHIVED: Previous implementation preserved below (not compiled). UI rebuild in progress.
-
-#if false
 //
 //  HowToReminder.swift
 //  YABA
@@ -31,7 +28,7 @@ struct HowToReminders: View {
     
     var body: some View {
         ZStack {
-            AnimatedGradient(collectionColor: .yellow)
+            AnimatedGradient(color: .yellow)
             List {
                 if UIDevice.current.userInterfaceIdiom == .phone {
                     generateContent(width: 350)
@@ -78,5 +75,3 @@ struct HowToReminders: View {
 #Preview {
     HowToReminders()
 }
-
-#endif

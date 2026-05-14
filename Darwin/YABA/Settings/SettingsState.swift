@@ -1,6 +1,3 @@
-// ARCHIVED: Previous implementation preserved below (not compiled). UI rebuild in progress.
-
-#if false
 //
 //  SettingsState.swift
 //  YABA
@@ -8,8 +5,8 @@
 //  Created by Ali Taha on 23.05.2025.
 //
 
-import SwiftUI
 import SwiftData
+import SwiftUI
 import UserNotifications
 import WidgetKit
 
@@ -25,6 +22,8 @@ internal class SettingsState {
     var shouldShowGuideSheet: Bool = false
     var showDeleteAllDialog: Bool = false
     var isDeleting: Bool = false
+    var shouldShowHugeIconsAlert: Bool = false
+    var shouldShowIconKitchenAlert: Bool = false
 
     func deleteAllData(
         using modelContext: ModelContext,
@@ -40,20 +39,14 @@ internal class SettingsState {
             UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
             UNUserNotificationCenter.current().removeAllDeliveredNotifications()
 
-            try? YabaDataLogger.shared.logBulkDelete(shouldSave: false)
-
             try? modelContext.delete(model: YabaBookmark.self)
             try? await Task.sleep(for: .seconds(1))
 
-            let descriptor = FetchDescriptor<YabaCollection>(
-                predicate: #Predicate { _ in true }
-            )
-            if let collections = try? modelContext.fetch(descriptor) {
-                collections.forEach { collection in
-                    modelContext.delete(collection)
-                }
-                try? await Task.sleep(for: .seconds(1))
-            }
+            try? modelContext.delete(model: YabaFolder.self)
+            try? await Task.sleep(for: .seconds(1))
+
+            try? modelContext.delete(model: YabaTag.self)
+            try? await Task.sleep(for: .seconds(1))
 
             try? modelContext.save()
 
@@ -117,5 +110,3 @@ internal class SettingsState {
         deviceName = ""
     }
 }
-
-#endif

@@ -1,6 +1,3 @@
-// ARCHIVED: Previous implementation preserved below (not compiled). UI rebuild in progress.
-
-#if false
 //
 //  HowToGuideView.swift
 //  YABA
@@ -10,37 +7,28 @@
 
 import SwiftUI
 
-private enum HowToGuidePage {
-    case share, keyboard, widgets, sync, reminders, tips
-    
+private enum HowToGuidePage: Hashable {
+    case keyboard, reminders, tips
+
     func getTitle() -> LocalizedStringKey {
         switch self {
-        case .share: "How To Share Title"
         case .keyboard: "How To Keyboard Title"
-        case .widgets: "How To Widgets Title"
-        case .sync: "How To Sync Title"
         case .reminders: "How To Reminders Title"
         case .tips: "How To Tips Title"
         }
     }
-    
+
     func getUIIconName() -> String {
         switch self {
-        case .share: "share-03"
         case .keyboard: "keyboard"
-        case .widgets: "rectangular"
-        case .sync: "laptop-phone-sync"
         case .reminders: "notification-01"
         case .tips: "sparkles"
         }
     }
-    
+
     func getColor() -> Color {
         switch self {
-        case .share: .blue
         case .keyboard: .teal
-        case .widgets: .indigo
-        case .sync: .orange
         case .reminders: .yellow
         case .tips: .green
         }
@@ -50,21 +38,18 @@ private enum HowToGuidePage {
 struct HowToGuideView: View {
     @Environment(\.dismiss)
     private var dismiss
-    
+
     @State
     private var path: [HowToGuidePage] = []
-    
+
     var body: some View {
         NavigationStack(path: $path) {
             ZStack {
-                AnimatedGradient(collectionColor: .accentColor)
+                AnimatedGradient(color: .accentColor)
                 List {
                     generateHowToItem(for: .keyboard)
                     generateHowToItem(for: .reminders)
-                    generateHowToItem(for: .share)
-                    generateHowToItem(for: .sync)
                     generateHowToItem(for: .tips)
-                    generateHowToItem(for: .widgets)
                 }
                 #if !targetEnvironment(macCatalyst)
                 .listStyle(.sidebar)
@@ -84,10 +69,7 @@ struct HowToGuideView: View {
             }
             .navigationDestination(for: HowToGuidePage.self) { destination in
                 switch destination {
-                case .share: HowToShare()
                 case .keyboard: HowToKeyboard()
-                case .widgets: HowToWidgets()
-                case .sync: HowToSync()
                 case .reminders: HowToReminders()
                 case .tips: HowToTips()
                 }
@@ -98,7 +80,7 @@ struct HowToGuideView: View {
             #endif
         }
     }
-    
+
     @ViewBuilder
     private func generateHowToItem(for page: HowToGuidePage) -> some View {
         NavigationLink(value: page) {
@@ -116,5 +98,3 @@ struct HowToGuideView: View {
 #Preview {
     HowToGuideView()
 }
-
-#endif

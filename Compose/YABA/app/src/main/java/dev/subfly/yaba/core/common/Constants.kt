@@ -204,7 +204,6 @@ object CoreConstants {
         const val DEVICE_NAME = "deviceName"
         const val SHOW_RECENTS = "showRecents"
         const val SHOW_MENU_BAR_ITEM = "showMenuBarItem" // mac / catalyst only
-        const val USE_SIMPLIFIED_SHARE = "useSimplifiedShare" // share extension uses app-group
         const val PREVENT_DELETION_SYNC = "preventDeletionSync"
         /** 0..50: extra compression; effective UI quality = 100 - this (50..100). Default 25 => 75% quality. */
         const val IMAGE_COMPRESSION_PERCENT = "imageCompressionPercent"
