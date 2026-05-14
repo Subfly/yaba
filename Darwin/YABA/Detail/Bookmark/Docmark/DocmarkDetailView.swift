@@ -53,6 +53,9 @@ struct DocmarkDetailView: View {
     @State
     private var showEpubTocSheet = false
 
+    @State
+    private var csvPagingCoordinator = CSVDocmarkPagingCoordinator()
+
     init(
         bookmarkId: String,
         onOpenFolder: @escaping (String) -> Void = { _ in },
@@ -188,7 +191,8 @@ struct DocmarkDetailView: View {
                 CSVDocmarkDetailView(
                     bookmarkId: bm.bookmarkId,
                     csvBytes: bm.docDetail?.payload?.bytes ?? Data(),
-                    folderTint: folderTint
+                    folderTint: folderTint,
+                    pagingCoordinator: csvPagingCoordinator
                 )
             case .pdf:
                 PDFDocmarkDetailView(
@@ -261,6 +265,17 @@ struct DocmarkDetailView: View {
                 BookmarkDetailPrimaryToolbarPieces.fixedTrailingToolbarSpacer()
                 ToolbarItem(placement: .topBarTrailing) {
                     epubReaderToolbarAppearanceRootMenu()
+                }
+                BookmarkDetailPrimaryToolbarPieces.fixedTrailingToolbarSpacer()
+            }
+            if docType == .csv, csvPagingCoordinator.showsPageMenu {
+                ToolbarItem(placement: .topBarTrailing) {
+                    CSVDocmarkPageJumpMenu(
+                        folderAccent: folderTint,
+                        currentPage: csvPagingCoordinator.currentPage,
+                        totalPages: csvPagingCoordinator.totalPages,
+                        onSelectPage: csvPagingCoordinator.onSelectPage
+                    )
                 }
                 BookmarkDetailPrimaryToolbarPieces.fixedTrailingToolbarSpacer()
             }

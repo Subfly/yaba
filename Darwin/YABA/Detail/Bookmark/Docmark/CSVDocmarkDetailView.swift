@@ -72,6 +72,7 @@ struct CSVDocmarkDetailView: View {
     let bookmarkId: String
     let csvBytes: Data
     let folderTint: Color
+    var pagingCoordinator: CSVDocmarkPagingCoordinator
 
 #if os(iOS)
     @Environment(\.horizontalSizeClass)
@@ -112,26 +113,14 @@ struct CSVDocmarkDetailView: View {
     var body: some View {
         csvBody
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .safeAreaInset(edge: .bottom, spacing: 0) {
-                if phase == .ready, outline != nil {
-                    HStack {
-                        Spacer(minLength: 0)
-                        CSVDocmarkPaginationToolbar(
-                            folderAccent: folderTint,
-                            currentPage: currentPageDisplay,
-                            totalPages: outline?.totalPages ?? 1,
-                            onPrevious: { goPreviousPage() },
-                            onNext: { goNextPage() },
-                            onSelectPage: { selectPage(oneBased: $0) }
-                        )
-                        .allowsHitTesting(true)
-                        Spacer(minLength: 0)
-                    }
-                    .padding(.bottom, 8)
-                }
-            }
             .task(id: "\(bookmarkId)-\(csvBytes.count)") {
                 await load()
+            }
+            .onChange(of: phase) { _, _ in
+                syncPagingCoordinator()
+            }
+            .onChange(of: pageZero) { _, _ in
+                syncPagingCoordinator()
             }
     }
 
@@ -262,23 +251,6 @@ struct CSVDocmarkDetailView: View {
         }.buttonStyle(.plain)
     }
     
-    private var currentPageDisplay: Int {
-        min(max(1, pageZero + 1), max(1, outline?.totalPages ?? 1))
-    }
-
-    private func goPreviousPage() {
-        guard pageZero > 0 else { return }
-        pageZero -= 1
-        applyCurrentPageSlice()
-    }
-
-    private func goNextPage() {
-        guard let outline else { return }
-        guard pageZero + 1 < outline.totalPages else { return }
-        pageZero += 1
-        applyCurrentPageSlice()
-    }
-
     private func selectPage(oneBased: Int) {
         guard let outline else { return }
         let zero = max(0, min(oneBased - 1, outline.totalPages - 1))
@@ -286,17 +258,29 @@ struct CSVDocmarkDetailView: View {
         applyCurrentPageSlice()
     }
 
+    private func syncPagingCoordinator() {
+        pagingCoordinator.bind(
+            isReady: phase == .ready && outline != nil,
+            pageZero: pageZero,
+            totalPages: outline?.totalPages ?? 1,
+            onSelect: { selectPage(oneBased: $0) }
+        )
+    }
+
     private func load() async {
         outline = nil
         displayedRows = []
         pageZero = 0
+        syncPagingCoordinator()
 
         guard !csvBytes.isEmpty else {
             phase = .unavailable
+            syncPagingCoordinator()
             return
         }
         guard csvBytes.count <= Self.maxCsvBytes else {
             phase = .tooLarge
+            syncPagingCoordinator()
             return
         }
 
@@ -312,21 +296,25 @@ struct CSVDocmarkDetailView: View {
             boxedOutline = outline
         case .tooManyLogicalRows:
             phase = .tooManyRows
+            syncPagingCoordinator()
             return
         case .emptyOrUnparseable:
             phase = .unavailable
+            syncPagingCoordinator()
             return
         }
 
         let starter = boxedOutline.slice(pageZeroIndexed: 0)
         guard hasPrintable(starter) else {
             phase = .unavailable
+            syncPagingCoordinator()
             return
         }
 
         outline = boxedOutline
         displayedRows = starter
         phase = .ready
+        syncPagingCoordinator()
     }
 
     private func applyCurrentPageSlice() {
@@ -337,6 +325,7 @@ struct CSVDocmarkDetailView: View {
             pageZero = idx
         }
         displayedRows = outline.slice(pageZeroIndexed: idx)
+        syncPagingCoordinator()
     }
 
     private func copyCsvRowToClipboard(headerCells: [String], row: IndexedCSVRow, columnCount: Int) {

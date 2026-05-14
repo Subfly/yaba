@@ -2,68 +2,57 @@
 //  CSVDocmarkPaginationToolbar.swift
 //  YABA
 //
-//  Floating paging chrome — mirrors ``LinkmarkReaderFloatingToolbar`` / ``NotemarkEditorFloatingToolbar``.
+//  CSV page jump control for the navigation toolbar (replacing the former floating pager).
 //
 
+import Observation
 import SwiftUI
 
-struct CSVDocmarkPaginationToolbar: View {
+@Observable
+final class CSVDocmarkPagingCoordinator {
+    private(set) var showsPageMenu = false
+    private(set) var currentPage = 1
+    private(set) var totalPages = 1
+    var onSelectPage: (Int) -> Void = { _ in }
+
+    func bind(isReady: Bool, pageZero: Int, totalPages: Int, onSelect: @escaping (Int) -> Void) {
+        onSelectPage = onSelect
+        guard isReady else {
+            showsPageMenu = false
+            return
+        }
+        showsPageMenu = true
+        let last = Swift.max(1, totalPages)
+        self.totalPages = last
+        currentPage = Swift.min(Swift.max(1, pageZero + 1), last)
+    }
+}
+
+struct CSVDocmarkPageJumpMenu: View {
     let folderAccent: Color
     let currentPage: Int
     let totalPages: Int
-    let onPrevious: () -> Void
-    let onNext: () -> Void
     let onSelectPage: (Int) -> Void
 
     /// Cap building an enormous SwiftUI ``Menu``.
     private static let menuPageCap = 400
 
     var body: some View {
-        GlassEffectContainer(spacing: 18) {
-            controlsRow()
-        }
-        .bookmarkFloatingReaderGlassEffectInteractive()
-        .fixedSize(horizontal: true, vertical: false)
-    }
-
-    @ViewBuilder
-    private func controlsRow() -> some View {
         let last = Swift.max(totalPages, 1)
-        HStack(spacing: 6) {
-            Button {
-                onPrevious()
-            } label: {
-                BookmarkReaderFloatingToolbarGlyph.paginationNavTrigger(bundleKey: "previous", accent: folderAccent)
-            }
-            .buttonStyle(.plain)
-            .disabled(currentPage <= 1)
-
-            Menu {
-                jumpMenuContent(totalPages: last)
-            } label: {
-                Text("\(currentPage)")
-                    .font(.footnote.weight(.semibold))
-                    .monospacedDigit()
-                    .foregroundStyle(folderAccent)
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 10)
-                    .contentShape(Rectangle())
-            }
-
-            Button {
-                onNext()
-            } label: {
-                BookmarkReaderFloatingToolbarGlyph.paginationNavTrigger(bundleKey: "next", accent: folderAccent)
-            }
-            .buttonStyle(.plain)
-            .disabled(currentPage >= last)
+        Menu {
+            jumpMenuContent(totalPages: last)
+        } label: {
+            Text("\(currentPage)")
+                .font(.footnote.weight(.semibold))
+                .monospacedDigit()
+                .foregroundStyle(folderAccent)
+                .contentShape(.circle)
         }
     }
 
     @ViewBuilder
     private func jumpMenuContent(totalPages: Int) -> some View {
         if totalPages <= Self.menuPageCap {
-            // Menus tend to paint last-built items at the top — reverse so page 1 appears first when reading down.
             ForEach(Array((1 ... totalPages).reversed()), id: \.self) { page in
                 Button {
                     onSelectPage(page)
